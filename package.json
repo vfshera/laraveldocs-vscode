@@ -1,6 +1,6 @@
 {
-  "name": "vscode-svelte-template",
-  "displayName": "vscode-svelte-template",
+  "name": "laraveldocs",
+  "displayName": "laraveldocs",
   "description": "",
   "version": "0.0.1",
   "engines": {
@@ -10,35 +10,40 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:vscode-svelte-template.start",
-    "onView:ext-sidebar"
+    "onCommand:laraveldocs.start",
+    "onCommand:laraveldocs.refresh",
+    "onView:docs-list"
   ],
-  "main": "./out/extension.js",
+  "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "vscode-svelte-template.start",
-        "title": "Hello World",
-        "category": "Svelte VSCode"
+        "command": "laraveldocs.start",
+        "title": "Show Panel",
+        "category": "LaravelDocs"
+      },
+      {
+        "command": "laraveldocs.refresh",
+        "title": "Refresh",
+        "category": "LaravelDocs"
       }
     ],
     "viewsContainers": {
       "activitybar": [
         {
           "icon": "media/fingerprint.svg",
-          "id": "ext-sidebar-view",
-          "title": "Sidebar"
+          "id": "laraveldocs-sidebar",
+          "title": "Laravel Docs"
         }
       ]
     },
     "views": {
-      "ext-sidebar-view": [
+      "laraveldocs-sidebar": [
         {
-          "id": "ext-sidebar",
+          "id": "docs-list",
           "type": "webview",
-          "name": "Ext Sidebar",
-          "icon": "media/approval.svg",
-          "contextualTitle": "Ext Sidebar"
+          "name": "",
+          "icon": "media/approval.svg"
         }
       ]
     }

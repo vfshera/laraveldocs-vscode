@@ -1,9 +1,9 @@
 import * as vscode from "vscode";
+import { COMPILED_DIR, CSS_ASSET } from "./constants";
 import { getNonce } from "./Utils";
 
 export default class SidebarProvider implements vscode.WebviewViewProvider {
   _view?: vscode.WebviewView;
-  _doc?: vscode.TextDocument;
 
   constructor(private readonly _extensionUri: vscode.Uri) {}
 
@@ -45,17 +45,17 @@ export default class SidebarProvider implements vscode.WebviewViewProvider {
 
   private _getHtmlForWebview(webview: vscode.Webview) {
     const styleResetUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, "media", "reset.css")
+      vscode.Uri.joinPath(this._extensionUri, CSS_ASSET, "reset.css")
     );
     const styleVSCodeUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, "media", "vscode.css")
+      vscode.Uri.joinPath(this._extensionUri, CSS_ASSET, "vscode.css")
     );
 
     const scriptUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, "out", "compiled/sidebar.js")
+      vscode.Uri.joinPath(this._extensionUri, COMPILED_DIR, "sidebar.js")
     );
     const styleMainUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, "out", "compiled/sidebar.css")
+      vscode.Uri.joinPath(this._extensionUri, COMPILED_DIR, "sidebar.css")
     );
 
     // Use a nonce to only allow a specific script to be run.
@@ -77,6 +77,7 @@ export default class SidebarProvider implements vscode.WebviewViewProvider {
         
 			</head>
       <body>
+      
 				<script nonce="${nonce}" src="${scriptUri}"></script>
 			</body>
 			</html>`;

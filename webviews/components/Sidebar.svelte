@@ -1,10 +1,12 @@
 <script lang="ts">
-  const title = "Sidebar"
+  let number = 10
 </script>
-<h1>Welcome to the {title}</h1>
-<h2>This is  a Svelte Sidebar</h2>
+<main>
+  <h1>Laravel Docs</h1>
+  <hr>
+</main>
 <style>
   h1{
-    color: aqua;
+    color: orangered;
   }
 </style>

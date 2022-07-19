@@ -1,9 +1,9 @@
 import * as vscode from "vscode";
 import { getNonce } from "./Utils";
-import { EXT_AUTHOR, EXT_NAME } from "./constants";
+import { COMPILED_DIR, CSS_ASSET, EXT_AUTHOR, EXT_NAME } from "./constants";
 
 /**
- * Manages cat coding webview panels
+ * Manages  webview panels
  */
 export default class AppPanel {
   /**
@@ -134,16 +134,16 @@ export default class AppPanel {
     // Local path to main script run in the webview
     // And the uri we use to load this script in the webview
     const scriptUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, "ouc/compiled", "app.js")
+      vscode.Uri.joinPath(this._extensionUri, COMPILED_DIR, "app.js")
     );
 
     // Local path to css styles
     // Uri to load styles into webview
     const stylesResetUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, "media", "reset.css")
+      vscode.Uri.joinPath(this._extensionUri, CSS_ASSET, "reset.css")
     );
     const stylesMainUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, "media", "vscode.css")
+      vscode.Uri.joinPath(this._extensionUri, CSS_ASSET, "vscode.css")
     );
 
     // Use a nonce to only allow specific scripts to be run
