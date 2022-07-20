@@ -11,15 +11,34 @@ export function getNonce() {
   return text;
 }
 
-export function docs() {
-  const versions = fs.readdirSync(path.join(__dirname, "..", "assets/docs"));
 
-  return versions.map((ver) => {
+function getName(filename: string) {
+  return filename.charAt(0).toUpperCase() + filename.slice(1);
+}
+
+
+export function docs() {
+  /**
+   * Get Versions eg 8.x,9.x
+   */
+  const versionList: string[] = fs.readdirSync(
+    path.join(__dirname, "..", "assets/docs")
+  );
+
+  return versionList.map((ver) => {
+    /**
+     * Getting Files in each version folder
+     * [{ version: 9.x, files: [...list of .md filenames without extension ]}]
+     */
     return {
-      v: ver,
+      version: ver,
       files: fs
         .readdirSync(path.join(__dirname, "..", "assets/docs/", ver))
-        .map((f) => f.split(".")[0]),
+        .map((f) => ({
+          title: getName(f.split(".")[0]),
+          filename: f,
+          link: path.join(__dirname,, "..", "assets/docs/", ver,"/",f)
+        })),
     };
   });
 }
