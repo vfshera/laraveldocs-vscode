@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import AppPanel from "./AppPanel";
 import SidebarProvider from "./SidebarProvider";
+import { docs } from "./Utils";
 
 export function activate(context: vscode.ExtensionContext) {
   const sidebarProvider = new SidebarProvider(context.extensionUri);

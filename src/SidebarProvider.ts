@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
-import { COMPILED_DIR, CSS_ASSET } from "./constants";
-import { getNonce } from "./Utils";
+import { COMPILED_DIR, CSS_ASSET, DOCS_LIST } from "./constants";
+import { docs, getNonce } from "./Utils";
 
 export default class SidebarProvider implements vscode.WebviewViewProvider {
   _view?: vscode.WebviewView;
@@ -19,20 +19,29 @@ export default class SidebarProvider implements vscode.WebviewViewProvider {
 
     webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
-    webviewView.webview.onDidReceiveMessage(async (data) => {
-      switch (data.type) {
+    webviewView.webview.onDidReceiveMessage(async ({ command, value }) => {
+      console.log("Sidebar Received Message", command, value);
+
+      switch (command) {
+        case DOCS_LIST: {
+          this._view?.webview.postMessage({
+            type: DOCS_LIST,
+            value: docs(),
+          });
+          break;
+        }
         case "onInfo": {
-          if (!data.value) {
+          if (!value) {
             return;
           }
-          vscode.window.showInformationMessage(data.value);
+          vscode.window.showInformationMessage(value);
           break;
         }
         case "onError": {
-          if (!data.value) {
+          if (!value) {
             return;
           }
-          vscode.window.showErrorMessage(data.value);
+          vscode.window.showErrorMessage(value);
           break;
         }
       }
@@ -74,11 +83,14 @@ export default class SidebarProvider implements vscode.WebviewViewProvider {
 				<link href="${styleResetUri}" rel="stylesheet">
 				<link href="${styleVSCodeUri}" rel="stylesheet">
         <link href="${styleMainUri}" rel="stylesheet">
-        
+        <script nonce="${nonce}" >
+        const ldvscode = acquireVsCodeApi();
+        </script>
 			</head>
       <body>
       
 				<script nonce="${nonce}" src="${scriptUri}"></script>
+
 			</body>
 			</html>`;
   }
