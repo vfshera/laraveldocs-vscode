@@ -15,6 +15,10 @@ function getName(filename: string) {
   return filename.charAt(0).toUpperCase() + filename.slice(1);
 }
 
+export function getDocContents(pathToFile: string) {
+  return fs.readFileSync(pathToFile, { encoding: "utf-8" });
+}
+
 export function docs() {
   /**
    * Get Versions eg 8.x,9.x

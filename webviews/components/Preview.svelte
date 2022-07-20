@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import type { IDocFile } from "../types";
+  import type { IDocContents } from "../types";
 
-  let docFile: IDocFile;
+  let docFile: IDocContents;
 
   onMount(() => {
     window.addEventListener("message", (ev) => {
@@ -11,9 +11,8 @@
     ldvscode.postMessage({ command: "get-doc-path", value: "Get Doc Path!" });
   });
 
-  $: docHtml = marked.parse(
-    "# Marked in the browser\n\nRendered by **marked**."
-  );
+  $: fileContents = docFile?.contents;
+  $: docHtml = marked.parse(fileContents || "# Loading Docs...");
 </script>
 
 <main>

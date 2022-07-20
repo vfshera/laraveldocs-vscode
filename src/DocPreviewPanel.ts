@@ -1,11 +1,14 @@
 import * as vscode from "vscode";
-import { getNonce } from "./Utils";
+import { getDocContents, getNonce } from "./Utils";
 import { COMPILED_DIR, CSS_ASSET, DOC_LOCATION, EXT_NAME } from "./constants";
 
 interface IDocFile {
   title: string;
   filename: string;
   link: string;
+}
+interface IDocContents extends IDocFile {
+  contents: string;
 }
 /**
  * Manages  webview panels
@@ -102,9 +105,16 @@ export default class DocPreviewPanel {
       ({ command, value }) => {
         switch (command) {
           case "get-doc-path":
+            const _fullDoc: IDocContents = {
+              title: this._docFile.title,
+              link: this._docFile.link,
+              filename: this._docFile.filename,
+              contents: getDocContents(this._docFile.link),
+            };
+
             this._panel.webview.postMessage({
               type: DOC_LOCATION,
-              value: docFile,
+              value: _fullDoc,
             });
             vscode.window.showInformationMessage("Doc Path Sent!");
             return;

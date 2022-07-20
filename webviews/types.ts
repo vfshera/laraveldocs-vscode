@@ -11,3 +11,7 @@ export interface IDocFile {
   filename: string;
   link: string;
 }
+
+export interface IDocContents extends IDocFile {
+  contents: string;
+}
