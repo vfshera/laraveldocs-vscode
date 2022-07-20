@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
-import { COMPILED_DIR, CSS_ASSET, DOCS_LIST } from "./constants";
+import AppPanel from "./AppPanel";
+import { COMPILED_DIR, CSS_ASSET, DOCS_LIST, OPEN_DOC } from "./constants";
 import { docs, getNonce } from "./Utils";
 
 export default class SidebarProvider implements vscode.WebviewViewProvider {
@@ -20,9 +21,13 @@ export default class SidebarProvider implements vscode.WebviewViewProvider {
     webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
     webviewView.webview.onDidReceiveMessage(async ({ command, value }) => {
-      console.log("Sidebar Received Message", command, value);
-
       switch (command) {
+        case OPEN_DOC: {
+          vscode.window.showInformationMessage(value.title);
+
+          AppPanel.createOrShow(this._extensionUri, value);
+          break;
+        }
         case DOCS_LIST: {
           this._view?.webview.postMessage({
             type: DOCS_LIST,

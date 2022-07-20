@@ -11,11 +11,9 @@ export function getNonce() {
   return text;
 }
 
-
 function getName(filename: string) {
   return filename.charAt(0).toUpperCase() + filename.slice(1);
 }
-
 
 export function docs() {
   /**
@@ -37,7 +35,7 @@ export function docs() {
         .map((f) => ({
           title: getName(f.split(".")[0]),
           filename: f,
-          link: path.join(__dirname,, "..", "assets/docs/", ver,"/",f)
+          link: path.join(__dirname, "..", "assets/docs/", ver, "/", f),
         })),
     };
   });

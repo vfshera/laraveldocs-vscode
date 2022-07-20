@@ -25,7 +25,7 @@ export function activate(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(
     vscode.commands.registerCommand("laraveldocs.start", () => {
-      AppPanel.createOrShow(context.extensionUri);
+      vscode.window.showInformationMessage("Start Command!");
     })
   );
 }

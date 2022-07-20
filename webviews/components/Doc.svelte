@@ -1,16 +1,20 @@
 <script lang="ts">
-  import type { IDoc } from "../types";
+  import type { IDoc, IDocFile } from "../types";
   export let doc: IDoc;
+
+  function openDoc(file: IDocFile) {
+    ldvscode.postMessage({ command: "open-doc", value: file });
+  }
 </script>
 
 <div class="doc">
   <h1>Laravel {doc.version}</h1>
   <hr />
   <ul>
-    {#each doc.files as file}
-      <li class="doc-type">
+    {#each doc.files as docFile}
+      <li class="doc-type" on:click={() => openDoc(docFile)}>
         <span>#</span>
-        {file.title}
+        {docFile.title}
       </li>
     {/each}
   </ul>
