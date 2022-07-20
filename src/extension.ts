@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import AppPanel from "./AppPanel";
+import AppPanel from "./DocPreviewPanel";
 import SidebarProvider from "./SidebarProvider";
 import { docs } from "./Utils";
 

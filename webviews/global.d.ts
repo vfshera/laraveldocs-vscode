@@ -5,4 +5,6 @@ declare global {
   const ldvscode: {
     postMessage: (msg: IpostMessage) => void;
   };
+
+  const marked;
 }

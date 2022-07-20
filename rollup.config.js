@@ -37,7 +37,7 @@ export default fs
 
         resolve({
           browser: true,
-          dedupe: ["svelte"],
+          dedupe: ["svelte", "marked"],
         }),
         commonjs(),
         typescript({

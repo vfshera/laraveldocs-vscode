@@ -1,4 +1,4 @@
-export const EXT_NAME = "Laravel Docs";
+export const EXT_NAME = "LaravelDocs";
 
 export const COMPILED_DIR = "out/compiled";
 
@@ -14,3 +14,4 @@ export const JS_ASSET = "assets/js";
  */
 export const DOCS_LIST = "docs-list";
 export const OPEN_DOC = "open-doc";
+export const DOC_LOCATION = "doc-location";

@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import AppPanel from "./AppPanel";
+import DocPreviewPanel from "./DocPreviewPanel";
 import { COMPILED_DIR, CSS_ASSET, DOCS_LIST, OPEN_DOC } from "./constants";
 import { docs, getNonce } from "./Utils";
 
@@ -23,9 +23,7 @@ export default class SidebarProvider implements vscode.WebviewViewProvider {
     webviewView.webview.onDidReceiveMessage(async ({ command, value }) => {
       switch (command) {
         case OPEN_DOC: {
-          vscode.window.showInformationMessage(value.title);
-
-          AppPanel.createOrShow(this._extensionUri, value);
+          DocPreviewPanel.createOrShow(this._extensionUri, value);
           break;
         }
         case DOCS_LIST: {

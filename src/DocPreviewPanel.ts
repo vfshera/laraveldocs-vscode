@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { getNonce } from "./Utils";
-import { COMPILED_DIR, CSS_ASSET, EXT_NAME } from "./constants";
+import { COMPILED_DIR, CSS_ASSET, DOC_LOCATION, EXT_NAME } from "./constants";
 
 interface IDocFile {
   title: string;
@@ -10,11 +10,11 @@ interface IDocFile {
 /**
  * Manages  webview panels
  */
-export default class AppPanel {
+export default class DocPreviewPanel {
   /**
    * Track the currently panel. Only allow a single panel to exist at a time.
    */
-  public static currentPanel: AppPanel | undefined;
+  public static currentPanel: DocPreviewPanel | undefined;
 
   public static readonly viewType = "DocPanel";
 
@@ -30,13 +30,13 @@ export default class AppPanel {
       : undefined;
 
     // If we already have a panel, close it.
-    if (AppPanel.currentPanel) {
-      AppPanel.currentPanel._panel.dispose();
+    if (DocPreviewPanel.currentPanel) {
+      DocPreviewPanel.currentPanel._panel.dispose();
     }
 
     // Otherwise, create a new panel.
     const panel = vscode.window.createWebviewPanel(
-      AppPanel.viewType,
+      DocPreviewPanel.viewType,
       docFile.title,
       column || vscode.ViewColumn.One,
       {
@@ -45,13 +45,17 @@ export default class AppPanel {
 
         // And restrict the webview to only loading content from our extension's `media` directory.
         localResourceRoots: [
-          vscode.Uri.joinPath(extensionUri, "media"),
-          vscode.Uri.joinPath(extensionUri, "assets/docs"),
+          vscode.Uri.joinPath(extensionUri, "out"),
+          vscode.Uri.joinPath(extensionUri, "assets"),
         ],
       }
     );
 
-    AppPanel.currentPanel = new AppPanel(panel, extensionUri, docFile);
+    DocPreviewPanel.currentPanel = new DocPreviewPanel(
+      panel,
+      extensionUri,
+      docFile
+    );
   }
 
   public static revive(
@@ -59,7 +63,11 @@ export default class AppPanel {
     extensionUri: vscode.Uri,
     docFile: IDocFile
   ) {
-    AppPanel.currentPanel = new AppPanel(panel, extensionUri, docFile);
+    DocPreviewPanel.currentPanel = new DocPreviewPanel(
+      panel,
+      extensionUri,
+      docFile
+    );
   }
 
   private constructor(
@@ -91,10 +99,14 @@ export default class AppPanel {
 
     // Handle messages from the webview
     this._panel.webview.onDidReceiveMessage(
-      (message) => {
-        switch (message.command) {
-          case "alert":
-            vscode.window.showErrorMessage(message.text);
+      ({ command, value }) => {
+        switch (command) {
+          case "get-doc-path":
+            this._panel.webview.postMessage({
+              type: DOC_LOCATION,
+              value: docFile,
+            });
+            vscode.window.showInformationMessage("Doc Path Sent!");
             return;
         }
       },
@@ -104,7 +116,7 @@ export default class AppPanel {
   }
 
   public dispose() {
-    AppPanel.currentPanel = undefined;
+    DocPreviewPanel.currentPanel = undefined;
 
     // Clean up our resources
     this._panel.dispose();
@@ -125,30 +137,35 @@ export default class AppPanel {
     // Vary the webview's content based on where it is located in the editor.
     switch (this._panel.viewColumn) {
       case vscode.ViewColumn.Two:
-        this._updateAppPanel(webview);
+        this._updateDocPreviewPanel(webview);
         return;
 
       case vscode.ViewColumn.Three:
-        this._updateAppPanel(webview);
+        this._updateDocPreviewPanel(webview);
         return;
 
       case vscode.ViewColumn.One:
       default:
-        this._updateAppPanel(webview);
+        this._updateDocPreviewPanel(webview);
         return;
     }
   }
 
-  private _updateAppPanel(webview: vscode.Webview) {
-    this._panel.title = EXT_NAME + ":" + this._docFile.title;
+  private _updateDocPreviewPanel(webview: vscode.Webview) {
+    this._panel.title = EXT_NAME + " : " + this._docFile.title;
     this._panel.webview.html = this._getHtmlForWebview(webview);
   }
 
   private _getHtmlForWebview(webview: vscode.Webview) {
+    // Local path to markedjs script run in the webview
+    // And the uri we use to load this script in the webview
+    const markedScriptUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, "out/marked.js")
+    );
     // Local path to main script run in the webview
     // And the uri we use to load this script in the webview
     const scriptUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, COMPILED_DIR, "app.js")
+      vscode.Uri.joinPath(this._extensionUri, COMPILED_DIR, "preview.js")
     );
 
     // Local path to css styles
@@ -175,10 +192,14 @@ export default class AppPanel {
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 				<link href="${stylesResetUri}" rel="stylesheet">
 				<link href="${stylesMainUri}" rel="stylesheet">
+        <script nonce="${nonce}" >
+        const ldvscode = acquireVsCodeApi();
+        </script>
 				<title>Doc Panel</title>
 			</head>
 			<body>
 				
+      <script nonce="${nonce}" src="${markedScriptUri}"></script>
 				<script nonce="${nonce}" src="${scriptUri}"></script>
 			</body>
 			</html>`;
