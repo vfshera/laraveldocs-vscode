@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
-import AppPanel from "./AppPanel";
+import AppPanel from "./DocPreviewPanel";
 import SidebarProvider from "./SidebarProvider";
+import { docs } from "./Utils";
 
 export function activate(context: vscode.ExtensionContext) {
   const sidebarProvider = new SidebarProvider(context.extensionUri);
@@ -24,7 +25,7 @@ export function activate(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(
     vscode.commands.registerCommand("laraveldocs.start", () => {
-      AppPanel.createOrShow(context.extensionUri);
+      vscode.window.showInformationMessage("Start Command!");
     })
   );
 }

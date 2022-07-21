@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
-import { COMPILED_DIR, CSS_ASSET } from "./constants";
-import { getNonce } from "./Utils";
+import DocPreviewPanel from "./DocPreviewPanel";
+import { COMPILED_DIR, CSS_ASSET, DOCS_LIST, OPEN_DOC } from "./constants";
+import { docs, getNonce } from "./Utils";
 
 export default class SidebarProvider implements vscode.WebviewViewProvider {
   _view?: vscode.WebviewView;
@@ -19,20 +20,31 @@ export default class SidebarProvider implements vscode.WebviewViewProvider {
 
     webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
-    webviewView.webview.onDidReceiveMessage(async (data) => {
-      switch (data.type) {
+    webviewView.webview.onDidReceiveMessage(async ({ command, value }) => {
+      switch (command) {
+        case OPEN_DOC: {
+          DocPreviewPanel.createOrShow(this._extensionUri, value);
+          break;
+        }
+        case DOCS_LIST: {
+          this._view?.webview.postMessage({
+            type: DOCS_LIST,
+            value: docs(),
+          });
+          break;
+        }
         case "onInfo": {
-          if (!data.value) {
+          if (!value) {
             return;
           }
-          vscode.window.showInformationMessage(data.value);
+          vscode.window.showInformationMessage(value);
           break;
         }
         case "onError": {
-          if (!data.value) {
+          if (!value) {
             return;
           }
-          vscode.window.showErrorMessage(data.value);
+          vscode.window.showErrorMessage(value);
           break;
         }
       }
@@ -58,6 +70,10 @@ export default class SidebarProvider implements vscode.WebviewViewProvider {
       vscode.Uri.joinPath(this._extensionUri, COMPILED_DIR, "sidebar.css")
     );
 
+    const themeStylesUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, CSS_ASSET, "theme.css")
+    );
+
     // Use a nonce to only allow a specific script to be run.
     const nonce = getNonce();
 
@@ -74,11 +90,15 @@ export default class SidebarProvider implements vscode.WebviewViewProvider {
 				<link href="${styleResetUri}" rel="stylesheet">
 				<link href="${styleVSCodeUri}" rel="stylesheet">
         <link href="${styleMainUri}" rel="stylesheet">
-        
+        <link href="${themeStylesUri}" rel="stylesheet">
+        <script nonce="${nonce}" >
+        const ldvscode = acquireVsCodeApi();
+        </script>
 			</head>
       <body>
       
 				<script nonce="${nonce}" src="${scriptUri}"></script>
+
 			</body>
 			</html>`;
   }

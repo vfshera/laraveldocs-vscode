@@ -31,7 +31,7 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "icon": "media/fingerprint.svg",
+          "icon": "assets/images/laravel.svg",
           "id": "laraveldocs-sidebar",
           "title": "Laravel Docs"
         }
@@ -43,7 +43,7 @@
           "id": "docs-list",
           "type": "webview",
           "name": "",
-          "icon": "media/approval.svg"
+          "icon": "assets/images/laravel.svg"
         }
       ]
     }
@@ -87,5 +87,8 @@
     "typescript": "^4.4.4",
     "webpack": "^5.73.0",
     "webpack-cli": "^4.10.0"
+  },
+  "dependencies": {
+    "marked": "^4.0.18"
   }
 }

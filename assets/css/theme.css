@@ -1,0 +1,109 @@
+/*
+
+Theming for the laravel look
+
+*/
+
+body {
+  --dark: #171923;
+  --laravel: #f9322c;
+  --laravel-dim: #eb4432;
+  --laravel-light: #e7e8f2;
+  --offset: 15px;
+}
+
+a,
+a:hover {
+  color: var(--laravel-dim);
+}
+
+h1 {
+  color: white;
+}
+h1,
+h2,
+h3,
+h4 {
+  font-weight: 500;
+}
+h2 {
+  font-weight: 400;
+  margin-top: 2em;
+  margin-bottom: 0.75em;
+  color: white;
+}
+h2::before,
+h4::before,
+h3::before,
+ul li::before {
+  content: "#";
+  color: var(--laravel);
+  margin-right: 5px;
+}
+h2 a,
+h2 a:hover {
+  color: var(--laravel-light);
+}
+h3 {
+  font-size: 20px;
+  color: var(--laravel-light);
+}
+
+h4 {
+  font-size: 16px;
+}
+p {
+  font-size: 16px;
+  line-height: 26px;
+  margin-bottom: 24px;
+  padding-left: var(--offset);
+}
+p code {
+  color: var(--laravel-dim);
+  padding: 2px 5px;
+  border-radius: 5px;
+  background-color: #2b2b2d55;
+  font-size: 14px;
+}
+pre {
+  color: var(--laravel-dim);
+  padding: 10px 15px;
+  border-radius: 5px;
+  background-color: #5e5e7655;
+  margin-left: var(--offset);
+}
+ul li {
+  list-style: none;
+  font-weight: 500;
+  font-size: 16px;
+  color: white;
+}
+ul li ul li {
+  font-weight: 400;
+  color: var(--laravel-light);
+}
+ul li a {
+  color: white;
+}
+
+blockquote p {
+  padding: 10px;
+}
+
+table {
+  margin-left: var(--offset);
+  table-layout: fixed;
+  border: 1px solid var(--laravel-light);
+  border-collapse: collapse;
+}
+
+table th,
+table td {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid var(--laravel-light);
+}
+table td code {
+  color: var(--laravel-dim);
+  background-color: #2b2b2d55;
+}
