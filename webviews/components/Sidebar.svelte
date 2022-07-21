@@ -6,16 +6,26 @@
 
   onMount(() => {
     window.addEventListener("message", (ev) => {
-      docs = ev.data.value;
+      docs = ev.data.value.reverse();
     });
     ldvscode.postMessage({ command: "docs-list", value: "Sidebar Ready!" });
   });
+  let docIndex: number = 0;
+
+  function setIndex(index) {
+    docIndex = index;
+  }
+  $: docVersions = docs?.map((d) => d.version);
+  $: doc = docs.find((d) => d.version === docVersions[docIndex]) || {
+    version: "",
+    files: [],
+  };
 </script>
 
 <main>
-  {#each docs as doc}
-    <Doc {doc} />
-  {/each}
+  {#if typeof doc === "object"}
+    <Doc {doc} {docVersions} {setIndex} />
+  {/if}
 </main>
 
 <style>

@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { IDoc, IDocFile } from "../types";
   export let doc: IDoc;
+  export let docVersions: string[];
+  export let setIndex: (i: string) => void;
 
   function openDoc(file: IDocFile) {
     ldvscode.postMessage({ command: "open-doc", value: file });
@@ -8,7 +10,15 @@
 </script>
 
 <div class="doc">
-  <h1>Laravel {doc.version}</h1>
+  <header>
+    <h1>Laravel</h1>
+    <select name="doc-select" on:change={(e) => setIndex(e.target.value)}>
+      {#each docVersions as version, i}
+        <option value={i}>{version}</option>
+      {/each}
+    </select>
+  </header>
+
   <hr />
   <ul>
     {#each doc.files as docFile}
@@ -21,8 +31,20 @@
 </div>
 
 <style>
-  h1 {
+  header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  header h1 {
     color: orangered;
+  }
+  header select {
+    color: orangered;
+    background-color: transparent;
+    padding: 0 5px;
+    font-size: 22px;
+    outline: none;
   }
   .doc-type {
     list-style: none;
