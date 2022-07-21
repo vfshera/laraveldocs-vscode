@@ -12,7 +12,20 @@ export function getNonce() {
 }
 
 function getName(filename: string) {
-  return filename.charAt(0).toUpperCase() + filename.slice(1);
+  return filename
+    .trim()
+    .split("-")
+    .map((substr) => {
+      if (substr !== "-") {
+        substr = capitalizeFirst(substr);
+      }
+      return substr;
+    })
+    .join(" ");
+}
+
+function capitalizeFirst(word: string) {
+  return word.charAt(0).toUpperCase() + word.slice(1);
 }
 
 export function getDocContents(pathToFile: string) {
