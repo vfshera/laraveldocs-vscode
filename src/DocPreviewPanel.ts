@@ -223,6 +223,7 @@ export default class DocPreviewPanel {
 			<body>
 				
    
+      <script nonce="${nonce}" src="${highlightScriptUri}"></script>
       <script nonce="${nonce}" src="${markedScriptUri}"></script>
 				<script nonce="${nonce}" src="${scriptUri}"></script>
 			</body>
