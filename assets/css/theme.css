@@ -9,6 +9,7 @@ body {
   --laravel: #f9322c;
   --laravel-dim: #eb4432;
   --laravel-light: #e7e8f2;
+  --offset: 15px;
 }
 
 a,
@@ -55,7 +56,7 @@ p {
   font-size: 16px;
   line-height: 26px;
   margin-bottom: 24px;
-  padding-left: 15px;
+  padding-left: var(--offset);
 }
 p code {
   color: var(--laravel-dim);
@@ -69,7 +70,7 @@ pre {
   padding: 10px 15px;
   border-radius: 5px;
   background-color: #5e5e7655;
-  margin-left: 15px;
+  margin-left: var(--offset);
 }
 ul li {
   list-style: none;
@@ -87,4 +88,18 @@ ul li a {
 
 blockquote p {
   padding: 10px;
+}
+
+table {
+  margin-left: var(--offset);
+  table-layout: fixed;
+  border: 1px solid var(--laravel-light);
+  border-collapse: collapse;
+}
+
+table th,
+table td {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid var(--laravel-light);
 }
