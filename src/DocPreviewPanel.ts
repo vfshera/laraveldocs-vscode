@@ -197,6 +197,9 @@ export default class DocPreviewPanel {
     const themeStylesUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, CSS_ASSET, "theme.css")
     );
+    const highlightStylesUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, CSS_ASSET, "highlight.css")
+    );
 
     // Use a nonce to only allow specific scripts to be run
     const nonce = getNonce();
@@ -213,6 +216,7 @@ export default class DocPreviewPanel {
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 				<link href="${stylesResetUri}" rel="stylesheet">
 				<link href="${stylesMainUri}" rel="stylesheet">
+        <link href="${highlightStylesUri}" rel="stylesheet">
         <link href="${themeStylesUri}" rel="stylesheet">
         
         <script nonce="${nonce}" >

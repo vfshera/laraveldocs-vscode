@@ -103,3 +103,7 @@ table td {
   text-align: left;
   border: 1px solid var(--laravel-light);
 }
+table td code {
+  color: var(--laravel-dim);
+  background-color: #2b2b2d55;
+}

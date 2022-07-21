@@ -22,6 +22,7 @@ declare global {
   const hljs: {
     setOptions: (options: IHighlightOptions) => void;
     highlight;
+    highlightAll;
     getLanguage;
     parse: (markdownString: string,options?: IHighlightOptions,callback?: () => any)
   };
