@@ -70,6 +70,10 @@ export default class SidebarProvider implements vscode.WebviewViewProvider {
       vscode.Uri.joinPath(this._extensionUri, COMPILED_DIR, "sidebar.css")
     );
 
+    const themeStylesUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, CSS_ASSET, "theme.css")
+    );
+
     // Use a nonce to only allow a specific script to be run.
     const nonce = getNonce();
 
@@ -86,6 +90,7 @@ export default class SidebarProvider implements vscode.WebviewViewProvider {
 				<link href="${styleResetUri}" rel="stylesheet">
 				<link href="${styleVSCodeUri}" rel="stylesheet">
         <link href="${styleMainUri}" rel="stylesheet">
+        <link href="${themeStylesUri}" rel="stylesheet">
         <script nonce="${nonce}" >
         const ldvscode = acquireVsCodeApi();
         </script>

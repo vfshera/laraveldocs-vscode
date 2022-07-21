@@ -20,42 +20,46 @@
   </header>
 
   <hr />
-  <ul>
+  <div class="doc-topic">
     {#each doc.files as docFile}
-      <li class="doc-type" on:click={() => openDoc(docFile)}>
+      <div class="doc-type" on:click={() => openDoc(docFile)}>
         <span>#</span>
         {docFile.title}
-      </li>
+      </div>
     {/each}
-  </ul>
+  </div>
 </div>
 
 <style>
   header {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 5px;
   }
   header h1 {
-    color: orangered;
+    color: #f9322c;
   }
   header select {
-    color: orangered;
+    color: #f9322c;
     background-color: transparent;
-    padding: 0 5px;
-    font-size: 22px;
+    padding: 0;
+    font-size: 2em;
     outline: none;
+    border: none;
+    padding: 0 5px;
   }
   .doc-type {
     list-style: none;
     cursor: pointer;
+    padding: 5px;
+    font-size: 16px;
   }
   .doc-type span {
-    color: orangered;
+    color: #f9322c;
     font-weight: 100;
   }
   .doc-type:hover {
-    color: orangered;
+    color: #f9322c;
     background-color: #11111111;
   }
 

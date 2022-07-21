@@ -1,6 +1,12 @@
 import * as vscode from "vscode";
 import { getDocContents, getNonce } from "./Utils";
-import { COMPILED_DIR, CSS_ASSET, DOC_LOCATION, EXT_NAME } from "./constants";
+import {
+  COMPILED_DIR,
+  CSS_ASSET,
+  DOC_LOCATION,
+  EXT_NAME,
+  JS_ASSET,
+} from "./constants";
 
 interface IDocFile {
   title: string;
@@ -116,7 +122,6 @@ export default class DocPreviewPanel {
               type: DOC_LOCATION,
               value: _fullDoc,
             });
-            vscode.window.showInformationMessage("Doc Path Sent!");
             return;
         }
       },
@@ -169,8 +174,11 @@ export default class DocPreviewPanel {
   private _getHtmlForWebview(webview: vscode.Webview) {
     // Local path to markedjs script run in the webview
     // And the uri we use to load this script in the webview
+    const highlightScriptUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, JS_ASSET, "highlight.js")
+    );
     const markedScriptUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, "out/marked.js")
+      vscode.Uri.joinPath(this._extensionUri, JS_ASSET, "marked.js")
     );
     // Local path to main script run in the webview
     // And the uri we use to load this script in the webview
@@ -185,6 +193,9 @@ export default class DocPreviewPanel {
     );
     const stylesMainUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, CSS_ASSET, "vscode.css")
+    );
+    const themeStylesUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, CSS_ASSET, "theme.css")
     );
 
     // Use a nonce to only allow specific scripts to be run
@@ -202,6 +213,8 @@ export default class DocPreviewPanel {
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 				<link href="${stylesResetUri}" rel="stylesheet">
 				<link href="${stylesMainUri}" rel="stylesheet">
+        <link href="${themeStylesUri}" rel="stylesheet">
+        
         <script nonce="${nonce}" >
         const ldvscode = acquireVsCodeApi();
         </script>
@@ -209,6 +222,7 @@ export default class DocPreviewPanel {
 			</head>
 			<body>
 				
+   
       <script nonce="${nonce}" src="${markedScriptUri}"></script>
 				<script nonce="${nonce}" src="${scriptUri}"></script>
 			</body>
