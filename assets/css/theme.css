@@ -9,6 +9,8 @@ body {
   --laravel: #f9322c;
   --laravel-dim: #eb4432;
   --laravel-light: #e7e8f2;
+  --blade-values: #d9f5dd;
+  --blade-tag: #c792ea;
   --offset: 15px;
 }
 
@@ -106,4 +108,8 @@ table td {
 table td code {
   color: var(--laravel-dim);
   background-color: #2b2b2d55;
+}
+
+code.language-blade .hljs-template-tag {
+  color: var(--blade-tag);
 }

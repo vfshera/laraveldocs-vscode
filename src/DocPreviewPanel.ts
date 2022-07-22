@@ -172,22 +172,24 @@ export default class DocPreviewPanel {
   }
 
   private _getHtmlForWebview(webview: vscode.Webview) {
-    // Local path to markedjs script run in the webview
-    // And the uri we use to load this script in the webview
+    /**Scripts */
+    const domPurifyScriptUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, JS_ASSET, "dompurify.js")
+    );
     const highlightScriptUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, JS_ASSET, "highlight.js")
+    );
+    const bladeHighlightScriptUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, JS_ASSET, "blade.js")
     );
     const markedScriptUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, JS_ASSET, "marked.js")
     );
-    // Local path to main script run in the webview
-    // And the uri we use to load this script in the webview
     const scriptUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, COMPILED_DIR, "preview.js")
     );
 
-    // Local path to css styles
-    // Uri to load styles into webview
+    /**Styles */
     const stylesResetUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, CSS_ASSET, "reset.css")
     );
@@ -208,10 +210,6 @@ export default class DocPreviewPanel {
 			<html lang="en">
 			<head>
 				<meta charset="UTF-8">
-				<!--
-					Use a content security policy to only allow loading images from https or from our extension directory,
-					and only allow scripts that have a specific nonce.
-				-->
 				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; img-src ${webview.cspSource} https:; script-src 'nonce-${nonce}';">
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 				<link href="${stylesResetUri}" rel="stylesheet">
@@ -227,9 +225,11 @@ export default class DocPreviewPanel {
 			<body>
 				
    
+      <script nonce="${nonce}" src="${domPurifyScriptUri}"></script>
       <script nonce="${nonce}" src="${highlightScriptUri}"></script>
       <script nonce="${nonce}" src="${markedScriptUri}"></script>
-				<script nonce="${nonce}" src="${scriptUri}"></script>
+      <script nonce="${nonce}" src="${scriptUri}"></script>
+      <script nonce="${nonce}" src="${bladeHighlightScriptUri}"></script>
 			</body>
 			</html>`;
   }
