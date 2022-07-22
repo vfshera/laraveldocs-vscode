@@ -14,13 +14,14 @@
   marked.setOptions({
     highlight: (code, lang) => {
       const language = hljs.getLanguage(lang) ? lang : "php";
-
       return hljs.highlight(code, { language }).value;
     },
   });
 
   $: fileContents = docFile?.contents;
-  $: docHtml = marked.parse(fileContents || "# Loading Docs...");
+  $: docHtml = DOMPurify.sanitize(
+    marked.parse(fileContents || "# Loading Docs...")
+  );
 </script>
 
 <main>

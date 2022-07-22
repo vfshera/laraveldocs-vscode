@@ -9,6 +9,8 @@ body {
   --laravel: #f9322c;
   --laravel-dim: #eb4432;
   --laravel-light: #e7e8f2;
+  --blade-values: #d9f5dd;
+  --blade-tag: #c792ea;
   --offset: 15px;
 }
 
@@ -90,6 +92,10 @@ blockquote p {
   padding: 10px;
 }
 
+pre code {
+  color: #bfc7d5;
+}
+
 table {
   margin-left: var(--offset);
   table-layout: fixed;
@@ -106,4 +112,40 @@ table td {
 table td code {
   color: var(--laravel-dim);
   background-color: #2b2b2d55;
+}
+
+code.language-blade .hljs-template-tag {
+  color: var(--blade-tag);
+}
+
+code span.hjls-meta {
+  color: var(--laravel-dim);
+}
+code span.hljs-keyword {
+  color: var(--blade-tag);
+}
+code span.hljs-title {
+  color: #bfc7d5;
+}
+code span.hljs-title.class_ {
+  color: #ffcb8b;
+}
+
+code .hljs-class .hljs-keyword {
+}
+code .hljs-function {
+  color: #d9f5dd;
+}
+code .hljs-function .hljs-title {
+  color: #82aaff;
+}
+
+code .hljs-class .hljs-title {
+  color: #ffcb6b;
+}
+code .hljs-class .hljs-title:is(:last-child) {
+  color: #a9c77d;
+}
+code span.hljs-title.function_.invoke__ {
+  color: #82aaff;
 }
