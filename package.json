@@ -1,8 +1,20 @@
 {
+  "icon": "assets/images/icon.png",
   "name": "laraveldocs",
   "displayName": "Laravel Docs",
   "description": "Laravel Documentation",
-  "version": "0.0.1",
+  "publisher": "Franklin Shera",
+  "license": "",
+  "version": "0.1.0",
+  "repository": {
+    "url": "https://github.com/franklinshera/laraveldocs-vscode",
+    "type": "git"
+  },
+  "keywords": [
+    "laravel docs",
+    "laravel"
+  ],
+  "preview": true,
   "engines": {
     "vscode": "^1.69.0"
   },
@@ -10,24 +22,10 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:laraveldocs.start",
-    "onCommand:laraveldocs.refresh",
     "onView:docs-list"
   ],
   "main": "./dist/extension.js",
   "contributes": {
-    "commands": [
-      {
-        "command": "laraveldocs.start",
-        "title": "Show Panel",
-        "category": "LaravelDocs"
-      },
-      {
-        "command": "laraveldocs.refresh",
-        "title": "Refresh",
-        "category": "LaravelDocs"
-      }
-    ],
     "viewsContainers": {
       "activitybar": [
         {
@@ -87,9 +85,5 @@
     "typescript": "^4.4.4",
     "webpack": "^5.73.0",
     "webpack-cli": "^4.10.0"
-  },
-  "dependencies": {
-    "highlight.js": "^11.6.0",
-    "marked": "^4.0.18"
   }
 }
