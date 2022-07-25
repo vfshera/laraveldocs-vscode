@@ -6,6 +6,7 @@ import {
   DOC_LOCATION,
   EXT_NAME,
   JS_ASSET,
+  IMAGE_ASSET,
 } from "./constants";
 
 interface IDocFile {
@@ -52,7 +53,7 @@ export default class DocPreviewPanel {
         // Enable javascript in the webview
         enableScripts: true,
 
-        // And restrict the webview to only loading content from our extension's `media` directory.
+        // And restrict the webview to only loading content from our extension's `out & assets` directory.
         localResourceRoots: [
           vscode.Uri.joinPath(extensionUri, "out"),
           vscode.Uri.joinPath(extensionUri, "assets"),
@@ -148,7 +149,11 @@ export default class DocPreviewPanel {
     const webview = this._panel.webview;
 
     this._panel.title = EXT_NAME + ":" + this._docFile.title;
-
+    this._panel.iconPath = vscode.Uri.joinPath(
+      this._extensionUri,
+      IMAGE_ASSET,
+      "laravel.svg"
+    );
     // Vary the webview's content based on where it is located in the editor.
     switch (this._panel.viewColumn) {
       case vscode.ViewColumn.Two:
@@ -210,7 +215,7 @@ export default class DocPreviewPanel {
 			<html lang="en">
 			<head>
 				<meta charset="UTF-8">
-				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; img-src ${webview.cspSource} https:; script-src 'nonce-${nonce}';">
+				<meta http-equiv="Content-Security-Policy" content="default-src 'self' ; style-src ${webview.cspSource}; img-src ${webview.cspSource} https:; script-src 'nonce-${nonce}';">
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 				<link href="${stylesResetUri}" rel="stylesheet">
 				<link href="${stylesMainUri}" rel="stylesheet">
