@@ -9,14 +9,8 @@ import {
   IMAGE_ASSET,
 } from "./constants";
 
-interface IDocFile {
-  title: string;
-  filename: string;
-  link: string;
-}
-interface IDocContents extends IDocFile {
-  contents: string;
-}
+import type { IDocFile, IDocContents } from "./interfaces";
+
 /**
  * Manages  webview panels
  */
