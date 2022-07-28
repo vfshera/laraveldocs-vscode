@@ -90,7 +90,6 @@ export default class SidebarProvider implements vscode.WebviewViewProvider {
 				<link href="${styleResetUri}" rel="stylesheet">
 				<link href="${styleVSCodeUri}" rel="stylesheet">
         <link href="${styleMainUri}" rel="stylesheet">
-        <link href="${themeStylesUri}" rel="stylesheet">
         <script nonce="${nonce}" >
         const ldvscode = acquireVsCodeApi();
         </script>

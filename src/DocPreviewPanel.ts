@@ -194,7 +194,7 @@ export default class DocPreviewPanel {
     const stylesResetUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, CSS_ASSET, "reset.css")
     );
-    const stylesMainUri = webview.asWebviewUri(
+    const stylesVscodeUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, CSS_ASSET, "vscode.css")
     );
     const themeStylesUri = webview.asWebviewUri(
@@ -202,6 +202,9 @@ export default class DocPreviewPanel {
     );
     const highlightStylesUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, CSS_ASSET, "highlight.css")
+    );
+    const stylesMainUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, COMPILED_DIR, "preview.css")
     );
 
     // Use a nonce to only allow specific scripts to be run
@@ -211,12 +214,13 @@ export default class DocPreviewPanel {
 			<html lang="en">
 			<head>
 				<meta charset="UTF-8">
-				<meta http-equiv="Content-Security-Policy" content="connect-src file://* ; style-src ${webview.cspSource}; img-src ${webview.cspSource} https:; script-src 'nonce-${nonce}';">
+				<meta http-equiv="Content-Security-Policy" content="style-src ${webview.cspSource}; img-src  ${webview.cspSource} https:; script-src 'nonce-${nonce}';">
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 				<link href="${stylesResetUri}" rel="stylesheet">
-				<link href="${stylesMainUri}" rel="stylesheet">
         <link href="${highlightStylesUri}" rel="stylesheet">
         <link href="${themeStylesUri}" rel="stylesheet">
+				<link href="${stylesVscodeUri}" rel="stylesheet">
+				<link href="${stylesMainUri}" rel="stylesheet">
         
         <script nonce="${nonce}" >
         const ldvscode = acquireVsCodeApi();
