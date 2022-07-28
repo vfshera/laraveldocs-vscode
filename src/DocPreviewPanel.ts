@@ -6,16 +6,13 @@ import {
   DOC_LOCATION,
   EXT_NAME,
   JS_ASSET,
+  IMAGE_ASSET,
+  EXT_ICON,
+  ASSETS_DIR,
 } from "./constants";
 
-interface IDocFile {
-  title: string;
-  filename: string;
-  link: string;
-}
-interface IDocContents extends IDocFile {
-  contents: string;
-}
+import type { IDocFile, IDocContents } from "./interfaces";
+
 /**
  * Manages  webview panels
  */
@@ -52,10 +49,10 @@ export default class DocPreviewPanel {
         // Enable javascript in the webview
         enableScripts: true,
 
-        // And restrict the webview to only loading content from our extension's `media` directory.
+        // And restrict the webview to only loading content from our extension's `out & assets` directory.
         localResourceRoots: [
-          vscode.Uri.joinPath(extensionUri, "out"),
-          vscode.Uri.joinPath(extensionUri, "assets"),
+          vscode.Uri.joinPath(extensionUri, COMPILED_DIR),
+          vscode.Uri.joinPath(extensionUri, ASSETS_DIR),
         ],
       }
     );
@@ -148,7 +145,11 @@ export default class DocPreviewPanel {
     const webview = this._panel.webview;
 
     this._panel.title = EXT_NAME + ":" + this._docFile.title;
-
+    this._panel.iconPath = vscode.Uri.joinPath(
+      this._extensionUri,
+      IMAGE_ASSET,
+      EXT_ICON
+    );
     // Vary the webview's content based on where it is located in the editor.
     switch (this._panel.viewColumn) {
       case vscode.ViewColumn.Two:
@@ -193,7 +194,7 @@ export default class DocPreviewPanel {
     const stylesResetUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, CSS_ASSET, "reset.css")
     );
-    const stylesMainUri = webview.asWebviewUri(
+    const stylesVscodeUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, CSS_ASSET, "vscode.css")
     );
     const themeStylesUri = webview.asWebviewUri(
@@ -201,6 +202,9 @@ export default class DocPreviewPanel {
     );
     const highlightStylesUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, CSS_ASSET, "highlight.css")
+    );
+    const stylesMainUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, COMPILED_DIR, "preview.css")
     );
 
     // Use a nonce to only allow specific scripts to be run
@@ -210,12 +214,13 @@ export default class DocPreviewPanel {
 			<html lang="en">
 			<head>
 				<meta charset="UTF-8">
-				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; img-src ${webview.cspSource} https:; script-src 'nonce-${nonce}';">
+				<meta http-equiv="Content-Security-Policy" content="style-src ${webview.cspSource}; img-src  ${webview.cspSource} https:; script-src 'nonce-${nonce}';">
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 				<link href="${stylesResetUri}" rel="stylesheet">
-				<link href="${stylesMainUri}" rel="stylesheet">
         <link href="${highlightStylesUri}" rel="stylesheet">
         <link href="${themeStylesUri}" rel="stylesheet">
+				<link href="${stylesVscodeUri}" rel="stylesheet">
+				<link href="${stylesMainUri}" rel="stylesheet">
         
         <script nonce="${nonce}" >
         const ldvscode = acquireVsCodeApi();

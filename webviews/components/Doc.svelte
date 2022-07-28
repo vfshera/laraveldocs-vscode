@@ -12,7 +12,10 @@
 <div class="doc">
   <header>
     <h1>Laravel</h1>
-    <select name="doc-select" on:change={(e) => setIndex(e.target.value)}>
+    <select
+      name="doc-select"
+      on:change={({ target: { value } }) => setIndex(value)}
+    >
       {#each docVersions as version, i}
         <option value={i}>{version}</option>
       {/each}

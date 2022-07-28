@@ -1,1 +1,3 @@
-# svelte-vscode-extension
+# Laravel Docs Vs Code Extension
+
+Get Docs in your vscode

@@ -12,7 +12,7 @@
   });
   let docIndex: number = 0;
 
-  function setIndex(index) {
+  function setIndex(index: number) {
     docIndex = index;
   }
   $: docVersions = docs?.map((d) => d.version);

@@ -119,7 +119,7 @@ code.language-blade .hljs-template-tag {
 }
 
 code span.hjls-meta {
-  color: var(--laravel-dim);
+  color: var(--laravel-dim) !important;
 }
 code span.hljs-keyword {
   color: var(--blade-tag);
