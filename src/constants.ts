@@ -1,13 +1,18 @@
 export const EXT_NAME = "LaravelDocs";
+export const EXT_ICON = "laravel.svg";
 
-export const COMPILED_DIR = "out/compiled";
+/**
+ * FOLDERS
+ */
+export const COMPILED_DIR = "dist/compiled";
+export const ASSETS_DIR = "assets";
 
 /**
  * ASSETS
  */
-export const CSS_ASSET = "assets/css";
-export const IMAGE_ASSET = "assets/images";
-export const JS_ASSET = "assets/js";
+export const CSS_ASSET = ASSETS_DIR + "/css";
+export const IMAGE_ASSET = ASSETS_DIR + "/images";
+export const JS_ASSET = ASSETS_DIR + "/js";
 
 /**
  * MESSAGE COMMANDS
