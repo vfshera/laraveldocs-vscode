@@ -2,6 +2,8 @@
 
 Get Docs right in your vscode
 
+![Preview](preview.gif)
+
 ---
 
 ## Features

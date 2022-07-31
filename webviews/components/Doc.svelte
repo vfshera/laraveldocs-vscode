@@ -41,12 +41,22 @@
   }
   header h1 {
     color: #f9322c;
+    font-size: 24px;
   }
   header select {
     color: #f9322c;
     background-color: transparent;
     padding: 0;
-    font-size: 2em;
+    font-size: 1.9rem;
+    outline: none;
+    border: none;
+    padding: 0 5px;
+  }
+  header select option {
+    color: #f9322c;
+    background-color: inherit;
+    padding: 0;
+    font-size: 1.5rem;
     outline: none;
     border: none;
     padding: 0 5px;
