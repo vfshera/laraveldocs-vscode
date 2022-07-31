@@ -1,3 +1,3 @@
-# Laravel Docs Vs Code Extension
+# Laravel Docs VSCode Extension
 
 Get Docs in your vscode

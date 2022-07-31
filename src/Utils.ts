@@ -49,10 +49,10 @@ export function docs() {
       version: ver,
       files: fs
         .readdirSync(path.join(__dirname, "..", "assets/docs/", ver))
-        .map((f) => ({
-          title: getName(f.split(".")[0]),
-          filename: f,
-          link: path.join(__dirname, "..", "assets/docs/", ver, "/", f),
+        .map((fileName) => ({
+          title: getName(fileName.split(".")[0]),
+          filename: fileName,
+          link: path.join(__dirname, "..", "assets/docs/", ver, "/", fileName),
         })),
     };
   });

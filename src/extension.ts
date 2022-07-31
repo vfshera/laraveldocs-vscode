@@ -7,8 +7,6 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider("docs-list", sidebarProvider)
   );
-
- 
 }
 
 export function deactivate() {}

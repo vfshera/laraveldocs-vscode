@@ -8,6 +8,7 @@
     - [Timeout](#timeout)
     - [Retries](#retries)
     - [Error Handling](#error-handling)
+    - [Guzzle Middleware](#guzzle-middleware)
     - [Guzzle Options](#guzzle-options)
 - [Concurrent Requests](#concurrent-requests)
 - [Macros](#macros)
@@ -236,6 +237,9 @@ If you have a response instance and would like to throw an instance of `Illumina
 
     // Throw an exception if an error occurred and the given condition is true...
     $response->throwIf($condition);
+    
+    // Throw an exception if an error occurred and the given condition is false...
+    $response->throwUnless($condition);
 
     return $response['user']['id'];
 
@@ -250,6 +254,35 @@ If you would like to perform some additional logic before the exception is throw
     return Http::post(/* ... */)->throw(function ($response, $e) {
         //
     })->json();
+
+<a name="guzzle-middleware"></a>
+### Guzzle Middleware
+
+Since Laravel's HTTP client is powered by Guzzle, you may take advantage of [Guzzle Middleware](https://docs.guzzlephp.org/en/stable/handlers-and-middleware.html) to manipulate the outgoing request or inspect the incoming response. To manipulate the outgoing request, register a Guzzle middleware via the `withMiddleware` method in combination with Guzzle's `mapRequest` middleware factory:
+
+    use GuzzleHttp\Middleware;
+    use Illuminate\Support\Facades\Http;
+    use Psr\Http\Message\RequestInterface;
+
+    $response = Http::withMiddleware(
+        Middleware::mapRequest(function (RequestInterface $request) {
+            $request->withHeader('X-Example', 'Value');
+        })
+    ->get('http://example.com');
+
+Likewise, you can inspect the incoming HTTP response by registering a middleware via the `withMiddleware` method in combination with Guzzle's `mapResponse` middleware factory:
+
+    use GuzzleHttp\Middleware;
+    use Illuminate\Support\Facades\Http;
+    use Psr\Http\Message\ResponseInterface;
+
+    $response = Http::withMiddleware(
+        Middleware::mapResponse(function (ResponseInterface $response) {
+            $header = $response->getHeader('X-Example');
+
+            // ...
+        })
+    )->get('http://example.com');
 
 <a name="guzzle-options"></a>
 ### Guzzle Options

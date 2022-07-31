@@ -13,13 +13,7 @@ import {
 
 import type { IDocFile, IDocContents } from "./interfaces";
 
-/**
- * Manages  webview panels
- */
 export default class DocPreviewPanel {
-  /**
-   * Track the currently panel. Only allow a single panel to exist at a time.
-   */
   public static currentPanel: DocPreviewPanel | undefined;
 
   public static readonly viewType = "DocPanel";
@@ -35,21 +29,16 @@ export default class DocPreviewPanel {
       ? vscode.window.activeTextEditor.viewColumn
       : undefined;
 
-    // If we already have a panel, close it.
     if (DocPreviewPanel.currentPanel) {
       DocPreviewPanel.currentPanel._panel.dispose();
     }
 
-    // Otherwise, create a new panel.
     const panel = vscode.window.createWebviewPanel(
       DocPreviewPanel.viewType,
       docFile.title,
       column || vscode.ViewColumn.One,
       {
-        // Enable javascript in the webview
         enableScripts: true,
-
-        // And restrict the webview to only loading content from our extension's `out & assets` directory.
         localResourceRoots: [
           vscode.Uri.joinPath(extensionUri, COMPILED_DIR),
           vscode.Uri.joinPath(extensionUri, ASSETS_DIR),
@@ -85,14 +74,10 @@ export default class DocPreviewPanel {
     this._extensionUri = extensionUri;
     this._docFile = docFile;
 
-    // Set the webview's initial html content
     this._update();
 
-    // Listen for when the panel is disposed
-    // This happens when the user closes the panel or when the panel is closed programmatically
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
 
-    // Update the content based on view changes
     this._panel.onDidChangeViewState(
       (e) => {
         if (this._panel.visible) {
@@ -103,7 +88,6 @@ export default class DocPreviewPanel {
       this._disposables
     );
 
-    // Handle messages from the webview
     this._panel.webview.onDidReceiveMessage(
       ({ command, value }) => {
         switch (command) {
@@ -130,7 +114,6 @@ export default class DocPreviewPanel {
   public dispose() {
     DocPreviewPanel.currentPanel = undefined;
 
-    // Clean up our resources
     this._panel.dispose();
 
     while (this._disposables.length) {
@@ -150,7 +133,7 @@ export default class DocPreviewPanel {
       IMAGE_ASSET,
       EXT_ICON
     );
-    // Vary the webview's content based on where it is located in the editor.
+
     switch (this._panel.viewColumn) {
       case vscode.ViewColumn.Two:
         this._updateDocPreviewPanel(webview);
@@ -207,7 +190,6 @@ export default class DocPreviewPanel {
       vscode.Uri.joinPath(this._extensionUri, COMPILED_DIR, "preview.css")
     );
 
-    // Use a nonce to only allow specific scripts to be run
     const nonce = getNonce();
 
     return `<!DOCTYPE html>
@@ -227,8 +209,7 @@ export default class DocPreviewPanel {
         </script>
 				<title>Doc Panel</title>
 			</head>
-			<body>
-				
+			<body>		
    
       <script nonce="${nonce}" src="${domPurifyScriptUri}"></script>
       <script nonce="${nonce}" src="${highlightScriptUri}"></script>
