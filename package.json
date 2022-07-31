@@ -1,11 +1,13 @@
 {
   "icon": "assets/images/icon.png",
-  "name": "laraveldocs",
-  "displayName": "Laravel Docs",
-  "description": "Laravel Documentation",
+  "name": "vscodelaraveldocs",
+  "displayName": "Laravel Documentation",
+  "description": "Laravel Documentation on Visual Studio Code",
   "publisher": "Franklin Shera",
   "license": "",
-  "version": "0.1.0",
+  "version": "0.1.2",
+  "homepage": "https://github.com/franklinshera/laraveldocs-vscode",
+  "bugs": "https://github.com/franklinshera/laraveldocs-vscode/issues",
   "repository": {
     "url": "https://github.com/franklinshera/laraveldocs-vscode",
     "type": "git"
@@ -31,7 +33,7 @@
         {
           "icon": "assets/images/laravel.svg",
           "id": "laraveldocs-sidebar",
-          "title": "Laravel Docs"
+          "title": "Laravel Documentation"
         }
       ]
     },
