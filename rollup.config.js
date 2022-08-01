@@ -20,15 +20,12 @@ export default fs
         sourcemap: true,
         format: "iife",
         name: "app",
-        file: "dist/compiled/" + name + ".js",
+        file: "out/compiled/" + name + ".js",
       },
       plugins: [
         svelte({
           compilerOptions: {
-            // enable run-time checks when not in production
             dev: !production,
-            // we'll extract any component CSS out into
-            // a separate file - better for performance
             css: true,
           },
           preprocess: sveltePreprocess(),

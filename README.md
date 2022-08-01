@@ -2,7 +2,7 @@
 
 Get Docs right in your vscode
 
-![Preview](preview.gif)
+![Preview](/assets/images/preview.gif)
 
 ---
 
