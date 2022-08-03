@@ -4,7 +4,7 @@ export const EXT_ICON = "laravel.svg";
 /**
  * FOLDERS
  */
-export const COMPILED_DIR = "dist/compiled";
+export const COMPILED_DIR = "out/compiled";
 export const ASSETS_DIR = "assets";
 
 /**
