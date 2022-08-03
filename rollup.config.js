@@ -7,7 +7,6 @@ import sveltePreprocess from "svelte-preprocess";
 import typescript from "@rollup/plugin-typescript";
 import path from "path";
 import fs from "fs";
-
 const production = !process.env.ROLLUP_WATCH;
 
 export default fs
@@ -26,7 +25,6 @@ export default fs
         svelte({
           compilerOptions: {
             dev: !production,
-            css: true,
           },
           preprocess: sveltePreprocess(),
         }),
