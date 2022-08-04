@@ -6,6 +6,7 @@ export const EXT_ICON = "laravel.svg";
  */
 export const COMPILED_DIR = "out/compiled";
 export const ASSETS_DIR = "assets";
+export const DOCS_DIR = ASSETS_DIR + "/docs";
 
 /**
  * ASSETS
