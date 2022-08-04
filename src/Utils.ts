@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import path = require("path");
+import { DOCS_DIR } from "./constants";
 
 export function getNonce() {
   let text = "";
@@ -37,7 +38,7 @@ export function docs() {
    * Get Versions eg 8.x,9.x
    */
   const versionList: string[] = fs.readdirSync(
-    path.join(__dirname, "..", "assets/docs")
+    path.join(__dirname, "..", DOCS_DIR)
   );
 
   return versionList.map((ver) => {
