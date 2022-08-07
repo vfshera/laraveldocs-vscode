@@ -12,9 +12,7 @@ export default class SidebarProvider implements vscode.WebviewViewProvider {
     this._view = webviewView;
 
     webviewView.webview.options = {
-      // Allow scripts in the webview
       enableScripts: true,
-
       localResourceRoots: [
         vscode.Uri.joinPath(this._extensionUri, CSS_ASSET),
         vscode.Uri.joinPath(this._extensionUri, COMPILED_DIR),

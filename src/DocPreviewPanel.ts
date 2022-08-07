@@ -128,30 +128,12 @@ export default class DocPreviewPanel {
     const webview = this._panel.webview;
 
     this._panel.title = EXT_NAME + ":" + this._docFile.title;
+
     this._panel.iconPath = vscode.Uri.joinPath(
       this._extensionUri,
       IMAGE_ASSET,
       EXT_ICON
     );
-
-    switch (this._panel.viewColumn) {
-      case vscode.ViewColumn.Two:
-        this._updateDocPreviewPanel(webview);
-        return;
-
-      case vscode.ViewColumn.Three:
-        this._updateDocPreviewPanel(webview);
-        return;
-
-      case vscode.ViewColumn.One:
-      default:
-        this._updateDocPreviewPanel(webview);
-        return;
-    }
-  }
-
-  private _updateDocPreviewPanel(webview: vscode.Webview) {
-    this._panel.title = EXT_NAME + " : " + this._docFile.title;
     this._panel.webview.html = this._getHtmlForWebview(webview);
   }
 
