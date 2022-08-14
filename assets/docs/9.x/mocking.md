@@ -123,7 +123,8 @@ We can mock the call to the `Cache` facade by using the `shouldReceive` method, 
         }
     }
 
-> {note} You should not mock the `Request` facade. Instead, pass the input you desire into the [HTTP testing methods](/docs/{{version}}/http-tests) such as `get` and `post` when running your test. Likewise, instead of mocking the `Config` facade, call the `Config::set` method in your tests.
+> **Warning**  
+> You should not mock the `Request` facade. Instead, pass the input you desire into the [HTTP testing methods](/docs/{{version}}/http-tests) such as `get` and `post` when running your test. Likewise, instead of mocking the `Config` facade, call the `Config::set` method in your tests.
 
 <a name="facade-spies"></a>
 ### Facade Spies
@@ -288,7 +289,8 @@ If you would simply like to assert that an event listener is listening to a give
         SendShipmentNotification::class
     );
 
-> {note} After calling `Event::fake()`, no event listeners will be executed. So, if your tests use model factories that rely on events, such as creating a UUID during a model's `creating` event, you should call `Event::fake()` **after** using your factories.
+> **Warning**  
+> After calling `Event::fake()`, no event listeners will be executed. So, if your tests use model factories that rely on events, such as creating a UUID during a model's `creating` event, you should call `Event::fake()` **after** using your factories.
 
 <a name="faking-a-subset-of-events"></a>
 #### Faking A Subset Of Events
@@ -551,6 +553,20 @@ You may pass a closure to the `assertPushed` or `assertNotPushed` methods in ord
         return $job->order->id === $order->id;
     });
 
+If you only need to fake specific jobs while allowing your other jobs to execute normally, you may pass the class names of the jobs that should be faked to the `fake` method:
+
+    public function test_orders_can_be_shipped()
+    {
+        Queue::fake([
+            ShipOrder::class,
+        ]);
+        
+        // Perform order shipping...
+
+        // Assert a job was pushed twice...
+        Queue::assertPushed(ShipOrder::class, 2);
+    }
+
 <a name="job-chains"></a>
 ### Job Chains
 
@@ -618,7 +634,8 @@ The `Storage` facade's `fake` method allows you to easily generate a fake disk t
 
 By default, the `fake` method will delete all files in its temporary directory. If you would like to keep these files, you may use the "persistentFake" method instead. For more information on testing file uploads, you may consult the [HTTP testing documentation's information on file uploads](/docs/{{version}}/http-tests#testing-file-uploads).
 
-> {note} The `image` method requires the [GD extension](https://www.php.net/manual/en/book.image.php).
+> **Warning**  
+> The `image` method requires the [GD extension](https://www.php.net/manual/en/book.image.php).
 
 <a name="interacting-with-time"></a>
 ## Interacting With Time
