@@ -3,7 +3,7 @@
   (c) 2006-2022 undefined and other contributors
   License: BSD-3-Clause
  */
-var hljs = (function () {
+var highlightjs = (function () {
   "use strict";
   var e = { exports: {} };
   function n(e) {
@@ -709,7 +709,7 @@ var hljs = (function () {
         : (q("10.7.0", "highlight(lang, code, ...args) has been deprecated."),
           q(
             "10.7.0",
-            "Please use highlight(code, options) instead.\nhttps://github.com/highlightjs/highlight.js/issues/2277"
+            "Please use highlight(code, options) instead.\nhttps://github.com/hljs/highlight.js/issues/2277"
           ),
           (i = e),
           (a = n)),
@@ -1023,9 +1023,7 @@ var hljs = (function () {
             (console.warn(
               "One of your code blocks includes unescaped HTML. This is a potentially serious security risk."
             ),
-            console.warn(
-              "https://github.com/highlightjs/highlight.js/wiki/security"
-            ),
+            console.warn("https://github.com/hljs/highlight.js/wiki/security"),
             console.warn("The element with unescaped HTML:"),
             console.warn(e)),
           d.throwUnescapedHTML))
@@ -8304,4 +8302,4 @@ var hljs = (function () {
 })();
 "object" == typeof exports &&
   "undefined" != typeof module &&
-  (module.exports = hljs);
+  (module.exports = highlightjs);

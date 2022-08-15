@@ -56,5 +56,5 @@
       ],
     });
   })();
-  hljs.registerLanguage("blade", e);
+  highlightjs.registerLanguage("blade", e);
 })();
