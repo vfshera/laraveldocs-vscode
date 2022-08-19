@@ -2,7 +2,7 @@
   import type { IDoc, IDocFile } from "../types";
   export let doc: IDoc;
   export let docVersions: string[];
-  export let setIndex: (i: string) => void;
+  export let setIndex: (i: number) => void;
 
   function openDoc(file: IDocFile) {
     ldvscode.postMessage({ command: "open-doc", value: file });
@@ -14,7 +14,10 @@
     <h1>Laravel</h1>
     <select
       name="doc-select"
-      on:change={({ target: { value } }) => setIndex(value)}
+      on:change={(event) => {
+        const i = parseInt(event.currentTarget.value);
+        setIndex(i);
+      }}
     >
       {#each docVersions as version, i}
         <option value={i}>{version}</option>
