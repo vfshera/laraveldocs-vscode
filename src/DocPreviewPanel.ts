@@ -30,7 +30,9 @@ export default class DocPreviewPanel {
       : undefined;
 
     if (DocPreviewPanel.currentPanel) {
-      DocPreviewPanel.currentPanel._panel.dispose();
+      DocPreviewPanel.currentPanel._docFile = docFile;
+      DocPreviewPanel.currentPanel?._update();
+      return;
     }
 
     const panel = vscode.window.createWebviewPanel(
