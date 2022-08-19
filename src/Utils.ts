@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import * as vscode from "vscode";
 import path = require("path");
 import { DOCS_DIR } from "./constants";
 
