@@ -15,6 +15,7 @@
   function setIndex(index: number) {
     docIndex = index;
   }
+
   $: docVersions = docs?.map((d) => d.version);
   $: doc = docs.find((d) => d.version === docVersions[docIndex]) || {
     version: "",
@@ -23,8 +24,10 @@
 </script>
 
 <main>
-  {#if typeof doc === "object"}
+  {#if docs.length > 0 && typeof doc === "object"}
     <Doc {doc} {docVersions} {setIndex} />
+  {:else}
+    <p>Fetching Docs...!</p>
   {/if}
 </main>
 
