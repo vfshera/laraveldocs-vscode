@@ -8,7 +8,7 @@
     "name": "Franlin Shera"
   },
   "license": "",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "homepage": "https://github.com/franklinshera/laraveldocs-vscode",
   "bugs": "https://github.com/franklinshera/laraveldocs-vscode/issues",
   "repository": {
@@ -27,7 +27,8 @@
     "Other"
   ],
   "activationEvents": [
-    "onView:docs-list"
+    "onView:docs-list",
+    "onCommand:vscodelaraveldocs.render-html"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -89,6 +90,7 @@
     "svelte-check": "^2.8.0",
     "svelte-preprocess": "^4.10.7",
     "ts-loader": "^9.3.1",
+    "ts-node": "^10.9.1",
     "tslib": "^2.4.0",
     "typescript": "^4.4.4",
     "webpack": "^5.73.0",
@@ -96,6 +98,7 @@
   },
   "dependencies": {
     "highlight.js": "^11.6.0",
+    "highlightjs-blade": "github:miken32/highlightjs-blade",
     "marked": "^4.0.18"
   }
 }

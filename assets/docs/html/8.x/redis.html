@@ -1,0 +1,325 @@
+<h1 id="redis">Redis</h1>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#configuration">Configuration</a><ul>
+<li><a href="#clusters">Clusters</a></li>
+<li><a href="#predis">Predis</a></li>
+<li><a href="#phpredis">phpredis</a></li>
+</ul>
+</li>
+<li><a href="#interacting-with-redis">Interacting With Redis</a><ul>
+<li><a href="#transactions">Transactions</a></li>
+<li><a href="#pipelining-commands">Pipelining Commands</a></li>
+</ul>
+</li>
+<li><a href="#pubsub">Pub / Sub</a></li>
+</ul>
+<p><a name="introduction"></a></p>
+<h2 id="introduction">Introduction</h2>
+<p><a href="https://redis.io">Redis</a> is an open source, advanced key-value store. It is often referred to as a data structure server since keys can contain <a href="https://redis.io/topics/data-types#strings">strings</a>, <a href="https://redis.io/topics/data-types#hashes">hashes</a>, <a href="https://redis.io/topics/data-types#lists">lists</a>, <a href="https://redis.io/topics/data-types#sets">sets</a>, and <a href="https://redis.io/topics/data-types#sorted-sets">sorted sets</a>.</p>
+<p>Before using Redis with Laravel, we encourage you to install and use the <a href="https://github.com/phpredis/phpredis">phpredis</a> PHP extension via PECL. The extension is more complex to install compared to &quot;user-land&quot; PHP packages but may yield better performance for applications that make heavy use of Redis. If you are using <a href="/docs/%7B%7Bversion%7D%7D/sail">Laravel Sail</a>, this extension is already installed in your application&#39;s Docker container.</p>
+<p>If you are unable to install the phpredis extension, you may install the <code>predis/predis</code> package via Composer. Predis is a Redis client written entirely in PHP and does not require any additional extensions:</p>
+<pre><code class="language-bash">composer require predis/predis
+</code></pre>
+<p><a name="configuration"></a></p>
+<h2 id="configuration">Configuration</h2>
+<p>You may configure your application&#39;s Redis settings via the <code>config/database.php</code> configuration file. Within this file, you will see a <code>redis</code> array containing the Redis servers utilized by your application:</p>
+<pre><code><span class="hljs-string">&#x27;redis&#x27;</span> =&gt; [
+
+    <span class="hljs-string">&#x27;client&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;REDIS_CLIENT&#x27;</span>, <span class="hljs-string">&#x27;phpredis&#x27;</span>),
+
+    <span class="hljs-string">&#x27;default&#x27;</span> =&gt; [
+        <span class="hljs-string">&#x27;host&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;REDIS_HOST&#x27;</span>, <span class="hljs-string">&#x27;127.0.0.1&#x27;</span>),
+        <span class="hljs-string">&#x27;password&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;REDIS_PASSWORD&#x27;</span>, <span class="hljs-literal">null</span>),
+        <span class="hljs-string">&#x27;port&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;REDIS_PORT&#x27;</span>, <span class="hljs-number">6379</span>),
+        <span class="hljs-string">&#x27;database&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;REDIS_DB&#x27;</span>, <span class="hljs-number">0</span>),
+    ],
+
+    <span class="hljs-string">&#x27;cache&#x27;</span> =&gt; [
+        <span class="hljs-string">&#x27;host&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;REDIS_HOST&#x27;</span>, <span class="hljs-string">&#x27;127.0.0.1&#x27;</span>),
+        <span class="hljs-string">&#x27;password&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;REDIS_PASSWORD&#x27;</span>, <span class="hljs-literal">null</span>),
+        <span class="hljs-string">&#x27;port&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;REDIS_PORT&#x27;</span>, <span class="hljs-number">6379</span>),
+        <span class="hljs-string">&#x27;database&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;REDIS_CACHE_DB&#x27;</span>, <span class="hljs-number">1</span>),
+    ],
+
+],
+</code></pre>
+<p>Each Redis server defined in your configuration file is required to have a name, host, and a port unless you define a single URL to represent the Redis connection:</p>
+<pre><code><span class="hljs-string">&#x27;redis&#x27;</span> =&gt; [
+
+    <span class="hljs-string">&#x27;client&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;REDIS_CLIENT&#x27;</span>, <span class="hljs-string">&#x27;phpredis&#x27;</span>),
+
+    <span class="hljs-string">&#x27;default&#x27;</span> =&gt; [
+        <span class="hljs-string">&#x27;url&#x27;</span> =&gt; <span class="hljs-string">&#x27;tcp://127.0.0.1:6379?database=0&#x27;</span>,
+    ],
+
+    <span class="hljs-string">&#x27;cache&#x27;</span> =&gt; [
+        <span class="hljs-string">&#x27;url&#x27;</span> =&gt; <span class="hljs-string">&#x27;tls://user:password@127.0.0.1:6380?database=1&#x27;</span>,
+    ],
+
+],
+</code></pre>
+<p><a name="configuring-the-connection-scheme"></a></p>
+<h4 id="configuring-the-connection-scheme">Configuring The Connection Scheme</h4>
+<p>By default, Redis clients will use the <code>tcp</code> scheme when connecting to your Redis servers; however, you may use TLS / SSL encryption by specifying a <code>scheme</code> configuration option in your Redis server&#39;s configuration array:</p>
+<pre><code><span class="hljs-string">&#x27;redis&#x27;</span> =&gt; [
+
+    <span class="hljs-string">&#x27;client&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;REDIS_CLIENT&#x27;</span>, <span class="hljs-string">&#x27;phpredis&#x27;</span>),
+
+    <span class="hljs-string">&#x27;default&#x27;</span> =&gt; [
+        <span class="hljs-string">&#x27;scheme&#x27;</span> =&gt; <span class="hljs-string">&#x27;tls&#x27;</span>,
+        <span class="hljs-string">&#x27;host&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;REDIS_HOST&#x27;</span>, <span class="hljs-string">&#x27;127.0.0.1&#x27;</span>),
+        <span class="hljs-string">&#x27;password&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;REDIS_PASSWORD&#x27;</span>, <span class="hljs-literal">null</span>),
+        <span class="hljs-string">&#x27;port&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;REDIS_PORT&#x27;</span>, <span class="hljs-number">6379</span>),
+        <span class="hljs-string">&#x27;database&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;REDIS_DB&#x27;</span>, <span class="hljs-number">0</span>),
+    ],
+
+],
+</code></pre>
+<p><a name="clusters"></a></p>
+<h3 id="clusters">Clusters</h3>
+<p>If your application is utilizing a cluster of Redis servers, you should define these clusters within a <code>clusters</code> key of your Redis configuration. This configuration key does not exist by default so you will need to create it within your application&#39;s <code>config/database.php</code> configuration file:</p>
+<pre><code><span class="hljs-string">&#x27;redis&#x27;</span> =&gt; [
+
+    <span class="hljs-string">&#x27;client&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;REDIS_CLIENT&#x27;</span>, <span class="hljs-string">&#x27;phpredis&#x27;</span>),
+
+    <span class="hljs-string">&#x27;clusters&#x27;</span> =&gt; [
+        <span class="hljs-string">&#x27;default&#x27;</span> =&gt; [
+            [
+                <span class="hljs-string">&#x27;host&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;REDIS_HOST&#x27;</span>, <span class="hljs-string">&#x27;localhost&#x27;</span>),
+                <span class="hljs-string">&#x27;password&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;REDIS_PASSWORD&#x27;</span>, <span class="hljs-literal">null</span>),
+                <span class="hljs-string">&#x27;port&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;REDIS_PORT&#x27;</span>, <span class="hljs-number">6379</span>),
+                <span class="hljs-string">&#x27;database&#x27;</span> =&gt; <span class="hljs-number">0</span>,
+            ],
+        ],
+    ],
+
+],
+</code></pre>
+<p>By default, clusters will perform client-side sharding across your nodes, allowing you to pool nodes and create a large amount of available RAM. However, client-side sharding does not handle failover; therefore, it is primarily suited for transient cached data that is available from another primary data store.</p>
+<p>If you would like to use native Redis clustering instead of client-side sharding, you may specify this by setting the <code>options.cluster</code> configuration value to <code>redis</code> within your application&#39;s <code>config/database.php</code> configuration file:</p>
+<pre><code><span class="hljs-string">&#x27;redis&#x27;</span> =&gt; [
+
+    <span class="hljs-string">&#x27;client&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;REDIS_CLIENT&#x27;</span>, <span class="hljs-string">&#x27;phpredis&#x27;</span>),
+
+    <span class="hljs-string">&#x27;options&#x27;</span> =&gt; [
+        <span class="hljs-string">&#x27;cluster&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;REDIS_CLUSTER&#x27;</span>, <span class="hljs-string">&#x27;redis&#x27;</span>),
+    ],
+
+    <span class="hljs-string">&#x27;clusters&#x27;</span> =&gt; [
+        <span class="hljs-comment">// ...</span>
+    ],
+
+],
+</code></pre>
+<p><a name="predis"></a></p>
+<h3 id="predis">Predis</h3>
+<p>If you would like your application to interact with Redis via the Predis package, you should ensure the <code>REDIS_CLIENT</code> environment variable&#39;s value is <code>predis</code>:</p>
+<pre><code><span class="hljs-string">&#x27;redis&#x27;</span> =&gt; [
+
+    <span class="hljs-string">&#x27;client&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;REDIS_CLIENT&#x27;</span>, <span class="hljs-string">&#x27;predis&#x27;</span>),
+
+    <span class="hljs-comment">// ...</span>
+],
+</code></pre>
+<p>In addition to the default <code>host</code>, <code>port</code>, <code>database</code>, and <code>password</code> server configuration options, Predis supports additional <a href="https://github.com/nrk/predis/wiki/Connection-Parameters">connection parameters</a> that may be defined for each of your Redis servers. To utilize these additional configuration options, add them to your Redis server configuration in your application&#39;s <code>config/database.php</code> configuration file:</p>
+<pre><code><span class="hljs-string">&#x27;default&#x27;</span> =&gt; [
+    <span class="hljs-string">&#x27;host&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;REDIS_HOST&#x27;</span>, <span class="hljs-string">&#x27;localhost&#x27;</span>),
+    <span class="hljs-string">&#x27;password&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;REDIS_PASSWORD&#x27;</span>, <span class="hljs-literal">null</span>),
+    <span class="hljs-string">&#x27;port&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;REDIS_PORT&#x27;</span>, <span class="hljs-number">6379</span>),
+    <span class="hljs-string">&#x27;database&#x27;</span> =&gt; <span class="hljs-number">0</span>,
+    <span class="hljs-string">&#x27;read_write_timeout&#x27;</span> =&gt; <span class="hljs-number">60</span>,
+],
+</code></pre>
+<p><a name="the-redis-facade-alias"></a></p>
+<h4 id="the-redis-facade-alias">The Redis Facade Alias</h4>
+<p>Laravel&#39;s <code>config/app.php</code> configuration file contains an <code>aliases</code> array which defines all of the class aliases that will be registered by the framework. For convenience, an alias entry is included for each <a href="/docs/%7B%7Bversion%7D%7D/facades">facade</a> offered by Laravel; however, the <code>Redis</code> alias is disabled because it conflicts with the <code>Redis</code> class name provided by the phpredis extension. If you are using the Predis client and would like to enable this alias, you may un-comment the alias in your application&#39;s <code>config/app.php</code> configuration file.</p>
+<p><a name="phpredis"></a></p>
+<h3 id="phpredis">phpredis</h3>
+<p>By default, Laravel will use the phpredis extension to communicate with Redis. The client that Laravel will use to communicate with Redis is dictated by the value of the <code>redis.client</code> configuration option, which typically reflects the value of the <code>REDIS_CLIENT</code> environment variable:</p>
+<pre><code><span class="hljs-string">&#x27;redis&#x27;</span> =&gt; [
+
+    <span class="hljs-string">&#x27;client&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;REDIS_CLIENT&#x27;</span>, <span class="hljs-string">&#x27;phpredis&#x27;</span>),
+
+    <span class="hljs-comment">// Rest of Redis configuration...</span>
+],
+</code></pre>
+<p>In addition to the default <code>scheme</code>, <code>host</code>, <code>port</code>, <code>database</code>, and <code>password</code> server configuration options, phpredis supports the following additional connection parameters: <code>name</code>, <code>persistent</code>, <code>persistent_id</code>, <code>prefix</code>, <code>read_timeout</code>, <code>retry_interval</code>, <code>timeout</code>, and <code>context</code>. You may add any of these options to your Redis server configuration in the <code>config/database.php</code> configuration file:</p>
+<pre><code><span class="hljs-string">&#x27;default&#x27;</span> =&gt; [
+    <span class="hljs-string">&#x27;host&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;REDIS_HOST&#x27;</span>, <span class="hljs-string">&#x27;localhost&#x27;</span>),
+    <span class="hljs-string">&#x27;password&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;REDIS_PASSWORD&#x27;</span>, <span class="hljs-literal">null</span>),
+    <span class="hljs-string">&#x27;port&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;REDIS_PORT&#x27;</span>, <span class="hljs-number">6379</span>),
+    <span class="hljs-string">&#x27;database&#x27;</span> =&gt; <span class="hljs-number">0</span>,
+    <span class="hljs-string">&#x27;read_timeout&#x27;</span> =&gt; <span class="hljs-number">60</span>,
+    <span class="hljs-string">&#x27;context&#x27;</span> =&gt; [
+        <span class="hljs-comment">// &#x27;auth&#x27; =&gt; [&#x27;username&#x27;, &#x27;secret&#x27;],</span>
+        <span class="hljs-comment">// &#x27;stream&#x27; =&gt; [&#x27;verify_peer&#x27; =&gt; false],</span>
+    ],
+],
+</code></pre>
+<p><a name="phpredis-serialization"></a></p>
+<h4 id="phpredis-serialization--compression">phpredis Serialization &amp; Compression</h4>
+<p>The phpredis extension may also be configured to use a variety serialization and compression algorithms. These algorithms can be configured via the <code>options</code> array of your Redis configuration:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Redis</span>;
+
+<span class="hljs-string">&#x27;redis&#x27;</span> =&gt; [
+
+    <span class="hljs-string">&#x27;client&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;REDIS_CLIENT&#x27;</span>, <span class="hljs-string">&#x27;phpredis&#x27;</span>),
+
+    <span class="hljs-string">&#x27;options&#x27;</span> =&gt; [
+        <span class="hljs-string">&#x27;serializer&#x27;</span> =&gt; <span class="hljs-title class_">Redis</span>::<span class="hljs-variable constant_">SERIALIZER_MSGPACK</span>,
+        <span class="hljs-string">&#x27;compression&#x27;</span> =&gt; <span class="hljs-title class_">Redis</span>::<span class="hljs-variable constant_">COMPRESSION_LZ4</span>,
+    ],
+
+    <span class="hljs-comment">// Rest of Redis configuration...</span>
+],
+</code></pre>
+<p>Currently supported serialization algorithms include: <code>Redis::SERIALIZER_NONE</code> (default), <code>Redis::SERIALIZER_PHP</code>, <code>Redis::SERIALIZER_JSON</code>, <code>Redis::SERIALIZER_IGBINARY</code>, and <code>Redis::SERIALIZER_MSGPACK</code>.</p>
+<p>Supported compression algorithms include: <code>Redis::COMPRESSION_NONE</code> (default), <code>Redis::COMPRESSION_LZF</code>, <code>Redis::COMPRESSION_ZSTD</code>, and <code>Redis::COMPRESSION_LZ4</code>.</p>
+<p><a name="interacting-with-redis"></a></p>
+<h2 id="interacting-with-redis">Interacting With Redis</h2>
+<p>You may interact with Redis by calling various methods on the <code>Redis</code> <a href="/docs/%7B%7Bversion%7D%7D/facades">facade</a>. The <code>Redis</code> facade supports dynamic methods, meaning you may call any <a href="https://redis.io/commands">Redis command</a> on the facade and the command will be passed directly to Redis. In this example, we will call the Redis <code>GET</code> command by calling the <code>get</code> method on the <code>Redis</code> facade:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Http</span>\<span class="hljs-title class_">Controllers</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Controllers</span>\<span class="hljs-title">Controller</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Redis</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserController</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Controller</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Show the profile for the given user.
+     *
+     * <span class="hljs-doctag">@param</span>  int  $id
+     * <span class="hljs-doctag">@return</span> \Illuminate\Http\Response
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">show</span>(<span class="hljs-params"><span class="hljs-variable">$id</span></span>)
+    </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;user.profile&#x27;</span>, [
+            <span class="hljs-string">&#x27;user&#x27;</span> =&gt; <span class="hljs-title class_">Redis</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;user:profile:&#x27;</span>.<span class="hljs-variable">$id</span>)
+        ]);
+    }
+}
+</code></pre>
+<p>As mentioned above, you may call any of Redis&#39; commands on the <code>Redis</code> facade. Laravel uses magic methods to pass the commands to the Redis server. If a Redis command expects arguments, you should pass those to the facade&#39;s corresponding method:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Redis</span>;
+
+<span class="hljs-title class_">Redis</span>::<span class="hljs-title function_ invoke__">set</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;Taylor&#x27;</span>);
+
+<span class="hljs-variable">$values</span> = <span class="hljs-title class_">Redis</span>::<span class="hljs-title function_ invoke__">lrange</span>(<span class="hljs-string">&#x27;names&#x27;</span>, <span class="hljs-number">5</span>, <span class="hljs-number">10</span>);
+</code></pre>
+<p>Alternatively, you may pass commands to the server using the <code>Redis</code> facade&#39;s <code>command</code> method, which accepts the name of the command as its first argument and an array of values as its second argument:</p>
+<pre><code><span class="hljs-variable">$values</span> = <span class="hljs-title class_">Redis</span>::<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;lrange&#x27;</span>, [<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-number">5</span>, <span class="hljs-number">10</span>]);
+</code></pre>
+<p><a name="using-multiple-redis-connections"></a></p>
+<h4 id="using-multiple-redis-connections">Using Multiple Redis Connections</h4>
+<p>Your application&#39;s <code>config/database.php</code> configuration file allows you to define multiple Redis connections / servers. You may obtain a connection to a specific Redis connection using the <code>Redis</code> facade&#39;s <code>connection</code> method:</p>
+<pre><code><span class="hljs-variable">$redis</span> = <span class="hljs-title class_">Redis</span>::<span class="hljs-title function_ invoke__">connection</span>(<span class="hljs-string">&#x27;connection-name&#x27;</span>);
+</code></pre>
+<p>To obtain an instance of the default Redis connection, you may call the <code>connection</code> method without any additional arguments:</p>
+<pre><code><span class="hljs-variable">$redis</span> = <span class="hljs-title class_">Redis</span>::<span class="hljs-title function_ invoke__">connection</span>();
+</code></pre>
+<p><a name="transactions"></a></p>
+<h3 id="transactions">Transactions</h3>
+<p>The <code>Redis</code> facade&#39;s <code>transaction</code> method provides a convenient wrapper around Redis&#39; native <code>MULTI</code> and <code>EXEC</code> commands. The <code>transaction</code> method accepts a closure as its only argument. This closure will receive a Redis connection instance and may issue any commands it would like to this instance. All of the Redis commands issued within the closure will be executed in a single, atomic transaction:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Redis</span>;
+
+<span class="hljs-title class_">Redis</span>::<span class="hljs-title function_ invoke__">transaction</span>(function (<span class="hljs-variable">$redis</span>) {
+    <span class="hljs-variable">$redis</span>-&gt;<span class="hljs-title function_ invoke__">incr</span>(<span class="hljs-string">&#x27;user_visits&#x27;</span>, <span class="hljs-number">1</span>);
+    <span class="hljs-variable">$redis</span>-&gt;<span class="hljs-title function_ invoke__">incr</span>(<span class="hljs-string">&#x27;total_visits&#x27;</span>, <span class="hljs-number">1</span>);
+});
+</code></pre>
+<blockquote>
+<p>{note} When defining a Redis transaction, you may not retrieve any values from the Redis connection. Remember, your transaction is executed as a single, atomic operation and that operation is not executed until your entire closure has finished executing its commands.</p>
+</blockquote>
+<h4 id="lua-scripts">Lua Scripts</h4>
+<p>The <code>eval</code> method provides another method of executing multiple Redis commands in a single, atomic operation. However, the <code>eval</code> method has the benefit of being able to interact with and inspect Redis key values during that operation. Redis scripts are written in the <a href="https://www.lua.org">Lua programming language</a>.</p>
+<p>The <code>eval</code> method can be a bit scary at first, but we&#39;ll explore a basic example to break the ice. The <code>eval</code> method expects several arguments. First, you should pass the Lua script (as a string) to the method. Secondly, you should pass the number of keys (as an integer) that the script interacts with. Thirdly, you should pass the names of those keys. Finally, you may pass any other additional arguments that you need to access within your script.</p>
+<p>In this example, we will increment a counter, inspect its new value, and increment a second counter if the first counter&#39;s value is greater than five. Finally, we will return the value of the first counter:</p>
+<pre><code><span class="hljs-variable">$value</span> = <span class="hljs-title class_">Redis</span>::<span class="hljs-keyword">eval</span>(&lt;&lt;&lt;<span class="hljs-string">&#x27;LUA&#x27;</span>
+    local counter = redis.<span class="hljs-title function_ invoke__">call</span>(<span class="hljs-string">&quot;incr&quot;</span>, KEYS[<span class="hljs-number">1</span>])
+
+    <span class="hljs-keyword">if</span> counter &gt; <span class="hljs-number">5</span> then
+        redis.<span class="hljs-title function_ invoke__">call</span>(<span class="hljs-string">&quot;incr&quot;</span>, KEYS[<span class="hljs-number">2</span>])
+    end
+
+    <span class="hljs-keyword">return</span> counter
+LUA, <span class="hljs-number">2</span>, <span class="hljs-string">&#x27;first-counter&#x27;</span>, <span class="hljs-string">&#x27;second-counter&#x27;</span>);
+</code></pre>
+<blockquote>
+<p>{note} Please consult the <a href="https://redis.io/commands/eval">Redis documentation</a> for more information on Redis scripting.</p>
+</blockquote>
+<p><a name="pipelining-commands"></a></p>
+<h3 id="pipelining-commands">Pipelining Commands</h3>
+<p>Sometimes you may need to execute dozens of Redis commands. Instead of making a network trip to your Redis server for each command, you may use the <code>pipeline</code> method. The <code>pipeline</code> method accepts one argument: a closure that receives a Redis instance. You may issue all of your commands to this Redis instance and they will all be sent to the Redis server at the same time to reduce network trips to the server. The commands will still be executed in the order they were issued:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Redis</span>;
+
+<span class="hljs-title class_">Redis</span>::<span class="hljs-title function_ invoke__">pipeline</span>(function (<span class="hljs-variable">$pipe</span>) {
+    <span class="hljs-keyword">for</span> (<span class="hljs-variable">$i</span> = <span class="hljs-number">0</span>; <span class="hljs-variable">$i</span> &lt; <span class="hljs-number">1000</span>; <span class="hljs-variable">$i</span>++) {
+        <span class="hljs-variable">$pipe</span>-&gt;<span class="hljs-title function_ invoke__">set</span>(<span class="hljs-string">&quot;key:<span class="hljs-subst">$i</span>&quot;</span>, <span class="hljs-variable">$i</span>);
+    }
+});
+</code></pre>
+<p><a name="pubsub"></a></p>
+<h2 id="pub--sub">Pub / Sub</h2>
+<p>Laravel provides a convenient interface to the Redis <code>publish</code> and <code>subscribe</code> commands. These Redis commands allow you to listen for messages on a given &quot;channel&quot;. You may publish messages to the channel from another application, or even using another programming language, allowing easy communication between applications and processes.</p>
+<p>First, let&#39;s setup a channel listener using the <code>subscribe</code> method. We&#39;ll place this method call within an <a href="/docs/%7B%7Bversion%7D%7D/artisan">Artisan command</a> since calling the <code>subscribe</code> method begins a long-running process:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Console</span>\<span class="hljs-title class_">Commands</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Console</span>\<span class="hljs-title">Command</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Redis</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">RedisSubscribe</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Command</span>
+</span>{
+    <span class="hljs-comment">/**
+     * The name and signature of the console command.
+     *
+     * <span class="hljs-doctag">@var</span> string
+     */</span>
+    <span class="hljs-keyword">protected</span> <span class="hljs-variable">$signature</span> = <span class="hljs-string">&#x27;redis:subscribe&#x27;</span>;
+
+    <span class="hljs-comment">/**
+     * The console command description.
+     *
+     * <span class="hljs-doctag">@var</span> string
+     */</span>
+    <span class="hljs-keyword">protected</span> <span class="hljs-variable">$description</span> = <span class="hljs-string">&#x27;Subscribe to a Redis channel&#x27;</span>;
+
+    <span class="hljs-comment">/**
+     * Execute the console command.
+     *
+     * <span class="hljs-doctag">@return</span> mixed
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">handle</span>(<span class="hljs-params"></span>)
+    </span>{
+        <span class="hljs-title class_">Redis</span>::<span class="hljs-title function_ invoke__">subscribe</span>([<span class="hljs-string">&#x27;test-channel&#x27;</span>], function (<span class="hljs-variable">$message</span>) {
+            <span class="hljs-keyword">echo</span> <span class="hljs-variable">$message</span>;
+        });
+    }
+}
+</code></pre>
+<p>Now we may publish messages to the channel using the <code>publish</code> method:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Redis</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/publish&#x27;</span>, function () {
+    <span class="hljs-comment">// ...</span>
+
+    <span class="hljs-title class_">Redis</span>::<span class="hljs-title function_ invoke__">publish</span>(<span class="hljs-string">&#x27;test-channel&#x27;</span>, <span class="hljs-title function_ invoke__">json_encode</span>([
+        <span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Adam Wathan&#x27;</span>
+    ]));
+});
+</code></pre>
+<p><a name="wildcard-subscriptions"></a></p>
+<h4 id="wildcard-subscriptions">Wildcard Subscriptions</h4>
+<p>Using the <code>psubscribe</code> method, you may subscribe to a wildcard channel, which may be useful for catching all messages on all channels. The channel name will be passed as the second argument to the provided closure:</p>
+<pre><code><span class="hljs-title class_">Redis</span>::<span class="hljs-title function_ invoke__">psubscribe</span>([<span class="hljs-string">&#x27;*&#x27;</span>], function (<span class="hljs-variable">$message</span>, <span class="hljs-variable">$channel</span>) {
+    <span class="hljs-keyword">echo</span> <span class="hljs-variable">$message</span>;
+});
+
+<span class="hljs-title class_">Redis</span>::<span class="hljs-title function_ invoke__">psubscribe</span>([<span class="hljs-string">&#x27;users.*&#x27;</span>], function (<span class="hljs-variable">$message</span>, <span class="hljs-variable">$channel</span>) {
+    <span class="hljs-keyword">echo</span> <span class="hljs-variable">$message</span>;
+});
+</code></pre>

@@ -9,6 +9,7 @@ import {
   IMAGE_ASSET,
   EXT_ICON,
   ASSETS_DIR,
+  DOC_PATH,
 } from "./constants";
 
 import type { IDocFile, IDocContents } from "./interfaces";
@@ -93,7 +94,7 @@ export default class DocPreviewPanel {
     this._panel.webview.onDidReceiveMessage(
       ({ command, value }) => {
         switch (command) {
-          case "get-doc-path":
+          case DOC_PATH:
             const _fullDoc: IDocContents = {
               title: this._docFile.title,
               link: this._docFile.link,
@@ -142,16 +143,16 @@ export default class DocPreviewPanel {
   private _getHtmlForWebview(webview: vscode.Webview) {
     /**Scripts */
 
-    const domPurifyScriptUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, JS_ASSET, "dompurify.js")
-    );
+    // const domPurifyScriptUri = webview.asWebviewUri(
+    //   vscode.Uri.joinPath(this._extensionUri, JS_ASSET, "dompurify.js")
+    // );
 
-    const highlightScriptUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, JS_ASSET, "highlight.js")
-    );
-    const bladeHighlightScriptUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, JS_ASSET, "blade.js")
-    );
+    // const highlightScriptUri = webview.asWebviewUri(
+    //   vscode.Uri.joinPath(this._extensionUri, JS_ASSET, "highlight.js")
+    // );
+    // const bladeHighlightScriptUri = webview.asWebviewUri(
+    //   vscode.Uri.joinPath(this._extensionUri, JS_ASSET, "blade.js")
+    // );
 
     const scriptUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, COMPILED_DIR, "preview.js")
@@ -176,6 +177,11 @@ export default class DocPreviewPanel {
 
     const nonce = getNonce();
 
+    // <script nonce="${nonce}" src="${domPurifyScriptUri}"></script>
+    // <script nonce="${nonce}" src="${highlightScriptUri}"></script>
+
+    // <script nonce="${nonce}" src="${bladeHighlightScriptUri}"></script>
+
     return `<!DOCTYPE html>
 			<html lang="en">
 			<head>
@@ -196,10 +202,7 @@ export default class DocPreviewPanel {
 			</head>
 			<body>		
    
-      <script nonce="${nonce}" src="${domPurifyScriptUri}"></script>
-      <script nonce="${nonce}" src="${highlightScriptUri}"></script>
       <script nonce="${nonce}" src="${scriptUri}"></script>
-      <script nonce="${nonce}" src="${bladeHighlightScriptUri}"></script>
 			</body>
 			</html>`;
   }

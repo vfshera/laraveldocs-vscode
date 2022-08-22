@@ -1,0 +1,93 @@
+<h1 id="rate-limiting">Rate Limiting</h1>
+<ul>
+<li><a href="#introduction">Introduction</a><ul>
+<li><a href="#cache-configuration">Cache Configuration</a></li>
+</ul>
+</li>
+<li><a href="#basic-usage">Basic Usage</a><ul>
+<li><a href="#manually-incrementing-attempts">Manually Incrementing Attempts</a></li>
+<li><a href="#clearing-attempts">Clearing Attempts</a></li>
+</ul>
+</li>
+</ul>
+<p><a name="introduction"></a></p>
+<h2 id="introduction">Introduction</h2>
+<p>Laravel includes a simple to use rate limiting abstraction which, in conjunction with your application&#39;s <a href="cache">cache</a>, provides an easy way to limit any action during a specified window of time.</p>
+<blockquote>
+<p>{tip} If you are interested in rate limiting incoming HTTP requests, please consult the <a href="routing#rate-limiting">rate limiter middleware documentation</a>.</p>
+</blockquote>
+<p><a name="cache-configuration"></a></p>
+<h3 id="cache-configuration">Cache Configuration</h3>
+<p>Typically, the rate limiter utilizes your default application cache as defined by the <code>default</code> key within your application&#39;s <code>cache</code> configuration file. However, you may specify which cache driver the rate limiter should use by defining a <code>limiter</code> key within your application&#39;s <code>cache</code> configuration file:</p>
+<pre><code><span class="hljs-string">&#x27;default&#x27;</span> =&gt; <span class="hljs-string">&#x27;memcached&#x27;</span>,
+
+<span class="hljs-string">&#x27;limiter&#x27;</span> =&gt; <span class="hljs-string">&#x27;redis&#x27;</span>,
+</code></pre>
+<p><a name="basic-usage"></a></p>
+<h2 id="basic-usage">Basic Usage</h2>
+<p>The <code>Illuminate\Support\Facades\RateLimiter</code> facade may be used to interact with the rate limiter. The simplest method offered by the rate limiter is the <code>attempt</code> method, which rate limits a given callback for a given number of seconds.</p>
+<p>The <code>attempt</code> method returns <code>false</code> when the callback has no remaining attempts available; otherwise, the <code>attempt</code> method will return the callback&#39;s result or <code>true</code>. The first argument accepted by the <code>attempt</code> method is a rate limiter &quot;key&quot;, which may be any string of your choosing that represents the action being rate limited:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">RateLimiter</span>;
+
+<span class="hljs-variable">$executed</span> = <span class="hljs-title class_">RateLimiter</span>::<span class="hljs-title function_ invoke__">attempt</span>(
+    <span class="hljs-string">&#x27;send-message:&#x27;</span>.<span class="hljs-variable">$user</span>-&gt;id,
+    <span class="hljs-variable">$perMinute</span> = <span class="hljs-number">5</span>,
+    function() {
+        <span class="hljs-comment">// Send message...</span>
+    }
+);
+
+<span class="hljs-keyword">if</span> (! <span class="hljs-variable">$executed</span>) {
+  <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;Too many messages sent!&#x27;</span>;
+}
+</code></pre>
+<p><a name="manually-incrementing-attempts"></a></p>
+<h3 id="manually-incrementing-attempts">Manually Incrementing Attempts</h3>
+<p>If you would like to manually interact with the rate limiter, a variety of other methods are available. For example, you may invoke the <code>tooManyAttempts</code> method to determine if a given rate limiter key has exceeded its maximum number of allowed attempts per minute:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">RateLimiter</span>;
+
+<span class="hljs-keyword">if</span> (<span class="hljs-title class_">RateLimiter</span>::<span class="hljs-title function_ invoke__">tooManyAttempts</span>(<span class="hljs-string">&#x27;send-message:&#x27;</span>.<span class="hljs-variable">$user</span>-&gt;id, <span class="hljs-variable">$perMinute</span> = <span class="hljs-number">5</span>)) {
+    <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;Too many attempts!&#x27;</span>;
+}
+</code></pre>
+<p>Alternatively, you may use the <code>remaining</code> method to retrieve the number of attempts remaining for a given key. If a given key has retries remaining, you may invoke the <code>hit</code> method to increment the number of total attempts:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">RateLimiter</span>;
+
+<span class="hljs-keyword">if</span> (<span class="hljs-title class_">RateLimiter</span>::<span class="hljs-title function_ invoke__">remaining</span>(<span class="hljs-string">&#x27;send-message:&#x27;</span>.<span class="hljs-variable">$user</span>-&gt;id, <span class="hljs-variable">$perMinute</span> = <span class="hljs-number">5</span>)) {
+    <span class="hljs-title class_">RateLimiter</span>::<span class="hljs-title function_ invoke__">hit</span>(<span class="hljs-string">&#x27;send-message:&#x27;</span>.<span class="hljs-variable">$user</span>-&gt;id);
+
+    <span class="hljs-comment">// Send message...</span>
+}
+</code></pre>
+<p><a name="determining-limiter-availability"></a></p>
+<h4 id="determining-limiter-availability">Determining Limiter Availability</h4>
+<p>When a key has no more attempts left, the <code>availableIn</code> method returns the number of seconds remaining until more attempts will be available:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">RateLimiter</span>;
+
+<span class="hljs-keyword">if</span> (<span class="hljs-title class_">RateLimiter</span>::<span class="hljs-title function_ invoke__">tooManyAttempts</span>(<span class="hljs-string">&#x27;send-message:&#x27;</span>.<span class="hljs-variable">$user</span>-&gt;id, <span class="hljs-variable">$perMinute</span> = <span class="hljs-number">5</span>)) {
+    <span class="hljs-variable">$seconds</span> = <span class="hljs-title class_">RateLimiter</span>::<span class="hljs-title function_ invoke__">availableIn</span>(<span class="hljs-string">&#x27;send-message:&#x27;</span>.<span class="hljs-variable">$user</span>-&gt;id);
+
+    <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;You may try again in &#x27;</span>.<span class="hljs-variable">$seconds</span>.<span class="hljs-string">&#x27; seconds.&#x27;</span>;
+}
+</code></pre>
+<p><a name="clearing-attempts"></a></p>
+<h3 id="clearing-attempts">Clearing Attempts</h3>
+<p>You may reset the number of attempts for a given rate limiter key using the <code>clear</code> method. For example, you may reset the number of attempts when a given message is read by the receiver:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Message</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">RateLimiter</span>;
+
+<span class="hljs-comment">/**
+ * Mark the message as read.
+ *
+ * <span class="hljs-doctag">@param</span>  \App\Models\Message  $message
+ * <span class="hljs-doctag">@return</span> \App\Models\Message
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">read</span>(<span class="hljs-params">Message <span class="hljs-variable">$message</span></span>)
+</span>{
+    <span class="hljs-variable">$message</span>-&gt;<span class="hljs-title function_ invoke__">markAsRead</span>();
+
+    <span class="hljs-title class_">RateLimiter</span>::<span class="hljs-title function_ invoke__">clear</span>(<span class="hljs-string">&#x27;send-message:&#x27;</span>.<span class="hljs-variable">$message</span>-&gt;user_id);
+
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$message</span>;
+}
+</code></pre>

@@ -1,0 +1,530 @@
+<h1 id="task-scheduling">Task Scheduling</h1>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#defining-schedules">Defining Schedules</a><ul>
+<li><a href="#scheduling-artisan-commands">Scheduling Artisan Commands</a></li>
+<li><a href="#scheduling-queued-jobs">Scheduling Queued Jobs</a></li>
+<li><a href="#scheduling-shell-commands">Scheduling Shell Commands</a></li>
+<li><a href="#schedule-frequency-options">Schedule Frequency Options</a></li>
+<li><a href="#timezones">Timezones</a></li>
+<li><a href="#preventing-task-overlaps">Preventing Task Overlaps</a></li>
+<li><a href="#running-tasks-on-one-server">Running Tasks On One Server</a></li>
+<li><a href="#background-tasks">Background Tasks</a></li>
+<li><a href="#maintenance-mode">Maintenance Mode</a></li>
+</ul>
+</li>
+<li><a href="#running-the-scheduler">Running The Scheduler</a><ul>
+<li><a href="#running-the-scheduler-locally">Running The Scheduler Locally</a></li>
+</ul>
+</li>
+<li><a href="#task-output">Task Output</a></li>
+<li><a href="#task-hooks">Task Hooks</a></li>
+<li><a href="#events">Events</a></li>
+</ul>
+<p><a name="introduction"></a></p>
+<h2 id="introduction">Introduction</h2>
+<p>In the past, you may have written a cron configuration entry for each task you needed to schedule on your server. However, this can quickly become a pain because your task schedule is no longer in source control and you must SSH into your server to view your existing cron entries or add additional entries.</p>
+<p>Laravel&#39;s command scheduler offers a fresh approach to managing scheduled tasks on your server. The scheduler allows you to fluently and expressively define your command schedule within your Laravel application itself. When using the scheduler, only a single cron entry is needed on your server. Your task schedule is defined in the <code>app/Console/Kernel.php</code> file&#39;s <code>schedule</code> method. To help you get started, a simple example is defined within the method.</p>
+<p><a name="defining-schedules"></a></p>
+<h2 id="defining-schedules">Defining Schedules</h2>
+<p>You may define all of your scheduled tasks in the <code>schedule</code> method of your application&#39;s <code>App\Console\Kernel</code> class. To get started, let&#39;s take a look at an example. In this example, we will schedule a closure to be called every day at midnight. Within the closure we will execute a database query to clear a table:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Console</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Console</span>\<span class="hljs-title">Scheduling</span>\<span class="hljs-title">Schedule</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Foundation</span>\<span class="hljs-title">Console</span>\<span class="hljs-title">Kernel</span> <span class="hljs-keyword">as</span> <span class="hljs-title">ConsoleKernel</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">DB</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Kernel</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">ConsoleKernel</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Define the application&#x27;s command schedule.
+     *
+     * <span class="hljs-doctag">@param</span>  \Illuminate\Console\Scheduling\Schedule  $schedule
+     * <span class="hljs-doctag">@return</span> void
+     */</span>
+    <span class="hljs-keyword">protected</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">schedule</span>(<span class="hljs-params">Schedule <span class="hljs-variable">$schedule</span></span>)
+    </span>{
+        <span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">call</span>(function () {
+            DB::<span class="hljs-title function_ invoke__">table</span>(<span class="hljs-string">&#x27;recent_users&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">delete</span>();
+        })-&gt;<span class="hljs-title function_ invoke__">daily</span>();
+    }
+}
+</code></pre>
+<p>In addition to scheduling using closures, you may also schedule <a href="https://secure.php.net/manual/en/language.oop5.magic.php#object.invoke">invokable objects</a>. Invokable objects are simple PHP classes that contain an <code>__invoke</code> method:</p>
+<pre><code><span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">call</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">DeleteRecentUsers</span>)-&gt;<span class="hljs-title function_ invoke__">daily</span>();
+</code></pre>
+<p>If you would like to view an overview of your scheduled tasks and the next time they are scheduled to run, you may use the <code>schedule:list</code> Artisan command:</p>
+<pre><code class="language-bash">php artisan schedule:list
+</code></pre>
+<p><a name="scheduling-artisan-commands"></a></p>
+<h3 id="scheduling-artisan-commands">Scheduling Artisan Commands</h3>
+<p>In addition to scheduling closures, you may also schedule <a href="/docs/%7B%7Bversion%7D%7D/artisan">Artisan commands</a> and system commands. For example, you may use the <code>command</code> method to schedule an Artisan command using either the command&#39;s name or class.</p>
+<p>When scheduling Artisan commands using the command&#39;s class name, you may pass an array of additional command-line arguments that should be provided to the command when it is invoked:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Console</span>\<span class="hljs-title">Commands</span>\<span class="hljs-title">SendEmailsCommand</span>;
+
+<span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;emails:send Taylor --force&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">daily</span>();
+
+<span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-title class_">SendEmailsCommand</span>::<span class="hljs-variable language_">class</span>, [<span class="hljs-string">&#x27;Taylor&#x27;</span>, <span class="hljs-string">&#x27;--force&#x27;</span>])-&gt;<span class="hljs-title function_ invoke__">daily</span>();
+</code></pre>
+<p><a name="scheduling-queued-jobs"></a></p>
+<h3 id="scheduling-queued-jobs">Scheduling Queued Jobs</h3>
+<p>The <code>job</code> method may be used to schedule a <a href="/docs/%7B%7Bversion%7D%7D/queues">queued job</a>. This method provides a convenient way to schedule queued jobs without using the <code>call</code> method to define closures to queue the job:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Jobs</span>\<span class="hljs-title">Heartbeat</span>;
+
+<span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">job</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Heartbeat</span>)-&gt;<span class="hljs-title function_ invoke__">everyFiveMinutes</span>();
+</code></pre>
+<p>Optional second and third arguments may be provided to the <code>job</code> method which specifies the queue name and queue connection that should be used to queue the job:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Jobs</span>\<span class="hljs-title">Heartbeat</span>;
+
+<span class="hljs-comment">// Dispatch the job to the &quot;heartbeats&quot; queue on the &quot;sqs&quot; connection...</span>
+<span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">job</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Heartbeat</span>, <span class="hljs-string">&#x27;heartbeats&#x27;</span>, <span class="hljs-string">&#x27;sqs&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">everyFiveMinutes</span>();
+</code></pre>
+<p><a name="scheduling-shell-commands"></a></p>
+<h3 id="scheduling-shell-commands">Scheduling Shell Commands</h3>
+<p>The <code>exec</code> method may be used to issue a command to the operating system:</p>
+<pre><code><span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">exec</span>(<span class="hljs-string">&#x27;node /home/forge/script.js&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">daily</span>();
+</code></pre>
+<p><a name="schedule-frequency-options"></a></p>
+<h3 id="schedule-frequency-options">Schedule Frequency Options</h3>
+<p>We&#39;ve already seen a few examples of how you may configure a task to run at specified intervals. However, there are many more task schedule frequencies that you may assign to a task:</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>-&gt;cron(&#39;* * * * *&#39;);</code></td>
+<td>Run the task on a custom cron schedule</td>
+</tr>
+<tr>
+<td><code>-&gt;everyMinute();</code></td>
+<td>Run the task every minute</td>
+</tr>
+<tr>
+<td><code>-&gt;everyTwoMinutes();</code></td>
+<td>Run the task every two minutes</td>
+</tr>
+<tr>
+<td><code>-&gt;everyThreeMinutes();</code></td>
+<td>Run the task every three minutes</td>
+</tr>
+<tr>
+<td><code>-&gt;everyFourMinutes();</code></td>
+<td>Run the task every four minutes</td>
+</tr>
+<tr>
+<td><code>-&gt;everyFiveMinutes();</code></td>
+<td>Run the task every five minutes</td>
+</tr>
+<tr>
+<td><code>-&gt;everyTenMinutes();</code></td>
+<td>Run the task every ten minutes</td>
+</tr>
+<tr>
+<td><code>-&gt;everyFifteenMinutes();</code></td>
+<td>Run the task every fifteen minutes</td>
+</tr>
+<tr>
+<td><code>-&gt;everyThirtyMinutes();</code></td>
+<td>Run the task every thirty minutes</td>
+</tr>
+<tr>
+<td><code>-&gt;hourly();</code></td>
+<td>Run the task every hour</td>
+</tr>
+<tr>
+<td><code>-&gt;hourlyAt(17);</code></td>
+<td>Run the task every hour at 17 minutes past the hour</td>
+</tr>
+<tr>
+<td><code>-&gt;everyTwoHours();</code></td>
+<td>Run the task every two hours</td>
+</tr>
+<tr>
+<td><code>-&gt;everyThreeHours();</code></td>
+<td>Run the task every three hours</td>
+</tr>
+<tr>
+<td><code>-&gt;everyFourHours();</code></td>
+<td>Run the task every four hours</td>
+</tr>
+<tr>
+<td><code>-&gt;everySixHours();</code></td>
+<td>Run the task every six hours</td>
+</tr>
+<tr>
+<td><code>-&gt;daily();</code></td>
+<td>Run the task every day at midnight</td>
+</tr>
+<tr>
+<td><code>-&gt;dailyAt(&#39;13:00&#39;);</code></td>
+<td>Run the task every day at 13:00</td>
+</tr>
+<tr>
+<td><code>-&gt;twiceDaily(1, 13);</code></td>
+<td>Run the task daily at 1:00 &amp; 13:00</td>
+</tr>
+<tr>
+<td><code>-&gt;weekly();</code></td>
+<td>Run the task every Sunday at 00:00</td>
+</tr>
+<tr>
+<td><code>-&gt;weeklyOn(1, &#39;8:00&#39;);</code></td>
+<td>Run the task every week on Monday at 8:00</td>
+</tr>
+<tr>
+<td><code>-&gt;monthly();</code></td>
+<td>Run the task on the first day of every month at 00:00</td>
+</tr>
+<tr>
+<td><code>-&gt;monthlyOn(4, &#39;15:00&#39;);</code></td>
+<td>Run the task every month on the 4th at 15:00</td>
+</tr>
+<tr>
+<td><code>-&gt;twiceMonthly(1, 16, &#39;13:00&#39;);</code></td>
+<td>Run the task monthly on the 1st and 16th at 13:00</td>
+</tr>
+<tr>
+<td><code>-&gt;lastDayOfMonth(&#39;15:00&#39;);</code></td>
+<td>Run the task on the last day of the month at 15:00</td>
+</tr>
+<tr>
+<td><code>-&gt;quarterly();</code></td>
+<td>Run the task on the first day of every quarter at 00:00</td>
+</tr>
+<tr>
+<td><code>-&gt;yearly();</code></td>
+<td>Run the task on the first day of every year at 00:00</td>
+</tr>
+<tr>
+<td><code>-&gt;yearlyOn(6, 1, &#39;17:00&#39;);</code></td>
+<td>Run the task every year on June 1st at 17:00</td>
+</tr>
+<tr>
+<td><code>-&gt;timezone(&#39;America/New_York&#39;);</code></td>
+<td>Set the timezone for the task</td>
+</tr>
+</tbody></table>
+<p>These methods may be combined with additional constraints to create even more finely tuned schedules that only run on certain days of the week. For example, you may schedule a command to run weekly on Monday:</p>
+<pre><code><span class="hljs-comment">// Run once per week on Monday at 1 PM...</span>
+<span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">call</span>(function () {
+    <span class="hljs-comment">//</span>
+})-&gt;<span class="hljs-title function_ invoke__">weekly</span>()-&gt;<span class="hljs-title function_ invoke__">mondays</span>()-&gt;<span class="hljs-title function_ invoke__">at</span>(<span class="hljs-string">&#x27;13:00&#x27;</span>);
+
+<span class="hljs-comment">// Run hourly from 8 AM to 5 PM on weekdays...</span>
+<span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;foo&#x27;</span>)
+          -&gt;<span class="hljs-title function_ invoke__">weekdays</span>()
+          -&gt;<span class="hljs-title function_ invoke__">hourly</span>()
+          -&gt;<span class="hljs-title function_ invoke__">timezone</span>(<span class="hljs-string">&#x27;America/Chicago&#x27;</span>)
+          -&gt;<span class="hljs-title function_ invoke__">between</span>(<span class="hljs-string">&#x27;8:00&#x27;</span>, <span class="hljs-string">&#x27;17:00&#x27;</span>);
+</code></pre>
+<p>A list of additional schedule constraints may be found below:</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>-&gt;weekdays();</code></td>
+<td>Limit the task to weekdays</td>
+</tr>
+<tr>
+<td><code>-&gt;weekends();</code></td>
+<td>Limit the task to weekends</td>
+</tr>
+<tr>
+<td><code>-&gt;sundays();</code></td>
+<td>Limit the task to Sunday</td>
+</tr>
+<tr>
+<td><code>-&gt;mondays();</code></td>
+<td>Limit the task to Monday</td>
+</tr>
+<tr>
+<td><code>-&gt;tuesdays();</code></td>
+<td>Limit the task to Tuesday</td>
+</tr>
+<tr>
+<td><code>-&gt;wednesdays();</code></td>
+<td>Limit the task to Wednesday</td>
+</tr>
+<tr>
+<td><code>-&gt;thursdays();</code></td>
+<td>Limit the task to Thursday</td>
+</tr>
+<tr>
+<td><code>-&gt;fridays();</code></td>
+<td>Limit the task to Friday</td>
+</tr>
+<tr>
+<td><code>-&gt;saturdays();</code></td>
+<td>Limit the task to Saturday</td>
+</tr>
+<tr>
+<td><code>-&gt;days(array|mixed);</code></td>
+<td>Limit the task to specific days</td>
+</tr>
+<tr>
+<td><code>-&gt;between($startTime, $endTime);</code></td>
+<td>Limit the task to run between start and end times</td>
+</tr>
+<tr>
+<td><code>-&gt;unlessBetween($startTime, $endTime);</code></td>
+<td>Limit the task to not run between start and end times</td>
+</tr>
+<tr>
+<td><code>-&gt;when(Closure);</code></td>
+<td>Limit the task based on a truth test</td>
+</tr>
+<tr>
+<td><code>-&gt;environments($env);</code></td>
+<td>Limit the task to specific environments</td>
+</tr>
+</tbody></table>
+<p><a name="day-constraints"></a></p>
+<h4 id="day-constraints">Day Constraints</h4>
+<p>The <code>days</code> method may be used to limit the execution of a task to specific days of the week. For example, you may schedule a command to run hourly on Sundays and Wednesdays:</p>
+<pre><code><span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;emails:send&#x27;</span>)
+                -&gt;<span class="hljs-title function_ invoke__">hourly</span>()
+                -&gt;<span class="hljs-title function_ invoke__">days</span>([<span class="hljs-number">0</span>, <span class="hljs-number">3</span>]);
+</code></pre>
+<p>Alternatively, you may use the constants available on the <code>Illuminate\Console\Scheduling\Schedule</code> class when defining the days on which a task should run:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Console</span>\<span class="hljs-title">Scheduling</span>\<span class="hljs-title">Schedule</span>;
+
+<span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;emails:send&#x27;</span>)
+                -&gt;<span class="hljs-title function_ invoke__">hourly</span>()
+                -&gt;<span class="hljs-title function_ invoke__">days</span>([<span class="hljs-title class_">Schedule</span>::<span class="hljs-variable constant_">SUNDAY</span>, <span class="hljs-title class_">Schedule</span>::<span class="hljs-variable constant_">WEDNESDAY</span>]);
+</code></pre>
+<p><a name="between-time-constraints"></a></p>
+<h4 id="between-time-constraints">Between Time Constraints</h4>
+<p>The <code>between</code> method may be used to limit the execution of a task based on the time of day:</p>
+<pre><code><span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;emails:send&#x27;</span>)
+                    -&gt;<span class="hljs-title function_ invoke__">hourly</span>()
+                    -&gt;<span class="hljs-title function_ invoke__">between</span>(<span class="hljs-string">&#x27;7:00&#x27;</span>, <span class="hljs-string">&#x27;22:00&#x27;</span>);
+</code></pre>
+<p>Similarly, the <code>unlessBetween</code> method can be used to exclude the execution of a task for a period of time:</p>
+<pre><code><span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;emails:send&#x27;</span>)
+                    -&gt;<span class="hljs-title function_ invoke__">hourly</span>()
+                    -&gt;<span class="hljs-title function_ invoke__">unlessBetween</span>(<span class="hljs-string">&#x27;23:00&#x27;</span>, <span class="hljs-string">&#x27;4:00&#x27;</span>);
+</code></pre>
+<p><a name="truth-test-constraints"></a></p>
+<h4 id="truth-test-constraints">Truth Test Constraints</h4>
+<p>The <code>when</code> method may be used to limit the execution of a task based on the result of a given truth test. In other words, if the given closure returns <code>true</code>, the task will execute as long as no other constraining conditions prevent the task from running:</p>
+<pre><code><span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;emails:send&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">daily</span>()-&gt;<span class="hljs-title function_ invoke__">when</span>(function () {
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+});
+</code></pre>
+<p>The <code>skip</code> method may be seen as the inverse of <code>when</code>. If the <code>skip</code> method returns <code>true</code>, the scheduled task will not be executed:</p>
+<pre><code><span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;emails:send&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">daily</span>()-&gt;<span class="hljs-title function_ invoke__">skip</span>(function () {
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+});
+</code></pre>
+<p>When using chained <code>when</code> methods, the scheduled command will only execute if all <code>when</code> conditions return <code>true</code>.</p>
+<p><a name="environment-constraints"></a></p>
+<h4 id="environment-constraints">Environment Constraints</h4>
+<p>The <code>environments</code> method may be used to execute tasks only on the given environments (as defined by the <code>APP_ENV</code> <a href="/docs/%7B%7Bversion%7D%7D/configuration#environment-configuration">environment variable</a>):</p>
+<pre><code><span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;emails:send&#x27;</span>)
+            -&gt;<span class="hljs-title function_ invoke__">daily</span>()
+            -&gt;<span class="hljs-title function_ invoke__">environments</span>([<span class="hljs-string">&#x27;staging&#x27;</span>, <span class="hljs-string">&#x27;production&#x27;</span>]);
+</code></pre>
+<p><a name="timezones"></a></p>
+<h3 id="timezones">Timezones</h3>
+<p>Using the <code>timezone</code> method, you may specify that a scheduled task&#39;s time should be interpreted within a given timezone:</p>
+<pre><code><span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;report:generate&#x27;</span>)
+         -&gt;<span class="hljs-title function_ invoke__">timezone</span>(<span class="hljs-string">&#x27;America/New_York&#x27;</span>)
+         -&gt;<span class="hljs-title function_ invoke__">at</span>(<span class="hljs-string">&#x27;2:00&#x27;</span>)
+</code></pre>
+<p>If you are repeatedly assigning the same timezone to all of your scheduled tasks, you may wish to define a <code>scheduleTimezone</code> method in your <code>App\Console\Kernel</code> class. This method should return the default timezone that should be assigned to all scheduled tasks:</p>
+<pre><code><span class="hljs-comment">/**
+ * Get the timezone that should be used by default for scheduled events.
+ *
+ * <span class="hljs-doctag">@return</span> \DateTimeZone|string|null
+ */</span>
+<span class="hljs-keyword">protected</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">scheduleTimezone</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;America/Chicago&#x27;</span>;
+}
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>Remember that some timezones utilize daylight savings time. When daylight saving time changes occur, your scheduled task may run twice or even not run at all. For this reason, we recommend avoiding timezone scheduling when possible.</p>
+</blockquote>
+<p><a name="preventing-task-overlaps"></a></p>
+<h3 id="preventing-task-overlaps">Preventing Task Overlaps</h3>
+<p>By default, scheduled tasks will be run even if the previous instance of the task is still running. To prevent this, you may use the <code>withoutOverlapping</code> method:</p>
+<pre><code><span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;emails:send&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">withoutOverlapping</span>();
+</code></pre>
+<p>In this example, the <code>emails:send</code> <a href="/docs/%7B%7Bversion%7D%7D/artisan">Artisan command</a> will be run every minute if it is not already running. The <code>withoutOverlapping</code> method is especially useful if you have tasks that vary drastically in their execution time, preventing you from predicting exactly how long a given task will take.</p>
+<p>If needed, you may specify how many minutes must pass before the &quot;without overlapping&quot; lock expires. By default, the lock will expire after 24 hours:</p>
+<pre><code><span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;emails:send&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">withoutOverlapping</span>(<span class="hljs-number">10</span>);
+</code></pre>
+<p>Behind the scenes, the <code>withoutOverlapping</code> method utilizes your application&#39;s <a href="/docs/%7B%7Bversion%7D%7D/cache">cache</a> to obtain locks. If necessary, you can clear these cache locks using the <code>schedule:clear-cache</code> Artisan command. This is typically only necessary if a task becomes stuck due to an unexpected server problem.</p>
+<p><a name="running-tasks-on-one-server"></a></p>
+<h3 id="running-tasks-on-one-server">Running Tasks On One Server</h3>
+<blockquote>
+<p><strong>Warning</strong><br>To utilize this feature, your application must be using the <code>database</code>, <code>memcached</code>, <code>dynamodb</code>, or <code>redis</code> cache driver as your application&#39;s default cache driver. In addition, all servers must be communicating with the same central cache server.</p>
+</blockquote>
+<p>If your application&#39;s scheduler is running on multiple servers, you may limit a scheduled job to only execute on a single server. For instance, assume you have a scheduled task that generates a new report every Friday night. If the task scheduler is running on three worker servers, the scheduled task will run on all three servers and generate the report three times. Not good!</p>
+<p>To indicate that the task should run on only one server, use the <code>onOneServer</code> method when defining the scheduled task. The first server to obtain the task will secure an atomic lock on the job to prevent other servers from running the same task at the same time:</p>
+<pre><code><span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;report:generate&#x27;</span>)
+                -&gt;<span class="hljs-title function_ invoke__">fridays</span>()
+                -&gt;<span class="hljs-title function_ invoke__">at</span>(<span class="hljs-string">&#x27;17:00&#x27;</span>)
+                -&gt;<span class="hljs-title function_ invoke__">onOneServer</span>();
+</code></pre>
+<p><a name="naming-unique-jobs"></a></p>
+<h4 id="naming-single-server-jobs">Naming Single Server Jobs</h4>
+<p>Sometimes you may need to schedule the same job to be dispatched with different parameters, while still instructing Laravel to run each permutation of the job on a single server. To accomplish this, you may assign each schedule definition a unique name via the <code>name</code> method:</p>
+<pre><code class="language-php"><span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">job</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">CheckUptime</span>(<span class="hljs-string">&#x27;https://laravel.com&#x27;</span>))
+            -&gt;<span class="hljs-title function_ invoke__">name</span>(<span class="hljs-string">&#x27;check_uptime:laravel.com&#x27;</span>)
+            -&gt;<span class="hljs-title function_ invoke__">everyFiveMinutes</span>()
+            -&gt;<span class="hljs-title function_ invoke__">onOneServer</span>();
+
+<span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">job</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">CheckUptime</span>(<span class="hljs-string">&#x27;https://vapor.laravel.com&#x27;</span>))
+            -&gt;<span class="hljs-title function_ invoke__">name</span>(<span class="hljs-string">&#x27;check_uptime:vapor.laravel.com&#x27;</span>)
+            -&gt;<span class="hljs-title function_ invoke__">everyFiveMinutes</span>()
+            -&gt;<span class="hljs-title function_ invoke__">onOneServer</span>();
+</code></pre>
+<p><a name="background-tasks"></a></p>
+<h3 id="background-tasks">Background Tasks</h3>
+<p>By default, multiple tasks scheduled at the same time will execute sequentially based on the order they are defined in your <code>schedule</code> method. If you have long-running tasks, this may cause subsequent tasks to start much later than anticipated. If you would like to run tasks in the background so that they may all run simultaneously, you may use the <code>runInBackground</code> method:</p>
+<pre><code><span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;analytics:report&#x27;</span>)
+         -&gt;<span class="hljs-title function_ invoke__">daily</span>()
+         -&gt;<span class="hljs-title function_ invoke__">runInBackground</span>();
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>The <code>runInBackground</code> method may only be used when scheduling tasks via the <code>command</code> and <code>exec</code> methods.</p>
+</blockquote>
+<p><a name="maintenance-mode"></a></p>
+<h3 id="maintenance-mode">Maintenance Mode</h3>
+<p>Your application&#39;s scheduled tasks will not run when the application is in <a href="/docs/%7B%7Bversion%7D%7D/configuration#maintenance-mode">maintenance mode</a>, since we don&#39;t want your tasks to interfere with any unfinished maintenance you may be performing on your server. However, if you would like to force a task to run even in maintenance mode, you may call the <code>evenInMaintenanceMode</code> method when defining the task:</p>
+<pre><code><span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;emails:send&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">evenInMaintenanceMode</span>();
+</code></pre>
+<p><a name="running-the-scheduler"></a></p>
+<h2 id="running-the-scheduler">Running The Scheduler</h2>
+<p>Now that we have learned how to define scheduled tasks, let&#39;s discuss how to actually run them on our server. The <code>schedule:run</code> Artisan command will evaluate all of your scheduled tasks and determine if they need to run based on the server&#39;s current time.</p>
+<p>So, when using Laravel&#39;s scheduler, we only need to add a single cron configuration entry to our server that runs the <code>schedule:run</code> command every minute. If you do not know how to add cron entries to your server, consider using a service such as <a href="https://forge.laravel.com">Laravel Forge</a> which can manage the cron entries for you:</p>
+<pre><code class="language-shell">* * * * * cd /path-to-your-project &amp;&amp; php artisan schedule:run &gt;&gt; /dev/null 2&gt;&amp;1
+</code></pre>
+<p><a name="running-the-scheduler-locally"></a></p>
+<h2 id="running-the-scheduler-locally">Running The Scheduler Locally</h2>
+<p>Typically, you would not add a scheduler cron entry to your local development machine. Instead, you may use the <code>schedule:work</code> Artisan command. This command will run in the foreground and invoke the scheduler every minute until you terminate the command:</p>
+<pre><code class="language-shell">php artisan schedule:work
+</code></pre>
+<p><a name="task-output"></a></p>
+<h2 id="task-output">Task Output</h2>
+<p>The Laravel scheduler provides several convenient methods for working with the output generated by scheduled tasks. First, using the <code>sendOutputTo</code> method, you may send the output to a file for later inspection:</p>
+<pre><code><span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;emails:send&#x27;</span>)
+         -&gt;<span class="hljs-title function_ invoke__">daily</span>()
+         -&gt;<span class="hljs-title function_ invoke__">sendOutputTo</span>(<span class="hljs-variable">$filePath</span>);
+</code></pre>
+<p>If you would like to append the output to a given file, you may use the <code>appendOutputTo</code> method:</p>
+<pre><code><span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;emails:send&#x27;</span>)
+         -&gt;<span class="hljs-title function_ invoke__">daily</span>()
+         -&gt;<span class="hljs-title function_ invoke__">appendOutputTo</span>(<span class="hljs-variable">$filePath</span>);
+</code></pre>
+<p>Using the <code>emailOutputTo</code> method, you may email the output to an email address of your choice. Before emailing the output of a task, you should configure Laravel&#39;s <a href="/docs/%7B%7Bversion%7D%7D/mail">email services</a>:</p>
+<pre><code><span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;report:generate&#x27;</span>)
+         -&gt;<span class="hljs-title function_ invoke__">daily</span>()
+         -&gt;<span class="hljs-title function_ invoke__">sendOutputTo</span>(<span class="hljs-variable">$filePath</span>)
+         -&gt;<span class="hljs-title function_ invoke__">emailOutputTo</span>(<span class="hljs-string">&#x27;taylor@example.com&#x27;</span>);
+</code></pre>
+<p>If you only want to email the output if the scheduled Artisan or system command terminates with a non-zero exit code, use the <code>emailOutputOnFailure</code> method:</p>
+<pre><code><span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;report:generate&#x27;</span>)
+         -&gt;<span class="hljs-title function_ invoke__">daily</span>()
+         -&gt;<span class="hljs-title function_ invoke__">emailOutputOnFailure</span>(<span class="hljs-string">&#x27;taylor@example.com&#x27;</span>);
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>The <code>emailOutputTo</code>, <code>emailOutputOnFailure</code>, <code>sendOutputTo</code>, and <code>appendOutputTo</code> methods are exclusive to the <code>command</code> and <code>exec</code> methods.</p>
+</blockquote>
+<p><a name="task-hooks"></a></p>
+<h2 id="task-hooks">Task Hooks</h2>
+<p>Using the <code>before</code> and <code>after</code> methods, you may specify code to be executed before and after the scheduled task is executed:</p>
+<pre><code><span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;emails:send&#x27;</span>)
+         -&gt;<span class="hljs-title function_ invoke__">daily</span>()
+         -&gt;<span class="hljs-title function_ invoke__">before</span>(function () {
+             <span class="hljs-comment">// The task is about to execute...</span>
+         })
+         -&gt;<span class="hljs-title function_ invoke__">after</span>(function () {
+             <span class="hljs-comment">// The task has executed...</span>
+         });
+</code></pre>
+<p>The <code>onSuccess</code> and <code>onFailure</code> methods allow you to specify code to be executed if the scheduled task succeeds or fails. A failure indicates that the scheduled Artisan or system command terminated with a non-zero exit code:</p>
+<pre><code><span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;emails:send&#x27;</span>)
+         -&gt;<span class="hljs-title function_ invoke__">daily</span>()
+         -&gt;<span class="hljs-title function_ invoke__">onSuccess</span>(function () {
+             <span class="hljs-comment">// The task succeeded...</span>
+         })
+         -&gt;<span class="hljs-title function_ invoke__">onFailure</span>(function () {
+             <span class="hljs-comment">// The task failed...</span>
+         });
+</code></pre>
+<p>If output is available from your command, you may access it in your <code>after</code>, <code>onSuccess</code> or <code>onFailure</code> hooks by type-hinting an <code>Illuminate\Support\Stringable</code> instance as the <code>$output</code> argument of your hook&#39;s closure definition:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Stringable</span>;
+
+<span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;emails:send&#x27;</span>)
+         -&gt;<span class="hljs-title function_ invoke__">daily</span>()
+         -&gt;<span class="hljs-title function_ invoke__">onSuccess</span>(function (<span class="hljs-built_in">Stringable</span> <span class="hljs-variable">$output</span>) {
+             <span class="hljs-comment">// The task succeeded...</span>
+         })
+         -&gt;<span class="hljs-title function_ invoke__">onFailure</span>(function (<span class="hljs-built_in">Stringable</span> <span class="hljs-variable">$output</span>) {
+             <span class="hljs-comment">// The task failed...</span>
+         });
+</code></pre>
+<p><a name="pinging-urls"></a></p>
+<h4 id="pinging-urls">Pinging URLs</h4>
+<p>Using the <code>pingBefore</code> and <code>thenPing</code> methods, the scheduler can automatically ping a given URL before or after a task is executed. This method is useful for notifying an external service, such as <a href="https://envoyer.io">Envoyer</a>, that your scheduled task is beginning or has finished execution:</p>
+<pre><code><span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;emails:send&#x27;</span>)
+         -&gt;<span class="hljs-title function_ invoke__">daily</span>()
+         -&gt;<span class="hljs-title function_ invoke__">pingBefore</span>(<span class="hljs-variable">$url</span>)
+         -&gt;<span class="hljs-title function_ invoke__">thenPing</span>(<span class="hljs-variable">$url</span>);
+</code></pre>
+<p>The <code>pingBeforeIf</code> and <code>thenPingIf</code> methods may be used to ping a given URL only if a given condition is <code>true</code>:</p>
+<pre><code><span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;emails:send&#x27;</span>)
+         -&gt;<span class="hljs-title function_ invoke__">daily</span>()
+         -&gt;<span class="hljs-title function_ invoke__">pingBeforeIf</span>(<span class="hljs-variable">$condition</span>, <span class="hljs-variable">$url</span>)
+         -&gt;<span class="hljs-title function_ invoke__">thenPingIf</span>(<span class="hljs-variable">$condition</span>, <span class="hljs-variable">$url</span>);
+</code></pre>
+<p>The <code>pingOnSuccess</code> and <code>pingOnFailure</code> methods may be used to ping a given URL only if the task succeeds or fails. A failure indicates that the scheduled Artisan or system command terminated with a non-zero exit code:</p>
+<pre><code><span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;emails:send&#x27;</span>)
+         -&gt;<span class="hljs-title function_ invoke__">daily</span>()
+         -&gt;<span class="hljs-title function_ invoke__">pingOnSuccess</span>(<span class="hljs-variable">$successUrl</span>)
+         -&gt;<span class="hljs-title function_ invoke__">pingOnFailure</span>(<span class="hljs-variable">$failureUrl</span>);
+</code></pre>
+<p>All of the ping methods require the Guzzle HTTP library. Guzzle is typically installed in all new Laravel projects by default, but, you may manually install Guzzle into your project using the Composer package manager if it has been accidentally removed:</p>
+<pre><code class="language-shell">composer require guzzlehttp/guzzle
+</code></pre>
+<p><a name="events"></a></p>
+<h2 id="events">Events</h2>
+<p>If needed, you may listen to <a href="/docs/%7B%7Bversion%7D%7D/events">events</a> dispatched by the scheduler. Typically, event listener mappings will be defined within your application&#39;s <code>App\Providers\EventServiceProvider</code> class:</p>
+<pre><code><span class="hljs-comment">/**
+ * The event listener mappings for the application.
+ *
+ * <span class="hljs-doctag">@var</span> array
+ */</span>
+<span class="hljs-keyword">protected</span> <span class="hljs-variable">$listen</span> = [
+    <span class="hljs-string">&#x27;Illuminate\Console\Events\ScheduledTaskStarting&#x27;</span> =&gt; [
+        <span class="hljs-string">&#x27;App\Listeners\LogScheduledTaskStarting&#x27;</span>,
+    ],
+
+    <span class="hljs-string">&#x27;Illuminate\Console\Events\ScheduledTaskFinished&#x27;</span> =&gt; [
+        <span class="hljs-string">&#x27;App\Listeners\LogScheduledTaskFinished&#x27;</span>,
+    ],
+
+    <span class="hljs-string">&#x27;Illuminate\Console\Events\ScheduledBackgroundTaskFinished&#x27;</span> =&gt; [
+        <span class="hljs-string">&#x27;App\Listeners\LogScheduledBackgroundTaskFinished&#x27;</span>,
+    ],
+
+    <span class="hljs-string">&#x27;Illuminate\Console\Events\ScheduledTaskSkipped&#x27;</span> =&gt; [
+        <span class="hljs-string">&#x27;App\Listeners\LogScheduledTaskSkipped&#x27;</span>,
+    ],
+
+    <span class="hljs-string">&#x27;Illuminate\Console\Events\ScheduledTaskFailed&#x27;</span> =&gt; [
+        <span class="hljs-string">&#x27;App\Listeners\LogScheduledTaskFailed&#x27;</span>,
+    ],
+];
+</code></pre>

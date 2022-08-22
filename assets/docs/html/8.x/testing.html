@@ -1,0 +1,141 @@
+<h1 id="testing-getting-started">Testing: Getting Started</h1>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#environment">Environment</a></li>
+<li><a href="#creating-tests">Creating Tests</a></li>
+<li><a href="#running-tests">Running Tests</a><ul>
+<li><a href="#running-tests-in-parallel">Running Tests In Parallel</a></li>
+</ul>
+</li>
+</ul>
+<p><a name="introduction"></a></p>
+<h2 id="introduction">Introduction</h2>
+<p>Laravel is built with testing in mind. In fact, support for testing with PHPUnit is included out of the box and a <code>phpunit.xml</code> file is already set up for your application. The framework also ships with convenient helper methods that allow you to expressively test your applications.</p>
+<p>By default, your application&#39;s <code>tests</code> directory contains two directories: <code>Feature</code> and <code>Unit</code>. Unit tests are tests that focus on a very small, isolated portion of your code. In fact, most unit tests probably focus on a single method. Tests within your &quot;Unit&quot; test directory do not boot your Laravel application and therefore are unable to access your application&#39;s database or other framework services.</p>
+<p>Feature tests may test a larger portion of your code, including how several objects interact with each other or even a full HTTP request to a JSON endpoint. <strong>Generally, most of your tests should be feature tests. These types of tests provide the most confidence that your system as a whole is functioning as intended.</strong></p>
+<p>An <code>ExampleTest.php</code> file is provided in both the <code>Feature</code> and <code>Unit</code> test directories. After installing a new Laravel application, execute the <code>vendor/bin/phpunit</code> or <code>php artisan test</code> commands to run your tests.</p>
+<p><a name="environment"></a></p>
+<h2 id="environment">Environment</h2>
+<p>When running tests, Laravel will automatically set the <a href="/docs/%7B%7Bversion%7D%7D/configuration#environment-configuration">configuration environment</a> to <code>testing</code> because of the environment variables defined in the <code>phpunit.xml</code> file. Laravel also automatically configures the session and cache to the <code>array</code> driver while testing, meaning no session or cache data will be persisted while testing.</p>
+<p>You are free to define other testing environment configuration values as necessary. The <code>testing</code> environment variables may be configured in your application&#39;s <code>phpunit.xml</code> file, but make sure to clear your configuration cache using the <code>config:clear</code> Artisan command before running your tests!</p>
+<p><a name="the-env-testing-environment-file"></a></p>
+<h4 id="the-envtesting-environment-file">The <code>.env.testing</code> Environment File</h4>
+<p>In addition, you may create a <code>.env.testing</code> file in the root of your project. This file will be used instead of the <code>.env</code> file when running PHPUnit tests or executing Artisan commands with the <code>--env=testing</code> option.</p>
+<p><a name="the-creates-application-trait"></a></p>
+<h4 id="the-createsapplication-trait">The <code>CreatesApplication</code> Trait</h4>
+<p>Laravel includes a <code>CreatesApplication</code> trait that is applied to your application&#39;s base <code>TestCase</code> class. This trait contains a <code>createApplication</code> method that bootstraps the Laravel application before running your tests. It&#39;s important that you leave this trait at its original location as some features, such as Laravel&#39;s parallel testing feature, depend on it.</p>
+<p><a name="creating-tests"></a></p>
+<h2 id="creating-tests">Creating Tests</h2>
+<p>To create a new test case, use the <code>make:test</code> Artisan command. By default, tests will be placed in the <code>tests/Feature</code> directory:</p>
+<pre><code>php artisan make:test UserTest
+</code></pre>
+<p>If you would like to create a test within the <code>tests/Unit</code> directory, you may use the <code>--unit</code> option when executing the <code>make:test</code> command:</p>
+<pre><code>php artisan make:test UserTest --unit
+</code></pre>
+<p>If you would like to create a <a href="https://pestphp.com">Pest PHP</a> test, you may provide the <code>--pest</code> option to the <code>make:test</code> command:</p>
+<pre><code>php artisan make:test UserTest --pest
+php artisan make:test UserTest --unit --pest
+</code></pre>
+<blockquote>
+<p>{tip} Test stubs may be customized using <a href="/docs/%7B%7Bversion%7D%7D/artisan#stub-customization">stub publishing</a>.</p>
+</blockquote>
+<p>Once the test has been generated, you may define test methods as you normally would using <a href="https://phpunit.de">PHPUnit</a>. To run your tests, execute the <code>vendor/bin/phpunit</code> or <code>php artisan test</code> command from your terminal:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">Tests</span>\<span class="hljs-title class_">Unit</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">PHPUnit</span>\<span class="hljs-title">Framework</span>\<span class="hljs-title">TestCase</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ExampleTest</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">TestCase</span>
+</span>{
+    <span class="hljs-comment">/**
+     * A basic test example.
+     *
+     * <span class="hljs-doctag">@return</span> void
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test_basic_test</span>(<span class="hljs-params"></span>)
+    </span>{
+        <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">assertTrue</span>(<span class="hljs-literal">true</span>);
+    }
+}
+</code></pre>
+<blockquote>
+<p>{note} If you define your own <code>setUp</code> / <code>tearDown</code> methods within a test class, be sure to call the respective <code>parent::setUp()</code> / <code>parent::tearDown()</code> methods on the parent class.</p>
+</blockquote>
+<p><a name="running-tests"></a></p>
+<h2 id="running-tests">Running Tests</h2>
+<p>As mentioned previously, once you&#39;ve written tests, you may run them using <code>phpunit</code>:</p>
+<pre><code>./vendor/bin/phpunit
+</code></pre>
+<p>In addition to the <code>phpunit</code> command, you may use the <code>test</code> Artisan command to run your tests. The Artisan test runner provides verbose test reports in order to ease development and debugging:</p>
+<pre><code>php artisan test
+</code></pre>
+<p>Any arguments that can be passed to the <code>phpunit</code> command may also be passed to the Artisan <code>test</code> command:</p>
+<pre><code>php artisan test --testsuite=Feature --stop-on-failure
+</code></pre>
+<p><a name="running-tests-in-parallel"></a></p>
+<h3 id="running-tests-in-parallel">Running Tests In Parallel</h3>
+<p>By default, Laravel and PHPUnit execute your tests sequentially within a single process. However, you may greatly reduce the amount of time it takes to run your tests by running tests simultaneously across multiple processes. To get started, ensure your application depends on version <code>^5.3</code> or greater of the <code>nunomaduro/collision</code> package. Then, include the <code>--parallel</code> option when executing the <code>test</code> Artisan command:</p>
+<pre><code>php artisan test --parallel
+</code></pre>
+<p>By default, Laravel will create as many processes as there are available CPU cores on your machine. However, you may adjust the number of processes using the <code>--processes</code> option:</p>
+<pre><code>php artisan test --parallel --processes=<span class="hljs-number">4</span>
+</code></pre>
+<blockquote>
+<p>{note} When running tests in parallel, some PHPUnit options (such as <code>--do-not-cache-result</code>) may not be available.</p>
+</blockquote>
+<p><a name="parallel-testing-and-databases"></a></p>
+<h4 id="parallel-testing--databases">Parallel Testing &amp; Databases</h4>
+<p>Laravel automatically handles creating and migrating a test database for each parallel process that is running your tests. The test databases will be suffixed with a process token which is unique per process. For example, if you have two parallel test processes, Laravel will create and use <code>your_db_test_1</code> and <code>your_db_test_2</code> test databases.</p>
+<p>By default, test databases persist between calls to the <code>test</code> Artisan command so that they can be used again by subsequent <code>test</code> invocations. However, you may re-create them using the <code>--recreate-databases</code> option:</p>
+<pre><code>php artisan test --parallel --recreate-databases
+</code></pre>
+<p><a name="parallel-testing-hooks"></a></p>
+<h4 id="parallel-testing-hooks">Parallel Testing Hooks</h4>
+<p>Occasionally, you may need to prepare certain resources used by your application&#39;s tests so they may be safely used by multiple test processes.</p>
+<p>Using the <code>ParallelTesting</code> facade, you may specify code to be executed on the <code>setUp</code> and <code>tearDown</code> of a process or test case. The given closures receive the <code>$token</code> and <code>$testCase</code> variables that contain the process token and the current test case, respectively:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Providers</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Artisan</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">ParallelTesting</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">ServiceProvider</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AppServiceProvider</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">ServiceProvider</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Bootstrap any application services.
+     *
+     * <span class="hljs-doctag">@return</span> void
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>)
+    </span>{
+        <span class="hljs-title class_">ParallelTesting</span>::<span class="hljs-title function_ invoke__">setUpProcess</span>(function (<span class="hljs-variable">$token</span>) {
+            <span class="hljs-comment">// ...</span>
+        });
+
+        <span class="hljs-title class_">ParallelTesting</span>::<span class="hljs-title function_ invoke__">setUpTestCase</span>(function (<span class="hljs-variable">$token</span>, <span class="hljs-variable">$testCase</span>) {
+            <span class="hljs-comment">// ...</span>
+        });
+
+        <span class="hljs-comment">// Executed when a test database is created...</span>
+        <span class="hljs-title class_">ParallelTesting</span>::<span class="hljs-title function_ invoke__">setUpTestDatabase</span>(function (<span class="hljs-variable">$database</span>, <span class="hljs-variable">$token</span>) {
+            <span class="hljs-title class_">Artisan</span>::<span class="hljs-title function_ invoke__">call</span>(<span class="hljs-string">&#x27;db:seed&#x27;</span>);
+        });
+
+        <span class="hljs-title class_">ParallelTesting</span>::<span class="hljs-title function_ invoke__">tearDownTestCase</span>(function (<span class="hljs-variable">$token</span>, <span class="hljs-variable">$testCase</span>) {
+            <span class="hljs-comment">// ...</span>
+        });
+
+        <span class="hljs-title class_">ParallelTesting</span>::<span class="hljs-title function_ invoke__">tearDownProcess</span>(function (<span class="hljs-variable">$token</span>) {
+            <span class="hljs-comment">// ...</span>
+        });
+    }
+}
+</code></pre>
+<p><a name="accessing-the-parallel-testing-token"></a></p>
+<h4 id="accessing-the-parallel-testing-token">Accessing The Parallel Testing Token</h4>
+<p>If you would like to access to current parallel process &quot;token&quot; from any other location in your application&#39;s test code, you may use the <code>token</code> method. This token is a unique, string identifier for an individual test process and may be used to segment resources across parallel test processes. For example, Laravel automatically appends this token to the end of the test databases created by each parallel testing process:</p>
+<pre><code><span class="hljs-variable">$token</span> = <span class="hljs-title class_">ParallelTesting</span>::<span class="hljs-title function_ invoke__">token</span>();
+</code></pre>
