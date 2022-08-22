@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import DocPreviewPanel from "./DocPreviewPanel";
 import { COMPILED_DIR, CSS_ASSET, DOCS_LIST, OPEN_DOC } from "./constants";
-import { docs, getNonce } from "./Utils";
+import { getNonce, htmlDocs } from "./Utils";
 
 export default class SidebarProvider implements vscode.WebviewViewProvider {
   _view?: vscode.WebviewView;
@@ -30,7 +30,7 @@ export default class SidebarProvider implements vscode.WebviewViewProvider {
         case DOCS_LIST: {
           this._view?.webview.postMessage({
             type: DOCS_LIST,
-            value: docs(),
+            value: htmlDocs(),
           });
           break;
         }
