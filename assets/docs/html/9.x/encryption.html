@@ -1,0 +1,54 @@
+<h1 id="encryption">Encryption</h1>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#configuration">Configuration</a></li>
+<li><a href="#using-the-encrypter">Using The Encrypter</a></li>
+</ul>
+<p><a name="introduction"></a></p>
+<h2 id="introduction">Introduction</h2>
+<p>Laravel&#39;s encryption services provide a simple, convenient interface for encrypting and decrypting text via OpenSSL using AES-256 and AES-128 encryption. All of Laravel&#39;s encrypted values are signed using a message authentication code (MAC) so that their underlying value can not be modified or tampered with once encrypted.</p>
+<p><a name="configuration"></a></p>
+<h2 id="configuration">Configuration</h2>
+<p>Before using Laravel&#39;s encrypter, you must set the <code>key</code> configuration option in your <code>config/app.php</code> configuration file. This configuration value is driven by the <code>APP_KEY</code> environment variable. You should use the <code>php artisan key:generate</code> command to generate this variable&#39;s value since the <code>key:generate</code> command will use PHP&#39;s secure random bytes generator to build a cryptographically secure key for your application. Typically, the value of the <code>APP_KEY</code> environment variable will be generated for you during <a href="/docs/%7B%7Bversion%7D%7D/installation">Laravel&#39;s installation</a>.</p>
+<p><a name="using-the-encrypter"></a></p>
+<h2 id="using-the-encrypter">Using The Encrypter</h2>
+<p><a name="encrypting-a-value"></a></p>
+<h4 id="encrypting-a-value">Encrypting A Value</h4>
+<p>You may encrypt a value using the <code>encryptString</code> method provided by the <code>Crypt</code> facade. All encrypted values are encrypted using OpenSSL and the AES-256-CBC cipher. Furthermore, all encrypted values are signed with a message authentication code (MAC). The integrated message authentication code will prevent the decryption of any values that have been tampered with by malicious users:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Http</span>\<span class="hljs-title class_">Controllers</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Controllers</span>\<span class="hljs-title">Controller</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Crypt</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">DigitalOceanTokenController</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Controller</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Store a DigitalOcean API token for the user.
+     *
+     * <span class="hljs-doctag">@param</span>  \Illuminate\Http\Request  $request
+     * <span class="hljs-doctag">@return</span> \Illuminate\Http\Response
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">storeSecret</span>(<span class="hljs-params">Request <span class="hljs-variable">$request</span></span>)
+    </span>{
+        <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">fill</span>([
+            <span class="hljs-string">&#x27;token&#x27;</span> =&gt; <span class="hljs-title class_">Crypt</span>::<span class="hljs-title function_ invoke__">encryptString</span>(<span class="hljs-variable">$request</span>-&gt;token),
+        ])-&gt;<span class="hljs-title function_ invoke__">save</span>();
+    }
+}
+</code></pre>
+<p><a name="decrypting-a-value"></a></p>
+<h4 id="decrypting-a-value">Decrypting A Value</h4>
+<p>You may decrypt values using the <code>decryptString</code> method provided by the <code>Crypt</code> facade. If the value can not be properly decrypted, such as when the message authentication code is invalid, an <code>Illuminate\Contracts\Encryption\DecryptException</code> will be thrown:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Contracts</span>\<span class="hljs-title">Encryption</span>\<span class="hljs-title">DecryptException</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Crypt</span>;
+
+<span class="hljs-keyword">try</span> {
+    <span class="hljs-variable">$decrypted</span> = <span class="hljs-title class_">Crypt</span>::<span class="hljs-title function_ invoke__">decryptString</span>(<span class="hljs-variable">$encryptedValue</span>);
+} <span class="hljs-keyword">catch</span> (DecryptException <span class="hljs-variable">$e</span>) {
+    <span class="hljs-comment">//</span>
+}
+</code></pre>

@@ -1,0 +1,291 @@
+<h1 id="compiling-assets-mix">Compiling Assets (Mix)</h1>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#installation">Installation &amp; Setup</a></li>
+<li><a href="#running-mix">Running Mix</a></li>
+<li><a href="#working-with-stylesheets">Working With Stylesheets</a><ul>
+<li><a href="#tailwindcss">Tailwind CSS</a></li>
+<li><a href="#postcss">PostCSS</a></li>
+<li><a href="#sass">Sass</a></li>
+<li><a href="#url-processing">URL Processing</a></li>
+<li><a href="#css-source-maps">Source Maps</a></li>
+</ul>
+</li>
+<li><a href="#working-with-scripts">Working With JavaScript</a><ul>
+<li><a href="#vue">Vue</a></li>
+<li><a href="#react">React</a></li>
+<li><a href="#vendor-extraction">Vendor Extraction</a></li>
+<li><a href="#custom-webpack-configuration">Custom Webpack Configuration</a></li>
+</ul>
+</li>
+<li><a href="#versioning-and-cache-busting">Versioning / Cache Busting</a></li>
+<li><a href="#browsersync-reloading">Browsersync Reloading</a></li>
+<li><a href="#environment-variables">Environment Variables</a></li>
+<li><a href="#notifications">Notifications</a></li>
+</ul>
+<p><a name="introduction"></a></p>
+<h2 id="introduction">Introduction</h2>
+<p><a href="https://github.com/JeffreyWay/laravel-mix">Laravel Mix</a>, a package developed by <a href="https://laracasts.com">Laracasts</a> creator Jeffrey Way, provides a fluent API for defining <a href="https://webpack.js.org">webpack</a> build steps for your Laravel application using several common CSS and JavaScript pre-processors.</p>
+<p>In other words, Mix makes it a cinch to compile and minify your application&#39;s CSS and JavaScript files. Through simple method chaining, you can fluently define your asset pipeline. For example:</p>
+<pre><code>mix.<span class="hljs-title function_ invoke__">js</span>(<span class="hljs-string">&#x27;resources/js/app.js&#x27;</span>, <span class="hljs-string">&#x27;public/js&#x27;</span>)
+    .<span class="hljs-title function_ invoke__">postCss</span>(<span class="hljs-string">&#x27;resources/css/app.css&#x27;</span>, <span class="hljs-string">&#x27;public/css&#x27;</span>);
+</code></pre>
+<p>If you&#39;ve ever been confused and overwhelmed about getting started with webpack and asset compilation, you will love Laravel Mix. However, you are not required to use it while developing your application; you are free to use any asset pipeline tool you wish, or even none at all.</p>
+<blockquote>
+<p>{tip} If you need a head start building your application with Laravel and <a href="https://tailwindcss.com">Tailwind CSS</a>, check out one of our <a href="/docs/%7B%7Bversion%7D%7D/starter-kits">application starter kits</a>.</p>
+</blockquote>
+<p><a name="installation"></a></p>
+<h2 id="installation--setup">Installation &amp; Setup</h2>
+<p><a name="installing-node"></a></p>
+<h4 id="installing-node">Installing Node</h4>
+<p>Before running Mix, you must first ensure that Node.js and NPM are installed on your machine:</p>
+<pre><code>node -v
+npm -v
+</code></pre>
+<p>You can easily install the latest version of Node and NPM using simple graphical installers from <a href="https://nodejs.org/en/download/">the official Node website</a>. Or, if you are using <a href="/docs/%7B%7Bversion%7D%7D/sail">Laravel Sail</a>, you may invoke Node and NPM through Sail:</p>
+<pre><code>./sail node -v
+./sail npm -v
+</code></pre>
+<p><a name="installing-laravel-mix"></a></p>
+<h4 id="installing-laravel-mix">Installing Laravel Mix</h4>
+<p>The only remaining step is to install Laravel Mix. Within a fresh installation of Laravel, you&#39;ll find a <code>package.json</code> file in the root of your directory structure. The default <code>package.json</code> file already includes everything you need to get started using Laravel Mix. Think of this file like your <code>composer.json</code> file, except it defines Node dependencies instead of PHP dependencies. You may install the dependencies it references by running:</p>
+<pre><code>npm install
+</code></pre>
+<p><a name="running-mix"></a></p>
+<h2 id="running-mix">Running Mix</h2>
+<p>Mix is a configuration layer on top of <a href="https://webpack.js.org">webpack</a>, so to run your Mix tasks you only need to execute one of the NPM scripts that are included in the default Laravel <code>package.json</code> file. When you run the <code>dev</code> or <code>production</code> scripts, all of your application&#39;s CSS and JavaScript assets will be compiled and placed in your application&#39;s <code>public</code> directory:</p>
+<pre><code><span class="hljs-comment">// Run all Mix tasks...</span>
+npm run dev
+
+<span class="hljs-comment">// Run all Mix tasks and minify output...</span>
+npm run prod
+</code></pre>
+<p><a name="watching-assets-for-changes"></a></p>
+<h4 id="watching-assets-for-changes">Watching Assets For Changes</h4>
+<p>The <code>npm run watch</code> command will continue running in your terminal and watch all relevant CSS and JavaScript files for changes. Webpack will automatically recompile your assets when it detects a change to one of these files:</p>
+<pre><code>npm run watch
+</code></pre>
+<p>Webpack may not be able to detect your file changes in certain local development environments. If this is the case on your system, consider using the <code>watch-poll</code> command:</p>
+<pre><code>npm run watch-poll
+</code></pre>
+<p><a name="working-with-stylesheets"></a></p>
+<h2 id="working-with-stylesheets">Working With Stylesheets</h2>
+<p>Your application&#39;s <code>webpack.mix.js</code> file is your entry point for all asset compilation. Think of it as a light configuration wrapper around <a href="https://webpack.js.org">webpack</a>. Mix tasks can be chained together to define exactly how your assets should be compiled.</p>
+<p><a name="tailwindcss"></a></p>
+<h3 id="tailwind-css">Tailwind CSS</h3>
+<p><a href="https://tailwindcss.com">Tailwind CSS</a> is a modern, utility-first framework for building amazing sites without ever leaving your HTML. Let&#39;s dig into how to start using it in a Laravel project with Laravel Mix. First, we should install Tailwind using NPM and generate our Tailwind configuration file:</p>
+<pre><code>npm install
+
+npm install -D tailwindcss
+
+npx tailwindcss init
+</code></pre>
+<p>The <code>init</code> command will generate a <code>tailwind.config.js</code> file. The <code>content</code> section of this file allows you to configure the paths to all of your HTML templates, JavaScript components, and any other source files that contain Tailwind class names so that any CSS classes that are not used within these files will be purged from your production CSS build:</p>
+<pre><code class="language-js"><span class="hljs-attr">content</span>: [
+    <span class="hljs-string">&#x27;./storage/framework/views/*.php&#x27;</span>,
+    <span class="hljs-string">&#x27;./resources/**/*.blade.php&#x27;</span>,
+    <span class="hljs-string">&#x27;./resources/**/*.js&#x27;</span>,
+    <span class="hljs-string">&#x27;./resources/**/*.vue&#x27;</span>,
+],
+</code></pre>
+<p>Next, you should add each of Tailwind&#39;s &quot;layers&quot; to your application&#39;s <code>resources/css/app.css</code> file:</p>
+<pre><code class="language-css"><span class="hljs-keyword">@tailwind</span> base;
+<span class="hljs-keyword">@tailwind</span> components;
+<span class="hljs-keyword">@tailwind</span> utilities;
+</code></pre>
+<p>Once you have configured Tailwind&#39;s layers, you are ready to update your application&#39;s <code>webpack.mix.js</code> file to compile your Tailwind powered CSS:</p>
+<pre><code class="language-js">mix.<span class="hljs-title function_">js</span>(<span class="hljs-string">&#x27;resources/js/app.js&#x27;</span>, <span class="hljs-string">&#x27;public/js&#x27;</span>)
+    .<span class="hljs-title function_">postCss</span>(<span class="hljs-string">&#x27;resources/css/app.css&#x27;</span>, <span class="hljs-string">&#x27;public/css&#x27;</span>, [
+        <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;tailwindcss&#x27;</span>),
+    ]);
+</code></pre>
+<p>Finally, you should reference your stylesheet in your application&#39;s primary layout template. Many applications choose to store this template at <code>resources/views/layouts/app.blade.php</code>. In addition, ensure you add the responsive viewport <code>meta</code> tag if it&#39;s not already present:</p>
+<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">&quot;UTF-8&quot;</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;viewport&quot;</span> <span class="hljs-attr">content</span>=<span class="hljs-string">&quot;width=device-width, initial-scale=1.0&quot;</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/css/app.css&quot;</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">&quot;stylesheet&quot;</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+</code></pre>
+<p><a name="postcss"></a></p>
+<h3 id="postcss">PostCSS</h3>
+<p><a href="https://postcss.org/">PostCSS</a>, a powerful tool for transforming your CSS, is included with Laravel Mix out of the box. By default, Mix leverages the popular <a href="https://github.com/postcss/autoprefixer">Autoprefixer</a> plugin to automatically apply all necessary CSS3 vendor prefixes. However, you&#39;re free to add any additional plugins that are appropriate for your application.</p>
+<p>First, install the desired plugin through NPM and include it in your array of plugins when calling Mix&#39;s <code>postCss</code> method. The <code>postCss</code> method accepts the path to your CSS file as its first argument and the directory where the compiled file should be placed as its second argument:</p>
+<pre><code>mix.<span class="hljs-title function_ invoke__">postCss</span>(<span class="hljs-string">&#x27;resources/css/app.css&#x27;</span>, <span class="hljs-string">&#x27;public/css&#x27;</span>, [
+    <span class="hljs-keyword">require</span>(<span class="hljs-string">&#x27;postcss-custom-properties&#x27;</span>)
+]);
+</code></pre>
+<p>Or, you may execute <code>postCss</code> with no additional plugins in order to achieve simple CSS compilation and minification:</p>
+<pre><code>mix.<span class="hljs-title function_ invoke__">postCss</span>(<span class="hljs-string">&#x27;resources/css/app.css&#x27;</span>, <span class="hljs-string">&#x27;public/css&#x27;</span>);
+</code></pre>
+<p><a name="sass"></a></p>
+<h3 id="sass">Sass</h3>
+<p>The <code>sass</code> method allows you to compile <a href="https://sass-lang.com/">Sass</a> into CSS that can be understood by web browsers. The <code>sass</code> method accepts the path to your Sass file as its first argument and the directory where the compiled file should be placed as its second argument:</p>
+<pre><code>mix.<span class="hljs-title function_ invoke__">sass</span>(<span class="hljs-string">&#x27;resources/sass/app.scss&#x27;</span>, <span class="hljs-string">&#x27;public/css&#x27;</span>);
+</code></pre>
+<p>You may compile multiple Sass files into their own respective CSS files and even customize the output directory of the resulting CSS by calling the <code>sass</code> method multiple times:</p>
+<pre><code>mix.<span class="hljs-title function_ invoke__">sass</span>(<span class="hljs-string">&#x27;resources/sass/app.sass&#x27;</span>, <span class="hljs-string">&#x27;public/css&#x27;</span>)
+    .<span class="hljs-title function_ invoke__">sass</span>(<span class="hljs-string">&#x27;resources/sass/admin.sass&#x27;</span>, <span class="hljs-string">&#x27;public/css/admin&#x27;</span>);
+</code></pre>
+<p><a name="url-processing"></a></p>
+<h3 id="url-processing">URL Processing</h3>
+<p>Because Laravel Mix is built on top of webpack, it&#39;s important to understand a few webpack concepts. For CSS compilation, webpack will rewrite and optimize any <code>url()</code> calls within your stylesheets. While this might initially sound strange, it&#39;s an incredibly powerful piece of functionality. Imagine that we want to compile Sass that includes a relative URL to an image:</p>
+<pre><code>.example {
+    background: <span class="hljs-title function_ invoke__">url</span>(<span class="hljs-string">&#x27;../images/example.png&#x27;</span>);
+}
+</code></pre>
+<blockquote>
+<p>{note} Absolute paths for any given <code>url()</code> will be excluded from URL-rewriting. For example, <code>url(&#39;/images/thing.png&#39;)</code> or <code>url(&#39;http://example.com/images/thing.png&#39;)</code> won&#39;t be modified.</p>
+</blockquote>
+<p>By default, Laravel Mix and webpack will find <code>example.png</code>, copy it to your <code>public/images</code> folder, and then rewrite the <code>url()</code> within your generated stylesheet. As such, your compiled CSS will be:</p>
+<pre><code>.example {
+    background: <span class="hljs-title function_ invoke__">url</span>(/images/example.png?d41d8cd98f00b204e9800998ecf8427e);
+}
+</code></pre>
+<p>As useful as this feature may be, your existing folder structure may already be configured in a way you like. If this is the case, you may disable <code>url()</code> rewriting like so:</p>
+<pre><code>mix.<span class="hljs-title function_ invoke__">sass</span>(<span class="hljs-string">&#x27;resources/sass/app.scss&#x27;</span>, <span class="hljs-string">&#x27;public/css&#x27;</span>).<span class="hljs-title function_ invoke__">options</span>({
+    <span class="hljs-attr">processCssUrls</span>: <span class="hljs-literal">false</span>
+});
+</code></pre>
+<p>With this addition to your <code>webpack.mix.js</code> file, Mix will no longer match any <code>url()</code> or copy assets to your public directory. In other words, the compiled CSS will look just like how you originally typed it:</p>
+<pre><code>.example {
+    background: <span class="hljs-title function_ invoke__">url</span>(<span class="hljs-string">&quot;../images/thing.png&quot;</span>);
+}
+</code></pre>
+<p><a name="css-source-maps"></a></p>
+<h3 id="source-maps">Source Maps</h3>
+<p>Though disabled by default, source maps may be activated by calling the <code>mix.sourceMaps()</code> method in your <code>webpack.mix.js</code> file. Though it comes with a compile/performance cost, this will provide extra debugging information to your browser&#39;s developer tools when using compiled assets:</p>
+<pre><code>mix.<span class="hljs-title function_ invoke__">js</span>(<span class="hljs-string">&#x27;resources/js/app.js&#x27;</span>, <span class="hljs-string">&#x27;public/js&#x27;</span>)
+    .<span class="hljs-title function_ invoke__">sourceMaps</span>();
+</code></pre>
+<p><a name="style-of-source-mapping"></a></p>
+<h4 id="style-of-source-mapping">Style Of Source Mapping</h4>
+<p>Webpack offers a variety of <a href="https://webpack.js.org/configuration/devtool/#devtool">source mapping styles</a>. By default, Mix&#39;s source mapping style is set to <code>eval-source-map</code>, which provides a fast rebuild time. If you want to change the mapping style, you may do so using the <code>sourceMaps</code> method:</p>
+<pre><code>let productionSourceMaps = <span class="hljs-literal">false</span>;
+
+mix.<span class="hljs-title function_ invoke__">js</span>(<span class="hljs-string">&#x27;resources/js/app.js&#x27;</span>, <span class="hljs-string">&#x27;public/js&#x27;</span>)
+    .<span class="hljs-title function_ invoke__">sourceMaps</span>(productionSourceMaps, <span class="hljs-string">&#x27;source-map&#x27;</span>);
+</code></pre>
+<p><a name="working-with-scripts"></a></p>
+<h2 id="working-with-javascript">Working With JavaScript</h2>
+<p>Mix provides several features to help you work with your JavaScript files, such as compiling modern ECMAScript, module bundling, minification, and concatenating plain JavaScript files. Even better, this all works seamlessly, without requiring an ounce of custom configuration:</p>
+<pre><code>mix.<span class="hljs-title function_ invoke__">js</span>(<span class="hljs-string">&#x27;resources/js/app.js&#x27;</span>, <span class="hljs-string">&#x27;public/js&#x27;</span>);
+</code></pre>
+<p>With this single line of code, you may now take advantage of:</p>
+<div class="content-list" markdown="1">
+
+<ul>
+<li>The latest EcmaScript syntax.</li>
+<li>Modules</li>
+<li>Minification for production environments.</li>
+</ul>
+</div>
+
+<p><a name="vue"></a></p>
+<h3 id="vue">Vue</h3>
+<p>Mix will automatically install the Babel plugins necessary for Vue single-file component compilation support when using the <code>vue</code> method. No further configuration is required:</p>
+<pre><code>mix.<span class="hljs-title function_ invoke__">js</span>(<span class="hljs-string">&#x27;resources/js/app.js&#x27;</span>, <span class="hljs-string">&#x27;public/js&#x27;</span>)
+   .<span class="hljs-title function_ invoke__">vue</span>();
+</code></pre>
+<p>Once your JavaScript has been compiled, you can reference it in your application:</p>
+<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-comment">&lt;!-- ... --&gt;</span>
+
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;/js/app.js&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+</code></pre>
+<p><a name="react"></a></p>
+<h3 id="react">React</h3>
+<p>Mix can automatically install the Babel plugins necessary for React support. To get started, add a call to the <code>react</code> method:</p>
+<pre><code>mix.<span class="hljs-title function_ invoke__">js</span>(<span class="hljs-string">&#x27;resources/js/app.jsx&#x27;</span>, <span class="hljs-string">&#x27;public/js&#x27;</span>)
+   .<span class="hljs-title function_ invoke__">react</span>();
+</code></pre>
+<p>Behind the scenes, Mix will download and include the appropriate <code>babel-preset-react</code> Babel plugin. Once your JavaScript has been compiled, you can reference it in your application:</p>
+<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-comment">&lt;!-- ... --&gt;</span>
+
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;/js/app.js&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+</code></pre>
+<p><a name="vendor-extraction"></a></p>
+<h3 id="vendor-extraction">Vendor Extraction</h3>
+<p>One potential downside to bundling all of your application-specific JavaScript with your vendor libraries such as React and Vue is that it makes long-term caching more difficult. For example, a single update to your application code will force the browser to re-download all of your vendor libraries even if they haven&#39;t changed.</p>
+<p>If you intend to make frequent updates to your application&#39;s JavaScript, you should consider extracting all of your vendor libraries into their own file. This way, a change to your application code will not affect the caching of your large <code>vendor.js</code> file. Mix&#39;s <code>extract</code> method makes this a breeze:</p>
+<pre><code>mix.<span class="hljs-title function_ invoke__">js</span>(<span class="hljs-string">&#x27;resources/js/app.js&#x27;</span>, <span class="hljs-string">&#x27;public/js&#x27;</span>)
+    .<span class="hljs-title function_ invoke__">extract</span>([<span class="hljs-string">&#x27;vue&#x27;</span>])
+</code></pre>
+<p>The <code>extract</code> method accepts an array of all libraries or modules that you wish to extract into a <code>vendor.js</code> file. Using the snippet above as an example, Mix will generate the following files:</p>
+<div class="content-list" markdown="1">
+
+<ul>
+<li><code>public/js/manifest.js</code>: <em>The Webpack manifest runtime</em></li>
+<li><code>public/js/vendor.js</code>: <em>Your vendor libraries</em></li>
+<li><code>public/js/app.js</code>: <em>Your application code</em></li>
+</ul>
+</div>
+
+<p>To avoid JavaScript errors, be sure to load these files in the proper order:</p>
+<pre><code>&lt;script src=<span class="hljs-string">&quot;/js/manifest.js&quot;</span>&gt;&lt;/script&gt;
+&lt;script src=<span class="hljs-string">&quot;/js/vendor.js&quot;</span>&gt;&lt;/script&gt;
+&lt;script src=<span class="hljs-string">&quot;/js/app.js&quot;</span>&gt;&lt;/script&gt;
+</code></pre>
+<p><a name="custom-webpack-configuration"></a></p>
+<h3 id="custom-webpack-configuration">Custom Webpack Configuration</h3>
+<p>Occasionally, you may need to manually modify the underlying Webpack configuration. For example, you might have a special loader or plugin that needs to be referenced.</p>
+<p>Mix provides a useful <code>webpackConfig</code> method that allows you to merge any short Webpack configuration overrides. This is particularly appealing, as it doesn&#39;t require you to copy and maintain your own copy of the <code>webpack.config.js</code> file. The <code>webpackConfig</code> method accepts an object, which should contain any <a href="https://webpack.js.org/configuration/">Webpack-specific configuration</a> that you wish to apply.</p>
+<pre><code>mix.<span class="hljs-title function_ invoke__">webpackConfig</span>({
+    <span class="hljs-attr">resolve</span>: {
+        <span class="hljs-attr">modules</span>: [
+            path.<span class="hljs-title function_ invoke__">resolve</span>(__dirname, <span class="hljs-string">&#x27;vendor/laravel/spark/resources/assets/js&#x27;</span>)
+        ]
+    }
+});
+</code></pre>
+<p><a name="versioning-and-cache-busting"></a></p>
+<h2 id="versioning--cache-busting">Versioning / Cache Busting</h2>
+<p>Many developers suffix their compiled assets with a timestamp or unique token to force browsers to load the fresh assets instead of serving stale copies of the code. Mix can automatically handle this for you using the <code>version</code> method.</p>
+<p>The <code>version</code> method will append a unique hash to the filenames of all compiled files, allowing for more convenient cache busting:</p>
+<pre><code>mix.<span class="hljs-title function_ invoke__">js</span>(<span class="hljs-string">&#x27;resources/js/app.js&#x27;</span>, <span class="hljs-string">&#x27;public/js&#x27;</span>)
+    .<span class="hljs-title function_ invoke__">version</span>();
+</code></pre>
+<p>After generating the versioned file, you won&#39;t know the exact filename. So, you should use Laravel&#39;s global <code>mix</code> function within your <a href="/docs/%7B%7Bversion%7D%7D/views">views</a> to load the appropriately hashed asset. The <code>mix</code> function will automatically determine the current name of the hashed file:</p>
+<pre><code>&lt;script src=<span class="hljs-string">&quot;{{ mix(&#x27;/js/app.js&#x27;) }}&quot;</span>&gt;&lt;/script&gt;
+</code></pre>
+<p>Because versioned files are usually unnecessary in development, you may instruct the versioning process to only run during <code>npm run prod</code>:</p>
+<pre><code>mix.<span class="hljs-title function_ invoke__">js</span>(<span class="hljs-string">&#x27;resources/js/app.js&#x27;</span>, <span class="hljs-string">&#x27;public/js&#x27;</span>);
+
+<span class="hljs-keyword">if</span> (mix.<span class="hljs-title function_ invoke__">inProduction</span>()) {
+    mix.<span class="hljs-title function_ invoke__">version</span>();
+}
+</code></pre>
+<p><a name="custom-mix-base-urls"></a></p>
+<h4 id="custom-mix-base-urls">Custom Mix Base URLs</h4>
+<p>If your Mix compiled assets are deployed to a CDN separate from your application, you will need to change the base URL generated by the <code>mix</code> function. You may do so by adding a <code>mix_url</code> configuration option to your application&#39;s <code>config/app.php</code> configuration file:</p>
+<pre><code><span class="hljs-string">&#x27;mix_url&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;MIX_ASSET_URL&#x27;</span>, <span class="hljs-literal">null</span>)
+</code></pre>
+<p>After configuring the Mix URL, The <code>mix</code> function will prefix the configured URL when generating URLs to assets:</p>
+<pre><code class="language-bash">https://cdn.example.com/js/app.js?<span class="hljs-built_in">id</span>=1964becbdd96414518cd
+</code></pre>
+<p><a name="browsersync-reloading"></a></p>
+<h2 id="browsersync-reloading">Browsersync Reloading</h2>
+<p><a href="https://browsersync.io/">BrowserSync</a> can automatically monitor your files for changes, and inject your changes into the browser without requiring a manual refresh. You may enable support for this by calling the <code>mix.browserSync()</code> method:</p>
+<pre><code class="language-js">mix.<span class="hljs-title function_">browserSync</span>(<span class="hljs-string">&#x27;laravel.test&#x27;</span>);
+</code></pre>
+<p><a href="https://browsersync.io/docs/options">BrowserSync options</a> may be specified by passing a JavaScript object to the <code>browserSync</code> method:</p>
+<pre><code class="language-js">mix.<span class="hljs-title function_">browserSync</span>({
+    <span class="hljs-attr">proxy</span>: <span class="hljs-string">&#x27;laravel.test&#x27;</span>
+});
+</code></pre>
+<p>Next, start webpack&#39;s development server using the <code>npm run watch</code> command. Now, when you modify a script or PHP file you can watch as the browser instantly refreshes the page to reflect your changes.</p>
+<p><a name="environment-variables"></a></p>
+<h2 id="environment-variables">Environment Variables</h2>
+<p>You may inject environment variables into your <code>webpack.mix.js</code> script by prefixing one of the environment variables in your <code>.env</code> file with <code>MIX_</code>:</p>
+<pre><code>MIX_SENTRY_DSN_PUBLIC=http:<span class="hljs-comment">//example.com</span>
+</code></pre>
+<p>After the variable has been defined in your <code>.env</code> file, you may access it via the <code>process.env</code> object. However, you will need to restart the task if the environment variable&#39;s value changes while the task is running:</p>
+<pre><code>process.env.MIX_SENTRY_DSN_PUBLIC
+</code></pre>
+<p><a name="notifications"></a></p>
+<h2 id="notifications">Notifications</h2>
+<p>When available, Mix will automatically display OS notifications when compiling, giving you instant feedback as to whether the compilation was successful or not. However, there may be instances when you would prefer to disable these notifications. One such example might be triggering Mix on your production server. Notifications may be deactivated using the <code>disableNotifications</code> method:</p>
+<pre><code>mix.<span class="hljs-title function_ invoke__">disableNotifications</span>();
+</code></pre>

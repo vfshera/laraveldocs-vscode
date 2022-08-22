@@ -1,0 +1,200 @@
+<h1 id="url-generation">URL Generation</h1>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#the-basics">The Basics</a><ul>
+<li><a href="#generating-urls">Generating URLs</a></li>
+<li><a href="#accessing-the-current-url">Accessing The Current URL</a></li>
+</ul>
+</li>
+<li><a href="#urls-for-named-routes">URLs For Named Routes</a><ul>
+<li><a href="#signed-urls">Signed URLs</a></li>
+</ul>
+</li>
+<li><a href="#urls-for-controller-actions">URLs For Controller Actions</a></li>
+<li><a href="#default-values">Default Values</a></li>
+</ul>
+<p><a name="introduction"></a></p>
+<h2 id="introduction">Introduction</h2>
+<p>Laravel provides several helpers to assist you in generating URLs for your application. These helpers are primarily helpful when building links in your templates and API responses, or when generating redirect responses to another part of your application.</p>
+<p><a name="the-basics"></a></p>
+<h2 id="the-basics">The Basics</h2>
+<p><a name="generating-urls"></a></p>
+<h3 id="generating-urls">Generating URLs</h3>
+<p>The <code>url</code> helper may be used to generate arbitrary URLs for your application. The generated URL will automatically use the scheme (HTTP or HTTPS) and host from the current request being handled by the application:</p>
+<pre><code><span class="hljs-variable">$post</span> = <span class="hljs-title class_">App\Models\Post</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-keyword">echo</span> <span class="hljs-title function_ invoke__">url</span>(<span class="hljs-string">&quot;/posts/<span class="hljs-subst">{$post-&gt;id}</span>&quot;</span>);
+
+<span class="hljs-comment">// http://example.com/posts/1</span>
+</code></pre>
+<p><a name="accessing-the-current-url"></a></p>
+<h3 id="accessing-the-current-url">Accessing The Current URL</h3>
+<p>If no path is provided to the <code>url</code> helper, an <code>Illuminate\Routing\UrlGenerator</code> instance is returned, allowing you to access information about the current URL:</p>
+<pre><code><span class="hljs-comment">// Get the current URL without the query string...</span>
+<span class="hljs-keyword">echo</span> <span class="hljs-title function_ invoke__">url</span>()-&gt;<span class="hljs-title function_ invoke__">current</span>();
+
+<span class="hljs-comment">// Get the current URL including the query string...</span>
+<span class="hljs-keyword">echo</span> <span class="hljs-title function_ invoke__">url</span>()-&gt;<span class="hljs-title function_ invoke__">full</span>();
+
+<span class="hljs-comment">// Get the full URL for the previous request...</span>
+<span class="hljs-keyword">echo</span> <span class="hljs-title function_ invoke__">url</span>()-&gt;<span class="hljs-title function_ invoke__">previous</span>();
+</code></pre>
+<p>Each of these methods may also be accessed via the <code>URL</code> <a href="/docs/%7B%7Bversion%7D%7D/facades">facade</a>:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">URL</span>;
+
+<span class="hljs-keyword">echo</span> URL::<span class="hljs-title function_ invoke__">current</span>();
+</code></pre>
+<p><a name="urls-for-named-routes"></a></p>
+<h2 id="urls-for-named-routes">URLs For Named Routes</h2>
+<p>The <code>route</code> helper may be used to generate URLs to <a href="/docs/%7B%7Bversion%7D%7D/routing#named-routes">named routes</a>. Named routes allow you to generate URLs without being coupled to the actual URL defined on the route. Therefore, if the route&#39;s URL changes, no changes need to be made to your calls to the <code>route</code> function. For example, imagine your application contains a route defined like the following:</p>
+<pre><code><span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/post/{post}&#x27;</span>, function (Post <span class="hljs-variable">$post</span>) {
+    <span class="hljs-comment">//</span>
+})-&gt;<span class="hljs-title function_ invoke__">name</span>(<span class="hljs-string">&#x27;post.show&#x27;</span>);
+</code></pre>
+<p>To generate a URL to this route, you may use the <code>route</code> helper like so:</p>
+<pre><code><span class="hljs-keyword">echo</span> <span class="hljs-title function_ invoke__">route</span>(<span class="hljs-string">&#x27;post.show&#x27;</span>, [<span class="hljs-string">&#x27;post&#x27;</span> =&gt; <span class="hljs-number">1</span>]);
+
+<span class="hljs-comment">// http://example.com/post/1</span>
+</code></pre>
+<p>Of course, the <code>route</code> helper may also be used to generate URLs for routes with multiple parameters:</p>
+<pre><code><span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/post/{post}/comment/{comment}&#x27;</span>, function (Post <span class="hljs-variable">$post</span>, Comment <span class="hljs-variable">$comment</span>) {
+    <span class="hljs-comment">//</span>
+})-&gt;<span class="hljs-title function_ invoke__">name</span>(<span class="hljs-string">&#x27;comment.show&#x27;</span>);
+
+<span class="hljs-keyword">echo</span> <span class="hljs-title function_ invoke__">route</span>(<span class="hljs-string">&#x27;comment.show&#x27;</span>, [<span class="hljs-string">&#x27;post&#x27;</span> =&gt; <span class="hljs-number">1</span>, <span class="hljs-string">&#x27;comment&#x27;</span> =&gt; <span class="hljs-number">3</span>]);
+
+<span class="hljs-comment">// http://example.com/post/1/comment/3</span>
+</code></pre>
+<p>Any additional array elements that do not correspond to the route&#39;s definition parameters will be added to the URL&#39;s query string:</p>
+<pre><code><span class="hljs-keyword">echo</span> <span class="hljs-title function_ invoke__">route</span>(<span class="hljs-string">&#x27;post.show&#x27;</span>, [<span class="hljs-string">&#x27;post&#x27;</span> =&gt; <span class="hljs-number">1</span>, <span class="hljs-string">&#x27;search&#x27;</span> =&gt; <span class="hljs-string">&#x27;rocket&#x27;</span>]);
+
+<span class="hljs-comment">// http://example.com/post/1?search=rocket</span>
+</code></pre>
+<p><a name="eloquent-models"></a></p>
+<h4 id="eloquent-models">Eloquent Models</h4>
+<p>You will often be generating URLs using the route key (typically the primary key) of <a href="/docs/%7B%7Bversion%7D%7D/eloquent">Eloquent models</a>. For this reason, you may pass Eloquent models as parameter values. The <code>route</code> helper will automatically extract the model&#39;s route key:</p>
+<pre><code><span class="hljs-keyword">echo</span> <span class="hljs-title function_ invoke__">route</span>(<span class="hljs-string">&#x27;post.show&#x27;</span>, [<span class="hljs-string">&#x27;post&#x27;</span> =&gt; <span class="hljs-variable">$post</span>]);
+</code></pre>
+<p><a name="signed-urls"></a></p>
+<h3 id="signed-urls">Signed URLs</h3>
+<p>Laravel allows you to easily create &quot;signed&quot; URLs to named routes. These URLs have a &quot;signature&quot; hash appended to the query string which allows Laravel to verify that the URL has not been modified since it was created. Signed URLs are especially useful for routes that are publicly accessible yet need a layer of protection against URL manipulation.</p>
+<p>For example, you might use signed URLs to implement a public &quot;unsubscribe&quot; link that is emailed to your customers. To create a signed URL to a named route, use the <code>signedRoute</code> method of the <code>URL</code> facade:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">URL</span>;
+
+<span class="hljs-keyword">return</span> URL::<span class="hljs-title function_ invoke__">signedRoute</span>(<span class="hljs-string">&#x27;unsubscribe&#x27;</span>, [<span class="hljs-string">&#x27;user&#x27;</span> =&gt; <span class="hljs-number">1</span>]);
+</code></pre>
+<p>If you would like to generate a temporary signed route URL that expires after a specified amount of time, you may use the <code>temporarySignedRoute</code> method. When Laravel validates a temporary signed route URL, it will ensure that the expiration timestamp that is encoded into the signed URL has not elapsed:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">URL</span>;
+
+<span class="hljs-keyword">return</span> URL::<span class="hljs-title function_ invoke__">temporarySignedRoute</span>(
+    <span class="hljs-string">&#x27;unsubscribe&#x27;</span>, <span class="hljs-title function_ invoke__">now</span>()-&gt;<span class="hljs-title function_ invoke__">addMinutes</span>(<span class="hljs-number">30</span>), [<span class="hljs-string">&#x27;user&#x27;</span> =&gt; <span class="hljs-number">1</span>]
+);
+</code></pre>
+<p><a name="validating-signed-route-requests"></a></p>
+<h4 id="validating-signed-route-requests">Validating Signed Route Requests</h4>
+<p>To verify that an incoming request has a valid signature, you should call the <code>hasValidSignature</code> method on the incoming <code>Request</code>:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/unsubscribe/{user}&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-keyword">if</span> (! <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">hasValidSignature</span>()) {
+        <span class="hljs-title function_ invoke__">abort</span>(<span class="hljs-number">401</span>);
+    }
+
+    <span class="hljs-comment">// ...</span>
+})-&gt;<span class="hljs-title function_ invoke__">name</span>(<span class="hljs-string">&#x27;unsubscribe&#x27;</span>);
+</code></pre>
+<p>Alternatively, you may assign the <code>Illuminate\Routing\Middleware\ValidateSignature</code> <a href="/docs/%7B%7Bversion%7D%7D/middleware">middleware</a> to the route. If it is not already present, you should assign this middleware a key in your HTTP kernel&#39;s <code>routeMiddleware</code> array:</p>
+<pre><code><span class="hljs-comment">/**
+ * The application&#x27;s route middleware.
+ *
+ * These middleware may be assigned to groups or used individually.
+ *
+ * <span class="hljs-doctag">@var</span> array
+ */</span>
+<span class="hljs-keyword">protected</span> <span class="hljs-variable">$routeMiddleware</span> = [
+    <span class="hljs-string">&#x27;signed&#x27;</span> =&gt; <span class="hljs-title class_">\Illuminate\Routing\Middleware\ValidateSignature</span>::<span class="hljs-variable language_">class</span>,
+];
+</code></pre>
+<p>Once you have registered the middleware in your kernel, you may attach it to a route. If the incoming request does not have a valid signature, the middleware will automatically return a <code>403</code> HTTP response:</p>
+<pre><code><span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">post</span>(<span class="hljs-string">&#x27;/unsubscribe/{user}&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-comment">// ...</span>
+})-&gt;<span class="hljs-title function_ invoke__">name</span>(<span class="hljs-string">&#x27;unsubscribe&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">middleware</span>(<span class="hljs-string">&#x27;signed&#x27;</span>);
+</code></pre>
+<p><a name="responding-to-invalid-signed-routes"></a></p>
+<h4 id="responding-to-invalid-signed-routes">Responding To Invalid Signed Routes</h4>
+<p>When someone visits a signed URL that has expired, they will receive a generic error page for the <code>403</code> HTTP status code. However, you can customize this behavior by defining a custom &quot;renderable&quot; closure for the <code>InvalidSignatureException</code> exception in your exception handler. This closure should return an HTTP response:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Routing</span>\<span class="hljs-title">Exceptions</span>\<span class="hljs-title">InvalidSignatureException</span>;
+
+<span class="hljs-comment">/**
+ * Register the exception handling callbacks for the application.
+ *
+ * <span class="hljs-doctag">@return</span> void
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">register</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">renderable</span>(function (InvalidSignatureException <span class="hljs-variable">$e</span>) {
+        <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">response</span>()-&gt;<span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;error.link-expired&#x27;</span>, [], <span class="hljs-number">403</span>);
+    });
+}
+</code></pre>
+<p><a name="urls-for-controller-actions"></a></p>
+<h2 id="urls-for-controller-actions">URLs For Controller Actions</h2>
+<p>The <code>action</code> function generates a URL for the given controller action:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Controllers</span>\<span class="hljs-title">HomeController</span>;
+
+<span class="hljs-variable">$url</span> = <span class="hljs-title function_ invoke__">action</span>([<span class="hljs-title class_">HomeController</span>::<span class="hljs-variable language_">class</span>, <span class="hljs-string">&#x27;index&#x27;</span>]);
+</code></pre>
+<p>If the controller method accepts route parameters, you may pass an associative array of route parameters as the second argument to the function:</p>
+<pre><code><span class="hljs-variable">$url</span> = <span class="hljs-title function_ invoke__">action</span>([<span class="hljs-title class_">UserController</span>::<span class="hljs-variable language_">class</span>, <span class="hljs-string">&#x27;profile&#x27;</span>], [<span class="hljs-string">&#x27;id&#x27;</span> =&gt; <span class="hljs-number">1</span>]);
+</code></pre>
+<p><a name="default-values"></a></p>
+<h2 id="default-values">Default Values</h2>
+<p>For some applications, you may wish to specify request-wide default values for certain URL parameters. For example, imagine many of your routes define a <code>{locale}</code> parameter:</p>
+<pre><code><span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/{locale}/posts&#x27;</span>, function () {
+    <span class="hljs-comment">//</span>
+})-&gt;<span class="hljs-title function_ invoke__">name</span>(<span class="hljs-string">&#x27;post.index&#x27;</span>);
+</code></pre>
+<p>It is cumbersome to always pass the <code>locale</code> every time you call the <code>route</code> helper. So, you may use the <code>URL::defaults</code> method to define a default value for this parameter that will always be applied during the current request. You may wish to call this method from a <a href="/docs/%7B%7Bversion%7D%7D/middleware#assigning-middleware-to-routes">route middleware</a> so that you have access to the current request:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Http</span>\<span class="hljs-title class_">Middleware</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Closure</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">URL</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SetDefaultLocaleForUrls</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Handle the incoming request.
+     *
+     * <span class="hljs-doctag">@param</span>  \Illuminate\Http\Request  $request
+     * <span class="hljs-doctag">@param</span>  \Closure  $next
+     * <span class="hljs-doctag">@return</span> \Illuminate\Http\Response
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">handle</span>(<span class="hljs-params"><span class="hljs-variable">$request</span>, <span class="hljs-built_in">Closure</span> <span class="hljs-variable">$next</span></span>)
+    </span>{
+        URL::<span class="hljs-title function_ invoke__">defaults</span>([<span class="hljs-string">&#x27;locale&#x27;</span> =&gt; <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;locale]);
+
+        <span class="hljs-keyword">return</span> <span class="hljs-variable">$next</span>(<span class="hljs-variable">$request</span>);
+    }
+}
+</code></pre>
+<p>Once the default value for the <code>locale</code> parameter has been set, you are no longer required to pass its value when generating URLs via the <code>route</code> helper.</p>
+<p><a name="url-defaults-middleware-priority"></a></p>
+<h4 id="url-defaults--middleware-priority">URL Defaults &amp; Middleware Priority</h4>
+<p>Setting URL default values can interfere with Laravel&#39;s handling of implicit model bindings. Therefore, you should <a href="/docs/%7B%7Bversion%7D%7D/middleware#sorting-middleware">prioritize your middleware</a> that set URL defaults to be executed before Laravel&#39;s own <code>SubstituteBindings</code> middleware. You can accomplish this by making sure your middleware occurs before the <code>SubstituteBindings</code> middleware within the <code>$middlewarePriority</code> property of your application&#39;s HTTP kernel.</p>
+<p>The <code>$middlewarePriority</code> property is defined in the base <code>Illuminate\Foundation\Http\Kernel</code> class. You may copy its definition from that class and overwrite it in your application&#39;s HTTP kernel in order to modify it:</p>
+<pre><code><span class="hljs-comment">/**
+ * The priority-sorted list of middleware.
+ *
+ * This forces non-global middleware to always be in the given order.
+ *
+ * <span class="hljs-doctag">@var</span> array
+ */</span>
+<span class="hljs-keyword">protected</span> <span class="hljs-variable">$middlewarePriority</span> = [
+    <span class="hljs-comment">// ...</span>
+     <span class="hljs-title class_">\App\Http\Middleware\SetDefaultLocaleForUrls</span>::<span class="hljs-variable language_">class</span>,
+     <span class="hljs-title class_">\Illuminate\Routing\Middleware\SubstituteBindings</span>::<span class="hljs-variable language_">class</span>,
+     <span class="hljs-comment">// ...</span>
+];
+</code></pre>

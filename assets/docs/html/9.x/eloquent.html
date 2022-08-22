@@ -1,0 +1,1324 @@
+<h1 id="eloquent-getting-started">Eloquent: Getting Started</h1>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#generating-model-classes">Generating Model Classes</a></li>
+<li><a href="#eloquent-model-conventions">Eloquent Model Conventions</a><ul>
+<li><a href="#table-names">Table Names</a></li>
+<li><a href="#primary-keys">Primary Keys</a></li>
+<li><a href="#timestamps">Timestamps</a></li>
+<li><a href="#database-connections">Database Connections</a></li>
+<li><a href="#default-attribute-values">Default Attribute Values</a></li>
+</ul>
+</li>
+<li><a href="#retrieving-models">Retrieving Models</a><ul>
+<li><a href="#collections">Collections</a></li>
+<li><a href="#chunking-results">Chunking Results</a></li>
+<li><a href="#chunking-using-lazy-collections">Chunk Using Lazy Collections</a></li>
+<li><a href="#cursors">Cursors</a></li>
+<li><a href="#advanced-subqueries">Advanced Subqueries</a></li>
+</ul>
+</li>
+<li><a href="#retrieving-single-models">Retrieving Single Models / Aggregates</a><ul>
+<li><a href="#retrieving-or-creating-models">Retrieving Or Creating Models</a></li>
+<li><a href="#retrieving-aggregates">Retrieving Aggregates</a></li>
+</ul>
+</li>
+<li><a href="#inserting-and-updating-models">Inserting &amp; Updating Models</a><ul>
+<li><a href="#inserts">Inserts</a></li>
+<li><a href="#updates">Updates</a></li>
+<li><a href="#mass-assignment">Mass Assignment</a></li>
+<li><a href="#upserts">Upserts</a></li>
+</ul>
+</li>
+<li><a href="#deleting-models">Deleting Models</a><ul>
+<li><a href="#soft-deleting">Soft Deleting</a></li>
+<li><a href="#querying-soft-deleted-models">Querying Soft Deleted Models</a></li>
+</ul>
+</li>
+<li><a href="#pruning-models">Pruning Models</a></li>
+<li><a href="#replicating-models">Replicating Models</a></li>
+<li><a href="#query-scopes">Query Scopes</a><ul>
+<li><a href="#global-scopes">Global Scopes</a></li>
+<li><a href="#local-scopes">Local Scopes</a></li>
+</ul>
+</li>
+<li><a href="#comparing-models">Comparing Models</a></li>
+<li><a href="#events">Events</a><ul>
+<li><a href="#events-using-closures">Using Closures</a></li>
+<li><a href="#observers">Observers</a></li>
+<li><a href="#muting-events">Muting Events</a></li>
+</ul>
+</li>
+</ul>
+<p><a name="introduction"></a></p>
+<h2 id="introduction">Introduction</h2>
+<p>Laravel includes Eloquent, an object-relational mapper (ORM) that makes it enjoyable to interact with your database. When using Eloquent, each database table has a corresponding &quot;Model&quot; that is used to interact with that table. In addition to retrieving records from the database table, Eloquent models allow you to insert, update, and delete records from the table as well.</p>
+<blockquote>
+<p><strong>Note</strong><br>Before getting started, be sure to configure a database connection in your application&#39;s <code>config/database.php</code> configuration file. For more information on configuring your database, check out <a href="/docs/%7B%7Bversion%7D%7D/database#configuration">the database configuration documentation</a>.</p>
+</blockquote>
+<p><a name="generating-model-classes"></a></p>
+<h2 id="generating-model-classes">Generating Model Classes</h2>
+<p>To get started, let&#39;s create an Eloquent model. Models typically live in the <code>app\Models</code> directory and extend the <code>Illuminate\Database\Eloquent\Model</code> class. You may use the <code>make:model</code> <a href="/docs/%7B%7Bversion%7D%7D/artisan">Artisan command</a> to generate a new model:</p>
+<pre><code class="language-shell">php artisan make:model Flight
+</code></pre>
+<p>If you would like to generate a <a href="/docs/%7B%7Bversion%7D%7D/migrations">database migration</a> when you generate the model, you may use the <code>--migration</code> or <code>-m</code> option:</p>
+<pre><code class="language-shell">php artisan make:model Flight --migration
+</code></pre>
+<p>You may generate various other types of classes when generating a model, such as factories, seeders, policies, controllers, and form requests. In addition, these options may be combined to create multiple classes at once:</p>
+<pre><code class="language-shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">Generate a model and a FlightFactory class...</span>
+php artisan make:model Flight --factory
+php artisan make:model Flight -f
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">Generate a model and a FlightSeeder class...</span>
+php artisan make:model Flight --seed
+php artisan make:model Flight -s
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">Generate a model and a FlightController class...</span>
+php artisan make:model Flight --controller
+php artisan make:model Flight -c
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">Generate a model, FlightController resource class, and form request classes...</span>
+php artisan make:model Flight --controller --resource --requests
+php artisan make:model Flight -crR
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">Generate a model and a FlightPolicy class...</span>
+php artisan make:model Flight --policy
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">Generate a model and a migration, factory, seeder, and controller...</span>
+php artisan make:model Flight -mfsc
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">Shortcut to generate a model, migration, factory, seeder, policy, controller, and form requests...</span>
+php artisan make:model Flight --all
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">Generate a pivot model...</span>
+php artisan make:model Member --pivot
+</code></pre>
+<p><a name="inspecting-models"></a></p>
+<h4 id="inspecting-models">Inspecting Models</h4>
+<p>Sometimes it can be difficult to determine all of a model&#39;s available attributes and relationships just by skimming its code. Instead, try the <code>model:show</code> Artisan command, which provides a convenient overview of all the model&#39;s attributes and relations:</p>
+<pre><code class="language-shell">php artisan model:show Flight
+</code></pre>
+<p><a name="eloquent-model-conventions"></a></p>
+<h2 id="eloquent-model-conventions">Eloquent Model Conventions</h2>
+<p>Models generated by the <code>make:model</code> command will be placed in the <code>app/Models</code> directory. Let&#39;s examine a basic model class and discuss some of Eloquent&#39;s key conventions:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Models</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Model</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Flight</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Model</span>
+</span>{
+    <span class="hljs-comment">//</span>
+}
+</code></pre>
+<p><a name="table-names"></a></p>
+<h3 id="table-names">Table Names</h3>
+<p>After glancing at the example above, you may have noticed that we did not tell Eloquent which database table corresponds to our <code>Flight</code> model. By convention, the &quot;snake case&quot;, plural name of the class will be used as the table name unless another name is explicitly specified. So, in this case, Eloquent will assume the <code>Flight</code> model stores records in the <code>flights</code> table, while an <code>AirTrafficController</code> model would store records in an <code>air_traffic_controllers</code> table.</p>
+<p>If your model&#39;s corresponding database table does not fit this convention, you may manually specify the model&#39;s table name by defining a <code>table</code> property on the model:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Models</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Model</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Flight</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Model</span>
+</span>{
+    <span class="hljs-comment">/**
+     * The table associated with the model.
+     *
+     * <span class="hljs-doctag">@var</span> string
+     */</span>
+    <span class="hljs-keyword">protected</span> <span class="hljs-variable">$table</span> = <span class="hljs-string">&#x27;my_flights&#x27;</span>;
+}
+</code></pre>
+<p><a name="primary-keys"></a></p>
+<h3 id="primary-keys">Primary Keys</h3>
+<p>Eloquent will also assume that each model&#39;s corresponding database table has a primary key column named <code>id</code>. If necessary, you may define a protected <code>$primaryKey</code> property on your model to specify a different column that serves as your model&#39;s primary key:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Models</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Model</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Flight</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Model</span>
+</span>{
+    <span class="hljs-comment">/**
+     * The primary key associated with the table.
+     *
+     * <span class="hljs-doctag">@var</span> string
+     */</span>
+    <span class="hljs-keyword">protected</span> <span class="hljs-variable">$primaryKey</span> = <span class="hljs-string">&#x27;flight_id&#x27;</span>;
+}
+</code></pre>
+<p>In addition, Eloquent assumes that the primary key is an incrementing integer value, which means that Eloquent will automatically cast the primary key to an integer. If you wish to use a non-incrementing or a non-numeric primary key you must define a public <code>$incrementing</code> property on your model that is set to <code>false</code>:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Flight</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Model</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Indicates if the model&#x27;s ID is auto-incrementing.
+     *
+     * <span class="hljs-doctag">@var</span> bool
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-variable">$incrementing</span> = <span class="hljs-literal">false</span>;
+}
+</code></pre>
+<p>If your model&#39;s primary key is not an integer, you should define a protected <code>$keyType</code> property on your model. This property should have a value of <code>string</code>:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Flight</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Model</span>
+</span>{
+    <span class="hljs-comment">/**
+     * The data type of the auto-incrementing ID.
+     *
+     * <span class="hljs-doctag">@var</span> string
+     */</span>
+    <span class="hljs-keyword">protected</span> <span class="hljs-variable">$keyType</span> = <span class="hljs-string">&#x27;string&#x27;</span>;
+}
+</code></pre>
+<p><a name="composite-primary-keys"></a></p>
+<h4 id="composite-primary-keys">&quot;Composite&quot; Primary Keys</h4>
+<p>Eloquent requires each model to have at least one uniquely identifying &quot;ID&quot; that can serve as its primary key. &quot;Composite&quot; primary keys are not supported by Eloquent models. However, you are free to add additional multi-column, unique indexes to your database tables in addition to the table&#39;s uniquely identifying primary key.</p>
+<p><a name="timestamps"></a></p>
+<h3 id="timestamps">Timestamps</h3>
+<p>By default, Eloquent expects <code>created_at</code> and <code>updated_at</code> columns to exist on your model&#39;s corresponding database table.  Eloquent will automatically set these column&#39;s values when models are created or updated. If you do not want these columns to be automatically managed by Eloquent, you should define a <code>$timestamps</code> property on your model with a value of <code>false</code>:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Models</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Model</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Flight</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Model</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Indicates if the model should be timestamped.
+     *
+     * <span class="hljs-doctag">@var</span> bool
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-variable">$timestamps</span> = <span class="hljs-literal">false</span>;
+}
+</code></pre>
+<p>If you need to customize the format of your model&#39;s timestamps, set the <code>$dateFormat</code> property on your model. This property determines how date attributes are stored in the database as well as their format when the model is serialized to an array or JSON:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Models</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Model</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Flight</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Model</span>
+</span>{
+    <span class="hljs-comment">/**
+     * The storage format of the model&#x27;s date columns.
+     *
+     * <span class="hljs-doctag">@var</span> string
+     */</span>
+    <span class="hljs-keyword">protected</span> <span class="hljs-variable">$dateFormat</span> = <span class="hljs-string">&#x27;U&#x27;</span>;
+}
+</code></pre>
+<p>If you need to customize the names of the columns used to store the timestamps, you may define <code>CREATED_AT</code> and <code>UPDATED_AT</code> constants on your model:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Flight</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Model</span>
+</span>{
+    <span class="hljs-keyword">const</span> <span class="hljs-variable constant_">CREATED_AT</span> = <span class="hljs-string">&#x27;creation_date&#x27;</span>;
+    <span class="hljs-keyword">const</span> <span class="hljs-variable constant_">UPDATED_AT</span> = <span class="hljs-string">&#x27;updated_date&#x27;</span>;
+}
+</code></pre>
+<p><a name="database-connections"></a></p>
+<h3 id="database-connections">Database Connections</h3>
+<p>By default, all Eloquent models will use the default database connection that is configured for your application. If you would like to specify a different connection that should be used when interacting with a particular model, you should define a <code>$connection</code> property on the model:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Models</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Model</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Flight</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Model</span>
+</span>{
+    <span class="hljs-comment">/**
+     * The database connection that should be used by the model.
+     *
+     * <span class="hljs-doctag">@var</span> string
+     */</span>
+    <span class="hljs-keyword">protected</span> <span class="hljs-variable">$connection</span> = <span class="hljs-string">&#x27;sqlite&#x27;</span>;
+}
+</code></pre>
+<p><a name="default-attribute-values"></a></p>
+<h3 id="default-attribute-values">Default Attribute Values</h3>
+<p>By default, a newly instantiated model instance will not contain any attribute values. If you would like to define the default values for some of your model&#39;s attributes, you may define an <code>$attributes</code> property on your model:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Models</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Model</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Flight</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Model</span>
+</span>{
+    <span class="hljs-comment">/**
+     * The model&#x27;s default values for attributes.
+     *
+     * <span class="hljs-doctag">@var</span> array
+     */</span>
+    <span class="hljs-keyword">protected</span> <span class="hljs-variable">$attributes</span> = [
+        <span class="hljs-string">&#x27;delayed&#x27;</span> =&gt; <span class="hljs-literal">false</span>,
+    ];
+}
+</code></pre>
+<p><a name="retrieving-models"></a></p>
+<h2 id="retrieving-models">Retrieving Models</h2>
+<p>Once you have created a model and <a href="/docs/%7B%7Bversion%7D%7D/migrations#writing-migrations">its associated database table</a>, you are ready to start retrieving data from your database. You can think of each Eloquent model as a powerful <a href="/docs/%7B%7Bversion%7D%7D/queries">query builder</a> allowing you to fluently query the database table associated with the model. The model&#39;s <code>all</code> method will retrieve all of the records from the model&#39;s associated database table:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Flight</span>;
+
+<span class="hljs-keyword">foreach</span> (<span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">all</span>() <span class="hljs-keyword">as</span> <span class="hljs-variable">$flight</span>) {
+    <span class="hljs-keyword">echo</span> <span class="hljs-variable">$flight</span>-&gt;name;
+}
+</code></pre>
+<p><a name="building-queries"></a></p>
+<h4 id="building-queries">Building Queries</h4>
+<p>The Eloquent <code>all</code> method will return all of the results in the model&#39;s table. However, since each Eloquent model serves as a <a href="/docs/%7B%7Bversion%7D%7D/queries">query builder</a>, you may add additional constraints to queries and then invoke the <code>get</code> method to retrieve the results:</p>
+<pre><code><span class="hljs-variable">$flights</span> = <span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;active&#x27;</span>, <span class="hljs-number">1</span>)
+               -&gt;<span class="hljs-title function_ invoke__">orderBy</span>(<span class="hljs-string">&#x27;name&#x27;</span>)
+               -&gt;<span class="hljs-title function_ invoke__">take</span>(<span class="hljs-number">10</span>)
+               -&gt;<span class="hljs-title function_ invoke__">get</span>();
+</code></pre>
+<blockquote>
+<p><strong>Note</strong><br>Since Eloquent models are query builders, you should review all of the methods provided by Laravel&#39;s <a href="/docs/%7B%7Bversion%7D%7D/queries">query builder</a>. You may use any of these methods when writing your Eloquent queries.</p>
+</blockquote>
+<p><a name="refreshing-models"></a></p>
+<h4 id="refreshing-models">Refreshing Models</h4>
+<p>If you already have an instance of an Eloquent model that was retrieved from the database, you can &quot;refresh&quot; the model using the <code>fresh</code> and <code>refresh</code> methods. The <code>fresh</code> method will re-retrieve the model from the database. The existing model instance will not be affected:</p>
+<pre><code><span class="hljs-variable">$flight</span> = <span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;number&#x27;</span>, <span class="hljs-string">&#x27;FR 900&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">first</span>();
+
+<span class="hljs-variable">$freshFlight</span> = <span class="hljs-variable">$flight</span>-&gt;<span class="hljs-title function_ invoke__">fresh</span>();
+</code></pre>
+<p>The <code>refresh</code> method will re-hydrate the existing model using fresh data from the database. In addition, all of its loaded relationships will be refreshed as well:</p>
+<pre><code><span class="hljs-variable">$flight</span> = <span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;number&#x27;</span>, <span class="hljs-string">&#x27;FR 900&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">first</span>();
+
+<span class="hljs-variable">$flight</span>-&gt;number = <span class="hljs-string">&#x27;FR 456&#x27;</span>;
+
+<span class="hljs-variable">$flight</span>-&gt;<span class="hljs-title function_ invoke__">refresh</span>();
+
+<span class="hljs-variable">$flight</span>-&gt;number; <span class="hljs-comment">// &quot;FR 900&quot;</span>
+</code></pre>
+<p><a name="collections"></a></p>
+<h3 id="collections">Collections</h3>
+<p>As we have seen, Eloquent methods like <code>all</code> and <code>get</code> retrieve multiple records from the database. However, these methods don&#39;t return a plain PHP array. Instead, an instance of <code>Illuminate\Database\Eloquent\Collection</code> is returned.</p>
+<p>The Eloquent <code>Collection</code> class extends Laravel&#39;s base <code>Illuminate\Support\Collection</code> class, which provides a <a href="/docs/%7B%7Bversion%7D%7D/collections#available-methods">variety of helpful methods</a> for interacting with data collections. For example, the <code>reject</code> method may be used to remove models from a collection based on the results of an invoked closure:</p>
+<pre><code class="language-php"><span class="hljs-variable">$flights</span> = <span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;destination&#x27;</span>, <span class="hljs-string">&#x27;Paris&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">get</span>();
+
+<span class="hljs-variable">$flights</span> = <span class="hljs-variable">$flights</span>-&gt;<span class="hljs-title function_ invoke__">reject</span>(function (<span class="hljs-variable">$flight</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$flight</span>-&gt;cancelled;
+});
+</code></pre>
+<p>In addition to the methods provided by Laravel&#39;s base collection class, the Eloquent collection class provides <a href="/docs/%7B%7Bversion%7D%7D/eloquent-collections#available-methods">a few extra methods</a> that are specifically intended for interacting with collections of Eloquent models.</p>
+<p>Since all of Laravel&#39;s collections implement PHP&#39;s iterable interfaces, you may loop over collections as if they were an array:</p>
+<pre><code class="language-php"><span class="hljs-keyword">foreach</span> (<span class="hljs-variable">$flights</span> <span class="hljs-keyword">as</span> <span class="hljs-variable">$flight</span>) {
+    <span class="hljs-keyword">echo</span> <span class="hljs-variable">$flight</span>-&gt;name;
+}
+</code></pre>
+<p><a name="chunking-results"></a></p>
+<h3 id="chunking-results">Chunking Results</h3>
+<p>Your application may run out of memory if you attempt to load tens of thousands of Eloquent records via the <code>all</code> or <code>get</code> methods. Instead of using these methods, the <code>chunk</code> method may be used to process large numbers of models more efficiently.</p>
+<p>The <code>chunk</code> method will retrieve a subset of Eloquent models, passing them to a closure for processing. Since only the current chunk of Eloquent models is retrieved at a time, the <code>chunk</code> method will provide significantly reduced memory usage when working with a large number of models:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Flight</span>;
+
+<span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">chunk</span>(<span class="hljs-number">200</span>, function (<span class="hljs-variable">$flights</span>) {
+    <span class="hljs-keyword">foreach</span> (<span class="hljs-variable">$flights</span> <span class="hljs-keyword">as</span> <span class="hljs-variable">$flight</span>) {
+        <span class="hljs-comment">//</span>
+    }
+});
+</code></pre>
+<p>The first argument passed to the <code>chunk</code> method is the number of records you wish to receive per &quot;chunk&quot;. The closure passed as the second argument will be invoked for each chunk that is retrieved from the database. A database query will be executed to retrieve each chunk of records passed to the closure.</p>
+<p>If you are filtering the results of the <code>chunk</code> method based on a column that you will also be updating while iterating over the results, you should use the <code>chunkById</code> method. Using the <code>chunk</code> method in these scenarios could lead to unexpected and inconsistent results. Internally, the <code>chunkById</code> method will always retrieve models with an <code>id</code> column greater than the last model in the previous chunk:</p>
+<pre><code class="language-php"><span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;departed&#x27;</span>, <span class="hljs-literal">true</span>)
+    -&gt;<span class="hljs-title function_ invoke__">chunkById</span>(<span class="hljs-number">200</span>, function (<span class="hljs-variable">$flights</span>) {
+        <span class="hljs-variable">$flights</span>-&gt;each-&gt;<span class="hljs-title function_ invoke__">update</span>([<span class="hljs-string">&#x27;departed&#x27;</span> =&gt; <span class="hljs-literal">false</span>]);
+    }, <span class="hljs-variable">$column</span> = <span class="hljs-string">&#x27;id&#x27;</span>);
+</code></pre>
+<p><a name="chunking-using-lazy-collections"></a></p>
+<h3 id="chunking-using-lazy-collections">Chunking Using Lazy Collections</h3>
+<p>The <code>lazy</code> method works similarly to <a href="#chunking-results">the <code>chunk</code> method</a> in the sense that, behind the scenes, it executes the query in chunks. However, instead of passing each chunk directly into a callback as is, the <code>lazy</code> method returns a flattened <a href="/docs/%7B%7Bversion%7D%7D/collections#lazy-collections"><code>LazyCollection</code></a> of Eloquent models, which lets you interact with the results as a single stream:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Flight</span>;
+
+<span class="hljs-keyword">foreach</span> (<span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">lazy</span>() <span class="hljs-keyword">as</span> <span class="hljs-variable">$flight</span>) {
+    <span class="hljs-comment">//</span>
+}
+</code></pre>
+<p>If you are filtering the results of the <code>lazy</code> method based on a column that you will also be updating while iterating over the results, you should use the <code>lazyById</code> method. Internally, the <code>lazyById</code> method will always retrieve models with an <code>id</code> column greater than the last model in the previous chunk:</p>
+<pre><code class="language-php"><span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;departed&#x27;</span>, <span class="hljs-literal">true</span>)
+    -&gt;<span class="hljs-title function_ invoke__">lazyById</span>(<span class="hljs-number">200</span>, <span class="hljs-variable">$column</span> = <span class="hljs-string">&#x27;id&#x27;</span>)
+    -&gt;each-&gt;<span class="hljs-title function_ invoke__">update</span>([<span class="hljs-string">&#x27;departed&#x27;</span> =&gt; <span class="hljs-literal">false</span>]);
+</code></pre>
+<p>You may filter the results based on the descending order of the <code>id</code> using the <code>lazyByIdDesc</code> method.</p>
+<p><a name="cursors"></a></p>
+<h3 id="cursors">Cursors</h3>
+<p>Similar to the <code>lazy</code> method, the <code>cursor</code> method may be used to significantly reduce your application&#39;s memory consumption when iterating through tens of thousands of Eloquent model records.</p>
+<p>The <code>cursor</code> method will only execute a single database query; however, the individual Eloquent models will not be hydrated until they are actually iterated over. Therefore, only one Eloquent model is kept in memory at any given time while iterating over the cursor.</p>
+<blockquote>
+<p><strong>Warning</strong><br>Since the <code>cursor</code> method only ever holds a single Eloquent model in memory at a time, it cannot eager load relationships. If you need to eager load relationships, consider using <a href="#chunking-using-lazy-collections">the <code>lazy</code> method</a> instead.</p>
+</blockquote>
+<p>Internally, the <code>cursor</code> method uses PHP <a href="https://www.php.net/manual/en/language.generators.overview.php">generators</a> to implement this functionality:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Flight</span>;
+
+<span class="hljs-keyword">foreach</span> (<span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;destination&#x27;</span>, <span class="hljs-string">&#x27;Zurich&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">cursor</span>() <span class="hljs-keyword">as</span> <span class="hljs-variable">$flight</span>) {
+    <span class="hljs-comment">//</span>
+}
+</code></pre>
+<p>The <code>cursor</code> returns an <code>Illuminate\Support\LazyCollection</code> instance. <a href="/docs/%7B%7Bversion%7D%7D/collections#lazy-collections">Lazy collections</a> allow you to use many of the collection methods available on typical Laravel collections while only loading a single model into memory at a time:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+
+<span class="hljs-variable">$users</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">cursor</span>()-&gt;<span class="hljs-title function_ invoke__">filter</span>(function (<span class="hljs-variable">$user</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$user</span>-&gt;id &gt; <span class="hljs-number">500</span>;
+});
+
+<span class="hljs-keyword">foreach</span> (<span class="hljs-variable">$users</span> <span class="hljs-keyword">as</span> <span class="hljs-variable">$user</span>) {
+    <span class="hljs-keyword">echo</span> <span class="hljs-variable">$user</span>-&gt;id;
+}
+</code></pre>
+<p>Although the <code>cursor</code> method uses far less memory than a regular query (by only holding a single Eloquent model in memory at a time), it will still eventually run out of memory. This is <a href="https://www.php.net/manual/en/mysqlinfo.concepts.buffering.php">due to PHP&#39;s PDO driver internally caching all raw query results in its buffer</a>. If you&#39;re dealing with a very large number of Eloquent records, consider using <a href="#chunking-using-lazy-collections">the <code>lazy</code> method</a> instead.</p>
+<p><a name="advanced-subqueries"></a></p>
+<h3 id="advanced-subqueries">Advanced Subqueries</h3>
+<p><a name="subquery-selects"></a></p>
+<h4 id="subquery-selects">Subquery Selects</h4>
+<p>Eloquent also offers advanced subquery support, which allows you to pull information from related tables in a single query. For example, let&#39;s imagine that we have a table of flight <code>destinations</code> and a table of <code>flights</code> to destinations. The <code>flights</code> table contains an <code>arrived_at</code> column which indicates when the flight arrived at the destination.</p>
+<p>Using the subquery functionality available to the query builder&#39;s <code>select</code> and <code>addSelect</code> methods, we can select all of the <code>destinations</code> and the name of the flight that most recently arrived at that destination using a single query:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Destination</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Flight</span>;
+
+<span class="hljs-keyword">return</span> <span class="hljs-title class_">Destination</span>::<span class="hljs-title function_ invoke__">addSelect</span>([<span class="hljs-string">&#x27;last_flight&#x27;</span> =&gt; <span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">select</span>(<span class="hljs-string">&#x27;name&#x27;</span>)
+    -&gt;<span class="hljs-title function_ invoke__">whereColumn</span>(<span class="hljs-string">&#x27;destination_id&#x27;</span>, <span class="hljs-string">&#x27;destinations.id&#x27;</span>)
+    -&gt;<span class="hljs-title function_ invoke__">orderByDesc</span>(<span class="hljs-string">&#x27;arrived_at&#x27;</span>)
+    -&gt;<span class="hljs-title function_ invoke__">limit</span>(<span class="hljs-number">1</span>)
+])-&gt;<span class="hljs-title function_ invoke__">get</span>();
+</code></pre>
+<p><a name="subquery-ordering"></a></p>
+<h4 id="subquery-ordering">Subquery Ordering</h4>
+<p>In addition, the query builder&#39;s <code>orderBy</code> function supports subqueries. Continuing to use our flight example, we may use this functionality to sort all destinations based on when the last flight arrived at that destination. Again, this may be done while executing a single database query:</p>
+<pre><code><span class="hljs-keyword">return</span> <span class="hljs-title class_">Destination</span>::<span class="hljs-title function_ invoke__">orderByDesc</span>(
+    <span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">select</span>(<span class="hljs-string">&#x27;arrived_at&#x27;</span>)
+        -&gt;<span class="hljs-title function_ invoke__">whereColumn</span>(<span class="hljs-string">&#x27;destination_id&#x27;</span>, <span class="hljs-string">&#x27;destinations.id&#x27;</span>)
+        -&gt;<span class="hljs-title function_ invoke__">orderByDesc</span>(<span class="hljs-string">&#x27;arrived_at&#x27;</span>)
+        -&gt;<span class="hljs-title function_ invoke__">limit</span>(<span class="hljs-number">1</span>)
+)-&gt;<span class="hljs-title function_ invoke__">get</span>();
+</code></pre>
+<p><a name="retrieving-single-models"></a></p>
+<h2 id="retrieving-single-models--aggregates">Retrieving Single Models / Aggregates</h2>
+<p>In addition to retrieving all of the records matching a given query, you may also retrieve single records using the <code>find</code>, <code>first</code>, or <code>firstWhere</code> methods. Instead of returning a collection of models, these methods return a single model instance:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Flight</span>;
+
+<span class="hljs-comment">// Retrieve a model by its primary key...</span>
+<span class="hljs-variable">$flight</span> = <span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-comment">// Retrieve the first model matching the query constraints...</span>
+<span class="hljs-variable">$flight</span> = <span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;active&#x27;</span>, <span class="hljs-number">1</span>)-&gt;<span class="hljs-title function_ invoke__">first</span>();
+
+<span class="hljs-comment">// Alternative to retrieving the first model matching the query constraints...</span>
+<span class="hljs-variable">$flight</span> = <span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">firstWhere</span>(<span class="hljs-string">&#x27;active&#x27;</span>, <span class="hljs-number">1</span>);
+</code></pre>
+<p>Sometimes you may wish to perform some other action if no results are found. The <code>findOr</code> and <code>firstOr</code> methods will return a single model instance or, if no results are found, execute the given closure. The value returned by the closure will be considered the result of the method:</p>
+<pre><code><span class="hljs-variable">$flight</span> = <span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">findOr</span>(<span class="hljs-number">1</span>, function () {
+    <span class="hljs-comment">// ...</span>
+});
+
+<span class="hljs-variable">$flight</span> = <span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;legs&#x27;</span>, <span class="hljs-string">&#x27;&gt;&#x27;</span>, <span class="hljs-number">3</span>)-&gt;<span class="hljs-title function_ invoke__">firstOr</span>(function () {
+    <span class="hljs-comment">// ...</span>
+});
+</code></pre>
+<p><a name="not-found-exceptions"></a></p>
+<h4 id="not-found-exceptions">Not Found Exceptions</h4>
+<p>Sometimes you may wish to throw an exception if a model is not found. This is particularly useful in routes or controllers. The <code>findOrFail</code> and <code>firstOrFail</code> methods will retrieve the first result of the query; however, if no result is found, an <code>Illuminate\Database\Eloquent\ModelNotFoundException</code> will be thrown:</p>
+<pre><code><span class="hljs-variable">$flight</span> = <span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">findOrFail</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-variable">$flight</span> = <span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;legs&#x27;</span>, <span class="hljs-string">&#x27;&gt;&#x27;</span>, <span class="hljs-number">3</span>)-&gt;<span class="hljs-title function_ invoke__">firstOrFail</span>();
+</code></pre>
+<p>If the <code>ModelNotFoundException</code> is not caught, a 404 HTTP response is automatically sent back to the client:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Flight</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/api/flights/{id}&#x27;</span>, function (<span class="hljs-variable">$id</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">findOrFail</span>(<span class="hljs-variable">$id</span>);
+});
+</code></pre>
+<p><a name="retrieving-or-creating-models"></a></p>
+<h3 id="retrieving-or-creating-models">Retrieving Or Creating Models</h3>
+<p>The <code>firstOrCreate</code> method will attempt to locate a database record using the given column / value pairs. If the model can not be found in the database, a record will be inserted with the attributes resulting from merging the first array argument with the optional second array argument:</p>
+<p>The <code>firstOrNew</code> method, like <code>firstOrCreate</code>, will attempt to locate a record in the database matching the given attributes. However, if a model is not found, a new model instance will be returned. Note that the model returned by <code>firstOrNew</code> has not yet been persisted to the database. You will need to manually call the <code>save</code> method to persist it:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Flight</span>;
+
+<span class="hljs-comment">// Retrieve flight by name or create it if it doesn&#x27;t exist...</span>
+<span class="hljs-variable">$flight</span> = <span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">firstOrCreate</span>([
+    <span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;London to Paris&#x27;</span>
+]);
+
+<span class="hljs-comment">// Retrieve flight by name or create it with the name, delayed, and arrival_time attributes...</span>
+<span class="hljs-variable">$flight</span> = <span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">firstOrCreate</span>(
+    [<span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;London to Paris&#x27;</span>],
+    [<span class="hljs-string">&#x27;delayed&#x27;</span> =&gt; <span class="hljs-number">1</span>, <span class="hljs-string">&#x27;arrival_time&#x27;</span> =&gt; <span class="hljs-string">&#x27;11:30&#x27;</span>]
+);
+
+<span class="hljs-comment">// Retrieve flight by name or instantiate a new Flight instance...</span>
+<span class="hljs-variable">$flight</span> = <span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">firstOrNew</span>([
+    <span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;London to Paris&#x27;</span>
+]);
+
+<span class="hljs-comment">// Retrieve flight by name or instantiate with the name, delayed, and arrival_time attributes...</span>
+<span class="hljs-variable">$flight</span> = <span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">firstOrNew</span>(
+    [<span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Tokyo to Sydney&#x27;</span>],
+    [<span class="hljs-string">&#x27;delayed&#x27;</span> =&gt; <span class="hljs-number">1</span>, <span class="hljs-string">&#x27;arrival_time&#x27;</span> =&gt; <span class="hljs-string">&#x27;11:30&#x27;</span>]
+);
+</code></pre>
+<p><a name="retrieving-aggregates"></a></p>
+<h3 id="retrieving-aggregates">Retrieving Aggregates</h3>
+<p>When interacting with Eloquent models, you may also use the <code>count</code>, <code>sum</code>, <code>max</code>, and other <a href="/docs/%7B%7Bversion%7D%7D/queries#aggregates">aggregate methods</a> provided by the Laravel <a href="/docs/%7B%7Bversion%7D%7D/queries">query builder</a>. As you might expect, these methods return a scalar value instead of an Eloquent model instance:</p>
+<pre><code><span class="hljs-variable">$count</span> = <span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;active&#x27;</span>, <span class="hljs-number">1</span>)-&gt;<span class="hljs-title function_ invoke__">count</span>();
+
+<span class="hljs-variable">$max</span> = <span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;active&#x27;</span>, <span class="hljs-number">1</span>)-&gt;<span class="hljs-title function_ invoke__">max</span>(<span class="hljs-string">&#x27;price&#x27;</span>);
+</code></pre>
+<p><a name="inserting-and-updating-models"></a></p>
+<h2 id="inserting--updating-models">Inserting &amp; Updating Models</h2>
+<p><a name="inserts"></a></p>
+<h3 id="inserts">Inserts</h3>
+<p>Of course, when using Eloquent, we don&#39;t only need to retrieve models from the database. We also need to insert new records. Thankfully, Eloquent makes it simple. To insert a new record into the database, you should instantiate a new model instance and set attributes on the model. Then, call the <code>save</code> method on the model instance:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Http</span>\<span class="hljs-title class_">Controllers</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Controllers</span>\<span class="hljs-title">Controller</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Flight</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">FlightController</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Controller</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Store a new flight in the database.
+     *
+     * <span class="hljs-doctag">@param</span>  \Illuminate\Http\Request  $request
+     * <span class="hljs-doctag">@return</span> \Illuminate\Http\Response
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">store</span>(<span class="hljs-params">Request <span class="hljs-variable">$request</span></span>)
+    </span>{
+        <span class="hljs-comment">// Validate the request...</span>
+
+        <span class="hljs-variable">$flight</span> = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Flight</span>;
+
+        <span class="hljs-variable">$flight</span>-&gt;name = <span class="hljs-variable">$request</span>-&gt;name;
+
+        <span class="hljs-variable">$flight</span>-&gt;<span class="hljs-title function_ invoke__">save</span>();
+    }
+}
+</code></pre>
+<p>In this example, we assign the <code>name</code> field from the incoming HTTP request to the <code>name</code> attribute of the <code>App\Models\Flight</code> model instance. When we call the <code>save</code> method, a record will be inserted into the database. The model&#39;s <code>created_at</code> and <code>updated_at</code> timestamps will automatically be set when the <code>save</code> method is called, so there is no need to set them manually.</p>
+<p>Alternatively, you may use the <code>create</code> method to &quot;save&quot; a new model using a single PHP statement. The inserted model instance will be returned to you by the <code>create</code> method:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Flight</span>;
+
+<span class="hljs-variable">$flight</span> = <span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">create</span>([
+    <span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;London to Paris&#x27;</span>,
+]);
+</code></pre>
+<p>However, before using the <code>create</code> method, you will need to specify either a <code>fillable</code> or <code>guarded</code> property on your model class. These properties are required because all Eloquent models are protected against mass assignment vulnerabilities by default. To learn more about mass assignment, please consult the <a href="#mass-assignment">mass assignment documentation</a>.</p>
+<p><a name="updates"></a></p>
+<h3 id="updates">Updates</h3>
+<p>The <code>save</code> method may also be used to update models that already exist in the database. To update a model, you should retrieve it and set any attributes you wish to update. Then, you should call the model&#39;s <code>save</code> method. Again, the <code>updated_at</code> timestamp will automatically be updated, so there is no need to manually set its value:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Flight</span>;
+
+<span class="hljs-variable">$flight</span> = <span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-variable">$flight</span>-&gt;name = <span class="hljs-string">&#x27;Paris to London&#x27;</span>;
+
+<span class="hljs-variable">$flight</span>-&gt;<span class="hljs-title function_ invoke__">save</span>();
+</code></pre>
+<p><a name="mass-updates"></a></p>
+<h4 id="mass-updates">Mass Updates</h4>
+<p>Updates can also be performed against models that match a given query. In this example, all flights that are <code>active</code> and have a <code>destination</code> of <code>San Diego</code> will be marked as delayed:</p>
+<pre><code><span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;active&#x27;</span>, <span class="hljs-number">1</span>)
+      -&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;destination&#x27;</span>, <span class="hljs-string">&#x27;San Diego&#x27;</span>)
+      -&gt;<span class="hljs-title function_ invoke__">update</span>([<span class="hljs-string">&#x27;delayed&#x27;</span> =&gt; <span class="hljs-number">1</span>]);
+</code></pre>
+<p>The <code>update</code> method expects an array of column and value pairs representing the columns that should be updated. The <code>update</code> method returns the number of affected rows.</p>
+<blockquote>
+<p><strong>Warning</strong><br>When issuing a mass update via Eloquent, the <code>saving</code>, <code>saved</code>, <code>updating</code>, and <code>updated</code> model events will not be fired for the updated models. This is because the models are never actually retrieved when issuing a mass update.</p>
+</blockquote>
+<p><a name="examining-attribute-changes"></a></p>
+<h4 id="examining-attribute-changes">Examining Attribute Changes</h4>
+<p>Eloquent provides the <code>isDirty</code>, <code>isClean</code>, and <code>wasChanged</code> methods to examine the internal state of your model and determine how its attributes have changed from when the model was originally retrieved.</p>
+<p>The <code>isDirty</code> method determines if any of the model&#39;s attributes have been changed since the model was retrieved. You may pass a specific attribute name or an array of attributes to the <code>isDirty</code> method to determine if any of the attributes are &quot;dirty&quot;. The <code>isClean</code> method will determine if an attribute has remained unchanged since the model was retrieved. This method also accepts an optional attribute argument:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+
+<span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">create</span>([
+    <span class="hljs-string">&#x27;first_name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Taylor&#x27;</span>,
+    <span class="hljs-string">&#x27;last_name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Otwell&#x27;</span>,
+    <span class="hljs-string">&#x27;title&#x27;</span> =&gt; <span class="hljs-string">&#x27;Developer&#x27;</span>,
+]);
+
+<span class="hljs-variable">$user</span>-&gt;title = <span class="hljs-string">&#x27;Painter&#x27;</span>;
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">isDirty</span>(); <span class="hljs-comment">// true</span>
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">isDirty</span>(<span class="hljs-string">&#x27;title&#x27;</span>); <span class="hljs-comment">// true</span>
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">isDirty</span>(<span class="hljs-string">&#x27;first_name&#x27;</span>); <span class="hljs-comment">// false</span>
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">isDirty</span>([<span class="hljs-string">&#x27;first_name&#x27;</span>, <span class="hljs-string">&#x27;title&#x27;</span>]); <span class="hljs-comment">// true</span>
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">isClean</span>(); <span class="hljs-comment">// false</span>
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">isClean</span>(<span class="hljs-string">&#x27;title&#x27;</span>); <span class="hljs-comment">// false</span>
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">isClean</span>(<span class="hljs-string">&#x27;first_name&#x27;</span>); <span class="hljs-comment">// true</span>
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">isClean</span>([<span class="hljs-string">&#x27;first_name&#x27;</span>, <span class="hljs-string">&#x27;title&#x27;</span>]); <span class="hljs-comment">// false</span>
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">save</span>();
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">isDirty</span>(); <span class="hljs-comment">// false</span>
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">isClean</span>(); <span class="hljs-comment">// true</span>
+</code></pre>
+<p>The <code>wasChanged</code> method determines if any attributes were changed when the model was last saved within the current request cycle. If needed, you may pass an attribute name to see if a particular attribute was changed:</p>
+<pre><code><span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">create</span>([
+    <span class="hljs-string">&#x27;first_name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Taylor&#x27;</span>,
+    <span class="hljs-string">&#x27;last_name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Otwell&#x27;</span>,
+    <span class="hljs-string">&#x27;title&#x27;</span> =&gt; <span class="hljs-string">&#x27;Developer&#x27;</span>,
+]);
+
+<span class="hljs-variable">$user</span>-&gt;title = <span class="hljs-string">&#x27;Painter&#x27;</span>;
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">save</span>();
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">wasChanged</span>(); <span class="hljs-comment">// true</span>
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">wasChanged</span>(<span class="hljs-string">&#x27;title&#x27;</span>); <span class="hljs-comment">// true</span>
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">wasChanged</span>([<span class="hljs-string">&#x27;title&#x27;</span>, <span class="hljs-string">&#x27;slug&#x27;</span>]); <span class="hljs-comment">// true</span>
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">wasChanged</span>(<span class="hljs-string">&#x27;first_name&#x27;</span>); <span class="hljs-comment">// false</span>
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">wasChanged</span>([<span class="hljs-string">&#x27;first_name&#x27;</span>, <span class="hljs-string">&#x27;title&#x27;</span>]); <span class="hljs-comment">// true</span>
+</code></pre>
+<p>The <code>getOriginal</code> method returns an array containing the original attributes of the model regardless of any changes to the model since it was retrieved. If needed, you may pass a specific attribute name to get the original value of a particular attribute:</p>
+<pre><code><span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-variable">$user</span>-&gt;name; <span class="hljs-comment">// John</span>
+<span class="hljs-variable">$user</span>-&gt;email; <span class="hljs-comment">// john@example.com</span>
+
+<span class="hljs-variable">$user</span>-&gt;name = <span class="hljs-string">&quot;Jack&quot;</span>;
+<span class="hljs-variable">$user</span>-&gt;name; <span class="hljs-comment">// Jack</span>
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">getOriginal</span>(<span class="hljs-string">&#x27;name&#x27;</span>); <span class="hljs-comment">// John</span>
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">getOriginal</span>(); <span class="hljs-comment">// Array of original attributes...</span>
+</code></pre>
+<p><a name="mass-assignment"></a></p>
+<h3 id="mass-assignment">Mass Assignment</h3>
+<p>You may use the <code>create</code> method to &quot;save&quot; a new model using a single PHP statement. The inserted model instance will be returned to you by the method:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Flight</span>;
+
+<span class="hljs-variable">$flight</span> = <span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">create</span>([
+    <span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;London to Paris&#x27;</span>,
+]);
+</code></pre>
+<p>However, before using the <code>create</code> method, you will need to specify either a <code>fillable</code> or <code>guarded</code> property on your model class. These properties are required because all Eloquent models are protected against mass assignment vulnerabilities by default.</p>
+<p>A mass assignment vulnerability occurs when a user passes an unexpected HTTP request field and that field changes a column in your database that you did not expect. For example, a malicious user might send an <code>is_admin</code> parameter through an HTTP request, which is then passed to your model&#39;s <code>create</code> method, allowing the user to escalate themselves to an administrator.</p>
+<p>So, to get started, you should define which model attributes you want to make mass assignable. You may do this using the <code>$fillable</code> property on the model. For example, let&#39;s make the <code>name</code> attribute of our <code>Flight</code> model mass assignable:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Models</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Model</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Flight</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Model</span>
+</span>{
+    <span class="hljs-comment">/**
+     * The attributes that are mass assignable.
+     *
+     * <span class="hljs-doctag">@var</span> array
+     */</span>
+    <span class="hljs-keyword">protected</span> <span class="hljs-variable">$fillable</span> = [<span class="hljs-string">&#x27;name&#x27;</span>];
+}
+</code></pre>
+<p>Once you have specified which attributes are mass assignable, you may use the <code>create</code> method to insert a new record in the database. The <code>create</code> method returns the newly created model instance:</p>
+<pre><code><span class="hljs-variable">$flight</span> = <span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">create</span>([<span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;London to Paris&#x27;</span>]);
+</code></pre>
+<p>If you already have a model instance, you may use the <code>fill</code> method to populate it with an array of attributes:</p>
+<pre><code><span class="hljs-variable">$flight</span>-&gt;<span class="hljs-title function_ invoke__">fill</span>([<span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Amsterdam to Frankfurt&#x27;</span>]);
+</code></pre>
+<p><a name="mass-assignment-json-columns"></a></p>
+<h4 id="mass-assignment--json-columns">Mass Assignment &amp; JSON Columns</h4>
+<p>When assigning JSON columns, each column&#39;s mass assignable key must be specified in your model&#39;s <code>$fillable</code> array. For security, Laravel does not support updating nested JSON attributes when using the <code>guarded</code> property:</p>
+<pre><code><span class="hljs-comment">/**
+ * The attributes that are mass assignable.
+ *
+ * <span class="hljs-doctag">@var</span> array
+ */</span>
+<span class="hljs-keyword">protected</span> <span class="hljs-variable">$fillable</span> = [
+    <span class="hljs-string">&#x27;options-&gt;enabled&#x27;</span>,
+];
+</code></pre>
+<p><a name="allowing-mass-assignment"></a></p>
+<h4 id="allowing-mass-assignment">Allowing Mass Assignment</h4>
+<p>If you would like to make all of your attributes mass assignable, you may define your model&#39;s <code>$guarded</code> property as an empty array. If you choose to unguard your model, you should take special care to always hand-craft the arrays passed to Eloquent&#39;s <code>fill</code>, <code>create</code>, and <code>update</code> methods:</p>
+<pre><code><span class="hljs-comment">/**
+ * The attributes that aren&#x27;t mass assignable.
+ *
+ * <span class="hljs-doctag">@var</span> array
+ */</span>
+<span class="hljs-keyword">protected</span> <span class="hljs-variable">$guarded</span> = [];
+</code></pre>
+<p><a name="upserts"></a></p>
+<h3 id="upserts">Upserts</h3>
+<p>Occasionally, you may need to update an existing model or create a new model if no matching model exists. Like the <code>firstOrCreate</code> method, the <code>updateOrCreate</code> method persists the model, so there&#39;s no need to manually call the <code>save</code> method.</p>
+<p>In the example below, if a flight exists with a <code>departure</code> location of <code>Oakland</code> and a <code>destination</code> location of <code>San Diego</code>, its <code>price</code> and <code>discounted</code> columns will be updated. If no such flight exists, a new flight will be created which has the attributes resulting from merging the first argument array with the second argument array:</p>
+<pre><code><span class="hljs-variable">$flight</span> = <span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">updateOrCreate</span>(
+    [<span class="hljs-string">&#x27;departure&#x27;</span> =&gt; <span class="hljs-string">&#x27;Oakland&#x27;</span>, <span class="hljs-string">&#x27;destination&#x27;</span> =&gt; <span class="hljs-string">&#x27;San Diego&#x27;</span>],
+    [<span class="hljs-string">&#x27;price&#x27;</span> =&gt; <span class="hljs-number">99</span>, <span class="hljs-string">&#x27;discounted&#x27;</span> =&gt; <span class="hljs-number">1</span>]
+);
+</code></pre>
+<p>If you would like to perform multiple &quot;upserts&quot; in a single query, then you should use the <code>upsert</code> method instead. The method&#39;s first argument consists of the values to insert or update, while the second argument lists the column(s) that uniquely identify records within the associated table. The method&#39;s third and final argument is an array of the columns that should be updated if a matching record already exists in the database. The <code>upsert</code> method will automatically set the <code>created_at</code> and <code>updated_at</code> timestamps if timestamps are enabled on the model:</p>
+<pre><code><span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">upsert</span>([
+    [<span class="hljs-string">&#x27;departure&#x27;</span> =&gt; <span class="hljs-string">&#x27;Oakland&#x27;</span>, <span class="hljs-string">&#x27;destination&#x27;</span> =&gt; <span class="hljs-string">&#x27;San Diego&#x27;</span>, <span class="hljs-string">&#x27;price&#x27;</span> =&gt; <span class="hljs-number">99</span>],
+    [<span class="hljs-string">&#x27;departure&#x27;</span> =&gt; <span class="hljs-string">&#x27;Chicago&#x27;</span>, <span class="hljs-string">&#x27;destination&#x27;</span> =&gt; <span class="hljs-string">&#x27;New York&#x27;</span>, <span class="hljs-string">&#x27;price&#x27;</span> =&gt; <span class="hljs-number">150</span>]
+], [<span class="hljs-string">&#x27;departure&#x27;</span>, <span class="hljs-string">&#x27;destination&#x27;</span>], [<span class="hljs-string">&#x27;price&#x27;</span>]);
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>All databases except SQL Server require the columns in the second argument of the <code>upsert</code> method to have a &quot;primary&quot; or &quot;unique&quot; index. In addition, the MySQL database driver ignores the second argument of the <code>upsert</code> method and always uses the &quot;primary&quot; and &quot;unique&quot; indexes of the table to detect existing records.</p>
+</blockquote>
+<p><a name="deleting-models"></a></p>
+<h2 id="deleting-models">Deleting Models</h2>
+<p>To delete a model, you may call the <code>delete</code> method on the model instance:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Flight</span>;
+
+<span class="hljs-variable">$flight</span> = <span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-variable">$flight</span>-&gt;<span class="hljs-title function_ invoke__">delete</span>();
+</code></pre>
+<p>You may call the <code>truncate</code> method to delete all of the model&#39;s associated database records. The <code>truncate</code> operation will also reset any auto-incrementing IDs on the model&#39;s associated table:</p>
+<pre><code><span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">truncate</span>();
+</code></pre>
+<p><a name="deleting-an-existing-model-by-its-primary-key"></a></p>
+<h4 id="deleting-an-existing-model-by-its-primary-key">Deleting An Existing Model By Its Primary Key</h4>
+<p>In the example above, we are retrieving the model from the database before calling the <code>delete</code> method. However, if you know the primary key of the model, you may delete the model without explicitly retrieving it by calling the <code>destroy</code> method.  In addition to accepting the single primary key, the <code>destroy</code> method will accept multiple primary keys, an array of primary keys, or a <a href="/docs/%7B%7Bversion%7D%7D/collections">collection</a> of primary keys:</p>
+<pre><code><span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">destroy</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">destroy</span>(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>);
+
+<span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">destroy</span>([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>]);
+
+<span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">destroy</span>(<span class="hljs-title function_ invoke__">collect</span>([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>]));
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>The <code>destroy</code> method loads each model individually and calls the <code>delete</code> method so that the <code>deleting</code> and <code>deleted</code> events are properly dispatched for each model.</p>
+</blockquote>
+<p><a name="deleting-models-using-queries"></a></p>
+<h4 id="deleting-models-using-queries">Deleting Models Using Queries</h4>
+<p>Of course, you may build an Eloquent query to delete all models matching your query&#39;s criteria. In this example, we will delete all flights that are marked as inactive. Like mass updates, mass deletes will not dispatch model events for the models that are deleted:</p>
+<pre><code><span class="hljs-variable">$deleted</span> = <span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;active&#x27;</span>, <span class="hljs-number">0</span>)-&gt;<span class="hljs-title function_ invoke__">delete</span>();
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>When executing a mass delete statement via Eloquent, the <code>deleting</code> and <code>deleted</code> model events will not be dispatched for the deleted models. This is because the models are never actually retrieved when executing the delete statement.</p>
+</blockquote>
+<p><a name="soft-deleting"></a></p>
+<h3 id="soft-deleting">Soft Deleting</h3>
+<p>In addition to actually removing records from your database, Eloquent can also &quot;soft delete&quot; models. When models are soft deleted, they are not actually removed from your database. Instead, a <code>deleted_at</code> attribute is set on the model indicating the date and time at which the model was &quot;deleted&quot;. To enable soft deletes for a model, add the <code>Illuminate\Database\Eloquent\SoftDeletes</code> trait to the model:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Models</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Model</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">SoftDeletes</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Flight</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Model</span>
+</span>{
+    <span class="hljs-keyword">use</span> <span class="hljs-title">SoftDeletes</span>;
+}
+</code></pre>
+<blockquote>
+<p><strong>Note</strong><br>The <code>SoftDeletes</code> trait will automatically cast the <code>deleted_at</code> attribute to a <code>DateTime</code> / <code>Carbon</code> instance for you.</p>
+</blockquote>
+<p>You should also add the <code>deleted_at</code> column to your database table. The Laravel <a href="/docs/%7B%7Bversion%7D%7D/migrations">schema builder</a> contains a helper method to create this column:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Schema</span>\<span class="hljs-title">Blueprint</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Schema</span>;
+
+<span class="hljs-title class_">Schema</span>::<span class="hljs-title function_ invoke__">table</span>(<span class="hljs-string">&#x27;flights&#x27;</span>, function (Blueprint <span class="hljs-variable">$table</span>) {
+    <span class="hljs-variable">$table</span>-&gt;<span class="hljs-title function_ invoke__">softDeletes</span>();
+});
+
+<span class="hljs-title class_">Schema</span>::<span class="hljs-title function_ invoke__">table</span>(<span class="hljs-string">&#x27;flights&#x27;</span>, function (Blueprint <span class="hljs-variable">$table</span>) {
+    <span class="hljs-variable">$table</span>-&gt;<span class="hljs-title function_ invoke__">dropSoftDeletes</span>();
+});
+</code></pre>
+<p>Now, when you call the <code>delete</code> method on the model, the <code>deleted_at</code> column will be set to the current date and time. However, the model&#39;s database record will be left in the table. When querying a model that uses soft deletes, the soft deleted models will automatically be excluded from all query results.</p>
+<p>To determine if a given model instance has been soft deleted, you may use the <code>trashed</code> method:</p>
+<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$flight</span>-&gt;<span class="hljs-title function_ invoke__">trashed</span>()) {
+    <span class="hljs-comment">//</span>
+}
+</code></pre>
+<p><a name="restoring-soft-deleted-models"></a></p>
+<h4 id="restoring-soft-deleted-models">Restoring Soft Deleted Models</h4>
+<p>Sometimes you may wish to &quot;un-delete&quot; a soft deleted model. To restore a soft deleted model, you may call the <code>restore</code> method on a model instance. The <code>restore</code> method will set the model&#39;s <code>deleted_at</code> column to <code>null</code>:</p>
+<pre><code><span class="hljs-variable">$flight</span>-&gt;<span class="hljs-title function_ invoke__">restore</span>();
+</code></pre>
+<p>You may also use the <code>restore</code> method in a query to restore multiple models. Again, like other &quot;mass&quot; operations, this will not dispatch any model events for the models that are restored:</p>
+<pre><code><span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">withTrashed</span>()
+        -&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;airline_id&#x27;</span>, <span class="hljs-number">1</span>)
+        -&gt;<span class="hljs-title function_ invoke__">restore</span>();
+</code></pre>
+<p>The <code>restore</code> method may also be used when building <a href="/docs/%7B%7Bversion%7D%7D/eloquent-relationships">relationship</a> queries:</p>
+<pre><code><span class="hljs-variable">$flight</span>-&gt;<span class="hljs-title function_ invoke__">history</span>()-&gt;<span class="hljs-title function_ invoke__">restore</span>();
+</code></pre>
+<p><a name="permanently-deleting-models"></a></p>
+<h4 id="permanently-deleting-models">Permanently Deleting Models</h4>
+<p>Sometimes you may need to truly remove a model from your database. You may use the <code>forceDelete</code> method to permanently remove a soft deleted model from the database table:</p>
+<pre><code><span class="hljs-variable">$flight</span>-&gt;<span class="hljs-title function_ invoke__">forceDelete</span>();
+</code></pre>
+<p>You may also use the <code>forceDelete</code> method when building Eloquent relationship queries:</p>
+<pre><code><span class="hljs-variable">$flight</span>-&gt;<span class="hljs-title function_ invoke__">history</span>()-&gt;<span class="hljs-title function_ invoke__">forceDelete</span>();
+</code></pre>
+<p><a name="querying-soft-deleted-models"></a></p>
+<h3 id="querying-soft-deleted-models">Querying Soft Deleted Models</h3>
+<p><a name="including-soft-deleted-models"></a></p>
+<h4 id="including-soft-deleted-models">Including Soft Deleted Models</h4>
+<p>As noted above, soft deleted models will automatically be excluded from query results. However, you may force soft deleted models to be included in a query&#39;s results by calling the <code>withTrashed</code> method on the query:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Flight</span>;
+
+<span class="hljs-variable">$flights</span> = <span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">withTrashed</span>()
+                -&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;account_id&#x27;</span>, <span class="hljs-number">1</span>)
+                -&gt;<span class="hljs-title function_ invoke__">get</span>();
+</code></pre>
+<p>The <code>withTrashed</code> method may also be called when building a <a href="/docs/%7B%7Bversion%7D%7D/eloquent-relationships">relationship</a> query:</p>
+<pre><code><span class="hljs-variable">$flight</span>-&gt;<span class="hljs-title function_ invoke__">history</span>()-&gt;<span class="hljs-title function_ invoke__">withTrashed</span>()-&gt;<span class="hljs-title function_ invoke__">get</span>();
+</code></pre>
+<p><a name="retrieving-only-soft-deleted-models"></a></p>
+<h4 id="retrieving-only-soft-deleted-models">Retrieving Only Soft Deleted Models</h4>
+<p>The <code>onlyTrashed</code> method will retrieve <strong>only</strong> soft deleted models:</p>
+<pre><code><span class="hljs-variable">$flights</span> = <span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">onlyTrashed</span>()
+                -&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;airline_id&#x27;</span>, <span class="hljs-number">1</span>)
+                -&gt;<span class="hljs-title function_ invoke__">get</span>();
+</code></pre>
+<p><a name="pruning-models"></a></p>
+<h2 id="pruning-models">Pruning Models</h2>
+<p>Sometimes you may want to periodically delete models that are no longer needed. To accomplish this, you may add the <code>Illuminate\Database\Eloquent\Prunable</code> or <code>Illuminate\Database\Eloquent\MassPrunable</code> trait to the models you would like to periodically prune. After adding one of the traits to the model, implement a <code>prunable</code> method which returns an Eloquent query builder that resolves the models that are no longer needed:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Models</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Model</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Prunable</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Flight</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Model</span>
+</span>{
+    <span class="hljs-keyword">use</span> <span class="hljs-title">Prunable</span>;
+
+    <span class="hljs-comment">/**
+     * Get the prunable model query.
+     *
+     * <span class="hljs-doctag">@return</span> \Illuminate\Database\Eloquent\Builder
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">prunable</span>(<span class="hljs-params"></span>)
+    </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">static</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;created_at&#x27;</span>, <span class="hljs-string">&#x27;&lt;=&#x27;</span>, <span class="hljs-title function_ invoke__">now</span>()-&gt;<span class="hljs-title function_ invoke__">subMonth</span>());
+    }
+}
+</code></pre>
+<p>When marking models as <code>Prunable</code>, you may also define a <code>pruning</code> method on the model. This method will be called before the model is deleted. This method can be useful for deleting any additional resources associated with the model, such as stored files, before the model is permanently removed from the database:</p>
+<pre><code><span class="hljs-comment">/**
+ * Prepare the model for pruning.
+ *
+ * <span class="hljs-doctag">@return</span> void
+ */</span>
+<span class="hljs-keyword">protected</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">pruning</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-comment">//</span>
+}
+</code></pre>
+<p>After configuring your prunable model, you should schedule the <code>model:prune</code> Artisan command in your application&#39;s <code>App\Console\Kernel</code> class. You are free to choose the appropriate interval at which this command should be run:</p>
+<pre><code><span class="hljs-comment">/**
+ * Define the application&#x27;s command schedule.
+ *
+ * <span class="hljs-doctag">@param</span>  \Illuminate\Console\Scheduling\Schedule  $schedule
+ * <span class="hljs-doctag">@return</span> void
+ */</span>
+<span class="hljs-keyword">protected</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">schedule</span>(<span class="hljs-params">Schedule <span class="hljs-variable">$schedule</span></span>)
+</span>{
+    <span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;model:prune&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">daily</span>();
+}
+</code></pre>
+<p>Behind the scenes, the <code>model:prune</code> command will automatically detect &quot;Prunable&quot; models within your application&#39;s <code>app/Models</code> directory. If your models are in a different location, you may use the <code>--model</code> option to specify the model class names:</p>
+<pre><code><span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;model:prune&#x27;</span>, [
+    <span class="hljs-string">&#x27;--model&#x27;</span> =&gt; [<span class="hljs-title class_">Address</span>::<span class="hljs-variable language_">class</span>, <span class="hljs-title class_">Flight</span>::<span class="hljs-variable language_">class</span>],
+])-&gt;<span class="hljs-title function_ invoke__">daily</span>();
+</code></pre>
+<p>If you wish to exclude certain models from being pruned while pruning all other detected models, you may use the <code>--except</code> option:</p>
+<pre><code><span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;model:prune&#x27;</span>, [
+    <span class="hljs-string">&#x27;--except&#x27;</span> =&gt; [<span class="hljs-title class_">Address</span>::<span class="hljs-variable language_">class</span>, <span class="hljs-title class_">Flight</span>::<span class="hljs-variable language_">class</span>],
+])-&gt;<span class="hljs-title function_ invoke__">daily</span>();
+</code></pre>
+<p>You may test your <code>prunable</code> query by executing the <code>model:prune</code> command with the <code>--pretend</code> option. When pretending, the <code>model:prune</code> command will simply report how many records would be pruned if the command were to actually run:</p>
+<pre><code class="language-shell">php artisan model:prune --pretend
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>Soft deleting models will be permanently deleted (<code>forceDelete</code>) if they match the prunable query.</p>
+</blockquote>
+<p><a name="mass-pruning"></a></p>
+<h4 id="mass-pruning">Mass Pruning</h4>
+<p>When models are marked with the <code>Illuminate\Database\Eloquent\MassPrunable</code> trait, models are deleted from the database using mass-deletion queries. Therefore, the <code>pruning</code> method will not be invoked, nor will the <code>deleting</code> and <code>deleted</code> model events be dispatched. This is because the models are never actually retrieved before deletion, thus making the pruning process much more efficient:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Models</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Model</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">MassPrunable</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Flight</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Model</span>
+</span>{
+    <span class="hljs-keyword">use</span> <span class="hljs-title">MassPrunable</span>;
+
+    <span class="hljs-comment">/**
+     * Get the prunable model query.
+     *
+     * <span class="hljs-doctag">@return</span> \Illuminate\Database\Eloquent\Builder
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">prunable</span>(<span class="hljs-params"></span>)
+    </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">static</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;created_at&#x27;</span>, <span class="hljs-string">&#x27;&lt;=&#x27;</span>, <span class="hljs-title function_ invoke__">now</span>()-&gt;<span class="hljs-title function_ invoke__">subMonth</span>());
+    }
+}
+</code></pre>
+<p><a name="replicating-models"></a></p>
+<h2 id="replicating-models">Replicating Models</h2>
+<p>You may create an unsaved copy of an existing model instance using the <code>replicate</code> method. This method is particularly useful when you have model instances that share many of the same attributes:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Address</span>;
+
+<span class="hljs-variable">$shipping</span> = <span class="hljs-title class_">Address</span>::<span class="hljs-title function_ invoke__">create</span>([
+    <span class="hljs-string">&#x27;type&#x27;</span> =&gt; <span class="hljs-string">&#x27;shipping&#x27;</span>,
+    <span class="hljs-string">&#x27;line_1&#x27;</span> =&gt; <span class="hljs-string">&#x27;123 Example Street&#x27;</span>,
+    <span class="hljs-string">&#x27;city&#x27;</span> =&gt; <span class="hljs-string">&#x27;Victorville&#x27;</span>,
+    <span class="hljs-string">&#x27;state&#x27;</span> =&gt; <span class="hljs-string">&#x27;CA&#x27;</span>,
+    <span class="hljs-string">&#x27;postcode&#x27;</span> =&gt; <span class="hljs-string">&#x27;90001&#x27;</span>,
+]);
+
+<span class="hljs-variable">$billing</span> = <span class="hljs-variable">$shipping</span>-&gt;<span class="hljs-title function_ invoke__">replicate</span>()-&gt;<span class="hljs-title function_ invoke__">fill</span>([
+    <span class="hljs-string">&#x27;type&#x27;</span> =&gt; <span class="hljs-string">&#x27;billing&#x27;</span>
+]);
+
+<span class="hljs-variable">$billing</span>-&gt;<span class="hljs-title function_ invoke__">save</span>();
+</code></pre>
+<p>To exclude one or more attributes from being replicated to the new model, you may pass an array to the <code>replicate</code> method:</p>
+<pre><code><span class="hljs-variable">$flight</span> = <span class="hljs-title class_">Flight</span>::<span class="hljs-title function_ invoke__">create</span>([
+    <span class="hljs-string">&#x27;destination&#x27;</span> =&gt; <span class="hljs-string">&#x27;LAX&#x27;</span>,
+    <span class="hljs-string">&#x27;origin&#x27;</span> =&gt; <span class="hljs-string">&#x27;LHR&#x27;</span>,
+    <span class="hljs-string">&#x27;last_flown&#x27;</span> =&gt; <span class="hljs-string">&#x27;2020-03-04 11:00:00&#x27;</span>,
+    <span class="hljs-string">&#x27;last_pilot_id&#x27;</span> =&gt; <span class="hljs-number">747</span>,
+]);
+
+<span class="hljs-variable">$flight</span> = <span class="hljs-variable">$flight</span>-&gt;<span class="hljs-title function_ invoke__">replicate</span>([
+    <span class="hljs-string">&#x27;last_flown&#x27;</span>,
+    <span class="hljs-string">&#x27;last_pilot_id&#x27;</span>
+]);
+</code></pre>
+<p><a name="query-scopes"></a></p>
+<h2 id="query-scopes">Query Scopes</h2>
+<p><a name="global-scopes"></a></p>
+<h3 id="global-scopes">Global Scopes</h3>
+<p>Global scopes allow you to add constraints to all queries for a given model. Laravel&#39;s own <a href="#soft-deleting">soft delete</a> functionality utilizes global scopes to only retrieve &quot;non-deleted&quot; models from the database. Writing your own global scopes can provide a convenient, easy way to make sure every query for a given model receives certain constraints.</p>
+<p><a name="writing-global-scopes"></a></p>
+<h4 id="writing-global-scopes">Writing Global Scopes</h4>
+<p>Writing a global scope is simple. First, define a class that implements the <code>Illuminate\Database\Eloquent\Scope</code> interface. Laravel does not have a conventional location where you should place scope classes, so you are free to place this class in any directory that you wish.</p>
+<p>The <code>Scope</code> interface requires you to implement one method: <code>apply</code>. The <code>apply</code> method may add <code>where</code> constraints or other types of clauses to the query as needed:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Scopes</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Builder</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Model</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Scope</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AncientScope</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Scope</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Apply the scope to a given Eloquent query builder.
+     *
+     * <span class="hljs-doctag">@param</span>  \Illuminate\Database\Eloquent\Builder  $builder
+     * <span class="hljs-doctag">@param</span>  \Illuminate\Database\Eloquent\Model  $model
+     * <span class="hljs-doctag">@return</span> void
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">apply</span>(<span class="hljs-params">Builder <span class="hljs-variable">$builder</span>, Model <span class="hljs-variable">$model</span></span>)
+    </span>{
+        <span class="hljs-variable">$builder</span>-&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;created_at&#x27;</span>, <span class="hljs-string">&#x27;&lt;&#x27;</span>, <span class="hljs-title function_ invoke__">now</span>()-&gt;<span class="hljs-title function_ invoke__">subYears</span>(<span class="hljs-number">2000</span>));
+    }
+}
+</code></pre>
+<blockquote>
+<p><strong>Note</strong><br>If your global scope is adding columns to the select clause of the query, you should use the <code>addSelect</code> method instead of <code>select</code>. This will prevent the unintentional replacement of the query&#39;s existing select clause.</p>
+</blockquote>
+<p><a name="applying-global-scopes"></a></p>
+<h4 id="applying-global-scopes">Applying Global Scopes</h4>
+<p>To assign a global scope to a model, you should override the model&#39;s <code>booted</code> method and invoke the model&#39;s <code>addGlobalScope</code> method. The <code>addGlobalScope</code> method accepts an instance of your scope as its only argument:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Models</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Scopes</span>\<span class="hljs-title">AncientScope</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Model</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Model</span>
+</span>{
+    <span class="hljs-comment">/**
+     * The &quot;booted&quot; method of the model.
+     *
+     * <span class="hljs-doctag">@return</span> void
+     */</span>
+    <span class="hljs-keyword">protected</span> <span class="hljs-built_in">static</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">booted</span>(<span class="hljs-params"></span>)
+    </span>{
+        <span class="hljs-built_in">static</span>::<span class="hljs-title function_ invoke__">addGlobalScope</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">AncientScope</span>);
+    }
+}
+</code></pre>
+<p>After adding the scope in the example above to the <code>App\Models\User</code> model, a call to the <code>User::all()</code> method will execute the following SQL query:</p>
+<pre><code class="language-sql"><span class="hljs-keyword">select</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">from</span> `users` <span class="hljs-keyword">where</span> `created_at` <span class="hljs-operator">&lt;</span> <span class="hljs-number">0021</span><span class="hljs-number">-02</span><span class="hljs-number">-18</span> <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span>
+</code></pre>
+<p><a name="anonymous-global-scopes"></a></p>
+<h4 id="anonymous-global-scopes">Anonymous Global Scopes</h4>
+<p>Eloquent also allows you to define global scopes using closures, which is particularly useful for simple scopes that do not warrant a separate class of their own. When defining a global scope using a closure, you should provide a scope name of your own choosing as the first argument to the <code>addGlobalScope</code> method:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Models</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Builder</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Model</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Model</span>
+</span>{
+    <span class="hljs-comment">/**
+     * The &quot;booted&quot; method of the model.
+     *
+     * <span class="hljs-doctag">@return</span> void
+     */</span>
+    <span class="hljs-keyword">protected</span> <span class="hljs-built_in">static</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">booted</span>(<span class="hljs-params"></span>)
+    </span>{
+        <span class="hljs-built_in">static</span>::<span class="hljs-title function_ invoke__">addGlobalScope</span>(<span class="hljs-string">&#x27;ancient&#x27;</span>, function (Builder <span class="hljs-variable">$builder</span>) {
+            <span class="hljs-variable">$builder</span>-&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;created_at&#x27;</span>, <span class="hljs-string">&#x27;&lt;&#x27;</span>, <span class="hljs-title function_ invoke__">now</span>()-&gt;<span class="hljs-title function_ invoke__">subYears</span>(<span class="hljs-number">2000</span>));
+        });
+    }
+}
+</code></pre>
+<p><a name="removing-global-scopes"></a></p>
+<h4 id="removing-global-scopes">Removing Global Scopes</h4>
+<p>If you would like to remove a global scope for a given query, you may use the <code>withoutGlobalScope</code> method. This method accepts the class name of the global scope as its only argument:</p>
+<pre><code><span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">withoutGlobalScope</span>(<span class="hljs-title class_">AncientScope</span>::<span class="hljs-variable language_">class</span>)-&gt;<span class="hljs-title function_ invoke__">get</span>();
+</code></pre>
+<p>Or, if you defined the global scope using a closure, you should pass the string name that you assigned to the global scope:</p>
+<pre><code><span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">withoutGlobalScope</span>(<span class="hljs-string">&#x27;ancient&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">get</span>();
+</code></pre>
+<p>If you would like to remove several or even all of the query&#39;s global scopes, you may use the <code>withoutGlobalScopes</code> method:</p>
+<pre><code><span class="hljs-comment">// Remove all of the global scopes...</span>
+<span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">withoutGlobalScopes</span>()-&gt;<span class="hljs-title function_ invoke__">get</span>();
+
+<span class="hljs-comment">// Remove some of the global scopes...</span>
+<span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">withoutGlobalScopes</span>([
+    <span class="hljs-title class_">FirstScope</span>::<span class="hljs-variable language_">class</span>, <span class="hljs-title class_">SecondScope</span>::<span class="hljs-variable language_">class</span>
+])-&gt;<span class="hljs-title function_ invoke__">get</span>();
+</code></pre>
+<p><a name="local-scopes"></a></p>
+<h3 id="local-scopes">Local Scopes</h3>
+<p>Local scopes allow you to define common sets of query constraints that you may easily re-use throughout your application. For example, you may need to frequently retrieve all users that are considered &quot;popular&quot;. To define a scope, prefix an Eloquent model method with <code>scope</code>.</p>
+<p>Scopes should always return the same query builder instance or <code>void</code>:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Models</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Model</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Model</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Scope a query to only include popular users.
+     *
+     * <span class="hljs-doctag">@param</span>  \Illuminate\Database\Eloquent\Builder  $query
+     * <span class="hljs-doctag">@return</span> \Illuminate\Database\Eloquent\Builder
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">scopePopular</span>(<span class="hljs-params"><span class="hljs-variable">$query</span></span>)
+    </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-variable">$query</span>-&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;votes&#x27;</span>, <span class="hljs-string">&#x27;&gt;&#x27;</span>, <span class="hljs-number">100</span>);
+    }
+
+    <span class="hljs-comment">/**
+     * Scope a query to only include active users.
+     *
+     * <span class="hljs-doctag">@param</span>  \Illuminate\Database\Eloquent\Builder  $query
+     * <span class="hljs-doctag">@return</span> void
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">scopeActive</span>(<span class="hljs-params"><span class="hljs-variable">$query</span></span>)
+    </span>{
+        <span class="hljs-variable">$query</span>-&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;active&#x27;</span>, <span class="hljs-number">1</span>);
+    }
+}
+</code></pre>
+<p><a name="utilizing-a-local-scope"></a></p>
+<h4 id="utilizing-a-local-scope">Utilizing A Local Scope</h4>
+<p>Once the scope has been defined, you may call the scope methods when querying the model. However, you should not include the <code>scope</code> prefix when calling the method. You can even chain calls to various scopes:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+
+<span class="hljs-variable">$users</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">popular</span>()-&gt;<span class="hljs-title function_ invoke__">active</span>()-&gt;<span class="hljs-title function_ invoke__">orderBy</span>(<span class="hljs-string">&#x27;created_at&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">get</span>();
+</code></pre>
+<p>Combining multiple Eloquent model scopes via an <code>or</code> query operator may require the use of closures to achieve the correct <a href="/docs/%7B%7Bversion%7D%7D/queries#logical-grouping">logical grouping</a>:</p>
+<pre><code><span class="hljs-variable">$users</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">popular</span>()-&gt;<span class="hljs-title function_ invoke__">orWhere</span>(function (Builder <span class="hljs-variable">$query</span>) {
+    <span class="hljs-variable">$query</span>-&gt;<span class="hljs-title function_ invoke__">active</span>();
+})-&gt;<span class="hljs-title function_ invoke__">get</span>();
+</code></pre>
+<p>However, since this can be cumbersome, Laravel provides a &quot;higher order&quot; <code>orWhere</code> method that allows you to fluently chain scopes together without the use of closures:</p>
+<pre><code><span class="hljs-variable">$users</span> = <span class="hljs-title class_">App\Models\User</span>::<span class="hljs-title function_ invoke__">popular</span>()-&gt;orWhere-&gt;<span class="hljs-title function_ invoke__">active</span>()-&gt;<span class="hljs-title function_ invoke__">get</span>();
+</code></pre>
+<p><a name="dynamic-scopes"></a></p>
+<h4 id="dynamic-scopes">Dynamic Scopes</h4>
+<p>Sometimes you may wish to define a scope that accepts parameters. To get started, just add your additional parameters to your scope method&#39;s signature. Scope parameters should be defined after the <code>$query</code> parameter:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Models</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Model</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Model</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Scope a query to only include users of a given type.
+     *
+     * <span class="hljs-doctag">@param</span>  \Illuminate\Database\Eloquent\Builder  $query
+     * <span class="hljs-doctag">@param</span>  mixed  $type
+     * <span class="hljs-doctag">@return</span> \Illuminate\Database\Eloquent\Builder
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">scopeOfType</span>(<span class="hljs-params"><span class="hljs-variable">$query</span>, <span class="hljs-variable">$type</span></span>)
+    </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-variable">$query</span>-&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;type&#x27;</span>, <span class="hljs-variable">$type</span>);
+    }
+}
+</code></pre>
+<p>Once the expected arguments have been added to your scope method&#39;s signature, you may pass the arguments when calling the scope:</p>
+<pre><code><span class="hljs-variable">$users</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">ofType</span>(<span class="hljs-string">&#x27;admin&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">get</span>();
+</code></pre>
+<p><a name="comparing-models"></a></p>
+<h2 id="comparing-models">Comparing Models</h2>
+<p>Sometimes you may need to determine if two models are the &quot;same&quot; or not. The <code>is</code> and <code>isNot</code> methods may be used to quickly verify two models have the same primary key, table, and database connection or not:</p>
+<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$post</span>-&gt;<span class="hljs-title function_ invoke__">is</span>(<span class="hljs-variable">$anotherPost</span>)) {
+    <span class="hljs-comment">//</span>
+}
+
+<span class="hljs-keyword">if</span> (<span class="hljs-variable">$post</span>-&gt;<span class="hljs-title function_ invoke__">isNot</span>(<span class="hljs-variable">$anotherPost</span>)) {
+    <span class="hljs-comment">//</span>
+}
+</code></pre>
+<p>The <code>is</code> and <code>isNot</code> methods are also available when using the <code>belongsTo</code>, <code>hasOne</code>, <code>morphTo</code>, and <code>morphOne</code> <a href="/docs/%7B%7Bversion%7D%7D/eloquent-relationships">relationships</a>. This method is particularly helpful when you would like to compare a related model without issuing a query to retrieve that model:</p>
+<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$post</span>-&gt;<span class="hljs-title function_ invoke__">author</span>()-&gt;<span class="hljs-title function_ invoke__">is</span>(<span class="hljs-variable">$user</span>)) {
+    <span class="hljs-comment">//</span>
+}
+</code></pre>
+<p><a name="events"></a></p>
+<h2 id="events">Events</h2>
+<blockquote>
+<p><strong>Note</strong><br>Want to broadcast your Eloquent events directly to your client-side application? Check out Laravel&#39;s <a href="/docs/%7B%7Bversion%7D%7D/broadcasting#model-broadcasting">model event broadcasting</a>.</p>
+</blockquote>
+<p>Eloquent models dispatch several events, allowing you to hook into the following moments in a model&#39;s lifecycle: <code>retrieved</code>, <code>creating</code>, <code>created</code>, <code>updating</code>, <code>updated</code>, <code>saving</code>, <code>saved</code>, <code>deleting</code>, <code>deleted</code>, <code>trashed</code>, <code>forceDeleted</code>, <code>restoring</code>, <code>restored</code>, and <code>replicating</code>.</p>
+<p>The <code>retrieved</code> event will dispatch when an existing model is retrieved from the database. When a new model is saved for the first time, the <code>creating</code> and <code>created</code> events will dispatch. The <code>updating</code> / <code>updated</code> events will dispatch when an existing model is modified and the <code>save</code> method is called. The <code>saving</code> / <code>saved</code> events will dispatch when a model is created or updated - even if the model&#39;s attributes have not been changed. Event names ending with <code>-ing</code> are dispatched before any changes to the model are persisted, while events ending with <code>-ed</code> are dispatched after the changes to the model are persisted.</p>
+<p>To start listening to model events, define a <code>$dispatchesEvents</code> property on your Eloquent model. This property maps various points of the Eloquent model&#39;s lifecycle to your own <a href="/docs/%7B%7Bversion%7D%7D/events">event classes</a>. Each model event class should expect to receive an instance of the affected model via its constructor:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Models</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Events</span>\<span class="hljs-title">UserDeleted</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Events</span>\<span class="hljs-title">UserSaved</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Foundation</span>\<span class="hljs-title">Auth</span>\<span class="hljs-title">User</span> <span class="hljs-keyword">as</span> <span class="hljs-title">Authenticatable</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Authenticatable</span>
+</span>{
+    <span class="hljs-keyword">use</span> <span class="hljs-title">Notifiable</span>;
+
+    <span class="hljs-comment">/**
+     * The event map for the model.
+     *
+     * <span class="hljs-doctag">@var</span> array
+     */</span>
+    <span class="hljs-keyword">protected</span> <span class="hljs-variable">$dispatchesEvents</span> = [
+        <span class="hljs-string">&#x27;saved&#x27;</span> =&gt; <span class="hljs-title class_">UserSaved</span>::<span class="hljs-variable language_">class</span>,
+        <span class="hljs-string">&#x27;deleted&#x27;</span> =&gt; <span class="hljs-title class_">UserDeleted</span>::<span class="hljs-variable language_">class</span>,
+    ];
+}
+</code></pre>
+<p>After defining and mapping your Eloquent events, you may use <a href="/docs/%7B%7Bversion%7D%7D/events#defining-listeners">event listeners</a> to handle the events.</p>
+<blockquote>
+<p><strong>Warning</strong><br>When issuing a mass update or delete query via Eloquent, the <code>saved</code>, <code>updated</code>, <code>deleting</code>, and <code>deleted</code> model events will not be dispatched for the affected models. This is because the models are never actually retrieved when performing mass updates or deletes.</p>
+</blockquote>
+<p><a name="events-using-closures"></a></p>
+<h3 id="using-closures">Using Closures</h3>
+<p>Instead of using custom event classes, you may register closures that execute when various model events are dispatched. Typically, you should register these closures in the <code>booted</code> method of your model:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Models</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Model</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Model</span>
+</span>{
+    <span class="hljs-comment">/**
+     * The &quot;booted&quot; method of the model.
+     *
+     * <span class="hljs-doctag">@return</span> void
+     */</span>
+    <span class="hljs-keyword">protected</span> <span class="hljs-built_in">static</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">booted</span>(<span class="hljs-params"></span>)
+    </span>{
+        <span class="hljs-built_in">static</span>::<span class="hljs-title function_ invoke__">created</span>(function (<span class="hljs-variable">$user</span>) {
+            <span class="hljs-comment">//</span>
+        });
+    }
+}
+</code></pre>
+<p>If needed, you may utilize <a href="/docs/%7B%7Bversion%7D%7D/events#queuable-anonymous-event-listeners">queueable anonymous event listeners</a> when registering model events. This will instruct Laravel to execute the model event listener in the background using your application&#39;s <a href="/docs/%7B%7Bversion%7D%7D/queues">queue</a>:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-keyword">function</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Events</span>\<span class="hljs-title">queueable</span>;
+
+<span class="hljs-built_in">static</span>::<span class="hljs-title function_ invoke__">created</span>(<span class="hljs-title function_ invoke__">queueable</span>(function (<span class="hljs-variable">$user</span>) {
+    //
+}));
+</code></pre>
+<p><a name="observers"></a></p>
+<h3 id="observers">Observers</h3>
+<p><a name="defining-observers"></a></p>
+<h4 id="defining-observers">Defining Observers</h4>
+<p>If you are listening for many events on a given model, you may use observers to group all of your listeners into a single class. Observer classes have method names which reflect the Eloquent events you wish to listen for. Each of these methods receives the affected model as their only argument. The <code>make:observer</code> Artisan command is the easiest way to create a new observer class:</p>
+<pre><code class="language-shell">php artisan make:observer UserObserver --model=User
+</code></pre>
+<p>This command will place the new observer in your <code>App/Observers</code> directory. If this directory does not exist, Artisan will create it for you. Your fresh observer will look like the following:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Observers</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserObserver</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Handle the User &quot;created&quot; event.
+     *
+     * <span class="hljs-doctag">@param</span>  \App\Models\User  $user
+     * <span class="hljs-doctag">@return</span> void
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">created</span>(<span class="hljs-params">User <span class="hljs-variable">$user</span></span>)
+    </span>{
+        <span class="hljs-comment">//</span>
+    }
+
+    <span class="hljs-comment">/**
+     * Handle the User &quot;updated&quot; event.
+     *
+     * <span class="hljs-doctag">@param</span>  \App\Models\User  $user
+     * <span class="hljs-doctag">@return</span> void
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">updated</span>(<span class="hljs-params">User <span class="hljs-variable">$user</span></span>)
+    </span>{
+        <span class="hljs-comment">//</span>
+    }
+
+    <span class="hljs-comment">/**
+     * Handle the User &quot;deleted&quot; event.
+     *
+     * <span class="hljs-doctag">@param</span>  \App\Models\User  $user
+     * <span class="hljs-doctag">@return</span> void
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">deleted</span>(<span class="hljs-params">User <span class="hljs-variable">$user</span></span>)
+    </span>{
+        <span class="hljs-comment">//</span>
+    }
+    
+    <span class="hljs-comment">/**
+     * Handle the User &quot;restored&quot; event.
+     *
+     * <span class="hljs-doctag">@param</span>  \App\Models\User  $user
+     * <span class="hljs-doctag">@return</span> void
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">restored</span>(<span class="hljs-params">User <span class="hljs-variable">$user</span></span>)
+    </span>{
+        <span class="hljs-comment">//</span>
+    }
+
+    <span class="hljs-comment">/**
+     * Handle the User &quot;forceDeleted&quot; event.
+     *
+     * <span class="hljs-doctag">@param</span>  \App\Models\User  $user
+     * <span class="hljs-doctag">@return</span> void
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">forceDeleted</span>(<span class="hljs-params">User <span class="hljs-variable">$user</span></span>)
+    </span>{
+        <span class="hljs-comment">//</span>
+    }
+}
+</code></pre>
+<p>To register an observer, you need to call the <code>observe</code> method on the model you wish to observe. You may register observers in the <code>boot</code> method of your application&#39;s <code>App\Providers\EventServiceProvider</code> service provider:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Observers</span>\<span class="hljs-title">UserObserver</span>;
+
+<span class="hljs-comment">/**
+ * Register any events for your application.
+ *
+ * <span class="hljs-doctag">@return</span> void
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">observe</span>(<span class="hljs-title class_">UserObserver</span>::<span class="hljs-variable language_">class</span>);
+}
+</code></pre>
+<p>Alternatively, you may list your observers within an <code>$observers</code> property of your applications&#39; <code>App\Providers\EventServiceProvider</code> class:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Observers</span>\<span class="hljs-title">UserObserver</span>;
+
+<span class="hljs-comment">/**
+ * The model observers for your application.
+ *
+ * <span class="hljs-doctag">@var</span> array
+ */</span>
+<span class="hljs-keyword">protected</span> <span class="hljs-variable">$observers</span> = [
+    <span class="hljs-title class_">User</span>::<span class="hljs-variable language_">class</span> =&gt; [<span class="hljs-title class_">UserObserver</span>::<span class="hljs-variable language_">class</span>],
+];
+</code></pre>
+<blockquote>
+<p><strong>Note</strong><br>There are additional events an observer can listen to, such as <code>saving</code> and <code>retrieved</code>. These events are described within the <a href="#events">events</a> documentation.</p>
+</blockquote>
+<p><a name="observers-and-database-transactions"></a></p>
+<h4 id="observers--database-transactions">Observers &amp; Database Transactions</h4>
+<p>When models are being created within a database transaction, you may want to instruct an observer to only execute its event handlers after the database transaction is committed. You may accomplish this by defining an <code>$afterCommit</code> property on the observer. If a database transaction is not in progress, the event handlers will execute immediately:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Observers</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserObserver</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Handle events after all transactions are committed.
+     *
+     * <span class="hljs-doctag">@var</span> bool
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-variable">$afterCommit</span> = <span class="hljs-literal">true</span>;
+
+    <span class="hljs-comment">/**
+     * Handle the User &quot;created&quot; event.
+     *
+     * <span class="hljs-doctag">@param</span>  \App\Models\User  $user
+     * <span class="hljs-doctag">@return</span> void
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">created</span>(<span class="hljs-params">User <span class="hljs-variable">$user</span></span>)
+    </span>{
+        <span class="hljs-comment">//</span>
+    }
+}
+</code></pre>
+<p><a name="muting-events"></a></p>
+<h3 id="muting-events">Muting Events</h3>
+<p>You may occasionally need to temporarily &quot;mute&quot; all events fired by a model. You may achieve this using the <code>withoutEvents</code> method. The <code>withoutEvents</code> method accepts a closure as its only argument. Any code executed within this closure will not dispatch model events, and any value returned by the closure will be returned by the <code>withoutEvents</code> method:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+
+<span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">withoutEvents</span>(function () <span class="hljs-keyword">use</span> () {
+    <span class="hljs-title">User</span>::<span class="hljs-title">findOrFail</span>(1)-&gt;<span class="hljs-title">delete</span>();
+
+    <span class="hljs-keyword">return</span> <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">2</span>);
+});
+</code></pre>
+<p><a name="saving-a-single-model-without-events"></a></p>
+<h4 id="saving-a-single-model-without-events">Saving A Single Model Without Events</h4>
+<p>Sometimes you may wish to &quot;save&quot; a given model without dispatching any events. You may accomplish this using the <code>saveQuietly</code> method:</p>
+<pre><code><span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">findOrFail</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-variable">$user</span>-&gt;name = <span class="hljs-string">&#x27;Victoria Faith&#x27;</span>;
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">saveQuietly</span>();
+</code></pre>
+<p>You may also &quot;update&quot;, &quot;delete&quot;, &quot;soft delete&quot;, &quot;restore&quot;, and &quot;replicate&quot; a given model without dispatching any events:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">deleteQuietly</span>();
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">restoreQuietly</span>();
+</code></pre>

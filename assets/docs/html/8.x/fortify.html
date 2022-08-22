@@ -1,0 +1,423 @@
+<h1 id="laravel-fortify">Laravel Fortify</h1>
+<ul>
+<li><a href="#introduction">Introduction</a><ul>
+<li><a href="#what-is-fortify">What Is Fortify?</a></li>
+<li><a href="#when-should-i-use-fortify">When Should I Use Fortify?</a></li>
+</ul>
+</li>
+<li><a href="#installation">Installation</a><ul>
+<li><a href="#the-fortify-service-provider">The Fortify Service Provider</a></li>
+<li><a href="#fortify-features">Fortify Features</a></li>
+<li><a href="#disabling-views">Disabling Views</a></li>
+</ul>
+</li>
+<li><a href="#authentication">Authentication</a><ul>
+<li><a href="#customizing-user-authentication">Customizing User Authentication</a></li>
+<li><a href="#customizing-the-authentication-pipeline">Customizing The Authentication Pipeline</a></li>
+<li><a href="#customizing-authentication-redirects">Customizing Redirects</a></li>
+</ul>
+</li>
+<li><a href="#two-factor-authentication">Two Factor Authentication</a><ul>
+<li><a href="#enabling-two-factor-authentication">Enabling Two Factor Authentication</a></li>
+<li><a href="#authenticating-with-two-factor-authentication">Authenticating With Two Factor Authentication</a></li>
+<li><a href="#disabling-two-factor-authentication">Disabling Two Factor Authentication</a></li>
+</ul>
+</li>
+<li><a href="#registration">Registration</a><ul>
+<li><a href="#customizing-registration">Customizing Registration</a></li>
+</ul>
+</li>
+<li><a href="#password-reset">Password Reset</a><ul>
+<li><a href="#requesting-a-password-reset-link">Requesting A Password Reset Link</a></li>
+<li><a href="#resetting-the-password">Resetting The Password</a></li>
+<li><a href="#customizing-password-resets">Customizing Password Resets</a></li>
+</ul>
+</li>
+<li><a href="#email-verification">Email Verification</a><ul>
+<li><a href="#protecting-routes">Protecting Routes</a></li>
+</ul>
+</li>
+<li><a href="#password-confirmation">Password Confirmation</a></li>
+</ul>
+<p><a name="introduction"></a></p>
+<h2 id="introduction">Introduction</h2>
+<p><a href="https://github.com/laravel/fortify">Laravel Fortify</a> is a frontend agnostic authentication backend implementation for Laravel. Fortify registers the routes and controllers needed to implement all of Laravel&#39;s authentication features, including login, registration, password reset, email verification, and more. After installing Fortify, you may run the <code>route:list</code> Artisan command to see the routes that Fortify has registered.</p>
+<p>Since Fortify does not provide its own user interface, it is meant to be paired with your own user interface which makes requests to the routes it registers. We will discuss exactly how to make requests to these routes in the remainder of this documentation.</p>
+<blockquote>
+<p>{tip} Remember, Fortify is a package that is meant to give you a head start implementing Laravel&#39;s authentication features. <strong>You are not required to use it.</strong> You are always free to manually interact with Laravel&#39;s authentication services by following the documentation available in the <a href="/docs/%7B%7Bversion%7D%7D/authentication">authentication</a>, <a href="/docs/%7B%7Bversion%7D%7D/passwords">password reset</a>, and <a href="/docs/%7B%7Bversion%7D%7D/verification">email verification</a> documentation.</p>
+</blockquote>
+<p><a name="what-is-fortify"></a></p>
+<h3 id="what-is-fortify">What Is Fortify?</h3>
+<p>As mentioned previously, Laravel Fortify is a frontend agnostic authentication backend implementation for Laravel. Fortify registers the routes and controllers needed to implement all of Laravel&#39;s authentication features, including login, registration, password reset, email verification, and more.</p>
+<p><strong>You are not required to use Fortify in order to use Laravel&#39;s authentication features.</strong> You are always free to manually interact with Laravel&#39;s authentication services by following the documentation available in the <a href="/docs/%7B%7Bversion%7D%7D/authentication">authentication</a>, <a href="/docs/%7B%7Bversion%7D%7D/passwords">password reset</a>, and <a href="/docs/%7B%7Bversion%7D%7D/verification">email verification</a> documentation.</p>
+<p>If you are new to Laravel, you may wish to explore the <a href="/docs/%7B%7Bversion%7D%7D/starter-kits">Laravel Breeze</a> application starter kit before attempting to use Laravel Fortify. Laravel Breeze provides an authentication scaffolding for your application that includes a user interface built with <a href="https://tailwindcss.com">Tailwind CSS</a>. Unlike Fortify, Breeze publishes its routes and controllers directly into your application. This allows you to study and get comfortable with Laravel&#39;s authentication features before allowing Laravel Fortify to implement these features for you.</p>
+<p>Laravel Fortify essentially takes the routes and controllers of Laravel Breeze and offers them as a package that does not include a user interface. This allows you to still quickly scaffold the backend implementation of your application&#39;s authentication layer without being tied to any particular frontend opinions.</p>
+<p><a name="when-should-i-use-fortify"></a></p>
+<h3 id="when-should-i-use-fortify">When Should I Use Fortify?</h3>
+<p>You may be wondering when it is appropriate to use Laravel Fortify. First, if you are using one of Laravel&#39;s <a href="/docs/%7B%7Bversion%7D%7D/starter-kits">application starter kits</a>, you do not need to install Laravel Fortify since all of Laravel&#39;s application starter kits already provide a full authentication implementation.</p>
+<p>If you are not using an application starter kit and your application needs authentication features, you have two options: manually implement your application&#39;s authentication features or use Laravel Fortify to provide the backend implementation of these features.</p>
+<p>If you choose to install Fortify, your user interface will make requests to Fortify&#39;s authentication routes that are detailed in this documentation in order to authenticate and register users.</p>
+<p>If you choose to manually interact with Laravel&#39;s authentication services instead of using Fortify, you may do so by following the documentation available in the <a href="/docs/%7B%7Bversion%7D%7D/authentication">authentication</a>, <a href="/docs/%7B%7Bversion%7D%7D/passwords">password reset</a>, and <a href="/docs/%7B%7Bversion%7D%7D/verification">email verification</a> documentation.</p>
+<p><a name="laravel-fortify-and-laravel-sanctum"></a></p>
+<h4 id="laravel-fortify--laravel-sanctum">Laravel Fortify &amp; Laravel Sanctum</h4>
+<p>Some developers become confused regarding the difference between <a href="/docs/%7B%7Bversion%7D%7D/sanctum">Laravel Sanctum</a> and Laravel Fortify. Because the two packages solve two different but related problems, Laravel Fortify and Laravel Sanctum are not mutually exclusive or competing packages.</p>
+<p>Laravel Sanctum is only concerned with managing API tokens and authenticating existing users using session cookies or tokens. Sanctum does not provide any routes that handle user registration, password reset, etc.</p>
+<p>If you are attempting to manually build the authentication layer for an application that offers an API or serves as the backend for a single-page application, it is entirely possible that you will utilize both Laravel Fortify (for user registration, password reset, etc.) and Laravel Sanctum (API token management, session authentication).</p>
+<p><a name="installation"></a></p>
+<h2 id="installation">Installation</h2>
+<p>To get started, install Fortify using the Composer package manager:</p>
+<pre><code class="language-nothing">composer <span class="hljs-keyword">require</span> laravel/fortify
+</code></pre>
+<p>Next, publish Fortify&#39;s resources using the <code>vendor:publish</code> command:</p>
+<pre><code class="language-bash">php artisan vendor:publish --provider=<span class="hljs-string">&quot;Laravel\Fortify\FortifyServiceProvider&quot;</span>
+</code></pre>
+<p>This command will publish Fortify&#39;s actions to your <code>app/Actions</code> directory, which will be created if it does not exist. In addition, Fortify&#39;s configuration file and migrations will be published.</p>
+<p>Next, you should migrate your database:</p>
+<pre><code class="language-bash">php artisan migrate
+</code></pre>
+<p><a name="the-fortify-service-provider"></a></p>
+<h3 id="the-fortify-service-provider">The Fortify Service Provider</h3>
+<p>The <code>vendor:publish</code> command discussed above will also publish the <code>App\Providers\FortifyServiceProvider</code> class. You should ensure this class is registered within the <code>providers</code> array of your application&#39;s <code>config/app.php</code> configuration file.</p>
+<p>The Fortify service provider registers the actions that Fortify published and instructs Fortify to use them when their respective tasks are executed by Fortify.</p>
+<p><a name="fortify-features"></a></p>
+<h3 id="fortify-features">Fortify Features</h3>
+<p>The <code>fortify</code> configuration file contains a <code>features</code> configuration array. This array defines which backend routes / features Fortify will expose by default. If you are not using Fortify in combination with <a href="https://jetstream.laravel.com">Laravel Jetstream</a>, we recommend that you only enable the following features, which are the basic authentication features provided by most Laravel applications:</p>
+<pre><code class="language-php"><span class="hljs-string">&#x27;features&#x27;</span> =&gt; [
+    <span class="hljs-title class_">Features</span>::<span class="hljs-title function_ invoke__">registration</span>(),
+    <span class="hljs-title class_">Features</span>::<span class="hljs-title function_ invoke__">resetPasswords</span>(),
+    <span class="hljs-title class_">Features</span>::<span class="hljs-title function_ invoke__">emailVerification</span>(),
+],
+</code></pre>
+<p><a name="disabling-views"></a></p>
+<h3 id="disabling-views">Disabling Views</h3>
+<p>By default, Fortify defines routes that are intended to return views, such as a login screen or registration screen. However, if you are building a JavaScript driven single-page application, you may not need these routes. For that reason, you may disable these routes entirely by setting the <code>views</code> configuration value within your application&#39;s <code>config/fortify.php</code> configuration file to <code>false</code>:</p>
+<pre><code class="language-php"><span class="hljs-string">&#x27;views&#x27;</span> =&gt; <span class="hljs-literal">false</span>,
+</code></pre>
+<p><a name="disabling-views-and-password-reset"></a></p>
+<h4 id="disabling-views--password-reset">Disabling Views &amp; Password Reset</h4>
+<p>If you choose to disable Fortify&#39;s views and you will be implementing password reset features for your application, you should still define a route named <code>password.reset</code> that is responsible for displaying your application&#39;s &quot;reset password&quot; view. This is necessary because Laravel&#39;s <code>Illuminate\Auth\Notifications\ResetPassword</code> notification will generate the password reset URL via the <code>password.reset</code> named route.</p>
+<p><a name="authentication"></a></p>
+<h2 id="authentication">Authentication</h2>
+<p>To get started, we need to instruct Fortify how to return our &quot;login&quot; view. Remember, Fortify is a headless authentication library. If you would like a frontend implementation of Laravel&#39;s authentication features that are already completed for you, you should use an <a href="/docs/%7B%7Bversion%7D%7D/starter-kits">application starter kit</a>.</p>
+<p>All of the authentication view&#39;s rendering logic may be customized using the appropriate methods available via the <code>Laravel\Fortify\Fortify</code> class. Typically, you should call this method from the <code>boot</code> method of your application&#39;s <code>App\Providers\FortifyServiceProvider</code> class. Fortify will take care of defining the <code>/login</code> route that returns this view:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Fortify</span>\<span class="hljs-title">Fortify</span>;
+
+<span class="hljs-comment">/**
+ * Bootstrap any application services.
+ *
+ * <span class="hljs-doctag">@return</span> void
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-title class_">Fortify</span>::<span class="hljs-title function_ invoke__">loginView</span>(function () {
+        <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;auth.login&#x27;</span>);
+    });
+
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p>Your login template should include a form that makes a POST request to <code>/login</code>. The <code>/login</code> endpoint expects a string <code>email</code> / <code>username</code> and a <code>password</code>. The name of the email / username field should match the <code>username</code> value within the <code>config/fortify.php</code> configuration file. In addition, a boolean <code>remember</code> field may be provided to indicate that the user would like to use the &quot;remember me&quot; functionality provided by Laravel.</p>
+<p>If the login attempt is successful, Fortify will redirect you to the URI configured via the <code>home</code> configuration option within your application&#39;s <code>fortify</code> configuration file. If the login request was an XHR request, a 200 HTTP response will be returned.</p>
+<p>If the request was not successful, the user will be redirected back to the login screen and the validation errors will be available to you via the shared <code>$errors</code> <a href="/docs/%7B%7Bversion%7D%7D/validation#quick-displaying-the-validation-errors">Blade template variable</a>. Or, in the case of an XHR request, the validation errors will be returned with the 422 HTTP response.</p>
+<p><a name="customizing-user-authentication"></a></p>
+<h3 id="customizing-user-authentication">Customizing User Authentication</h3>
+<p>Fortify will automatically retrieve and authenticate the user based on the provided credentials and the authentication guard that is configured for your application. However, you may sometimes wish to have full customization over how login credentials are authenticated and users are retrieved. Thankfully, Fortify allows you to easily accomplish this using the <code>Fortify::authenticateUsing</code> method.</p>
+<p>This method accepts a closure which receives the incoming HTTP request. The closure is responsible for validating the login credentials attached to the request and returning the associated user instance. If the credentials are invalid or no user can be found, <code>null</code> or <code>false</code> should be returned by the closure. Typically, this method should be called from the <code>boot</code> method of your <code>FortifyServiceProvider</code>:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Hash</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Fortify</span>\<span class="hljs-title">Fortify</span>;
+
+<span class="hljs-comment">/**
+ * Bootstrap any application services.
+ *
+ * <span class="hljs-doctag">@return</span> void
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-title class_">Fortify</span>::<span class="hljs-title function_ invoke__">authenticateUsing</span>(function (Request <span class="hljs-variable">$request</span>) {
+        <span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;email&#x27;</span>, <span class="hljs-variable">$request</span>-&gt;email)-&gt;<span class="hljs-title function_ invoke__">first</span>();
+
+        <span class="hljs-keyword">if</span> (<span class="hljs-variable">$user</span> &amp;&amp;
+            <span class="hljs-title class_">Hash</span>::<span class="hljs-title function_ invoke__">check</span>(<span class="hljs-variable">$request</span>-&gt;password, <span class="hljs-variable">$user</span>-&gt;password)) {
+            <span class="hljs-keyword">return</span> <span class="hljs-variable">$user</span>;
+        }
+    });
+
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p><a name="authentication-guard"></a></p>
+<h4 id="authentication-guard">Authentication Guard</h4>
+<p>You may customize the authentication guard used by Fortify within your application&#39;s <code>fortify</code> configuration file. However, you should ensure that the configured guard is an implementation of <code>Illuminate\Contracts\Auth\StatefulGuard</code>. If you are attempting to use Laravel Fortify to authenticate an SPA, you should use Laravel&#39;s default <code>web</code> guard in combination with <a href="https://laravel.com/docs/sanctum">Laravel Sanctum</a>.</p>
+<p><a name="customizing-the-authentication-pipeline"></a></p>
+<h3 id="customizing-the-authentication-pipeline">Customizing The Authentication Pipeline</h3>
+<p>Laravel Fortify authenticates login requests through a pipeline of invokable classes. If you would like, you may define a custom pipeline of classes that login requests should be piped through. Each class should have an <code>__invoke</code> method which receives the incoming <code>Illuminate\Http\Request</code> instance and, like <a href="/docs/%7B%7Bversion%7D%7D/middleware">middleware</a>, a <code>$next</code> variable that is invoked in order to pass the request to the next class in the pipeline.</p>
+<p>To define your custom pipeline, you may use the <code>Fortify::authenticateThrough</code> method. This method accepts a closure which should return the array of classes to pipe the login request through. Typically, this method should be called from the <code>boot</code> method of your <code>App\Providers\FortifyServiceProvider</code> class.</p>
+<p>The example below contains the default pipeline definition that you may use as a starting point when making your own modifications:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Fortify</span>\<span class="hljs-title">Actions</span>\<span class="hljs-title">AttemptToAuthenticate</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Fortify</span>\<span class="hljs-title">Actions</span>\<span class="hljs-title">EnsureLoginIsNotThrottled</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Fortify</span>\<span class="hljs-title">Actions</span>\<span class="hljs-title">PrepareAuthenticatedSession</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Fortify</span>\<span class="hljs-title">Actions</span>\<span class="hljs-title">RedirectIfTwoFactorAuthenticatable</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Fortify</span>\<span class="hljs-title">Fortify</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+
+<span class="hljs-title class_">Fortify</span>::<span class="hljs-title function_ invoke__">authenticateThrough</span>(function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">array_filter</span>([
+            <span class="hljs-title function_ invoke__">config</span>(<span class="hljs-string">&#x27;fortify.limiters.login&#x27;</span>) ? <span class="hljs-literal">null</span> : <span class="hljs-title class_">EnsureLoginIsNotThrottled</span>::<span class="hljs-variable language_">class</span>,
+            <span class="hljs-title class_">Features</span>::<span class="hljs-title function_ invoke__">enabled</span>(<span class="hljs-title class_">Features</span>::<span class="hljs-title function_ invoke__">twoFactorAuthentication</span>()) ? <span class="hljs-title class_">RedirectIfTwoFactorAuthenticatable</span>::<span class="hljs-variable language_">class</span> : <span class="hljs-literal">null</span>,
+            <span class="hljs-title class_">AttemptToAuthenticate</span>::<span class="hljs-variable language_">class</span>,
+            <span class="hljs-title class_">PrepareAuthenticatedSession</span>::<span class="hljs-variable language_">class</span>,
+    ]);
+});
+</code></pre>
+<p><a name="customizing-authentication-redirects"></a></p>
+<h3 id="customizing-redirects">Customizing Redirects</h3>
+<p>If the login attempt is successful, Fortify will redirect you to the URI configured via the <code>home</code> configuration option within your application&#39;s <code>fortify</code> configuration file. If the login request was an XHR request, a 200 HTTP response will be returned. After a user logs out of the application, the user will be redirected to the <code>/</code> URI.</p>
+<p>If you need advanced customization of this behavior, you may bind implementations of the <code>LoginResponse</code> and <code>LogoutResponse</code> contracts into the Laravel <a href="/docs/%7B%7Bversion%7D%7D/container">service container</a>. Typically, this should be done within the <code>register</code> method of your application&#39;s <code>App\Providers\FortifyServiceProvider</code> class:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Fortify</span>\<span class="hljs-title">Contracts</span>\<span class="hljs-title">LogoutResponse</span>;
+
+<span class="hljs-comment">/**
+ * Register any application services.
+ *
+ * <span class="hljs-doctag">@return</span> void
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">register</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-variable language_">$this</span>-&gt;app-&gt;<span class="hljs-title function_ invoke__">instance</span>(<span class="hljs-title class_">LogoutResponse</span>::<span class="hljs-variable language_">class</span>, <span class="hljs-keyword">new</span> <span class="hljs-keyword">class</span> <span class="hljs-keyword">implements</span> LogoutResponse {
+        <span class="hljs-keyword">public</span> function <span class="hljs-title function_ invoke__">toResponse</span>(<span class="hljs-variable">$request</span>)
+        {
+            <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">redirect</span>(<span class="hljs-string">&#x27;/&#x27;</span>);
+        }
+    });
+}
+</code></pre>
+<p><a name="two-factor-authentication"></a></p>
+<h2 id="two-factor-authentication">Two Factor Authentication</h2>
+<p>When Fortify&#39;s two factor authentication feature is enabled, the user is required to input a six digit numeric token during the authentication process. This token is generated using a time-based one-time password (TOTP) that can be retrieved from any TOTP compatible mobile authentication application such as Google Authenticator.</p>
+<p>Before getting started, you should first ensure that your application&#39;s <code>App\Models\User</code> model uses the <code>Laravel\Fortify\TwoFactorAuthenticatable</code> trait:</p>
+<pre><code class="language-php"><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Models</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Foundation</span>\<span class="hljs-title">Auth</span>\<span class="hljs-title">User</span> <span class="hljs-keyword">as</span> <span class="hljs-title">Authenticatable</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Notifications</span>\<span class="hljs-title">Notifiable</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Fortify</span>\<span class="hljs-title">TwoFactorAuthenticatable</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Authenticatable</span>
+</span>{
+    <span class="hljs-keyword">use</span> <span class="hljs-title">Notifiable</span>, <span class="hljs-title">TwoFactorAuthenticatable</span>;
+}
+</code></pre>
+<p>Next, you should build a screen within your application where users can manage their two factor authentication settings. This screen should allow the user to enable and disable two factor authentication, as well as regenerate their two factor authentication recovery codes.</p>
+<blockquote>
+<p>By default, the <code>features</code> array of the <code>fortify</code> configuration file instructs Fortify&#39;s two factor authentication settings to require password confirmation before modification. Therefore, your application should implement Fortify&#39;s <a href="#password-confirmation">password confirmation</a> feature before continuing.</p>
+</blockquote>
+<p><a name="enabling-two-factor-authentication"></a></p>
+<h3 id="enabling-two-factor-authentication">Enabling Two Factor Authentication</h3>
+<p>To enable two factor authentication, your application should make a POST request to the <code>/user/two-factor-authentication</code> endpoint defined by Fortify. If the request is successful, the user will be redirected back to the previous URL and the <code>status</code> session variable will be set to <code>two-factor-authentication-enabled</code>. You may detect this <code>status</code> session variable within your templates to display the appropriate success message. If the request was an XHR request, <code>200</code> HTTP response will be returned:</p>
+<pre><code class="language-html">@if (session(&#x27;status&#x27;) == &#x27;two-factor-authentication-enabled&#x27;)
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;mb-4 font-medium text-sm text-green-600&quot;</span>&gt;</span>
+        Two factor authentication has been enabled.
+    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+@endif
+</code></pre>
+<p>Next, you should display the two factor authentication QR code for the user to scan into their authenticator application. If you are using Blade to render your application&#39;s frontend, you may retrieve the QR code SVG using the <code>twoFactorQrCodeSvg</code> method available on the user instance:</p>
+<pre><code class="language-php"><span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">twoFactorQrCodeSvg</span>();
+</code></pre>
+<p>If you are building a JavaScript powered frontend, you may make an XHR GET request to the <code>/user/two-factor-qr-code</code> endpoint to retrieve the user&#39;s two factor authentication QR code. This endpoint will return a JSON object containing an <code>svg</code> key.</p>
+<p><a name="displaying-the-recovery-codes"></a></p>
+<h4 id="displaying-the-recovery-codes">Displaying The Recovery Codes</h4>
+<p>You should also display the user&#39;s two factor recovery codes. These recovery codes allow the user to authenticate if they lose access to their mobile device. If you are using Blade to render your application&#39;s frontend, you may access the recovery codes via the authenticated user instance:</p>
+<pre><code class="language-php">(<span class="hljs-keyword">array</span>) <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">recoveryCodes</span>()
+</code></pre>
+<p>If you are building a JavaScript powered frontend, you may make an XHR GET request to the <code>/user/two-factor-recovery-codes</code> endpoint. This endpoint will return a JSON array containing the user&#39;s recovery codes.</p>
+<p>To regenerate the user&#39;s recovery codes, your application should make a POST request to the <code>/user/two-factor-recovery-codes</code> endpoint.</p>
+<p><a name="authenticating-with-two-factor-authentication"></a></p>
+<h3 id="authenticating-with-two-factor-authentication">Authenticating With Two Factor Authentication</h3>
+<p>During the authentication process, Fortify will automatically redirect the user to your application&#39;s two factor authentication challenge screen. However, if your application is making an XHR login request, the JSON response returned after a successful authentication attempt will contain a JSON object that has a <code>two_factor</code> boolean property. You should inspect this value to know whether you should redirect to your application&#39;s two factor authentication challenge screen.</p>
+<p>To begin implementing two factor authentication functionality, we need to instruct Fortify how to return our two factor authentication challenge view. All of Fortify&#39;s authentication view rendering logic may be customized using the appropriate methods available via the <code>Laravel\Fortify\Fortify</code> class. Typically, you should call this method from the <code>boot</code> method of your application&#39;s <code>App\Providers\FortifyServiceProvider</code> class:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Fortify</span>\<span class="hljs-title">Fortify</span>;
+
+<span class="hljs-comment">/**
+ * Bootstrap any application services.
+ *
+ * <span class="hljs-doctag">@return</span> void
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-title class_">Fortify</span>::<span class="hljs-title function_ invoke__">twoFactorChallengeView</span>(function () {
+        <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;auth.two-factor-challenge&#x27;</span>);
+    });
+
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p>Fortify will take care of defining the <code>/two-factor-challenge</code> route that returns this view. Your <code>two-factor-challenge</code> template should include a form that makes a POST request to the <code>/two-factor-challenge</code> endpoint. The <code>/two-factor-challenge</code> action expects a <code>code</code> field that contains a valid TOTP token or a <code>recovery_code</code> field that contains one of the user&#39;s recovery codes.</p>
+<p>If the login attempt is successful, Fortify will redirect the user to the URI configured via the <code>home</code> configuration option within your application&#39;s <code>fortify</code> configuration file. If the login request was an XHR request, a 204 HTTP response will be returned.</p>
+<p>If the request was not successful, the user will be redirected back to the two factor challenge screen and the validation errors will be available to you via the shared <code>$errors</code> <a href="/docs/%7B%7Bversion%7D%7D/validation#quick-displaying-the-validation-errors">Blade template variable</a>. Or, in the case of an XHR request, the validation errors will be returned with a 422 HTTP response.</p>
+<p><a name="disabling-two-factor-authentication"></a></p>
+<h3 id="disabling-two-factor-authentication">Disabling Two Factor Authentication</h3>
+<p>To disable two factor authentication, your application should make a DELETE request to the <code>/user/two-factor-authentication</code> endpoint. Remember, Fortify&#39;s two factor authentication endpoints require <a href="#password-confirmation">password confirmation</a> prior to being called.</p>
+<p><a name="registration"></a></p>
+<h2 id="registration">Registration</h2>
+<p>To begin implementing our application&#39;s registration functionality, we need to instruct Fortify how to return our &quot;register&quot; view. Remember, Fortify is a headless authentication library. If you would like a frontend implementation of Laravel&#39;s authentication features that are already completed for you, you should use an <a href="/docs/%7B%7Bversion%7D%7D/starter-kits">application starter kit</a>.</p>
+<p>All of the Fortify&#39;s view rendering logic may be customized using the appropriate methods available via the <code>Laravel\Fortify\Fortify</code> class. Typically, you should call this method from the <code>boot</code> method of your <code>App\Providers\FortifyServiceProvider</code> class:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Fortify</span>\<span class="hljs-title">Fortify</span>;
+
+<span class="hljs-comment">/**
+ * Bootstrap any application services.
+ *
+ * <span class="hljs-doctag">@return</span> void
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-title class_">Fortify</span>::<span class="hljs-title function_ invoke__">registerView</span>(function () {
+        <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;auth.register&#x27;</span>);
+    });
+
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p>Fortify will take care of defining the <code>/register</code> route that returns this view. Your <code>register</code> template should include a form that makes a POST request to the <code>/register</code> endpoint defined by Fortify.</p>
+<p>The <code>/register</code> endpoint expects a string <code>name</code>, string email address / username, <code>password</code>, and <code>password_confirmation</code> fields. The name of the email / username field should match the <code>username</code> configuration value defined within your application&#39;s <code>fortify</code> configuration file.</p>
+<p>If the registration attempt is successful, Fortify will redirect the user to the URI configured via the <code>home</code> configuration option within your application&#39;s <code>fortify</code> configuration file. If the login request was an XHR request, a 200 HTTP response will be returned.</p>
+<p>If the request was not successful, the user will be redirected back to the registration screen and the validation errors will be available to you via the shared <code>$errors</code> <a href="/docs/%7B%7Bversion%7D%7D/validation#quick-displaying-the-validation-errors">Blade template variable</a>. Or, in the case of an XHR request, the validation errors will be returned with a 422 HTTP response.</p>
+<p><a name="customizing-registration"></a></p>
+<h3 id="customizing-registration">Customizing Registration</h3>
+<p>The user validation and creation process may be customized by modifying the <code>App\Actions\Fortify\CreateNewUser</code> action that was generated when you installed Laravel Fortify.</p>
+<p><a name="password-reset"></a></p>
+<h2 id="password-reset">Password Reset</h2>
+<p><a name="requesting-a-password-reset-link"></a></p>
+<h3 id="requesting-a-password-reset-link">Requesting A Password Reset Link</h3>
+<p>To begin implementing our application&#39;s password reset functionality, we need to instruct Fortify how to return our &quot;forgot password&quot; view. Remember, Fortify is a headless authentication library. If you would like a frontend implementation of Laravel&#39;s authentication features that are already completed for you, you should use an <a href="/docs/%7B%7Bversion%7D%7D/starter-kits">application starter kit</a>.</p>
+<p>All of Fortify&#39;s view rendering logic may be customized using the appropriate methods available via the <code>Laravel\Fortify\Fortify</code> class. Typically, you should call this method from the <code>boot</code> method of your application&#39;s <code>App\Providers\FortifyServiceProvider</code> class:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Fortify</span>\<span class="hljs-title">Fortify</span>;
+
+<span class="hljs-comment">/**
+ * Bootstrap any application services.
+ *
+ * <span class="hljs-doctag">@return</span> void
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-title class_">Fortify</span>::<span class="hljs-title function_ invoke__">requestPasswordResetLinkView</span>(function () {
+        <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;auth.forgot-password&#x27;</span>);
+    });
+
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p>Fortify will take care of defining the <code>/forgot-password</code> endpoint that returns this view. Your <code>forgot-password</code> template should include a form that makes a POST request to the <code>/forgot-password</code> endpoint.</p>
+<p>The <code>/forgot-password</code> endpoint expects a string <code>email</code> field. The name of this field / database column should match the <code>email</code> configuration value within your application&#39;s <code>fortify</code> configuration file.</p>
+<p><a name="handling-the-password-reset-link-request-response"></a></p>
+<h4 id="handling-the-password-reset-link-request-response">Handling The Password Reset Link Request Response</h4>
+<p>If the password reset link request was successful, Fortify will redirect the user back to the <code>/forgot-password</code> endpoint and send an email to the user with a secure link they can use to reset their password. If the request was an XHR request, a 200 HTTP response will be returned.</p>
+<p>After being redirected back to the <code>/forgot-password</code> endpoint after a successful request, the <code>status</code> session variable may be used to display the status of the password reset link request attempt. The value of this session variable will match one of the translation strings defined within your application&#39;s <code>passwords</code> <a href="/docs/%7B%7Bversion%7D%7D/localization">language file</a>:</p>
+<pre><code class="language-html">@if (session(&#x27;status&#x27;))
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;mb-4 font-medium text-sm text-green-600&quot;</span>&gt;</span>
+        {{ session(&#x27;status&#x27;) }}
+    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+@endif
+</code></pre>
+<p>If the request was not successful, the user will be redirected back to the request password reset link screen and the validation errors will be available to you via the shared <code>$errors</code> <a href="/docs/%7B%7Bversion%7D%7D/validation#quick-displaying-the-validation-errors">Blade template variable</a>. Or, in the case of an XHR request, the validation errors will be returned with a 422 HTTP response.</p>
+<p><a name="resetting-the-password"></a></p>
+<h3 id="resetting-the-password">Resetting The Password</h3>
+<p>To finish implementing our application&#39;s password reset functionality, we need to instruct Fortify how to return our &quot;reset password&quot; view.</p>
+<p>All of Fortify&#39;s view rendering logic may be customized using the appropriate methods available via the <code>Laravel\Fortify\Fortify</code> class. Typically, you should call this method from the <code>boot</code> method of your application&#39;s <code>App\Providers\FortifyServiceProvider</code> class:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Fortify</span>\<span class="hljs-title">Fortify</span>;
+
+<span class="hljs-comment">/**
+ * Bootstrap any application services.
+ *
+ * <span class="hljs-doctag">@return</span> void
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-title class_">Fortify</span>::<span class="hljs-title function_ invoke__">resetPasswordView</span>(function (<span class="hljs-variable">$request</span>) {
+        <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;auth.reset-password&#x27;</span>, [<span class="hljs-string">&#x27;request&#x27;</span> =&gt; <span class="hljs-variable">$request</span>]);
+    });
+
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p>Fortify will take care of defining the route to display this view. Your <code>reset-password</code> template should include a form that makes a POST request to <code>/reset-password</code>.</p>
+<p>The <code>/reset-password</code> endpoint expects a string <code>email</code> field, a <code>password</code> field, a <code>password_confirmation</code> field, and a hidden field named <code>token</code> that contains the value of <code>request()-&gt;route(&#39;token&#39;)</code>. The name of the &quot;email&quot; field / database column should match the <code>email</code> configuration value defined within your application&#39;s <code>fortify</code> configuration file.</p>
+<p><a name="handling-the-password-reset-response"></a></p>
+<h4 id="handling-the-password-reset-response">Handling The Password Reset Response</h4>
+<p>If the password reset request was successful, Fortify will redirect back to the <code>/login</code> route so that the user can log in with their new password. In addition, a <code>status</code> session variable will be set so that you may display the successful status of the reset on your login screen:</p>
+<pre><code class="language-html">@if (session(&#x27;status&#x27;))
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;mb-4 font-medium text-sm text-green-600&quot;</span>&gt;</span>
+        {{ session(&#x27;status&#x27;) }}
+    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+@endif
+</code></pre>
+<p>If the request was an XHR request, a 200 HTTP response will be returned.</p>
+<p>If the request was not successful, the user will be redirected back to the reset password screen and the validation errors will be available to you via the shared <code>$errors</code> <a href="/docs/%7B%7Bversion%7D%7D/validation#quick-displaying-the-validation-errors">Blade template variable</a>. Or, in the case of an XHR request, the validation errors will be returned with a 422 HTTP response.</p>
+<p><a name="customizing-password-resets"></a></p>
+<h3 id="customizing-password-resets">Customizing Password Resets</h3>
+<p>The password reset process may be customized by modifying the <code>App\Actions\ResetUserPassword</code> action that was generated when you installed Laravel Fortify.</p>
+<p><a name="email-verification"></a></p>
+<h2 id="email-verification">Email Verification</h2>
+<p>After registration, you may wish for users to verify their email address before they continue accessing your application. To get started, ensure the <code>emailVerification</code> feature is enabled in your <code>fortify</code> configuration file&#39;s <code>features</code> array. Next, you should ensure that your <code>App\Models\User</code> class implements the <code>Illuminate\Contracts\Auth\MustVerifyEmail</code> interface.</p>
+<p>Once these two setup steps have been completed, newly registered users will receive an email prompting them to verify their email address ownership. However, we need to inform Fortify how to display the email verification screen which informs the user that they need to go click the verification link in the email.</p>
+<p>All of Fortify&#39;s view&#39;s rendering logic may be customized using the appropriate methods available via the <code>Laravel\Fortify\Fortify</code> class. Typically, you should call this method from the <code>boot</code> method of your application&#39;s <code>App\Providers\FortifyServiceProvider</code> class:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Fortify</span>\<span class="hljs-title">Fortify</span>;
+
+<span class="hljs-comment">/**
+ * Bootstrap any application services.
+ *
+ * <span class="hljs-doctag">@return</span> void
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-title class_">Fortify</span>::<span class="hljs-title function_ invoke__">verifyEmailView</span>(function () {
+        <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;auth.verify-email&#x27;</span>);
+    });
+
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p>Fortify will take care of defining the route that displays this view when a user is redirected to the <code>/email/verify</code> endpoint by Laravel&#39;s built-in <code>verified</code> middleware.</p>
+<p>Your <code>verify-email</code> template should include an informational message instructing the user to click the email verification link that was sent to their email address.</p>
+<p><a name="resending-email-verification-links"></a></p>
+<h4 id="resending-email-verification-links">Resending Email Verification Links</h4>
+<p>If you wish, you may add a button to your application&#39;s <code>verify-email</code> template that triggers a POST request to the <code>/email/verification-notification</code> endpoint. When this endpoint receives a request, a new verification email link will be emailed to the user, allowing the user to get a new verification link if the previous one was accidentally deleted or lost.</p>
+<p>If the request to resend the verification link email was successful, Fortify will redirect the user back to the <code>/email/verify</code> endpoint with a <code>status</code> session variable, allowing you to display an informational message to the user informing them the operation was successful. If the request was an XHR request, a 202 HTTP response will be returned:</p>
+<pre><code class="language-html">@if (session(&#x27;status&#x27;) == &#x27;verification-link-sent&#x27;)
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;mb-4 font-medium text-sm text-green-600&quot;</span>&gt;</span>
+        A new email verification link has been emailed to you!
+    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+@endif
+</code></pre>
+<p><a name="protecting-routes"></a></p>
+<h3 id="protecting-routes">Protecting Routes</h3>
+<p>To specify that a route or group of routes requires that the user has verified their email address, you should attach Laravel&#39;s built-in <code>verified</code> middleware to the route. This middleware is registered within your application&#39;s <code>App\Http\Kernel</code> class:</p>
+<pre><code class="language-php"><span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/dashboard&#x27;</span>, function () {
+    <span class="hljs-comment">// ...</span>
+})-&gt;<span class="hljs-title function_ invoke__">middleware</span>([<span class="hljs-string">&#x27;verified&#x27;</span>]);
+</code></pre>
+<p><a name="password-confirmation"></a></p>
+<h2 id="password-confirmation">Password Confirmation</h2>
+<p>While building your application, you may occasionally have actions that should require the user to confirm their password before the action is performed. Typically, these routes are protected by Laravel&#39;s built-in <code>password.confirm</code> middleware.</p>
+<p>To begin implementing password confirmation functionality, we need to instruct Fortify how to return our application&#39;s &quot;password confirmation&quot; view. Remember, Fortify is a headless authentication library. If you would like a frontend implementation of Laravel&#39;s authentication features that are already completed for you, you should use an <a href="/docs/%7B%7Bversion%7D%7D/starter-kits">application starter kit</a>.</p>
+<p>All of Fortify&#39;s view rendering logic may be customized using the appropriate methods available via the <code>Laravel\Fortify\Fortify</code> class. Typically, you should call this method from the <code>boot</code> method of your application&#39;s <code>App\Providers\FortifyServiceProvider</code> class:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Fortify</span>\<span class="hljs-title">Fortify</span>;
+
+<span class="hljs-comment">/**
+ * Bootstrap any application services.
+ *
+ * <span class="hljs-doctag">@return</span> void
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-title class_">Fortify</span>::<span class="hljs-title function_ invoke__">confirmPasswordView</span>(function () {
+        <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;auth.confirm-password&#x27;</span>);
+    });
+
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p>Fortify will take care of defining the <code>/user/confirm-password</code> endpoint that returns this view. Your <code>confirm-password</code> template should include a form that makes a POST request to the <code>/user/confirm-password</code> endpoint. The <code>/user/confirm-password</code> endpoint expects a <code>password</code> field that contains the user&#39;s current password.</p>
+<p>If the password matches the user&#39;s current password, Fortify will redirect the user to the route they were attempting to access. If the request was an XHR request, a 201 HTTP response will be returned.</p>
+<p>If the request was not successful, the user will be redirected back to the confirm password screen and the validation errors will be available to you via the shared <code>$errors</code> Blade template variable. Or, in the case of an XHR request, the validation errors will be returned with a 422 HTTP response.</p>

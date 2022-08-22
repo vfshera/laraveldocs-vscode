@@ -1,0 +1,384 @@
+<h1 id="release-notes">Release Notes</h1>
+<ul>
+<li><a href="#versioning-scheme">Versioning Scheme</a></li>
+<li><a href="#support-policy">Support Policy</a></li>
+<li><a href="#laravel-9">Laravel 9</a></li>
+</ul>
+<p><a name="versioning-scheme"></a></p>
+<h2 id="versioning-scheme">Versioning Scheme</h2>
+<p>Laravel and its other first-party packages follow <a href="https://semver.org">Semantic Versioning</a>. Major framework releases are released every year (~February), while minor and patch releases may be released as often as every week. Minor and patch releases should <strong>never</strong> contain breaking changes.</p>
+<p>When referencing the Laravel framework or its components from your application or package, you should always use a version constraint such as <code>^9.0</code>, since major releases of Laravel do include breaking changes. However, we strive to always ensure you may update to a new major release in one day or less.</p>
+<p><a name="named-arguments"></a></p>
+<h4 id="named-arguments">Named Arguments</h4>
+<p><a href="https://www.php.net/manual/en/functions.arguments.php#functions.named-arguments">Named arguments</a> are not covered by Laravel&#39;s backwards compatibility guidelines. We may choose to rename function arguments when necessary in order to improve the Laravel codebase. Therefore, using named arguments when calling Laravel methods should be done cautiously and with the understanding that the parameter names may change in the future.</p>
+<p><a name="support-policy"></a></p>
+<h2 id="support-policy">Support Policy</h2>
+<p>For all Laravel releases, bug fixes are provided for 18 months and security fixes are provided for 2 years. For all additional libraries, including Lumen, only the latest major release receives bug fixes. In addition, please review the database versions <a href="/docs/%7B%7Bversion%7D%7D/database#introduction">supported by Laravel</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>PHP (*)</th>
+<th>Release</th>
+<th>Bug Fixes Until</th>
+<th>Security Fixes Until</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>6 (LTS)</td>
+<td>7.2 - 8.0</td>
+<td>September 3rd, 2019</td>
+<td>January 25th, 2022</td>
+<td>September 6th, 2022</td>
+</tr>
+<tr>
+<td>7</td>
+<td>7.2 - 8.0</td>
+<td>March 3rd, 2020</td>
+<td>October 6th, 2020</td>
+<td>March 3rd, 2021</td>
+</tr>
+<tr>
+<td>8</td>
+<td>7.3 - 8.1</td>
+<td>September 8th, 2020</td>
+<td>July 26th, 2022</td>
+<td>January 24th, 2023</td>
+</tr>
+<tr>
+<td>9</td>
+<td>8.0 - 8.1</td>
+<td>February 8th, 2022</td>
+<td>August 8th, 2023</td>
+<td>February 8th, 2024</td>
+</tr>
+<tr>
+<td>10</td>
+<td>8.1</td>
+<td>February 7th, 2023</td>
+<td>August 7th, 2024</td>
+<td>February 7th, 2025</td>
+</tr>
+</tbody></table>
+<div class="version-colors">
+    <div class="end-of-life">
+        <div class="color-box"></div>
+        <div>End of life</div>
+    </div>
+    <div class="security-fixes">
+        <div class="color-box"></div>
+        <div>Security fixes only</div>
+    </div>
+</div>
+
+<p>(*) Supported PHP versions</p>
+<p><a name="laravel-9"></a></p>
+<h2 id="laravel-9">Laravel 9</h2>
+<p>As you may know, Laravel transitioned to yearly releases with the release of Laravel 8. Previously, major versions were released every 6 months. This transition is intended to ease the maintenance burden on the community and challenge our development team to ship amazing, powerful new features without introducing breaking changes. Therefore, we have shipped a variety of robust features to Laravel 8 without breaking backwards compatibility, such as parallel testing support, improved Breeze starter kits, HTTP client improvements, and even new Eloquent relationship types such as &quot;has one of many&quot;.</p>
+<p>Therefore, this commitment to ship great new features during the current release will likely lead to future &quot;major&quot; releases being primarily used for &quot;maintenance&quot; tasks such as upgrading upstream dependencies, which can be seen in these release notes.</p>
+<p>Laravel 9 continues the improvements made in Laravel 8.x by introducing support for Symfony 6.0 components, Symfony Mailer, Flysystem 3.0, improved <code>route:list</code> output, a Laravel Scout database driver, new Eloquent accessor / mutator syntax, implicit route bindings via Enums, and a variety of other bug fixes and usability improvements.</p>
+<p><a name="php-8"></a></p>
+<h3 id="php-80">PHP 8.0</h3>
+<p>Laravel 9.x requires a minimum PHP version of 8.0.</p>
+<p><a name="symfony-mailer"></a></p>
+<h3 id="symfony-mailer">Symfony Mailer</h3>
+<p><em>Symfony Mailer support was contributed by <a href="https://github.com/driesvints">Dries Vints</a></em>, <a href="https://github.com/jbrooksuk">James Brooks</a>, and <a href="https://github.com/Jubeki">Julius Kiekbusch</a>.</p>
+<p>Previous releases of Laravel utilized the <a href="https://swiftmailer.symfony.com/docs/introduction.html">Swift Mailer</a> library to send outgoing email. However, that library is no longer maintained and has been succeeded by Symfony Mailer.</p>
+<p>Please review the <a href="/docs/%7B%7Bversion%7D%7D/upgrade#symfony-mailer">upgrade guide</a> to learn more about ensuring your application is compatible with Symfony Mailer.</p>
+<p><a name="flysystem-3"></a></p>
+<h3 id="flysystem-3x">Flysystem 3.x</h3>
+<p><em>Flysystem 3.x support was contributed by <a href="https://github.com/driesvints">Dries Vints</a></em>.</p>
+<p>Laravel 9.x upgrades our upstream Flysystem dependency to Flysystem 3.x. Flysystem powers all of filesystem interactions offered by the <code>Storage</code> facade.</p>
+<p>Please review the <a href="/docs/%7B%7Bversion%7D%7D/upgrade#flysystem-3">upgrade guide</a> to learn more about ensuring your application is compatible with Flysystem 3.x.</p>
+<p><a name="eloquent-accessors-and-mutators"></a></p>
+<h3 id="improved-eloquent-accessors--mutators">Improved Eloquent Accessors / Mutators</h3>
+<p><em>Improved Eloquent accessors / mutators was contributed by <a href="https://github.com/taylorotwell">Taylor Otwell</a></em>.</p>
+<p>Laravel 9.x offers a new way to define Eloquent <a href="/docs/%7B%7Bversion%7D%7D/eloquent-mutators#accessors-and-mutators">accessors and mutators</a>. In previous releases of Laravel, the only way to define accessors and mutators was by defining prefixed methods on your model like so:</p>
+<pre><code class="language-php"><span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getNameAttribute</span>(<span class="hljs-params"><span class="hljs-variable">$value</span></span>)
+</span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">strtoupper</span>(<span class="hljs-variable">$value</span>);
+}
+
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">setNameAttribute</span>(<span class="hljs-params"><span class="hljs-variable">$value</span></span>)
+</span>{
+    <span class="hljs-variable language_">$this</span>-&gt;attributes[<span class="hljs-string">&#x27;name&#x27;</span>] = <span class="hljs-variable">$value</span>;
+}
+</code></pre>
+<p>However, in Laravel 9.x you may define an accessor and mutator using a single, non-prefixed method by type-hinting a return type of <code>Illuminate\Database\Eloquent\Casts\Attribute</code>:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Casts</span>\<span class="hljs-title">Attribute</span>;
+
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">name</span>(<span class="hljs-params"></span>): <span class="hljs-title">Attribute</span>
+</span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Attribute</span>(
+        get: <span class="hljs-function"><span class="hljs-keyword">fn</span> (<span class="hljs-params"><span class="hljs-variable">$value</span></span>) =&gt;</span> <span class="hljs-title function_ invoke__">strtoupper</span>(<span class="hljs-variable">$value</span>),
+        set: <span class="hljs-function"><span class="hljs-keyword">fn</span> (<span class="hljs-params"><span class="hljs-variable">$value</span></span>) =&gt;</span> <span class="hljs-variable">$value</span>,
+    );
+}
+</code></pre>
+<p>In addition, this new approach to defining accessors will cache object values that are returned by the attribute, just like <a href="/docs/%7B%7Bversion%7D%7D/eloquent-mutators#custom-casts">custom cast classes</a>:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Address</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Casts</span>\<span class="hljs-title">Attribute</span>;
+
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">address</span>(<span class="hljs-params"></span>): <span class="hljs-title">Attribute</span>
+</span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Attribute</span>(
+        get: <span class="hljs-function"><span class="hljs-keyword">fn</span> (<span class="hljs-params"><span class="hljs-variable">$value</span>, <span class="hljs-variable">$attributes</span></span>) =&gt;</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Address</span>(
+            <span class="hljs-variable">$attributes</span>[<span class="hljs-string">&#x27;address_line_one&#x27;</span>],
+            <span class="hljs-variable">$attributes</span>[<span class="hljs-string">&#x27;address_line_two&#x27;</span>],
+        ),
+        set: <span class="hljs-function"><span class="hljs-keyword">fn</span> (<span class="hljs-params">Address <span class="hljs-variable">$value</span></span>) =&gt;</span> [
+            <span class="hljs-string">&#x27;address_line_one&#x27;</span> =&gt; <span class="hljs-variable">$value</span>-&gt;lineOne,
+            <span class="hljs-string">&#x27;address_line_two&#x27;</span> =&gt; <span class="hljs-variable">$value</span>-&gt;lineTwo,
+        ],
+    );
+}
+</code></pre>
+<p><a name="enum-casting"></a></p>
+<h3 id="enum-eloquent-attribute-casting">Enum Eloquent Attribute Casting</h3>
+<blockquote>
+<p><strong>Warning</strong><br>Enum casting is only available for PHP 8.1+.</p>
+</blockquote>
+<p><em>Enum casting was contributed by <a href="https://github.com/themsaid">Mohamed Said</a></em>.</p>
+<p>Eloquent now allows you to cast your attribute values to PHP <a href="https://www.php.net/manual/en/language.enumerations.backed.php">&quot;backed&quot; Enums</a>. To accomplish this, you may specify the attribute and enum you wish to cast in your model&#39;s <code>$casts</code> property array:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Enums</span>\<span class="hljs-title">ServerStatus</span>;
+
+<span class="hljs-comment">/**
+ * The attributes that should be cast.
+ *
+ * <span class="hljs-doctag">@var</span> array
+ */</span>
+<span class="hljs-keyword">protected</span> <span class="hljs-variable">$casts</span> = [
+    <span class="hljs-string">&#x27;status&#x27;</span> =&gt; <span class="hljs-title class_">ServerStatus</span>::<span class="hljs-variable language_">class</span>,
+];
+</code></pre>
+<p>Once you have defined the cast on your model, the specified attribute will be automatically cast to and from an enum when you interact with the attribute:</p>
+<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$server</span>-&gt;status == <span class="hljs-title class_">ServerStatus</span>::<span class="hljs-variable constant_">provisioned</span>) {
+    <span class="hljs-variable">$server</span>-&gt;status = <span class="hljs-title class_">ServerStatus</span>::<span class="hljs-variable constant_">ready</span>;
+
+    <span class="hljs-variable">$server</span>-&gt;<span class="hljs-title function_ invoke__">save</span>();
+}
+</code></pre>
+<p><a name="implicit-route-bindings-with-enums"></a></p>
+<h3 id="implicit-route-bindings-with-enums">Implicit Route Bindings With Enums</h3>
+<p><em>Implicit Enum bindings was contributed by <a href="https://github.com/nunomaduro">Nuno Maduro</a></em>.</p>
+<p>PHP 8.1 introduces support for <a href="https://www.php.net/manual/en/language.enumerations.backed.php">Enums</a>. Laravel 9.x introduces the ability to type-hint an Enum on your route definition and Laravel will only invoke the route if that route segment is a valid Enum value in the URI. Otherwise, an HTTP 404 response will be returned automatically. For example, given the following Enum:</p>
+<pre><code class="language-php"><span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Category</span>: <span class="hljs-title">string</span>
+</span>{
+    <span class="hljs-keyword">case</span> Fruits = <span class="hljs-string">&#x27;fruits&#x27;</span>;
+    <span class="hljs-keyword">case</span> People = <span class="hljs-string">&#x27;people&#x27;</span>;
+}
+</code></pre>
+<p>You may define a route that will only be invoked if the <code>{category}</code> route segment is <code>fruits</code> or <code>people</code>. Otherwise, an HTTP 404 response will be returned:</p>
+<pre><code class="language-php"><span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/categories/{category}&#x27;</span>, function (Category <span class="hljs-variable">$category</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$category</span>-&gt;value;
+});
+</code></pre>
+<p><a name="forced-scoping-of-route-bindings"></a></p>
+<h3 id="forced-scoping-of-route-bindings">Forced Scoping Of Route Bindings</h3>
+<p><em>Forced scoped bindings was contributed by <a href="https://github.com/claudiodekker">Claudio Dekker</a></em>.</p>
+<p>In previous releases of Laravel, you may wish to scope the second Eloquent model in a route definition such that it must be a child of the previous Eloquent model. For example, consider this route definition that retrieves a blog post by slug for a specific user:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Post</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/users/{user}/posts/{post:slug}&#x27;</span>, function (User <span class="hljs-variable">$user</span>, Post <span class="hljs-variable">$post</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$post</span>;
+});
+</code></pre>
+<p>When using a custom keyed implicit binding as a nested route parameter, Laravel will automatically scope the query to retrieve the nested model by its parent using conventions to guess the relationship name on the parent. However, this behavior was only previously supported by Laravel when a custom key was used for the child route binding.</p>
+<p>However, in Laravel 9.x, you may now instruct Laravel to scope &quot;child&quot; bindings even when a custom key is not provided. To do so, you may invoke the <code>scopeBindings</code> method when defining your route:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Post</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/users/{user}/posts/{post}&#x27;</span>, function (User <span class="hljs-variable">$user</span>, Post <span class="hljs-variable">$post</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$post</span>;
+})-&gt;<span class="hljs-title function_ invoke__">scopeBindings</span>();
+</code></pre>
+<p>Or, you may instruct an entire group of route definitions to use scoped bindings:</p>
+<pre><code><span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">scopeBindings</span>()-&gt;<span class="hljs-title function_ invoke__">group</span>(function () {
+    <span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/users/{user}/posts/{post}&#x27;</span>, function (User <span class="hljs-variable">$user</span>, Post <span class="hljs-variable">$post</span>) {
+        <span class="hljs-keyword">return</span> <span class="hljs-variable">$post</span>;
+    });
+});
+</code></pre>
+<p><a name="controller-route-groups"></a></p>
+<h3 id="controller-route-groups">Controller Route Groups</h3>
+<p><em>Route group improvements were contributed by <a href="https://github.com/lukeraymonddowning">Luke Downing</a></em>.</p>
+<p>You may now use the <code>controller</code> method to define the common controller for all of the routes within the group. Then, when defining the routes, you only need to provide the controller method that they invoke:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Controllers</span>\<span class="hljs-title">OrderController</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">controller</span>(<span class="hljs-title class_">OrderController</span>::<span class="hljs-variable language_">class</span>)-&gt;<span class="hljs-title function_ invoke__">group</span>(function () {
+    <span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/orders/{id}&#x27;</span>, <span class="hljs-string">&#x27;show&#x27;</span>);
+    <span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">post</span>(<span class="hljs-string">&#x27;/orders&#x27;</span>, <span class="hljs-string">&#x27;store&#x27;</span>);
+});
+</code></pre>
+<p><a name="full-text"></a></p>
+<h3 id="full-text-indexes--where-clauses">Full Text Indexes / Where Clauses</h3>
+<p><em>Full text indexes and &quot;where&quot; clauses were contributed by <a href="https://github.com/taylorotwell">Taylor Otwell</a> and <a href="https://github.com/driesvints">Dries Vints</a></em>.</p>
+<p>When using MySQL or PostgreSQL, the <code>fullText</code> method may now be added to column definitions to generate full text indexes:</p>
+<pre><code><span class="hljs-variable">$table</span>-&gt;<span class="hljs-title function_ invoke__">text</span>(<span class="hljs-string">&#x27;bio&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">fullText</span>();
+</code></pre>
+<p>In addition, the <code>whereFullText</code> and <code>orWhereFullText</code> methods may be used to add full text &quot;where&quot; clauses to a query for columns that have <a href="/docs/%7B%7Bversion%7D%7D/migrations#available-index-types">full text indexes</a>. These methods will be transformed into the appropriate SQL for the underlying database system by Laravel. For example, a <code>MATCH AGAINST</code> clause will be generated for applications utilizing MySQL:</p>
+<pre><code><span class="hljs-variable">$users</span> = DB::<span class="hljs-title function_ invoke__">table</span>(<span class="hljs-string">&#x27;users&#x27;</span>)
+           -&gt;<span class="hljs-title function_ invoke__">whereFullText</span>(<span class="hljs-string">&#x27;bio&#x27;</span>, <span class="hljs-string">&#x27;web developer&#x27;</span>)
+           -&gt;<span class="hljs-title function_ invoke__">get</span>();
+</code></pre>
+<p><a name="laravel-scout-database-engine"></a></p>
+<h3 id="laravel-scout-database-engine">Laravel Scout Database Engine</h3>
+<p><em>The Laravel Scout database engine was contributed by <a href="https://github.com/taylorotwell">Taylor Otwell</a> and <a href="https://github.com/driesvints">Dries Vints</a></em>.</p>
+<p>If your application interacts with small to medium sized databases or has a light workload, you may now use Scout&#39;s &quot;database&quot; engine instead of a dedicated search service such as Algolia or MeiliSearch. The database engine will use &quot;where like&quot; clauses and full text indexes when filtering results from your existing database to determine the applicable search results for your query.</p>
+<p>To learn more about the Scout database engine, consult the <a href="/docs/%7B%7Bversion%7D%7D/scout">Scout documentation</a>.</p>
+<p><a name="rendering-inline-blade-templates"></a></p>
+<h3 id="rendering-inline-blade-templates">Rendering Inline Blade Templates</h3>
+<p><em>Rendering inline Blade templates was contributed by <a href="https://github.com/jasonlbeggs">Jason Beggs</a>. Rendering inline Blade components was contributed by <a href="https://github.com/tobyzerner">Toby Zerner</a></em>.</p>
+<p>Sometimes you may need to transform a raw Blade template string into valid HTML. You may accomplish this using the <code>render</code> method provided by the <code>Blade</code> facade. The <code>render</code> method accepts the Blade template string and an optional array of data to provide to the template:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Blade</span>;
+
+<span class="hljs-keyword">return</span> <span class="hljs-title class_">Blade</span>::<span class="hljs-title function_ invoke__">render</span>(<span class="hljs-string">&#x27;Hello, {{ $name }}&#x27;</span>, [<span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Julian Bashir&#x27;</span>]);
+</code></pre>
+<p>Similarly, the <code>renderComponent</code> method may be used to render a given class component by passing the component instance to the method:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">View</span>\<span class="hljs-title">Components</span>\<span class="hljs-title">HelloComponent</span>;
+
+<span class="hljs-keyword">return</span> <span class="hljs-title class_">Blade</span>::<span class="hljs-title function_ invoke__">renderComponent</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">HelloComponent</span>(<span class="hljs-string">&#x27;Julian Bashir&#x27;</span>));
+</code></pre>
+<p><a name="slot-name-shortcut"></a></p>
+<h3 id="slot-name-shortcut">Slot Name Shortcut</h3>
+<p><em>Slot name shortcuts were contributed by <a href="https://github.com/calebporzio">Caleb Porzio</a>.</em></p>
+<p>In previous releases of Laravel, slot names were provided using a <code>name</code> attribute on the <code>x-slot</code> tag:</p>
+<pre><code class="language-blade"><span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">x-alert</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">x-slot</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;title&quot;</span>&gt;</span>
+        Server Error
+    <span class="hljs-tag">&lt;/<span class="hljs-name">x-slot</span>&gt;</span>
+
+    <span class="hljs-tag">&lt;<span class="hljs-name">strong</span>&gt;</span>Whoops!<span class="hljs-tag">&lt;/<span class="hljs-name">strong</span>&gt;</span> Something went wrong!
+<span class="hljs-tag">&lt;/<span class="hljs-name">x-alert</span>&gt;</span></span>
+</code></pre>
+<p>However, beginning in Laravel 9.x, you may specify the slot&#39;s name using a convenient, shorter syntax:</p>
+<pre><code class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">x-slot:title</span>&gt;</span>
+    Server Error
+<span class="hljs-tag">&lt;/<span class="hljs-name">x-slot</span>&gt;</span>
+</code></pre>
+<p><a name="checked-selected-blade-directives"></a></p>
+<h3 id="checked--selected-blade-directives">Checked / Selected Blade Directives</h3>
+<p><em>Checked and selected Blade directives were contributed by <a href="https://github.com/ash-jc-allen">Ash Allen</a> and <a href="https://github.com/taylorotwell">Taylor Otwell</a></em>.</p>
+<p>For convenience, you may now use the <code>@checked</code> directive to easily indicate if a given HTML checkbox input is &quot;checked&quot;. This directive will echo <code>checked</code> if the provided condition evaluates to <code>true</code>:</p>
+<pre><code class="language-blade"><span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;checkbox&quot;</span>
+        <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;active&quot;</span>
+        <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;active&quot;</span>
+        </span></span><span class="hljs-template-tag">@checked</span><span class="language-xml"><span class="hljs-tag">(<span class="hljs-attr">old</span>(&#x27;<span class="hljs-attr">active</span>&#x27;, $<span class="hljs-attr">user-</span>&gt;</span>active)) /&gt;</span>
+</code></pre>
+<p>Likewise, the <code>@selected</code> directive may be used to indicate if a given select option should be &quot;selected&quot;:</p>
+<pre><code class="language-blade"><span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">select</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;version&quot;</span>&gt;</span>
+    </span><span class="hljs-template-tag">@foreach</span><span class="language-xml"> ($product-&gt;versions as $version)
+        <span class="hljs-tag">&lt;<span class="hljs-name">option</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;</span></span></span><span class="hljs-template-variable">{{</span><span class="language-php"> <span class="hljs-variable">$version</span> </span><span class="hljs-template-variable">}}</span><span class="language-xml"><span class="hljs-tag"><span class="hljs-string">&quot;</span> </span></span><span class="hljs-template-tag">@selected</span><span class="language-xml"><span class="hljs-tag">(<span class="hljs-attr">old</span>(&#x27;<span class="hljs-attr">version</span>&#x27;) == <span class="hljs-string">$version)</span>&gt;</span>
+            </span><span class="hljs-template-variable">{{</span><span class="language-php"> <span class="hljs-variable">$version</span> </span><span class="hljs-template-variable">}}</span><span class="language-xml">
+        <span class="hljs-tag">&lt;/<span class="hljs-name">option</span>&gt;</span>
+    </span><span class="hljs-template-tag">@endforeach</span><span class="language-xml">
+<span class="hljs-tag">&lt;/<span class="hljs-name">select</span>&gt;</span></span>
+</code></pre>
+<p><a name="bootstrap-5-pagination-views"></a></p>
+<h3 id="bootstrap-5-pagination-views">Bootstrap 5 Pagination Views</h3>
+<p><em>Bootstrap 5 pagination views were contributed by <a href="https://github.com/jrd-lewis">Jared Lewis</a></em>.</p>
+<p>Laravel now includes pagination views built using <a href="https://getbootstrap.com/">Bootstrap 5</a>. To use these views instead of the default Tailwind views, you may call the paginator&#39;s <code>useBootstrapFive</code> method within the <code>boot</code> method of your <code>App\Providers\AppServiceProvider</code> class:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Pagination</span>\<span class="hljs-title">Paginator</span>;
+
+<span class="hljs-comment">/**
+ * Bootstrap any application services.
+ *
+ * <span class="hljs-doctag">@return</span> void
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-title class_">Paginator</span>::<span class="hljs-title function_ invoke__">useBootstrapFive</span>();
+}
+</code></pre>
+<p><a name="improved-validation-of-nested-array-data"></a></p>
+<h3 id="improved-validation-of-nested-array-data">Improved Validation Of Nested Array Data</h3>
+<p><em>Improved validation of nested array inputs was contributed by <a href="https://github.com/stevebauman">Steve Bauman</a></em>.</p>
+<p>Sometimes you may need to access the value for a given nested array element when assigning validation rules to the attribute. You may now accomplish this using the <code>Rule::forEach</code> method. The <code>forEach</code> method accepts a closure that will be invoked for each iteration of the array attribute under validation and will receive the attribute&#39;s value and explicit, fully-expanded attribute name. The closure should return an array of rules to assign to the array element:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Rules</span>\<span class="hljs-title">HasPermission</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Validator</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Validation</span>\<span class="hljs-title">Rule</span>;
+
+<span class="hljs-variable">$validator</span> = <span class="hljs-title class_">Validator</span>::<span class="hljs-title function_ invoke__">make</span>(<span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">all</span>(), [
+    <span class="hljs-string">&#x27;companies.*.id&#x27;</span> =&gt; <span class="hljs-title class_">Rule</span>::<span class="hljs-title function_ invoke__">forEach</span>(function (<span class="hljs-variable">$value</span>, <span class="hljs-variable">$attribute</span>) {
+        <span class="hljs-keyword">return</span> [
+            <span class="hljs-title class_">Rule</span>::<span class="hljs-title function_ invoke__">exists</span>(<span class="hljs-title class_">Company</span>::<span class="hljs-variable language_">class</span>, <span class="hljs-string">&#x27;id&#x27;</span>),
+            <span class="hljs-keyword">new</span> <span class="hljs-title class_">HasPermission</span>(<span class="hljs-string">&#x27;manage-company&#x27;</span>, <span class="hljs-variable">$value</span>),
+        ];
+    }),
+]);
+</code></pre>
+<p><a name="laravel-breeze-api"></a></p>
+<h3 id="laravel-breeze-api--nextjs">Laravel Breeze API &amp; Next.js</h3>
+<p><em>The Laravel Breeze API scaffolding and Next.js starter kit was contributed by <a href="https://github.com/taylorotwell">Taylor Otwell</a> and <a href="https://twitter.com/m1guelpf">Miguel Piedrafita</a></em>.</p>
+<p>The <a href="/docs/%7B%7Bversion%7D%7D/starter-kits#breeze-and-next">Laravel Breeze</a> starter kit has received an &quot;API&quot; scaffolding mode and complimentary <a href="https://nextjs.org">Next.js</a> <a href="https://github.com/laravel/breeze-next">frontend implementation</a>. This starter kit scaffolding may be used to jump start your Laravel applications that are serving as a backend, Laravel Sanctum authenticated API for a JavaScript frontend.</p>
+<p><a name="exception-page"></a></p>
+<h3 id="improved-ignition-exception-page">Improved Ignition Exception Page</h3>
+<p><em>Ignition is developed by <a href="https://spatie.be/">Spatie</a>.</em></p>
+<p>Ignition, the open source exception debug page created by Spatie, has been redesigned from the ground up. The new, improved Ignition ships with Laravel 9.x and includes light / dark themes, customizable &quot;open in editor&quot; functionality, and more.</p>
+<p align="center">
+<img width="100%" src="https://user-images.githubusercontent.com/483853/149235404-f7caba56-ebdf-499e-9883-cac5d5610369.png"/>
+</p>
+
+<p><a name="improved-route-list"></a></p>
+<h3 id="improved-routelist-cli-output">Improved <code>route:list</code> CLI Output</h3>
+<p><em>Improved <code>route:list</code> CLI output was contributed by <a href="https://github.com/nunomaduro">Nuno Maduro</a></em>.</p>
+<p>The <code>route:list</code> CLI output has been significantly improved for the Laravel 9.x release, offering a beautiful new experience when exploring your route definitions.</p>
+<p align="center">
+<img src="https://user-images.githubusercontent.com/5457236/148321982-38c8b869-f188-4f42-a3cc-a03451d5216c.png"/>
+</p>
+
+<p><a name="test-coverage-support-on-artisan-test-Command"></a></p>
+<h3 id="test-coverage-using-artisan-test-command">Test Coverage Using Artisan <code>test</code> Command</h3>
+<p><em>Test coverage when using the Artisan <code>test</code> command was contributed by <a href="https://github.com/nunomaduro">Nuno Maduro</a></em>.</p>
+<p>The Artisan <code>test</code> command has received a new <code>--coverage</code> option that you may use to explore the amount of code coverage your tests are providing to your application:</p>
+<pre><code class="language-shell">php artisan test --coverage
+</code></pre>
+<p>The test coverage results will be displayed directly within the CLI output.</p>
+<p align="center">
+<img width="100%" src="https://user-images.githubusercontent.com/5457236/150133237-440290c2-3538-4d8e-8eac-4fdd5ec7bd9e.png"/>
+</p>
+
+<p>In addition, if you would like to specify a minimum threshold that your test coverage percentage must meet, you may use the <code>--min</code> option. The test suite will fail if the given minimum threshold is not met:</p>
+<pre><code class="language-shell">php artisan test --coverage --min=80.3
+</code></pre>
+<p align="center">
+<img width="100%" src="https://user-images.githubusercontent.com/5457236/149989853-a29a7629-2bfa-4bf3-bbf7-cdba339ec157.png"/>
+</p>
+
+<p><a name="soketi-echo-server"></a></p>
+<h3 id="soketi-echo-server">Soketi Echo Server</h3>
+<p><em>The Soketi Echo server was developed by <a href="https://github.com/rennokki">Alex Renoki</a></em>.</p>
+<p>Although not exclusive to Laravel 9.x, Laravel has recently assisted with the documentation of Soketi, a <a href="/docs/%7B%7Bversion%7D%7D/broadcasting">Laravel Echo</a> compatible Web Socket server written for Node.js. Soketi provides a great, open source alternative to Pusher and Ably for those applications that prefer to manage their own Web Socket server.</p>
+<p>For more information on using Soketi, please consult the <a href="/docs/%7B%7Bversion%7D%7D/broadcasting">broadcasting documentation</a> and <a href="https://docs.soketi.app/">Soketi documentation</a>.</p>
+<p><a name="improved-collections-ide-support"></a></p>
+<h3 id="improved-collections-ide-support">Improved Collections IDE Support</h3>
+<p><em>Improved collections IDE support was contributed by <a href="https://github.com/nunomaduro">Nuno Maduro</a></em>.</p>
+<p>Laravel 9.x adds improved, &quot;generic&quot; style type definitions to the collections component, improving IDE and static analysis support. IDEs such as <a href="https://blog.jetbrains.com/phpstorm/2021/12/phpstorm-2021-3-release/#support_for_future_laravel_collections">PHPStorm</a> or static analysis tools such as <a href="https://phpstan.org">PHPStan</a> will now better understand Laravel collections natively.</p>
+<p align="center">
+<img width="100%" src="https://user-images.githubusercontent.com/5457236/151783350-ed301660-1e09-44c1-b549-85c6db3f078d.gif"/>
+</p>
+
+<p><a name="new-helpers"></a></p>
+<h3 id="new-helpers">New Helpers</h3>
+<p>Laravel 9.x introduces two new, convenient helper functions that you may use in your own application.</p>
+<p><a name="new-helpers-str"></a></p>
+<h4 id="str"><code>str</code></h4>
+<p>The <code>str</code> function returns a new <code>Illuminate\Support\Stringable</code> instance for the given string. This function is equivalent to the <code>Str::of</code> method:</p>
+<pre><code><span class="hljs-variable">$string</span> = <span class="hljs-title function_ invoke__">str</span>(<span class="hljs-string">&#x27;Taylor&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">append</span>(<span class="hljs-string">&#x27; Otwell&#x27;</span>);
+
+<span class="hljs-comment">// &#x27;Taylor Otwell&#x27;</span>
+</code></pre>
+<p>If no argument is provided to the <code>str</code> function, the function returns an instance of <code>Illuminate\Support\Str</code>:</p>
+<pre><code><span class="hljs-variable">$snake</span> = <span class="hljs-title function_ invoke__">str</span>()-&gt;<span class="hljs-title function_ invoke__">snake</span>(<span class="hljs-string">&#x27;LaravelFramework&#x27;</span>);
+
+<span class="hljs-comment">// &#x27;laravel_framework&#x27;</span>
+</code></pre>
+<p><a name="new-helpers-to-route"></a></p>
+<h4 id="to_route"><code>to_route</code></h4>
+<p>The <code>to_route</code> function generates a redirect HTTP response for a given named route, providing an expressive way to redirect to named routes from your routes and controllers:</p>
+<pre><code><span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">to_route</span>(<span class="hljs-string">&#x27;users.show&#x27;</span>, [<span class="hljs-string">&#x27;user&#x27;</span> =&gt; <span class="hljs-number">1</span>]);
+</code></pre>
+<p>If necessary, you may pass the HTTP status code that should be assigned to the redirect and any additional response headers as the third and fourth arguments to the to_route method:</p>
+<pre><code><span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">to_route</span>(<span class="hljs-string">&#x27;users.show&#x27;</span>, [<span class="hljs-string">&#x27;user&#x27;</span> =&gt; <span class="hljs-number">1</span>], <span class="hljs-number">302</span>, [<span class="hljs-string">&#x27;X-Framework&#x27;</span> =&gt; <span class="hljs-string">&#x27;Laravel&#x27;</span>]);
+</code></pre>
