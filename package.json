@@ -17,6 +17,7 @@
   },
   "keywords": [
     "laravel docs",
+    "laravel documentation",
     "laravel"
   ],
   "preview": true,
@@ -27,8 +28,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onView:docs-list",
-    "onCommand:vscodelaraveldocs.render-html"
+    "onView:docs-list"
   ],
   "main": "./dist/extension.js",
   "contributes": {
