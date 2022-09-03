@@ -147,7 +147,7 @@
     }
 }
 </code></pre>
-<p>Laravel&#39;s session is typically used to maintain state for the currently authenticated user. Therefore, the <code>actingAs</code> helper method provides a simple way to authenticate a given user as the current user. For example, we may use a <a href="/docs/%7B%7Bversion%7D%7D/database-testing#writing-factories">model factory</a> to generate and authenticate a user:</p>
+<p>Laravel&#39;s session is typically used to maintain state for the currently authenticated user. Therefore, the <code>actingAs</code> helper method provides a simple way to authenticate a given user as the current user. For example, we may use a <a href="/docs/%7B%7Bversion%7D%7D/eloquent-factories">model factory</a> to generate and authenticate a user:</p>
 <pre><code><span class="hljs-meta">&lt;?php</span>
 
 <span class="hljs-keyword">namespace</span> <span class="hljs-title class_">Tests</span>\<span class="hljs-title class_">Feature</span>;
@@ -533,7 +533,7 @@
 
 <span class="hljs-variable">$view</span>-&gt;<span class="hljs-title function_ invoke__">assertSee</span>(<span class="hljs-string">&#x27;Taylor&#x27;</span>);
 </code></pre>
-<p>You may use the <code>component</code> method to evaluate and render a <a href="/docs/%7B%7Bversion%7D%7D/blade#components">Blade component</a>. Like the <code>view</code> method, the <code>component</code> method returns an instance of <code>Illuminate\Testing\TestView</code>:</p>
+<p>You may use the <code>component</code> method to evaluate and render a <a href="/docs/%7B%7Bversion%7D%7D/blade#components">Blade component</a>. The <code>component</code> method returns an instance of <code>Illuminate\Testing\TestComponent</code>:</p>
 <pre><code><span class="hljs-variable">$view</span> = <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">component</span>(<span class="hljs-title class_">Profile</span>::<span class="hljs-variable language_">class</span>, [<span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Taylor&#x27;</span>]);
 
 <span class="hljs-variable">$view</span>-&gt;<span class="hljs-title function_ invoke__">assertSee</span>(<span class="hljs-string">&#x27;Taylor&#x27;</span>);
@@ -630,7 +630,7 @@
 </code></pre>
 <p><a name="assert-cookie-missing"></a></p>
 <h4 id="assertcookiemissing">assertCookieMissing</h4>
-<p>Assert that the response does not contains the given cookie:</p>
+<p>Assert that the response does not contain the given cookie:</p>
 <pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertCookieMissing</span>(<span class="hljs-variable">$cookieName</span>);
 </code></pre>
 <p><a name="assert-created"></a></p>
@@ -726,11 +726,11 @@
 <pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJsonPath</span>(<span class="hljs-variable">$path</span>, <span class="hljs-variable">$expectedValue</span>);
 </code></pre>
 <p>For example, if the following JSON response is returned by your application:</p>
-<pre><code class="language-js">{
-    <span class="hljs-string">&quot;user&quot;</span>: {
-        <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;Steve Schoger&quot;</span>
-    }
-}
+<pre><code class="language-json"><span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;user&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Steve Schoger&quot;</span>
+    <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
 </code></pre>
 <p>You may assert that the <code>name</code> property of the <code>user</code> object matches a given value like so:</p>
 <pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJsonPath</span>(<span class="hljs-string">&#x27;user.name&#x27;</span>, <span class="hljs-string">&#x27;Steve Schoger&#x27;</span>);
@@ -741,11 +741,11 @@
 <pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJsonMissingPath</span>(<span class="hljs-variable">$path</span>);
 </code></pre>
 <p>For example, if the following JSON response is returned by your application:</p>
-<pre><code class="language-js">{
-    <span class="hljs-string">&quot;user&quot;</span>: {
-        <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;Steve Schoger&quot;</span>
-    }
-}
+<pre><code class="language-json"><span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;user&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Steve Schoger&quot;</span>
+    <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
 </code></pre>
 <p>You may assert that it does not contain the <code>email</code> property of the <code>user</code> object:</p>
 <pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJsonMissingPath</span>(<span class="hljs-string">&#x27;user.email&#x27;</span>);
@@ -756,11 +756,11 @@
 <pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJsonStructure</span>(<span class="hljs-keyword">array</span> <span class="hljs-variable">$structure</span>);
 </code></pre>
 <p>For example, if the JSON response returned by your application contains the following data:</p>
-<pre><code class="language-js">{
-    <span class="hljs-string">&quot;user&quot;</span>: {
-        <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;Steve Schoger&quot;</span>
-    }
-}
+<pre><code class="language-json"><span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;user&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Steve Schoger&quot;</span>
+    <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
 </code></pre>
 <p>You may assert that the JSON structure matches your expectations like so:</p>
 <pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJsonStructure</span>([
@@ -770,20 +770,20 @@
 ]);
 </code></pre>
 <p>Sometimes, JSON responses returned by your application may contain arrays of objects:</p>
-<pre><code class="language-js">{
-    <span class="hljs-string">&quot;user&quot;</span>: [
-        {
-            <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;Steve Schoger&quot;</span>,
-            <span class="hljs-string">&quot;age&quot;</span>: <span class="hljs-number">55</span>,
-            <span class="hljs-string">&quot;location&quot;</span>: <span class="hljs-string">&quot;Earth&quot;</span>
-        },
-        {
-            <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;Mary Schoger&quot;</span>,
-            <span class="hljs-string">&quot;age&quot;</span>: <span class="hljs-number">60</span>,
-            <span class="hljs-string">&quot;location&quot;</span>: <span class="hljs-string">&quot;Earth&quot;</span>
-        }
-    ]
-}
+<pre><code class="language-json"><span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;user&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+        <span class="hljs-punctuation">{</span>
+            <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Steve Schoger&quot;</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-attr">&quot;age&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">55</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-attr">&quot;location&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Earth&quot;</span>
+        <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-punctuation">{</span>
+            <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Mary Schoger&quot;</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-attr">&quot;age&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">60</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-attr">&quot;location&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Earth&quot;</span>
+        <span class="hljs-punctuation">}</span>
+    <span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">}</span>
 </code></pre>
 <p>In this situation, you may use the <code>*</code> character to assert against the structure of all of the objects in the array:</p>
 <pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJsonStructure</span>([

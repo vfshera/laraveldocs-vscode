@@ -235,6 +235,7 @@
 <a href="#method-fluent-str-when-starts-with">whenStartsWith</a>
 <a href="#method-fluent-str-when-ends-with">whenEndsWith</a>
 <a href="#method-fluent-str-when-exactly">whenExactly</a>
+<a href="#method-fluent-str-when-not-exactly">whenNotExactly</a>
 <a href="#method-fluent-str-when-is">whenIs</a>
 <a href="#method-fluent-str-when-is-ascii">whenIsAscii</a>
 <a href="#method-fluent-str-when-is-uuid">whenIsUuid</a>
@@ -559,11 +560,11 @@
 <p>The <code>Arr::isList</code> method returns <code>true</code> if the given array&#39;s keys are sequential integers beginning from zero:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Arr</span>;
 
-<span class="hljs-variable">$isAssoc</span> = <span class="hljs-title class_">Arr</span>::<span class="hljs-title function_ invoke__">isList</span>([<span class="hljs-string">&#x27;foo&#x27;</span>, <span class="hljs-string">&#x27;bar&#x27;</span>, <span class="hljs-string">&#x27;baz&#x27;</span>]);
+<span class="hljs-variable">$isList</span> = <span class="hljs-title class_">Arr</span>::<span class="hljs-title function_ invoke__">isList</span>([<span class="hljs-string">&#x27;foo&#x27;</span>, <span class="hljs-string">&#x27;bar&#x27;</span>, <span class="hljs-string">&#x27;baz&#x27;</span>]);
 
 <span class="hljs-comment">// true</span>
 
-<span class="hljs-variable">$isAssoc</span> = <span class="hljs-title class_">Arr</span>::<span class="hljs-title function_ invoke__">isList</span>([<span class="hljs-string">&#x27;product&#x27;</span> =&gt; [<span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Desk&#x27;</span>, <span class="hljs-string">&#x27;price&#x27;</span> =&gt; <span class="hljs-number">100</span>]]);
+<span class="hljs-variable">$isList</span> = <span class="hljs-title class_">Arr</span>::<span class="hljs-title function_ invoke__">isList</span>([<span class="hljs-string">&#x27;product&#x27;</span> =&gt; [<span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Desk&#x27;</span>, <span class="hljs-string">&#x27;price&#x27;</span> =&gt; <span class="hljs-number">100</span>]]);
 
 <span class="hljs-comment">// false</span>
 </code></pre>
@@ -2708,6 +2709,17 @@
 });
 
 <span class="hljs-comment">// &#x27;Laravel&#x27;</span>
+</code></pre>
+<p><a name="method-fluent-str-when-not-exactly"></a></p>
+<h4 id="whennotexactly-collection-method"><code>whenNotExactly</code> {.collection-method}</h4>
+<p>The <code>whenNotExactly</code> method invokes the given closure if the string does not exactly match the given string. The closure will receive the fluent string instance:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;framework&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">whenNotExactly</span>(<span class="hljs-string">&#x27;laravel&#x27;</span>, function (<span class="hljs-variable">$string</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$string</span>-&gt;<span class="hljs-title function_ invoke__">title</span>();
+});
+
+<span class="hljs-comment">// &#x27;Framework&#x27;</span>
 </code></pre>
 <p><a name="method-fluent-str-when-is"></a></p>
 <h4 id="whenis-collection-method"><code>whenIs</code> {.collection-method}</h4>

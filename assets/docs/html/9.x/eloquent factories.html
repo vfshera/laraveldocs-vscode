@@ -1,0 +1,425 @@
+<h1 id="eloquent-factories">Eloquent: Factories</h1>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#defining-model-factories">Defining Model Factories</a><ul>
+<li><a href="#generating-factories">Generating Factories</a></li>
+<li><a href="#factory-states">Factory States</a></li>
+<li><a href="#factory-callbacks">Factory Callbacks</a></li>
+</ul>
+</li>
+<li><a href="#creating-models-using-factories">Creating Models Using Factories</a><ul>
+<li><a href="#instantiating-models">Instantiating Models</a></li>
+<li><a href="#persisting-models">Persisting Models</a></li>
+<li><a href="#sequences">Sequences</a></li>
+</ul>
+</li>
+<li><a href="#factory-relationships">Factory Relationships</a><ul>
+<li><a href="#has-many-relationships">Has Many Relationships</a></li>
+<li><a href="#belongs-to-relationships">Belongs To Relationships</a></li>
+<li><a href="#many-to-many-relationships">Many To Many Relationships</a></li>
+<li><a href="#polymorphic-relationships">Polymorphic Relationships</a></li>
+<li><a href="#defining-relationships-within-factories">Defining Relationships Within Factories</a></li>
+</ul>
+</li>
+</ul>
+<p><a name="introduction"></a></p>
+<h2 id="introduction">Introduction</h2>
+<p>When testing your application or seeding your database, you may need to insert a few records into your database. Instead of manually specifying the value of each column, Laravel allows you to define a set of default attributes for each of your <a href="/docs/%7B%7Bversion%7D%7D/eloquent">Eloquent models</a> using model factories.</p>
+<p>To see an example of how to write a factory, take a look at the <code>database/factories/UserFactory.php</code> file in your application. This factory is included with all new Laravel applications and contains the following factory definition:</p>
+<pre><code><span class="hljs-keyword">namespace</span> <span class="hljs-title class_">Database</span>\<span class="hljs-title class_">Factories</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Factories</span>\<span class="hljs-title">Factory</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserFactory</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Factory</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Define the model&#x27;s default state.
+     *
+     * <span class="hljs-doctag">@return</span> array
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">definition</span>(<span class="hljs-params"></span>)
+    </span>{
+        <span class="hljs-keyword">return</span> [
+            <span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">fake</span>()-&gt;<span class="hljs-title function_ invoke__">name</span>(),
+            <span class="hljs-string">&#x27;email&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">fake</span>()-&gt;<span class="hljs-title function_ invoke__">unique</span>()-&gt;<span class="hljs-title function_ invoke__">safeEmail</span>(),
+            <span class="hljs-string">&#x27;email_verified_at&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">now</span>(),
+            <span class="hljs-string">&#x27;password&#x27;</span> =&gt; <span class="hljs-string">&#x27;$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi&#x27;</span>, <span class="hljs-comment">// password</span>
+            <span class="hljs-string">&#x27;remember_token&#x27;</span> =&gt; <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">random</span>(<span class="hljs-number">10</span>),
+        ];
+    }
+}
+</code></pre>
+<p>As you can see, in their most basic form, factories are classes that extend Laravel&#39;s base factory class and define a <code>definition</code> method. The <code>definition</code> method returns the default set of attribute values that should be applied when creating a model using the factory.</p>
+<p>Via the <code>fake</code> helper, factories have access to the <a href="https://github.com/FakerPHP/Faker">Faker</a> PHP library, which allows you to conveniently generate various kinds of random data for testing and seeding.</p>
+<blockquote>
+<p><strong>Note</strong><br>You can set your application&#39;s Faker locale by adding a <code>faker_locale</code> option to your <code>config/app.php</code> configuration file.</p>
+</blockquote>
+<p><a name="defining-model-factories"></a></p>
+<h2 id="defining-model-factories">Defining Model Factories</h2>
+<p><a name="generating-factories"></a></p>
+<h3 id="generating-factories">Generating Factories</h3>
+<p>To create a factory, execute the <code>make:factory</code> <a href="/docs/%7B%7Bversion%7D%7D/artisan">Artisan command</a>:</p>
+<pre><code class="language-shell">php artisan make:factory PostFactory
+</code></pre>
+<p>The new factory class will be placed in your <code>database/factories</code> directory.</p>
+<p><a name="factory-and-model-discovery-conventions"></a></p>
+<h4 id="model--factory-discovery-conventions">Model &amp; Factory Discovery Conventions</h4>
+<p>Once you have defined your factories, you may use the static <code>factory</code> method provided to your models by the <code>Illuminate\Database\Eloquent\Factories\HasFactory</code> trait in order to instantiate a factory instance for that model.</p>
+<p>The <code>HasFactory</code> trait&#39;s <code>factory</code> method will use conventions to determine the proper factory for the model the trait is assigned to. Specifically, the method will look for a factory in the <code>Database\Factories</code> namespace that has a class name matching the model name and is suffixed with <code>Factory</code>. If these conventions do not apply to your particular application or factory, you may overwrite the <code>newFactory</code> method on your model to return an instance of the model&#39;s corresponding factory directly:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Database</span>\<span class="hljs-title">Factories</span>\<span class="hljs-title">Administration</span>\<span class="hljs-title">FlightFactory</span>;
+
+<span class="hljs-comment">/**
+ * Create a new factory instance for the model.
+ *
+ * <span class="hljs-doctag">@return</span> \Illuminate\Database\Eloquent\Factories\Factory
+ */</span>
+<span class="hljs-keyword">protected</span> <span class="hljs-built_in">static</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">newFactory</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-title class_">FlightFactory</span>::<span class="hljs-keyword">new</span>();
+}
+</code></pre>
+<p>Next, define a <code>model</code> property on the corresponding factory:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Administration</span>\<span class="hljs-title">Flight</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Factories</span>\<span class="hljs-title">Factory</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">FlightFactory</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Factory</span>
+</span>{
+    <span class="hljs-comment">/**
+     * The name of the factory&#x27;s corresponding model.
+     *
+     * <span class="hljs-doctag">@var</span> string
+     */</span>
+    <span class="hljs-keyword">protected</span> <span class="hljs-variable">$model</span> = <span class="hljs-title class_">Flight</span>::<span class="hljs-variable language_">class</span>;
+}
+</code></pre>
+<p><a name="factory-states"></a></p>
+<h3 id="factory-states">Factory States</h3>
+<p>State manipulation methods allow you to define discrete modifications that can be applied to your model factories in any combination. For example, your <code>Database\Factories\UserFactory</code> factory might contain a <code>suspended</code> state method that modifies one of its default attribute values.</p>
+<p>State transformation methods typically call the <code>state</code> method provided by Laravel&#39;s base factory class. The <code>state</code> method accepts a closure which will receive the array of raw attributes defined for the factory and should return an array of attributes to modify:</p>
+<pre><code><span class="hljs-comment">/**
+ * Indicate that the user is suspended.
+ *
+ * <span class="hljs-doctag">@return</span> \Illuminate\Database\Eloquent\Factories\Factory
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">suspended</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">state</span>(function (<span class="hljs-keyword">array</span> <span class="hljs-variable">$attributes</span>) {
+        <span class="hljs-keyword">return</span> [
+            <span class="hljs-string">&#x27;account_status&#x27;</span> =&gt; <span class="hljs-string">&#x27;suspended&#x27;</span>,
+        ];
+    });
+}
+</code></pre>
+<h4 id="trashed-state">&quot;Trashed&quot; State</h4>
+<p>If your Eloquent model can be <a href="/docs/%7B%7Bversion%7D%7D/eloquent#soft-deleting">soft deleted</a>, you may invoke the built-in <code>trashed</code> state method to indicate that the created model should already be &quot;soft deleted&quot;. You do not need to manually define the <code>trashed</code> state as it is automatically available to all factories:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+
+<span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()-&gt;<span class="hljs-title function_ invoke__">trashed</span>()-&gt;<span class="hljs-title function_ invoke__">create</span>();
+</code></pre>
+<p><a name="factory-callbacks"></a></p>
+<h3 id="factory-callbacks">Factory Callbacks</h3>
+<p>Factory callbacks are registered using the <code>afterMaking</code> and <code>afterCreating</code> methods and allow you to perform additional tasks after making or creating a model. You should register these callbacks by defining a <code>configure</code> method on your factory class. This method will be automatically called by Laravel when the factory is instantiated:</p>
+<pre><code><span class="hljs-keyword">namespace</span> <span class="hljs-title class_">Database</span>\<span class="hljs-title class_">Factories</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Factories</span>\<span class="hljs-title">Factory</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserFactory</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Factory</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Configure the model factory.
+     *
+     * <span class="hljs-doctag">@return</span> $this
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">configure</span>(<span class="hljs-params"></span>)
+    </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">afterMaking</span>(function (User <span class="hljs-variable">$user</span>) {
+            <span class="hljs-comment">//</span>
+        })-&gt;<span class="hljs-title function_ invoke__">afterCreating</span>(function (User <span class="hljs-variable">$user</span>) {
+            <span class="hljs-comment">//</span>
+        });
+    }
+
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p><a name="creating-models-using-factories"></a></p>
+<h2 id="creating-models-using-factories">Creating Models Using Factories</h2>
+<p><a name="instantiating-models"></a></p>
+<h3 id="instantiating-models">Instantiating Models</h3>
+<p>Once you have defined your factories, you may use the static <code>factory</code> method provided to your models by the <code>Illuminate\Database\Eloquent\Factories\HasFactory</code> trait in order to instantiate a factory instance for that model. Let&#39;s take a look at a few examples of creating models. First, we&#39;ll use the <code>make</code> method to create models without persisting them to the database:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+
+<span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()-&gt;<span class="hljs-title function_ invoke__">make</span>();
+</code></pre>
+<p>You may create a collection of many models using the <code>count</code> method:</p>
+<pre><code><span class="hljs-variable">$users</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()-&gt;<span class="hljs-title function_ invoke__">count</span>(<span class="hljs-number">3</span>)-&gt;<span class="hljs-title function_ invoke__">make</span>();
+</code></pre>
+<p><a name="applying-states"></a></p>
+<h4 id="applying-states">Applying States</h4>
+<p>You may also apply any of your <a href="#factory-states">states</a> to the models. If you would like to apply multiple state transformations to the models, you may simply call the state transformation methods directly:</p>
+<pre><code><span class="hljs-variable">$users</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()-&gt;<span class="hljs-title function_ invoke__">count</span>(<span class="hljs-number">5</span>)-&gt;<span class="hljs-title function_ invoke__">suspended</span>()-&gt;<span class="hljs-title function_ invoke__">make</span>();
+</code></pre>
+<p><a name="overriding-attributes"></a></p>
+<h4 id="overriding-attributes">Overriding Attributes</h4>
+<p>If you would like to override some of the default values of your models, you may pass an array of values to the <code>make</code> method. Only the specified attributes will be replaced while the rest of the attributes remain set to their default values as specified by the factory:</p>
+<pre><code><span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()-&gt;<span class="hljs-title function_ invoke__">make</span>([
+    <span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Abigail Otwell&#x27;</span>,
+]);
+</code></pre>
+<p>Alternatively, the <code>state</code> method may be called directly on the factory instance to perform an inline state transformation:</p>
+<pre><code><span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()-&gt;<span class="hljs-title function_ invoke__">state</span>([
+    <span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Abigail Otwell&#x27;</span>,
+])-&gt;<span class="hljs-title function_ invoke__">make</span>();
+</code></pre>
+<blockquote>
+<p><strong>Note</strong><br><a href="/docs/%7B%7Bversion%7D%7D/eloquent#mass-assignment">Mass assignment protection</a> is automatically disabled when creating models using factories.</p>
+</blockquote>
+<p><a name="persisting-models"></a></p>
+<h3 id="persisting-models">Persisting Models</h3>
+<p>The <code>create</code> method instantiates model instances and persists them to the database using Eloquent&#39;s <code>save</code> method:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+
+<span class="hljs-comment">// Create a single App\Models\User instance...</span>
+<span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()-&gt;<span class="hljs-title function_ invoke__">create</span>();
+
+<span class="hljs-comment">// Create three App\Models\User instances...</span>
+<span class="hljs-variable">$users</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()-&gt;<span class="hljs-title function_ invoke__">count</span>(<span class="hljs-number">3</span>)-&gt;<span class="hljs-title function_ invoke__">create</span>();
+</code></pre>
+<p>You may override the factory&#39;s default model attributes by passing an array of attributes to the <code>create</code> method:</p>
+<pre><code><span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()-&gt;<span class="hljs-title function_ invoke__">create</span>([
+    <span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Abigail&#x27;</span>,
+]);
+</code></pre>
+<p><a name="sequences"></a></p>
+<h3 id="sequences">Sequences</h3>
+<p>Sometimes you may wish to alternate the value of a given model attribute for each created model. You may accomplish this by defining a state transformation as a sequence. For example, you may wish to alternate the value of an <code>admin</code> column between <code>Y</code> and <code>N</code> for each created user:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Factories</span>\<span class="hljs-title">Sequence</span>;
+
+<span class="hljs-variable">$users</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()
+                -&gt;<span class="hljs-title function_ invoke__">count</span>(<span class="hljs-number">10</span>)
+                -&gt;<span class="hljs-title function_ invoke__">state</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Sequence</span>(
+                    [<span class="hljs-string">&#x27;admin&#x27;</span> =&gt; <span class="hljs-string">&#x27;Y&#x27;</span>],
+                    [<span class="hljs-string">&#x27;admin&#x27;</span> =&gt; <span class="hljs-string">&#x27;N&#x27;</span>],
+                ))
+                -&gt;<span class="hljs-title function_ invoke__">create</span>();
+</code></pre>
+<p>In this example, five users will be created with an <code>admin</code> value of <code>Y</code> and five users will be created with an <code>admin</code> value of <code>N</code>.</p>
+<p>If necessary, you may include a closure as a sequence value. The closure will be invoked each time the sequence needs a new value:</p>
+<pre><code><span class="hljs-variable">$users</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()
+                -&gt;<span class="hljs-title function_ invoke__">count</span>(<span class="hljs-number">10</span>)
+                -&gt;<span class="hljs-title function_ invoke__">state</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Sequence</span>(
+                    fn (<span class="hljs-variable">$sequence</span>) =&gt; [<span class="hljs-string">&#x27;role&#x27;</span> =&gt; <span class="hljs-title class_">UserRoles</span>::<span class="hljs-title function_ invoke__">all</span>()-&gt;<span class="hljs-title function_ invoke__">random</span>()],
+                ))
+                -&gt;<span class="hljs-title function_ invoke__">create</span>();
+</code></pre>
+<p>Within a sequence closure, you may access the <code>$index</code> or <code>$count</code> properties on the sequence instance that is injected into the closure. The <code>$index</code> property contains the number of iterations through the sequence that have occurred thus far, while the <code>$count</code> property contains the total number of times the sequence will be invoked:</p>
+<pre><code><span class="hljs-variable">$users</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()
+                -&gt;<span class="hljs-title function_ invoke__">count</span>(<span class="hljs-number">10</span>)
+                -&gt;<span class="hljs-title function_ invoke__">sequence</span>(fn (<span class="hljs-variable">$sequence</span>) =&gt; [<span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Name &#x27;</span>.<span class="hljs-variable">$sequence</span>-&gt;index])
+                -&gt;<span class="hljs-title function_ invoke__">create</span>();
+</code></pre>
+<p><a name="factory-relationships"></a></p>
+<h2 id="factory-relationships">Factory Relationships</h2>
+<p><a name="has-many-relationships"></a></p>
+<h3 id="has-many-relationships">Has Many Relationships</h3>
+<p>Next, let&#39;s explore building Eloquent model relationships using Laravel&#39;s fluent factory methods. First, let&#39;s assume our application has an <code>App\Models\User</code> model and an <code>App\Models\Post</code> model. Also, let&#39;s assume that the <code>User</code> model defines a <code>hasMany</code> relationship with <code>Post</code>. We can create a user that has three posts using the <code>has</code> method provided by the Laravel&#39;s factories. The <code>has</code> method accepts a factory instance:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Post</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+
+<span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()
+            -&gt;<span class="hljs-title function_ invoke__">has</span>(<span class="hljs-title class_">Post</span>::<span class="hljs-title function_ invoke__">factory</span>()-&gt;<span class="hljs-title function_ invoke__">count</span>(<span class="hljs-number">3</span>))
+            -&gt;<span class="hljs-title function_ invoke__">create</span>();
+</code></pre>
+<p>By convention, when passing a <code>Post</code> model to the <code>has</code> method, Laravel will assume that the <code>User</code> model must have a <code>posts</code> method that defines the relationship. If necessary, you may explicitly specify the name of the relationship that you would like to manipulate:</p>
+<pre><code><span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()
+            -&gt;<span class="hljs-title function_ invoke__">has</span>(<span class="hljs-title class_">Post</span>::<span class="hljs-title function_ invoke__">factory</span>()-&gt;<span class="hljs-title function_ invoke__">count</span>(<span class="hljs-number">3</span>), <span class="hljs-string">&#x27;posts&#x27;</span>)
+            -&gt;<span class="hljs-title function_ invoke__">create</span>();
+</code></pre>
+<p>Of course, you may perform state manipulations on the related models. In addition, you may pass a closure based state transformation if your state change requires access to the parent model:</p>
+<pre><code><span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()
+            -&gt;<span class="hljs-title function_ invoke__">has</span>(
+                <span class="hljs-title class_">Post</span>::<span class="hljs-title function_ invoke__">factory</span>()
+                        -&gt;<span class="hljs-title function_ invoke__">count</span>(<span class="hljs-number">3</span>)
+                        -&gt;<span class="hljs-title function_ invoke__">state</span>(function (<span class="hljs-keyword">array</span> <span class="hljs-variable">$attributes</span>, User <span class="hljs-variable">$user</span>) {
+                            <span class="hljs-keyword">return</span> [<span class="hljs-string">&#x27;user_type&#x27;</span> =&gt; <span class="hljs-variable">$user</span>-&gt;type];
+                        })
+            )
+            -&gt;<span class="hljs-title function_ invoke__">create</span>();
+</code></pre>
+<p><a name="has-many-relationships-using-magic-methods"></a></p>
+<h4 id="using-magic-methods">Using Magic Methods</h4>
+<p>For convenience, you may use Laravel&#39;s magic factory relationship methods to build relationships. For example, the following example will use convention to determine that the related models should be created via a <code>posts</code> relationship method on the <code>User</code> model:</p>
+<pre><code><span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()
+            -&gt;<span class="hljs-title function_ invoke__">hasPosts</span>(<span class="hljs-number">3</span>)
+            -&gt;<span class="hljs-title function_ invoke__">create</span>();
+</code></pre>
+<p>When using magic methods to create factory relationships, you may pass an array of attributes to override on the related models:</p>
+<pre><code><span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()
+            -&gt;<span class="hljs-title function_ invoke__">hasPosts</span>(<span class="hljs-number">3</span>, [
+                <span class="hljs-string">&#x27;published&#x27;</span> =&gt; <span class="hljs-literal">false</span>,
+            ])
+            -&gt;<span class="hljs-title function_ invoke__">create</span>();
+</code></pre>
+<p>You may provide a closure based state transformation if your state change requires access to the parent model:</p>
+<pre><code><span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()
+            -&gt;<span class="hljs-title function_ invoke__">hasPosts</span>(<span class="hljs-number">3</span>, function (<span class="hljs-keyword">array</span> <span class="hljs-variable">$attributes</span>, User <span class="hljs-variable">$user</span>) {
+                <span class="hljs-keyword">return</span> [<span class="hljs-string">&#x27;user_type&#x27;</span> =&gt; <span class="hljs-variable">$user</span>-&gt;type];
+            })
+            -&gt;<span class="hljs-title function_ invoke__">create</span>();
+</code></pre>
+<p><a name="belongs-to-relationships"></a></p>
+<h3 id="belongs-to-relationships">Belongs To Relationships</h3>
+<p>Now that we have explored how to build &quot;has many&quot; relationships using factories, let&#39;s explore the inverse of the relationship. The <code>for</code> method may be used to define the parent model that factory created models belong to. For example, we can create three <code>App\Models\Post</code> model instances that belong to a single user:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Post</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+
+<span class="hljs-variable">$posts</span> = <span class="hljs-title class_">Post</span>::<span class="hljs-title function_ invoke__">factory</span>()
+            -&gt;<span class="hljs-title function_ invoke__">count</span>(<span class="hljs-number">3</span>)
+            -&gt;<span class="hljs-keyword">for</span>(<span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()-&gt;<span class="hljs-title function_ invoke__">state</span>([
+                <span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Jessica Archer&#x27;</span>,
+            ]))
+            -&gt;<span class="hljs-title function_ invoke__">create</span>();
+</code></pre>
+<p>If you already have a parent model instance that should be associated with the models you are creating, you may pass the model instance to the <code>for</code> method:</p>
+<pre><code><span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()-&gt;<span class="hljs-title function_ invoke__">create</span>();
+
+<span class="hljs-variable">$posts</span> = <span class="hljs-title class_">Post</span>::<span class="hljs-title function_ invoke__">factory</span>()
+            -&gt;<span class="hljs-title function_ invoke__">count</span>(<span class="hljs-number">3</span>)
+            -&gt;<span class="hljs-keyword">for</span>(<span class="hljs-variable">$user</span>)
+            -&gt;<span class="hljs-title function_ invoke__">create</span>();
+</code></pre>
+<p><a name="belongs-to-relationships-using-magic-methods"></a></p>
+<h4 id="using-magic-methods-1">Using Magic Methods</h4>
+<p>For convenience, you may use Laravel&#39;s magic factory relationship methods to define &quot;belongs to&quot; relationships. For example, the following example will use convention to determine that the three posts should belong to the <code>user</code> relationship on the <code>Post</code> model:</p>
+<pre><code><span class="hljs-variable">$posts</span> = <span class="hljs-title class_">Post</span>::<span class="hljs-title function_ invoke__">factory</span>()
+            -&gt;<span class="hljs-title function_ invoke__">count</span>(<span class="hljs-number">3</span>)
+            -&gt;<span class="hljs-title function_ invoke__">forUser</span>([
+                <span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Jessica Archer&#x27;</span>,
+            ])
+            -&gt;<span class="hljs-title function_ invoke__">create</span>();
+</code></pre>
+<p><a name="many-to-many-relationships"></a></p>
+<h3 id="many-to-many-relationships">Many To Many Relationships</h3>
+<p>Like <a href="#has-many-relationships">has many relationships</a>, &quot;many to many&quot; relationships may be created using the <code>has</code> method:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Role</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+
+<span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()
+            -&gt;<span class="hljs-title function_ invoke__">has</span>(<span class="hljs-title class_">Role</span>::<span class="hljs-title function_ invoke__">factory</span>()-&gt;<span class="hljs-title function_ invoke__">count</span>(<span class="hljs-number">3</span>))
+            -&gt;<span class="hljs-title function_ invoke__">create</span>();
+</code></pre>
+<p><a name="pivot-table-attributes"></a></p>
+<h4 id="pivot-table-attributes">Pivot Table Attributes</h4>
+<p>If you need to define attributes that should be set on the pivot / intermediate table linking the models, you may use the <code>hasAttached</code> method. This method accepts an array of pivot table attribute names and values as its second argument:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Role</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+
+<span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()
+            -&gt;<span class="hljs-title function_ invoke__">hasAttached</span>(
+                <span class="hljs-title class_">Role</span>::<span class="hljs-title function_ invoke__">factory</span>()-&gt;<span class="hljs-title function_ invoke__">count</span>(<span class="hljs-number">3</span>),
+                [<span class="hljs-string">&#x27;active&#x27;</span> =&gt; <span class="hljs-literal">true</span>]
+            )
+            -&gt;<span class="hljs-title function_ invoke__">create</span>();
+</code></pre>
+<p>You may provide a closure based state transformation if your state change requires access to the related model:</p>
+<pre><code><span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()
+            -&gt;<span class="hljs-title function_ invoke__">hasAttached</span>(
+                <span class="hljs-title class_">Role</span>::<span class="hljs-title function_ invoke__">factory</span>()
+                    -&gt;<span class="hljs-title function_ invoke__">count</span>(<span class="hljs-number">3</span>)
+                    -&gt;<span class="hljs-title function_ invoke__">state</span>(function (<span class="hljs-keyword">array</span> <span class="hljs-variable">$attributes</span>, User <span class="hljs-variable">$user</span>) {
+                        <span class="hljs-keyword">return</span> [<span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-variable">$user</span>-&gt;name.<span class="hljs-string">&#x27; Role&#x27;</span>];
+                    }),
+                [<span class="hljs-string">&#x27;active&#x27;</span> =&gt; <span class="hljs-literal">true</span>]
+            )
+            -&gt;<span class="hljs-title function_ invoke__">create</span>();
+</code></pre>
+<p>If you already have model instances that you would like to be attached to the models you are creating, you may pass the model instances to the <code>hasAttached</code> method. In this example, the same three roles will be attached to all three users:</p>
+<pre><code><span class="hljs-variable">$roles</span> = <span class="hljs-title class_">Role</span>::<span class="hljs-title function_ invoke__">factory</span>()-&gt;<span class="hljs-title function_ invoke__">count</span>(<span class="hljs-number">3</span>)-&gt;<span class="hljs-title function_ invoke__">create</span>();
+
+<span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()
+            -&gt;<span class="hljs-title function_ invoke__">count</span>(<span class="hljs-number">3</span>)
+            -&gt;<span class="hljs-title function_ invoke__">hasAttached</span>(<span class="hljs-variable">$roles</span>, [<span class="hljs-string">&#x27;active&#x27;</span> =&gt; <span class="hljs-literal">true</span>])
+            -&gt;<span class="hljs-title function_ invoke__">create</span>();
+</code></pre>
+<p><a name="many-to-many-relationships-using-magic-methods"></a></p>
+<h4 id="using-magic-methods-2">Using Magic Methods</h4>
+<p>For convenience, you may use Laravel&#39;s magic factory relationship methods to define many to many relationships. For example, the following example will use convention to determine that the related models should be created via a <code>roles</code> relationship method on the <code>User</code> model:</p>
+<pre><code><span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()
+            -&gt;<span class="hljs-title function_ invoke__">hasRoles</span>(<span class="hljs-number">1</span>, [
+                <span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Editor&#x27;</span>
+            ])
+            -&gt;<span class="hljs-title function_ invoke__">create</span>();
+</code></pre>
+<p><a name="polymorphic-relationships"></a></p>
+<h3 id="polymorphic-relationships">Polymorphic Relationships</h3>
+<p><a href="/docs/%7B%7Bversion%7D%7D/eloquent-relationships#polymorphic-relationships">Polymorphic relationships</a> may also be created using factories. Polymorphic &quot;morph many&quot; relationships are created in the same way as typical &quot;has many&quot; relationships. For example, if a <code>App\Models\Post</code> model has a <code>morphMany</code> relationship with a <code>App\Models\Comment</code> model:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Post</span>;
+
+<span class="hljs-variable">$post</span> = <span class="hljs-title class_">Post</span>::<span class="hljs-title function_ invoke__">factory</span>()-&gt;<span class="hljs-title function_ invoke__">hasComments</span>(<span class="hljs-number">3</span>)-&gt;<span class="hljs-title function_ invoke__">create</span>();
+</code></pre>
+<p><a name="morph-to-relationships"></a></p>
+<h4 id="morph-to-relationships">Morph To Relationships</h4>
+<p>Magic methods may not be used to create <code>morphTo</code> relationships. Instead, the <code>for</code> method must be used directly and the name of the relationship must be explicitly provided. For example, imagine that the <code>Comment</code> model has a <code>commentable</code> method that defines a <code>morphTo</code> relationship. In this situation, we may create three comments that belong to a single post by using the <code>for</code> method directly:</p>
+<pre><code><span class="hljs-variable">$comments</span> = <span class="hljs-title class_">Comment</span>::<span class="hljs-title function_ invoke__">factory</span>()-&gt;<span class="hljs-title function_ invoke__">count</span>(<span class="hljs-number">3</span>)-&gt;<span class="hljs-keyword">for</span>(
+    <span class="hljs-title class_">Post</span>::<span class="hljs-title function_ invoke__">factory</span>(), <span class="hljs-string">&#x27;commentable&#x27;</span>
+)-&gt;<span class="hljs-title function_ invoke__">create</span>();
+</code></pre>
+<p><a name="polymorphic-many-to-many-relationships"></a></p>
+<h4 id="polymorphic-many-to-many-relationships">Polymorphic Many To Many Relationships</h4>
+<p>Polymorphic &quot;many to many&quot; (<code>morphToMany</code> / <code>morphedByMany</code>) relationships may be created just like non-polymorphic &quot;many to many&quot; relationships:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Tag</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Video</span>;
+
+<span class="hljs-variable">$videos</span> = <span class="hljs-title class_">Video</span>::<span class="hljs-title function_ invoke__">factory</span>()
+            -&gt;<span class="hljs-title function_ invoke__">hasAttached</span>(
+                <span class="hljs-title class_">Tag</span>::<span class="hljs-title function_ invoke__">factory</span>()-&gt;<span class="hljs-title function_ invoke__">count</span>(<span class="hljs-number">3</span>),
+                [<span class="hljs-string">&#x27;public&#x27;</span> =&gt; <span class="hljs-literal">true</span>]
+            )
+            -&gt;<span class="hljs-title function_ invoke__">create</span>();
+</code></pre>
+<p>Of course, the magic <code>has</code> method may also be used to create polymorphic &quot;many to many&quot; relationships:</p>
+<pre><code><span class="hljs-variable">$videos</span> = <span class="hljs-title class_">Video</span>::<span class="hljs-title function_ invoke__">factory</span>()
+            -&gt;<span class="hljs-title function_ invoke__">hasTags</span>(<span class="hljs-number">3</span>, [<span class="hljs-string">&#x27;public&#x27;</span> =&gt; <span class="hljs-literal">true</span>])
+            -&gt;<span class="hljs-title function_ invoke__">create</span>();
+</code></pre>
+<p><a name="defining-relationships-within-factories"></a></p>
+<h3 id="defining-relationships-within-factories">Defining Relationships Within Factories</h3>
+<p>To define a relationship within your model factory, you will typically assign a new factory instance to the foreign key of the relationship. This is normally done for the &quot;inverse&quot; relationships such as <code>belongsTo</code> and <code>morphTo</code> relationships. For example, if you would like to create a new user when creating a post, you may do the following:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+
+<span class="hljs-comment">/**
+ * Define the model&#x27;s default state.
+ *
+ * <span class="hljs-doctag">@return</span> array
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">definition</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-keyword">return</span> [
+        <span class="hljs-string">&#x27;user_id&#x27;</span> =&gt; <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>(),
+        <span class="hljs-string">&#x27;title&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">fake</span>()-&gt;<span class="hljs-title function_ invoke__">title</span>(),
+        <span class="hljs-string">&#x27;content&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">fake</span>()-&gt;<span class="hljs-title function_ invoke__">paragraph</span>(),
+    ];
+}
+</code></pre>
+<p>If the relationship&#39;s columns depend on the factory that defines it you may assign a closure to an attribute. The closure will receive the factory&#39;s evaluated attribute array:</p>
+<pre><code><span class="hljs-comment">/**
+ * Define the model&#x27;s default state.
+ *
+ * <span class="hljs-doctag">@return</span> array
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">definition</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-keyword">return</span> [
+        <span class="hljs-string">&#x27;user_id&#x27;</span> =&gt; <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>(),
+        <span class="hljs-string">&#x27;user_type&#x27;</span> =&gt; <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"><span class="hljs-keyword">array</span> <span class="hljs-variable">$attributes</span></span>) </span>{
+            <span class="hljs-keyword">return</span> <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-variable">$attributes</span>[<span class="hljs-string">&#x27;user_id&#x27;</span>])-&gt;type;
+        },
+        <span class="hljs-string">&#x27;title&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">fake</span>()-&gt;<span class="hljs-title function_ invoke__">title</span>(),
+        <span class="hljs-string">&#x27;content&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">fake</span>()-&gt;<span class="hljs-title function_ invoke__">paragraph</span>(),
+    ];
+}
+</code></pre>

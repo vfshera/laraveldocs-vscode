@@ -73,7 +73,7 @@
 <blockquote>
 <p><strong>Warning</strong><br>If you are manually registering Dusk&#39;s service provider, you should <strong>never</strong> register it in your production environment, as doing so could lead to arbitrary users being able to authenticate with your application.</p>
 </blockquote>
-<p>After installing the Dusk package, execute the <code>dusk:install</code> Artisan command. The <code>dusk:install</code> command will create a <code>tests/Browser</code> directory and an example Dusk test:</p>
+<p>After installing the Dusk package, execute the <code>dusk:install</code> Artisan command. The <code>dusk:install</code> command will create a <code>tests/Browser</code> directory, an example Dusk test, and install the Chrome Driver binary for your operation system:</p>
 <pre><code class="language-shell">php artisan dusk:install
 </code></pre>
 <p>Next, set the <code>APP_URL</code> environment variable in your application&#39;s <code>.env</code> file. This value should match the URL you use to access your application in a browser.</p>
@@ -82,7 +82,7 @@
 </blockquote>
 <p><a name="managing-chromedriver-installations"></a></p>
 <h3 id="managing-chromedriver-installations">Managing ChromeDriver Installations</h3>
-<p>If you would like to install a different version of ChromeDriver than what is included with Laravel Dusk, you may use the <code>dusk:chrome-driver</code> command:</p>
+<p>If you would like to install a different version of ChromeDriver than what is installed by Laravel Dusk via the <code>dusk:install</code> command, you may use the <code>dusk:chrome-driver</code> command:</p>
 <pre><code class="language-shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">Install the latest version of ChromeDriver <span class="hljs-keyword">for</span> your OS...</span>
 php artisan dusk:chrome-driver
 <span class="hljs-meta prompt_">
@@ -488,7 +488,7 @@ php artisan dusk:chrome-driver --detect
 <p>The <code>press</code> method may be used to click a button element on the page. The argument given to the <code>press</code> method may be either the display text of the button or a CSS / Dusk selector:</p>
 <pre><code><span class="hljs-variable">$browser</span>-&gt;<span class="hljs-title function_ invoke__">press</span>(<span class="hljs-string">&#x27;Login&#x27;</span>);
 </code></pre>
-<p>When submitting forms, many application&#39;s disable the form&#39;s submission button after it is pressed and then re-enable the button when the form submission&#39;s HTTP request is complete. To press a button and wait for the button to be re-enabled, you may use the <code>pressAndWaitFor</code> method:</p>
+<p>When submitting forms, many applications disable the form&#39;s submission button after it is pressed and then re-enable the button when the form submission&#39;s HTTP request is complete. To press a button and wait for the button to be re-enabled, you may use the <code>pressAndWaitFor</code> method:</p>
 <pre><code><span class="hljs-comment">// Press the button and wait a maximum of 5 seconds for it to be enabled...</span>
 <span class="hljs-variable">$browser</span>-&gt;<span class="hljs-title function_ invoke__">pressAndWaitFor</span>(<span class="hljs-string">&#x27;Save&#x27;</span>);
 
@@ -1534,7 +1534,7 @@ Vue.<span class="hljs-title function_ invoke__">component</span>(<span class="hl
 </code></pre>
 <p><a name="running-tests-on-github-actions"></a></p>
 <h3 id="github-actions">GitHub Actions</h3>
-<p>If you are using <a href="https://github.com/features/actions">Github Actions</a> to run your Dusk tests, you may use the following configuration file as a starting point. Like TravisCI, we will use the <code>php artisan serve</code> command to launch PHP&#39;s built-in web server:</p>
+<p>If you are using <a href="https://github.com/features/actions">GitHub Actions</a> to run your Dusk tests, you may use the following configuration file as a starting point. Like TravisCI, we will use the <code>php artisan serve</code> command to launch PHP&#39;s built-in web server:</p>
 <pre><code class="language-yaml"><span class="hljs-attr">name:</span> <span class="hljs-string">CI</span>
 <span class="hljs-attr">on:</span> [<span class="hljs-string">push</span>]
 <span class="hljs-attr">jobs:</span>
@@ -1542,13 +1542,13 @@ Vue.<span class="hljs-title function_ invoke__">component</span>(<span class="hl
   <span class="hljs-attr">dusk-php:</span>
     <span class="hljs-attr">runs-on:</span> <span class="hljs-string">ubuntu-latest</span>
     <span class="hljs-attr">steps:</span>
-      <span class="hljs-bullet">-</span> <span class="hljs-attr">uses:</span> <span class="hljs-string">actions/checkout@v2</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-attr">uses:</span> <span class="hljs-string">actions/checkout@v3</span>
       <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Prepare</span> <span class="hljs-string">The</span> <span class="hljs-string">Environment</span>
         <span class="hljs-attr">run:</span> <span class="hljs-string">cp</span> <span class="hljs-string">.env.example</span> <span class="hljs-string">.env</span>
       <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Create</span> <span class="hljs-string">Database</span>
         <span class="hljs-attr">run:</span> <span class="hljs-string">|
           sudo systemctl start mysql
-          mysql --user=&quot;root&quot; --password=&quot;root&quot; -e &quot;CREATE DATABASE &#x27;my-database&#x27; character set UTF8mb4 collate utf8mb4_bin;&quot;
+          mysql --user=&quot;root&quot; --password=&quot;root&quot; -e &quot;CREATE DATABASE \`my-database\` character set UTF8mb4 collate utf8mb4_bin;&quot;
 </span>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Install</span> <span class="hljs-string">Composer</span> <span class="hljs-string">Dependencies</span>
         <span class="hljs-attr">run:</span> <span class="hljs-string">composer</span> <span class="hljs-string">install</span> <span class="hljs-string">--no-progress</span> <span class="hljs-string">--prefer-dist</span> <span class="hljs-string">--optimize-autoloader</span>
       <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Generate</span> <span class="hljs-string">Application</span> <span class="hljs-string">Key</span>

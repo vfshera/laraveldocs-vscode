@@ -143,17 +143,6 @@ export default class DocPreviewPanel {
   private _getHtmlForWebview(webview: vscode.Webview) {
     /**Scripts */
 
-    // const domPurifyScriptUri = webview.asWebviewUri(
-    //   vscode.Uri.joinPath(this._extensionUri, JS_ASSET, "dompurify.js")
-    // );
-
-    // const highlightScriptUri = webview.asWebviewUri(
-    //   vscode.Uri.joinPath(this._extensionUri, JS_ASSET, "highlight.js")
-    // );
-    // const bladeHighlightScriptUri = webview.asWebviewUri(
-    //   vscode.Uri.joinPath(this._extensionUri, JS_ASSET, "blade.js")
-    // );
-
     const scriptUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, COMPILED_DIR, "preview.js")
     );
@@ -176,11 +165,6 @@ export default class DocPreviewPanel {
     );
 
     const nonce = getNonce();
-
-    // <script nonce="${nonce}" src="${domPurifyScriptUri}"></script>
-    // <script nonce="${nonce}" src="${highlightScriptUri}"></script>
-
-    // <script nonce="${nonce}" src="${bladeHighlightScriptUri}"></script>
 
     return `<!DOCTYPE html>
 			<html lang="en">

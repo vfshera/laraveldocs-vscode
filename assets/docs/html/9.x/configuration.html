@@ -38,7 +38,7 @@
 <p>Your <code>.env</code> file should not be committed to your application&#39;s source control, since each developer / server using your application could require a different environment configuration. Furthermore, this would be a security risk in the event an intruder gains access to your source control repository, since any sensitive credentials would get exposed.</p>
 <p><a name="additional-environment-files"></a></p>
 <h4 id="additional-environment-files">Additional Environment Files</h4>
-<p>Before loading your application&#39;s environment variables, Laravel determines if either the <code>APP_ENV</code> environment variable has been externally provided or if the <code>--env</code> CLI argument has been specified. If so, Laravel will attempt to load an <code>.env.[APP_ENV]</code> file if it exists. If it does not exist, the default <code>.env</code> file will be loaded.</p>
+<p>Before loading your application&#39;s environment variables, Laravel determines if an <code>APP_ENV</code> environment variable has been externally provided or if the <code>--env</code> CLI argument has been specified. If so, Laravel will attempt to load an <code>.env.[APP_ENV]</code> file if it exists. If it does not exist, the default <code>.env</code> file will be loaded.</p>
 <p><a name="environment-variable-types"></a></p>
 <h3 id="environment-variable-types">Environment Variable Types</h3>
 <p>All variables in your <code>.env</code> files are typically parsed as strings, so some reserved values have been created to allow you to return a wider range of types from the <code>env()</code> function:</p>
@@ -87,7 +87,7 @@
 </code></pre>
 <p><a name="retrieving-environment-configuration"></a></p>
 <h3 id="retrieving-environment-configuration">Retrieving Environment Configuration</h3>
-<p>All of the variables listed in this file will be loaded into the <code>$_ENV</code> PHP super-global when your application receives a request. However, you may use the <code>env</code> helper to retrieve values from these variables in your configuration files. In fact, if you review the Laravel configuration files, you will notice many of the options are already using this helper:</p>
+<p>All of the variables listed in the <code>.env</code> file will be loaded into the <code>$_ENV</code> PHP super-global when your application receives a request. However, you may use the <code>env</code> function to retrieve values from these variables in your configuration files. In fact, if you review the Laravel configuration files, you will notice many of the options are already using this function:</p>
 <pre><code><span class="hljs-string">&#x27;debug&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;APP_DEBUG&#x27;</span>, <span class="hljs-literal">false</span>),
 </code></pre>
 <p>The second value passed to the <code>env</code> function is the &quot;default value&quot;. This value will be returned if no environment variable exists for the given key.</p>
@@ -112,13 +112,13 @@
 </blockquote>
 <p><a name="accessing-configuration-values"></a></p>
 <h2 id="accessing-configuration-values">Accessing Configuration Values</h2>
-<p>You may easily access your configuration values using the global <code>config</code> helper function from anywhere in your application. The configuration values may be accessed using &quot;dot&quot; syntax, which includes the name of the file and option you wish to access. A default value may also be specified and will be returned if the configuration option does not exist:</p>
+<p>You may easily access your configuration values using the global <code>config</code> function from anywhere in your application. The configuration values may be accessed using &quot;dot&quot; syntax, which includes the name of the file and option you wish to access. A default value may also be specified and will be returned if the configuration option does not exist:</p>
 <pre><code><span class="hljs-variable">$value</span> = <span class="hljs-title function_ invoke__">config</span>(<span class="hljs-string">&#x27;app.timezone&#x27;</span>);
 
 <span class="hljs-comment">// Retrieve a default value if the configuration value does not exist...</span>
 <span class="hljs-variable">$value</span> = <span class="hljs-title function_ invoke__">config</span>(<span class="hljs-string">&#x27;app.timezone&#x27;</span>, <span class="hljs-string">&#x27;Asia/Seoul&#x27;</span>);
 </code></pre>
-<p>To set configuration values at runtime, pass an array to the <code>config</code> helper:</p>
+<p>To set configuration values at runtime, pass an array to the <code>config</code> function:</p>
 <pre><code><span class="hljs-title function_ invoke__">config</span>([<span class="hljs-string">&#x27;app.timezone&#x27;</span> =&gt; <span class="hljs-string">&#x27;America/Chicago&#x27;</span>]);
 </code></pre>
 <p><a name="configuration-caching"></a></p>
@@ -146,7 +146,7 @@
 </code></pre>
 <p><a name="bypassing-maintenance-mode"></a></p>
 <h4 id="bypassing-maintenance-mode">Bypassing Maintenance Mode</h4>
-<p>Even while in maintenance mode, you may use the <code>secret</code> option to specify a maintenance mode bypass token:</p>
+<p>To allow maintenance mode to be bypassed using a secret token, you may use the <code>secret</code> option to specify a maintenance mode bypass token:</p>
 <pre><code class="language-shell">php artisan down --secret=&quot;1630542a-246b-4b66-afa1-dd72a4c43515&quot;
 </code></pre>
 <p>After placing the application in maintenance mode, you may navigate to the application URL matching this token and Laravel will issue a maintenance mode bypass cookie to your browser:</p>

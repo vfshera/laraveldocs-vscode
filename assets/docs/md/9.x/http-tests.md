@@ -152,7 +152,7 @@ Laravel provides several helpers for interacting with the session during HTTP te
         }
     }
 
-Laravel's session is typically used to maintain state for the currently authenticated user. Therefore, the `actingAs` helper method provides a simple way to authenticate a given user as the current user. For example, we may use a [model factory](/docs/{{version}}/database-testing#writing-factories) to generate and authenticate a user:
+Laravel's session is typically used to maintain state for the currently authenticated user. Therefore, the `actingAs` helper method provides a simple way to authenticate a given user as the current user. For example, we may use a [model factory](/docs/{{version}}/eloquent-factories) to generate and authenticate a user:
 
     <?php
 
@@ -589,7 +589,7 @@ If necessary, you may use the `blade` method to evaluate and render a raw [Blade
 
     $view->assertSee('Taylor');
 
-You may use the `component` method to evaluate and render a [Blade component](/docs/{{version}}/blade#components). Like the `view` method, the `component` method returns an instance of `Illuminate\Testing\TestView`:
+You may use the `component` method to evaluate and render a [Blade component](/docs/{{version}}/blade#components). The `component` method returns an instance of `Illuminate\Testing\TestComponent`:
 
     $view = $this->component(Profile::class, ['name' => 'Taylor']);
 
@@ -698,7 +698,7 @@ Assert that the response contains the given cookie and it is not expired:
 <a name="assert-cookie-missing"></a>
 #### assertCookieMissing
 
-Assert that the response does not contains the given cookie:
+Assert that the response does not contain the given cookie:
 
     $response->assertCookieMissing($cookieName);
 
@@ -828,7 +828,7 @@ Assert that the response contains the given data at the specified path:
 
 For example, if the following JSON response is returned by your application:
 
-```js
+```json
 {
     "user": {
         "name": "Steve Schoger"
@@ -849,7 +849,7 @@ Assert that the response does not contain the given path:
 
 For example, if the following JSON response is returned by your application:
 
-```js
+```json
 {
     "user": {
         "name": "Steve Schoger"
@@ -870,7 +870,7 @@ Assert that the response has a given JSON structure:
 
 For example, if the JSON response returned by your application contains the following data:
 
-```js
+```json
 {
     "user": {
         "name": "Steve Schoger"
@@ -888,7 +888,7 @@ You may assert that the JSON structure matches your expectations like so:
 
 Sometimes, JSON responses returned by your application may contain arrays of objects:
 
-```js
+```json
 {
     "user": [
         {

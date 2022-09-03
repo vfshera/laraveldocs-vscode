@@ -13,6 +13,8 @@
 </li>
 <li><a href="#database-transactions">Database Transactions</a></li>
 <li><a href="#connecting-to-the-database-cli">Connecting To The Database CLI</a></li>
+<li><a href="#inspecting-your-databases">Inspecting Your Databases</a></li>
+<li><a href="#monitoring-your-databases">Monitoring Your Databases</a></li>
 </ul>
 <p><a name="introduction"></a></p>
 <h2 id="introduction">Introduction</h2>
@@ -306,4 +308,48 @@ DB::<span class="hljs-title function_ invoke__">beginTransaction</span>();
 </code></pre>
 <p>If needed, you may specify a database connection name to connect to a database connection that is not the default connection:</p>
 <pre><code class="language-shell">php artisan db mysql
+</code></pre>
+<p><a name="inspecting-your-databases"></a></p>
+<h2 id="inspecting-your-databases">Inspecting Your Databases</h2>
+<p>Using the <code>db:show</code> and <code>db:table</code> Artisan commands, you can get valuable insight into your database and its associated tables. To see an overview of your database, including its size, type, number of open connections, and a summary of its tables, you may use the <code>db:show</code> command:</p>
+<pre><code class="language-shell">php artisan db:show
+</code></pre>
+<p>You may specify which database connection should be inspected by providing the database connection name to the command via the <code>--database</code> option:</p>
+<pre><code class="language-shell">php artisan db:show --database=pgsql
+</code></pre>
+<p>If you would like to include table row counts and database view details within the output of the command, you may provide the <code>--counts</code> and <code>--views</code> options, respectively. On large databases, retrieving row counts and view details can be slow:</p>
+<pre><code class="language-shell">php artisan db:show --counts --views
+</code></pre>
+<p><a name="table-overview"></a></p>
+<h4 id="table-overview">Table Overview</h4>
+<p>If you would like to get an overview of an individual table within your database, you may execute the <code>db:table</code> Artisan command. This command provides a general overview of a database table, including its columns, types, attributes, keys, and indexes:</p>
+<pre><code class="language-shell">php artisan db:table users
+</code></pre>
+<p><a name="monitoring-your-databases"></a></p>
+<h2 id="monitoring-your-databases">Monitoring Your Databases</h2>
+<p>Using the <code>db:monitor</code> Artisan command, you can instruct Laravel to dispatch an <code>Illuminate\Database\Events\DatabaseBusy</code> event if your database is managing more than a specified number of open connections.</p>
+<p>To get started, you should schedule the <code>db:monitor</code> command to <a href="/docs/%7B%7Bversion%7D%7D/scheduling">run every minute</a>. The command accepts the names of the database connection configurations that you wish to monitor as well as the maximum number of open connections that should be tolerated before dispatching an event:</p>
+<pre><code class="language-shell">php artisan db:monitor --databases=mysql,pgsql --max=100
+</code></pre>
+<p>Scheduling this command alone is not enough to trigger a notification alerting you of the number of open connections. When the command encounters a database that has an open connection count that exceeds your threshold, a <code>DatabaseBusy</code> event will be dispatched. You should listen for this event within your application&#39;s <code>EventServiceProvider</code> in order to send a notification to you or your development team:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Notifications</span>\<span class="hljs-title">DatabaseApproachingMaxConnections</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Events</span>\<span class="hljs-title">DatabaseBusy</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Event</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Notification</span>;
+
+<span class="hljs-comment">/**
+ * Register any other events for your application.
+ *
+ * <span class="hljs-doctag">@return</span> void
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-title class_">Event</span>::<span class="hljs-title function_ invoke__">listen</span>(function (DatabaseBusy <span class="hljs-variable">$event</span>) {
+        <span class="hljs-title class_">Notification</span>::<span class="hljs-title function_ invoke__">route</span>(<span class="hljs-string">&#x27;mail&#x27;</span>, <span class="hljs-string">&#x27;dev@example.com&#x27;</span>)
+                -&gt;<span class="hljs-title function_ invoke__">notify</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">DatabaseApproachingMaxConnections</span>(
+                    <span class="hljs-variable">$event</span>-&gt;connectionName,
+                    <span class="hljs-variable">$event</span>-&gt;connections
+                ));
+    });
+}
 </code></pre>

@@ -1018,6 +1018,13 @@
 
 <span class="hljs-comment">// &#x27;1-2-3-4-5&#x27;</span>
 </code></pre>
+<p>You may pass a closure to the <code>implode</code> method if you would like to format the values being imploded:</p>
+<pre><code><span class="hljs-variable">$collection</span>-&gt;<span class="hljs-title function_ invoke__">implode</span>(function (<span class="hljs-variable">$item</span>, <span class="hljs-variable">$key</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">strtoupper</span>(<span class="hljs-variable">$item</span>[<span class="hljs-string">&#x27;product&#x27;</span>]);
+}, <span class="hljs-string">&#x27;, &#x27;</span>);
+
+<span class="hljs-comment">// DESK, CHAIR</span>
+</code></pre>
 <p><a name="method-intersect"></a></p>
 <h4 id="intersect-collection-method"><code>intersect()</code> {.collection-method}</h4>
 <p>The <code>intersect</code> method removes any values from the original collection that are not present in the given <code>array</code> or collection. The resulting collection will preserve the original collection&#39;s keys:</p>
@@ -2964,7 +2971,20 @@
 <p><a name="the-enumerable-contract"></a></p>
 <h3 id="the-enumerable-contract">The Enumerable Contract</h3>
 <p>Almost all methods available on the <code>Collection</code> class are also available on the <code>LazyCollection</code> class. Both of these classes implement the <code>Illuminate\Support\Enumerable</code> contract, which defines the following methods:</p>
-<div id="collection-method-list" markdown="1">
+<style>
+    .collection-method-list > p {
+        columns: 10.8em 3; -moz-columns: 10.8em 3; -webkit-columns: 10.8em 3;
+    }
+
+    .collection-method-list a {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+</style>
+
+<div class="collection-method-list" markdown="1">
 
 <p><a href="#method-all">all</a>
 <a href="#method-average">average</a>

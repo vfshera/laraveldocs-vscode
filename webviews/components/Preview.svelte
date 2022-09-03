@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import type { IDocContents } from "../types";
-  // import { marked } from "marked";
 
   let docFile: IDocContents;
 
@@ -15,14 +14,7 @@
   $: fileContents = docFile?.contents;
 
   $: docHtml = fileContents || "<h1>Getting Docs...</h1>";
-  // $: docHtml = DOMPurify.sanitize(
-  //   marked(fileContents || "# Loading Docs...", {
-  //     highlight: (code, lang) => {
-  //       const language = highlightjs.getLanguage(lang) ? lang : "php";
-  //       return highlightjs.highlight(code, { language }).value;
-  //     },
-  //   })
-  // );
+  
 </script>
 
 <main>

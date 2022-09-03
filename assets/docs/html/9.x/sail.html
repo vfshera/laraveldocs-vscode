@@ -180,7 +180,7 @@ sail test --group orders
 <p>The Sail <code>test</code> command is equivalent to running the <code>test</code> Artisan command:</p>
 <pre><code class="language-shell">sail artisan test
 </code></pre>
-<p>By default, Sail will create a dedicated <code>testing</code> database that your tests do not interfere with the current state of your database. In a default Laravel installation, Sail will also configure your <code>phpunit.xml</code> file to use this database when executing your tests:</p>
+<p>By default, Sail will create a dedicated <code>testing</code> database so that your tests do not interfere with the current state of your database. In a default Laravel installation, Sail will also configure your <code>phpunit.xml</code> file to use this database when executing your tests:</p>
 <pre><code class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">env</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;DB_DATABASE&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;testing&quot;</span>/&gt;</span>
 </code></pre>
 <p><a name="laravel-dusk"></a></p>

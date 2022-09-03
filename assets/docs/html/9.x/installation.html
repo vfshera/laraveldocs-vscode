@@ -14,7 +14,6 @@
 </li>
 <li><a href="#initial-configuration">Initial Configuration</a><ul>
 <li><a href="#environment-based-configuration">Environment Based Configuration</a></li>
-<li><a href="#directory-configuration">Directory Configuration</a></li>
 <li><a href="#databases-and-migrations">Databases &amp; Migrations</a></li>
 </ul>
 </li>
@@ -46,6 +45,11 @@
 <p>After you have installed PHP and Composer, you may create a new Laravel project via the Composer <code>create-project</code> command:</p>
 <pre><code class="language-nothing">composer create-project laravel/laravel example-app
 </code></pre>
+<p>Or, you may create new Laravel projects by globally installing the Laravel installer via Composer:</p>
+<pre><code class="language-nothing">composer <span class="hljs-keyword">global</span> <span class="hljs-keyword">require</span> laravel/installer
+
+laravel <span class="hljs-keyword">new</span> example-app
+</code></pre>
 <p>After the project has been created, start Laravel&#39;s local development server using the Laravel&#39;s Artisan CLI <code>serve</code> command:</p>
 <pre><code class="language-nothing">cd example-app
 
@@ -69,12 +73,12 @@ php artisan serve
 <pre><code class="language-shell">curl -s &quot;https://laravel.build/example-app&quot; | bash
 </code></pre>
 <p>Of course, you can change &quot;example-app&quot; in this URL to anything you like - just make sure the application name only contains alpha-numeric characters, dashes, and underscores. The Laravel application&#39;s directory will be created within the directory you execute the command from.</p>
+<p>Sail installation may take several minutes while Sail&#39;s application containers are built on your local machine.</p>
 <p>After the project has been created, you can navigate to the application directory and start Laravel Sail. Laravel Sail provides a simple command-line interface for interacting with Laravel&#39;s default Docker configuration:</p>
 <pre><code class="language-shell">cd example-app
 
 ./vendor/bin/sail up
 </code></pre>
-<p>The first time you run the Sail <code>up</code> command, Sail&#39;s application containers will be built on your local machine. This could take several minutes. <strong>Don&#39;t worry, subsequent attempts to start Sail will be much faster.</strong></p>
 <p>Once the application&#39;s Docker containers have been started, you can access the application in your web browser at: <a href="http://localhost">http://localhost</a>.</p>
 <blockquote>
 <p><strong>Note</strong><br>To continue learning more about Laravel Sail, review its <a href="/docs/%7B%7Bversion%7D%7D/sail">complete documentation</a>.</p>
@@ -89,12 +93,12 @@ php artisan serve
 <pre><code class="language-shell">curl -s https://laravel.build/example-app | bash
 </code></pre>
 <p>Of course, you can change &quot;example-app&quot; in this URL to anything you like - just make sure the application name only contains alpha-numeric characters, dashes, and underscores. The Laravel application&#39;s directory will be created within the directory you execute the command from.</p>
+<p>Sail installation may take several minutes while Sail&#39;s application containers are built on your local machine.</p>
 <p>After the project has been created, you can navigate to the application directory and start Laravel Sail. Laravel Sail provides a simple command-line interface for interacting with Laravel&#39;s default Docker configuration:</p>
 <pre><code class="language-shell">cd example-app
 
 ./vendor/bin/sail up
 </code></pre>
-<p>The first time you run the Sail <code>up</code> command, Sail&#39;s application containers will be built on your local machine. This could take several minutes. <strong>Don&#39;t worry, subsequent attempts to start Sail will be much faster.</strong></p>
 <p>Once the application&#39;s Docker containers have been started, you can access the application in your web browser at: <a href="http://localhost">http://localhost</a>.</p>
 <blockquote>
 <p><strong>Note</strong><br>To continue learning more about Laravel Sail, review its <a href="/docs/%7B%7Bversion%7D%7D/sail">complete documentation</a>.</p>
@@ -108,12 +112,12 @@ php artisan serve
 <pre><code class="language-shell">curl -s https://laravel.build/example-app | bash
 </code></pre>
 <p>Of course, you can change &quot;example-app&quot; in this URL to anything you like - just make sure the application name only contains alpha-numeric characters, dashes, and underscores. The Laravel application&#39;s directory will be created within the directory you execute the command from.</p>
+<p>Sail installation may take several minutes while Sail&#39;s application containers are built on your local machine.</p>
 <p>After the project has been created, you can navigate to the application directory and start Laravel Sail. Laravel Sail provides a simple command-line interface for interacting with Laravel&#39;s default Docker configuration:</p>
 <pre><code class="language-shell">cd example-app
 
 ./vendor/bin/sail up
 </code></pre>
-<p>The first time you run the Sail <code>up</code> command, Sail&#39;s application containers will be built on your local machine. This could take several minutes. <strong>Don&#39;t worry, subsequent attempts to start Sail will be much faster.</strong></p>
 <p>Once the application&#39;s Docker containers have been started, you can access the application in your web browser at: <a href="http://localhost">http://localhost</a>.</p>
 <blockquote>
 <p><strong>Note</strong><br>To continue learning more about Laravel Sail, review its <a href="/docs/%7B%7Bversion%7D%7D/sail">complete documentation</a>.</p>
@@ -138,9 +142,6 @@ php artisan serve
 <blockquote>
 <p><strong>Note</strong><br>For more information about the <code>.env</code> file and environment based configuration, check out the full <a href="/docs/%7B%7Bversion%7D%7D/configuration#environment-configuration">configuration documentation</a>.</p>
 </blockquote>
-<p><a name="directory-configuration"></a></p>
-<h3 id="directory-configuration">Directory Configuration</h3>
-<p>Laravel should always be served out of the root of the &quot;web directory&quot; configured for your web server. You should not attempt to serve a Laravel application out of a subdirectory of the &quot;web directory&quot;. Attempting to do so could expose sensitive files that exist within your application.</p>
 <p><a name="databases-and-migrations"></a></p>
 <h3 id="databases--migrations">Databases &amp; Migrations</h3>
 <p>Now that you have created your Laravel application, you probably want to store some data in a database. By default, your application&#39;s <code>.env</code> configuration file specifies that Laravel will be interacting with a MySQL database and will access the database at <code>127.0.0.1</code>. If you are developing on macOS and need to install MySQL, Postgres, or Redis locally, you may find it convenient to utilize <a href="https://dbngin.com/">DBngin</a>.</p>

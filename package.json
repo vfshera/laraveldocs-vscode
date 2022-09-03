@@ -8,7 +8,7 @@
     "name": "Franlin Shera"
   },
   "license": "",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "homepage": "https://github.com/franklinshera/laraveldocs-vscode",
   "bugs": "https://github.com/franklinshera/laraveldocs-vscode/issues",
   "repository": {
@@ -17,6 +17,7 @@
   },
   "keywords": [
     "laravel docs",
+    "laravel documentation",
     "laravel"
   ],
   "preview": true,
@@ -27,8 +28,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onView:docs-list",
-    "onCommand:vscodelaraveldocs.render-html"
+    "onView:docs-list"
   ],
   "main": "./dist/extension.js",
   "contributes": {

@@ -100,41 +100,6 @@
     <span class="hljs-keyword">use</span> <span class="hljs-title">HasApiTokens</span>, <span class="hljs-title">HasFactory</span>, <span class="hljs-title">Notifiable</span>;
 }
 </code></pre>
-<p>Next, you should call the <code>Passport::routes</code> method within the <code>boot</code> method of your <code>App\Providers\AuthServiceProvider</code>. This method will register the routes necessary to issue access tokens and revoke access tokens, clients, and personal access tokens:</p>
-<pre><code><span class="hljs-meta">&lt;?php</span>
-
-<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Providers</span>;
-
-<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Foundation</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Providers</span>\<span class="hljs-title">AuthServiceProvider</span> <span class="hljs-keyword">as</span> <span class="hljs-title">ServiceProvider</span>;
-<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Gate</span>;
-<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Passport</span>\<span class="hljs-title">Passport</span>;
-
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AuthServiceProvider</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">ServiceProvider</span>
-</span>{
-    <span class="hljs-comment">/**
-     * The policy mappings for the application.
-     *
-     * <span class="hljs-doctag">@var</span> array
-     */</span>
-    <span class="hljs-keyword">protected</span> <span class="hljs-variable">$policies</span> = [
-        <span class="hljs-string">&#x27;App\Models\Model&#x27;</span> =&gt; <span class="hljs-string">&#x27;App\Policies\ModelPolicy&#x27;</span>,
-    ];
-
-    <span class="hljs-comment">/**
-     * Register any authentication / authorization services.
-     *
-     * <span class="hljs-doctag">@return</span> void
-     */</span>
-    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>)
-    </span>{
-        <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">registerPolicies</span>();
-
-        <span class="hljs-keyword">if</span> (! <span class="hljs-variable language_">$this</span>-&gt;app-&gt;<span class="hljs-title function_ invoke__">routesAreCached</span>()) {
-            <span class="hljs-title class_">Passport</span>::<span class="hljs-title function_ invoke__">routes</span>();
-        }
-    }
-}
-</code></pre>
 <p>Finally, in your application&#39;s <code>config/auth.php</code> configuration file, you should define an <code>api</code> authentication guard and set the <code>driver</code> option to <code>passport</code>. This will instruct your application to use Passport&#39;s <code>TokenGuard</code> when authenticating incoming API requests:</p>
 <pre><code><span class="hljs-string">&#x27;guards&#x27;</span> =&gt; [
     <span class="hljs-string">&#x27;web&#x27;</span> =&gt; [
@@ -167,8 +132,6 @@
 <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>)
 </span>{
     <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">registerPolicies</span>();
-
-    <span class="hljs-title class_">Passport</span>::<span class="hljs-title function_ invoke__">routes</span>();
 
     <span class="hljs-title class_">Passport</span>::<span class="hljs-title function_ invoke__">loadKeysFrom</span>(<span class="hljs-keyword">__DIR__</span>.<span class="hljs-string">&#x27;/../secrets/oauth&#x27;</span>);
 }
@@ -217,8 +180,6 @@
 </span>{
     <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">registerPolicies</span>();
 
-    <span class="hljs-title class_">Passport</span>::<span class="hljs-title function_ invoke__">routes</span>();
-
     <span class="hljs-title class_">Passport</span>::<span class="hljs-title function_ invoke__">tokensExpireIn</span>(<span class="hljs-title function_ invoke__">now</span>()-&gt;<span class="hljs-title function_ invoke__">addDays</span>(<span class="hljs-number">15</span>));
     <span class="hljs-title class_">Passport</span>::<span class="hljs-title function_ invoke__">refreshTokensExpireIn</span>(<span class="hljs-title function_ invoke__">now</span>()-&gt;<span class="hljs-title function_ invoke__">addDays</span>(<span class="hljs-number">30</span>));
     <span class="hljs-title class_">Passport</span>::<span class="hljs-title function_ invoke__">personalAccessTokensExpireIn</span>(<span class="hljs-title function_ invoke__">now</span>()-&gt;<span class="hljs-title function_ invoke__">addMonths</span>(<span class="hljs-number">6</span>));
@@ -251,8 +212,6 @@
 <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>)
 </span>{
     <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">registerPolicies</span>();
-
-    <span class="hljs-title class_">Passport</span>::<span class="hljs-title function_ invoke__">routes</span>();
 
     <span class="hljs-title class_">Passport</span>::<span class="hljs-title function_ invoke__">useTokenModel</span>(<span class="hljs-title class_">Token</span>::<span class="hljs-variable language_">class</span>);
     <span class="hljs-title class_">Passport</span>::<span class="hljs-title function_ invoke__">useClientModel</span>(<span class="hljs-title class_">Client</span>::<span class="hljs-variable language_">class</span>);
@@ -352,7 +311,7 @@ axios.<span class="hljs-title function_">put</span>(<span class="hljs-string">&#
 });
 </code></pre>
 <blockquote>
-<p><strong>Note</strong><br>Remember, the <code>/oauth/authorize</code> route is already defined by the <code>Passport::routes</code> method. You do not need to manually define this route.</p>
+<p><strong>Note</strong><br>Remember, the <code>/oauth/authorize</code> route is already defined by Passport. You do not need to manually define this route.</p>
 </blockquote>
 <p><a name="approving-the-request"></a></p>
 <h4 id="approving-the-request">Approving The Request</h4>
@@ -407,7 +366,7 @@ axios.<span class="hljs-title function_">put</span>(<span class="hljs-string">&#
 </code></pre>
 <p>This <code>/oauth/token</code> route will return a JSON response containing <code>access_token</code>, <code>refresh_token</code>, and <code>expires_in</code> attributes. The <code>expires_in</code> attribute contains the number of seconds until the access token expires.</p>
 <blockquote>
-<p><strong>Note</strong><br>Like the <code>/oauth/authorize</code> route, the <code>/oauth/token</code> route is defined for you by the <code>Passport::routes</code> method. There is no need to manually define this route.</p>
+<p><strong>Note</strong><br>Like the <code>/oauth/authorize</code> route, the <code>/oauth/token</code> route is defined for you by Passport. There is no need to manually define this route.</p>
 </blockquote>
 <p><a name="tokens-json-api"></a></p>
 <h4 id="json-api-1">JSON API</h4>
@@ -570,7 +529,7 @@ php artisan passport:purge --expired
 </code></pre>
 <p><a name="requesting-password-grant-tokens"></a></p>
 <h3 id="requesting-tokens-2">Requesting Tokens</h3>
-<p>Once you have created a password grant client, you may request an access token by issuing a <code>POST</code> request to the <code>/oauth/token</code> route with the user&#39;s email address and password. Remember, this route is already registered by the <code>Passport::routes</code> method so there is no need to define it manually. If the request is successful, you will receive an <code>access_token</code> and <code>refresh_token</code> in the JSON response from the server:</p>
+<p>Once you have created a password grant client, you may request an access token by issuing a <code>POST</code> request to the <code>/oauth/token</code> route with the user&#39;s email address and password. Remember, this route is already registered by Passport so there is no need to define it manually. If the request is successful, you will receive an <code>access_token</code> and <code>refresh_token</code> in the JSON response from the server:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Http</span>;
 
 <span class="hljs-variable">$response</span> = <span class="hljs-title class_">Http</span>::<span class="hljs-title function_ invoke__">asForm</span>()-&gt;<span class="hljs-title function_ invoke__">post</span>(<span class="hljs-string">&#x27;http://passport-app.test/oauth/token&#x27;</span>, [
@@ -674,8 +633,6 @@ php artisan passport:purge --expired
 </span>{
     <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">registerPolicies</span>();
 
-    <span class="hljs-title class_">Passport</span>::<span class="hljs-title function_ invoke__">routes</span>();
-
     <span class="hljs-title class_">Passport</span>::<span class="hljs-title function_ invoke__">enableImplicitGrant</span>();
 }
 </code></pre>
@@ -697,7 +654,7 @@ php artisan passport:purge --expired
 });
 </code></pre>
 <blockquote>
-<p><strong>Note</strong><br>Remember, the <code>/oauth/authorize</code> route is already defined by the <code>Passport::routes</code> method. You do not need to manually define this route.</p>
+<p><strong>Note</strong><br>Remember, the <code>/oauth/authorize</code> route is already defined by Passport. You do not need to manually define this route.</p>
 </blockquote>
 <p><a name="client-credentials-grant-tokens"></a></p>
 <h2 id="client-credentials-grant-tokens">Client Credentials Grant Tokens</h2>
@@ -865,8 +822,6 @@ axios.<span class="hljs-title function_">post</span>(<span class="hljs-string">&
 </span>{
     <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">registerPolicies</span>();
 
-    <span class="hljs-title class_">Passport</span>::<span class="hljs-title function_ invoke__">routes</span>();
-
     <span class="hljs-title class_">Passport</span>::<span class="hljs-title function_ invoke__">tokensCan</span>([
         <span class="hljs-string">&#x27;place-orders&#x27;</span> =&gt; <span class="hljs-string">&#x27;Place orders&#x27;</span>,
         <span class="hljs-string">&#x27;check-status&#x27;</span> =&gt; <span class="hljs-string">&#x27;Check order status&#x27;</span>,
@@ -985,8 +940,6 @@ axios.<span class="hljs-title function_">post</span>(<span class="hljs-string">&
 <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>)
 </span>{
     <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">registerPolicies</span>();
-
-    <span class="hljs-title class_">Passport</span>::<span class="hljs-title function_ invoke__">routes</span>();
 
     <span class="hljs-title class_">Passport</span>::<span class="hljs-title function_ invoke__">cookie</span>(<span class="hljs-string">&#x27;custom_name&#x27;</span>);
 }

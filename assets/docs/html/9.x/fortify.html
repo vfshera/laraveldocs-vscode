@@ -274,7 +274,7 @@
 <p><a name="registration"></a></p>
 <h2 id="registration">Registration</h2>
 <p>To begin implementing our application&#39;s registration functionality, we need to instruct Fortify how to return our &quot;register&quot; view. Remember, Fortify is a headless authentication library. If you would like a frontend implementation of Laravel&#39;s authentication features that are already completed for you, you should use an <a href="/docs/%7B%7Bversion%7D%7D/starter-kits">application starter kit</a>.</p>
-<p>All of the Fortify&#39;s view rendering logic may be customized using the appropriate methods available via the <code>Laravel\Fortify\Fortify</code> class. Typically, you should call this method from the <code>boot</code> method of your <code>App\Providers\FortifyServiceProvider</code> class:</p>
+<p>All of Fortify&#39;s view rendering logic may be customized using the appropriate methods available via the <code>Laravel\Fortify\Fortify</code> class. Typically, you should call this method from the <code>boot</code> method of your <code>App\Providers\FortifyServiceProvider</code> class:</p>
 <pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Fortify</span>\<span class="hljs-title">Fortify</span>;
 
 <span class="hljs-comment">/**
@@ -293,7 +293,7 @@
 </code></pre>
 <p>Fortify will take care of defining the <code>/register</code> route that returns this view. Your <code>register</code> template should include a form that makes a POST request to the <code>/register</code> endpoint defined by Fortify.</p>
 <p>The <code>/register</code> endpoint expects a string <code>name</code>, string email address / username, <code>password</code>, and <code>password_confirmation</code> fields. The name of the email / username field should match the <code>username</code> configuration value defined within your application&#39;s <code>fortify</code> configuration file.</p>
-<p>If the registration attempt is successful, Fortify will redirect the user to the URI configured via the <code>home</code> configuration option within your application&#39;s <code>fortify</code> configuration file. If the login request was an XHR request, a 200 HTTP response will be returned.</p>
+<p>If the registration attempt is successful, Fortify will redirect the user to the URI configured via the <code>home</code> configuration option within your application&#39;s <code>fortify</code> configuration file. If the request was an XHR request, a 201 HTTP response will be returned.</p>
 <p>If the request was not successful, the user will be redirected back to the registration screen and the validation errors will be available to you via the shared <code>$errors</code> <a href="/docs/%7B%7Bversion%7D%7D/validation#quick-displaying-the-validation-errors">Blade template variable</a>. Or, in the case of an XHR request, the validation errors will be returned with a 422 HTTP response.</p>
 <p><a name="customizing-registration"></a></p>
 <h3 id="customizing-registration">Customizing Registration</h3>

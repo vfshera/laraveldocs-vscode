@@ -288,7 +288,7 @@ You may call the `query` method without any arguments in order to retrieve all o
 <a name="retrieving-json-input-values"></a>
 #### Retrieving JSON Input Values
 
-When sending JSON requests to your application, you may access the JSON data via the `input` method as long as the `Content-Type` header of the request is properly set to `application/json`. You may even use "dot" syntax to retrieve values that are nested within JSON arrays:
+When sending JSON requests to your application, you may access the JSON data via the `input` method as long as the `Content-Type` header of the request is properly set to `application/json`. You may even use "dot" syntax to retrieve values that are nested within JSON arrays / objects:
 
     $name = $request->input('user.name');
 
@@ -388,13 +388,13 @@ The `hasAny` method returns `true` if any of the specified values are present:
         //
     }
 
-If you would like to determine if a value is present on the request and is not empty, you may use the `filled` method:
+If you would like to determine if a value is present on the request and is not an empty string, you may use the `filled` method:
 
     if ($request->filled('name')) {
         //
     }
 
-The `whenFilled` method will execute the given closure if a value is present on the request and is not empty:
+The `whenFilled` method will execute the given closure if a value is present on the request and is not an empty string:
 
     $request->whenFilled('name', function ($input) {
         //

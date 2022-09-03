@@ -256,6 +256,8 @@
 
 <span class="hljs-comment">// Generating Redirects...</span>
 <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">redirect</span>()-&gt;<span class="hljs-title function_ invoke__">route</span>(<span class="hljs-string">&#x27;profile&#x27;</span>);
+
+<span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">to_route</span>(<span class="hljs-string">&#x27;profile&#x27;</span>);
 </code></pre>
 <p>If the named route defines parameters, you may pass the parameters as the second argument to the <code>route</code> function. The given parameters will automatically be inserted into the generated URL in their correct positions:</p>
 <pre><code><span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/user/{id}/profile&#x27;</span>, function (<span class="hljs-variable">$id</span>) {
