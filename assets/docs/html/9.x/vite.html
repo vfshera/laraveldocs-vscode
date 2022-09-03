@@ -1,4 +1,4 @@
-<h1 id="bundling-assets-vite">Bundling Assets (Vite)</h1>
+<h1 id="asset-bundling-vite">Asset Bundling (Vite)</h1>
 <ul>
 <li><a href="#introduction">Introduction</a></li>
 <li><a href="#installation">Installation &amp; Setup</a><ul>
@@ -18,9 +18,14 @@
 </ul>
 </li>
 <li><a href="#working-with-stylesheets">Working With Stylesheets</a></li>
-<li><a href="#working-with-blade-and-routes">Working With Blade &amp; Routes</a></li>
+<li><a href="#working-with-blade-and-routes">Working With Blade &amp; Routes</a><ul>
+<li><a href="#blade-processing-static-assets">Processing Static Assets With Vite</a></li>
+<li><a href="#blade-refreshing-on-save">Refreshing On Save</a></li>
+</ul>
+</li>
 <li><a href="#custom-base-urls">Custom Base URLs</a></li>
 <li><a href="#environment-variables">Environment Variables</a></li>
+<li><a href="#disabling-vite-in-tests">Disabling Vite In Tests</a></li>
 <li><a href="#ssr">Server-Side Rendering (SSR)</a></li>
 <li><a href="#script-and-style-attributes">Script &amp; Style Tag Attributes</a><ul>
 <li><a href="#content-security-policy-csp-nonce">Content Security Policy (CSP) Nonce</a></li>
@@ -28,6 +33,7 @@
 <li><a href="#arbitrary-attributes">Arbitrary Attributes</a></li>
 </ul>
 </li>
+<li><a href="#advanced-customization">Advanced Customization</a></li>
 </ul>
 <p><a name="introduction"></a></p>
 <h2 id="introduction">Introduction</h2>
@@ -128,6 +134,14 @@ npm -v
 <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span></span>
 </code></pre>
 <p>The <code>@vite</code> directive will automatically detect the Vite development server and inject the Vite client to enable Hot Module Replacement. In build mode, the directive will load your compiled and versioned assets, including any imported CSS.</p>
+<p>If needed, you may also specify the build path of your compiled assets when invoking the <code>@vite</code> directive:</p>
+<pre><code class="language-blade"><span class="language-xml"><span class="hljs-meta">&lt;!doctype <span class="hljs-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    </span><span class="hljs-comment">{{-- Given build path is relative to public path. --}}</span><span class="language-xml">
+
+    </span><span class="hljs-template-tag">@vite</span><span class="language-xml">(&#x27;resources/js/app.js&#x27;, &#x27;vendor/courier/build&#x27;)
+<span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span></span>
+</code></pre>
 <p><a name="running-vite"></a></p>
 <h2 id="running-vite">Running Vite</h2>
 <p>There are two ways you can run Vite. You may run the development server via the <code>dev</code> command, which is useful while developing locally. The development server will automatically detect changes to your files and instantly reflect them in any open browser windows.</p>
@@ -258,6 +272,20 @@ resources/
 </code></pre>
 <p><a name="working-with-blade-and-routes"></a></p>
 <h2 id="working-with-blade--routes">Working With Blade &amp; Routes</h2>
+<p><a name="blade-processing-static-assets"></a></p>
+<h3 id="processing-static-assets-with-vite">Processing Static Assets With Vite</h3>
+<p>When referencing assets in your JavaScript or CSS, Vite automatically processes and versions them. In addition, when building Blade based applications, Vite can also process and version static assets that you reference solely in Blade templates.</p>
+<p>However, in order to accomplish this, you need to make Vite aware of your assets by importing the static assets into the application&#39;s entry point. For example, if you want to process and version all images stored in <code>resources/images</code> and all fonts stored in <code>resources/fonts</code>, you should add the following in your application&#39;s <code>resources/js/app.js</code> entry point:</p>
+<pre><code class="language-js"><span class="hljs-keyword">import</span>.<span class="hljs-property">meta</span>.<span class="hljs-title function_">glob</span>([
+  <span class="hljs-string">&#x27;../images/**&#x27;</span>,
+  <span class="hljs-string">&#x27;../fonts/**&#x27;</span>,
+]);
+</code></pre>
+<p>These assets will now be processed by Vite when running <code>npm run build</code>. You can then reference these assets in Blade templates using the <code>Vite::asset</code> method, which will return the versioned URL for a given asset:</p>
+<pre><code class="language-blade"><span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;</span></span></span><span class="hljs-template-variable">{{</span><span class="language-php"> <span class="hljs-title class_">Vite</span>::<span class="hljs-title function_ invoke__">asset</span>(<span class="hljs-string">&#x27;resources/images/logo.png&#x27;</span>) </span><span class="hljs-template-variable">}}</span><span class="language-xml"><span class="hljs-tag"><span class="hljs-string">&quot;</span>&gt;</span></span>
+</code></pre>
+<p><a name="blade-refreshing-on-save"></a></p>
+<h3 id="refreshing-on-save">Refreshing On Save</h3>
 <p>When your application is built using traditional server-side rendering with Blade, Vite can improve your development workflow by automatically refreshing the browser when you make changes to view files in your application. To get started, you can simply specify the <code>refresh</code> option as <code>true</code>.</p>
 <pre><code class="language-js"><span class="hljs-keyword">import</span> { defineConfig } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;vite&#x27;</span>;
 <span class="hljs-keyword">import</span> laravel <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;laravel-vite-plugin&#x27;</span>;
@@ -318,6 +346,41 @@ resources/
 </code></pre>
 <p>You may access injected environment variables via the <code>import.meta.env</code> object:</p>
 <pre><code class="language-js"><span class="hljs-keyword">import</span>.<span class="hljs-property">meta</span>.<span class="hljs-property">env</span>.<span class="hljs-property">VITE_SENTRY_DSN_PUBLIC</span>
+</code></pre>
+<p><a name="disabling-vite-in-tests"></a></p>
+<h2 id="disabling-vite-in-tests">Disabling Vite In Tests</h2>
+<p>Laravel&#39;s Vite integration will attempt to resolve your assets while running your tests, which requires you to either run the Vite development server or build your assets.</p>
+<p>If you would prefer to mock Vite during testing, you may call the <code>withoutVite</code> method, which is is available for any tests that extend Laravel&#39;s <code>TestCase</code> class:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Tests</span>\<span class="hljs-title">TestCase</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ExampleTest</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">TestCase</span>
+</span>{
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test_without_vite_example</span>(<span class="hljs-params"></span>)
+    </span>{
+        <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">withoutVite</span>();
+
+        <span class="hljs-comment">// ...</span>
+    }
+}
+</code></pre>
+<p>If you would like to disable Vite for all tests, you may call the <code>withoutVite</code> method from the <code>setUp</code> method on your base <code>TestCase</code> class:</p>
+<pre><code class="language-php"><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">Tests</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Foundation</span>\<span class="hljs-title">Testing</span>\<span class="hljs-title">TestCase</span> <span class="hljs-keyword">as</span> <span class="hljs-title">BaseTestCase</span>;
+
+<span class="hljs-keyword">abstract</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TestCase</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">BaseTestCase</span>
+</span>{
+    <span class="hljs-keyword">use</span> <span class="hljs-title">CreatesApplication</span>;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">setUp</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>// [<span class="hljs-title">tl</span>! <span class="hljs-title">add</span>:<span class="hljs-title">start</span>]
+    </span>{
+        <span class="hljs-built_in">parent</span>::<span class="hljs-title function_ invoke__">setUp</span>();
+
+        <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">withoutVite</span>();
+    }<span class="hljs-comment">// [tl! add:end]</span>
+}
 </code></pre>
 <p><a name="ssr"></a></p>
 <h2 id="server-side-rendering-ssr">Server-Side Rendering (SSR)</h2>
@@ -442,3 +505,31 @@ node bootstrap/ssr/ssr.mjs
 <blockquote>
 <p><strong>Warning</strong><br>The <code>$chunk</code> and <code>$manifest</code> arguments will be <code>null</code> while the Vite development server is running.</p>
 </blockquote>
+<p><a name="advanced-customization"></a></p>
+<h2 id="advanced-customization">Advanced Customization</h2>
+<p>Out of the box, Laravel&#39;s Vite plugin uses sensible conventions that should work for the majority of applications; however, sometimes you may need to customize Vite&#39;s behavior. To enable additional customization options, we offer the following methods and options which can be used in place of the <code>@vite</code> Blade directive:</p>
+<pre><code class="language-blade"><span class="language-xml"><span class="hljs-meta">&lt;!doctype <span class="hljs-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    </span><span class="hljs-comment">{{-- ... --}}</span><span class="language-xml">
+
+    </span><span class="hljs-template-variable">{{</span><span class="language-php">
+        <span class="hljs-title class_">Vite</span>::<span class="hljs-title function_ invoke__">useHotFile</span>(<span class="hljs-title function_ invoke__">storage_path</span>(<span class="hljs-string">&#x27;vite.hot&#x27;</span>)) <span class="hljs-comment">// Customize the &quot;hot&quot; file...</span>
+            -&gt;<span class="hljs-title function_ invoke__">useBuildDirectory</span>(<span class="hljs-string">&#x27;bundle&#x27;</span>) <span class="hljs-comment">// Customize the build directory...</span>
+            -&gt;<span class="hljs-title function_ invoke__">withEntryPoints</span>([<span class="hljs-string">&#x27;resources/js/app.js&#x27;</span>]) <span class="hljs-comment">// Specify the entry points...</span>
+    </span><span class="hljs-template-variable">}}</span><span class="language-xml">
+<span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span></span>
+</code></pre>
+<p>Within the <code>vite.config.js</code> file, you should then specify the same configuration:</p>
+<pre><code class="language-js"><span class="hljs-keyword">import</span> { defineConfig } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;vite&#x27;</span>;
+<span class="hljs-keyword">import</span> laravel <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;laravel-vite-plugin&#x27;</span>;
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-title function_">defineConfig</span>({
+    <span class="hljs-attr">plugins</span>: [
+        <span class="hljs-title function_">laravel</span>({
+            <span class="hljs-attr">hotFile</span>: <span class="hljs-string">&#x27;storage/vite.hot&#x27;</span>, <span class="hljs-comment">// Customize the &quot;hot&quot; file...</span>
+            <span class="hljs-attr">buildDirectory</span>: <span class="hljs-string">&#x27;bundle&#x27;</span>, <span class="hljs-comment">// Customize the build directory...</span>
+            <span class="hljs-attr">input</span>: [<span class="hljs-string">&#x27;resources/js/app.js&#x27;</span>], <span class="hljs-comment">// Specify the entry points...</span>
+        }),
+    ],
+});
+</code></pre>

@@ -155,7 +155,7 @@
 
 <span class="hljs-variable">$user</span>-&gt;first_name = <span class="hljs-string">&#x27;Sally&#x27;</span>;
 </code></pre>
-<p>In this example, the <code>set</code> callback will be called with the value <code>Sally</code>. The mutator will then apply the <code>strtolower</code> function to the name and set its resulting value in model&#39;s the internal <code>$attributes</code> array.</p>
+<p>In this example, the <code>set</code> callback will be called with the value <code>Sally</code>. The mutator will then apply the <code>strtolower</code> function to the name and set its resulting value in the model&#39;s internal <code>$attributes</code> array.</p>
 <p><a name="mutating-multiple-attributes"></a></p>
 <h4 id="mutating-multiple-attributes">Mutating Multiple Attributes</h4>
 <p>Sometimes your mutator may need to set multiple attributes on the underlying model. To do so, you may return an array from the <code>set</code> closure. Each key in the array should correspond with an underlying attribute / database column associated with the model:</p>
@@ -196,7 +196,7 @@
 <li><code>datetime</code></li>
 <li><code>immutable_date</code></li>
 <li><code>immutable_datetime</code></li>
-<li><code>decimal:</code><code>&lt;digits&gt;</code></li>
+<li><code>decimal:&lt;precision&gt;</code></li>
 <li><code>double</code></li>
 <li><code>encrypted</code></li>
 <li><code>encrypted:array</code></li>
@@ -381,7 +381,7 @@
 <blockquote>
 <p><strong>Warning</strong><br>Enum casting is only available for PHP 8.1+.</p>
 </blockquote>
-<p>Eloquent also allows you to cast your attribute values to PHP <a href="https://www.php.net/manual/en/language.enumerations.backed.php">&quot;backed&quot; Enums</a>. To accomplish this, you may specify the attribute and enum you wish to cast in your model&#39;s <code>$casts</code> property array:</p>
+<p>Eloquent also allows you to cast your attribute values to PHP <a href="https://www.php.net/manual/en/language.enumerations.backed.php">Enums</a>. To accomplish this, you may specify the attribute and enum you wish to cast in your model&#39;s <code>$casts</code> property array:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Enums</span>\<span class="hljs-title">ServerStatus</span>;
 
 <span class="hljs-comment">/**
@@ -497,7 +497,7 @@
 
 <span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Casts</span>;
 
-<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Address</span> <span class="hljs-keyword">as</span> <span class="hljs-title">AddressModel</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">ValueObjects</span>\<span class="hljs-title">Address</span> <span class="hljs-keyword">as</span> <span class="hljs-title">AddressValueObject</span>;
 <span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Contracts</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">CastsAttributes</span>;
 <span class="hljs-keyword">use</span> <span class="hljs-title">InvalidArgumentException</span>;
 
@@ -510,11 +510,11 @@
      * <span class="hljs-doctag">@param</span>  string  $key
      * <span class="hljs-doctag">@param</span>  mixed  $value
      * <span class="hljs-doctag">@param</span>  array  $attributes
-     * <span class="hljs-doctag">@return</span> \App\Models\Address
+     * <span class="hljs-doctag">@return</span> \App\ValueObjects\Address
      */</span>
     <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">get</span>(<span class="hljs-params"><span class="hljs-variable">$model</span>, <span class="hljs-variable">$key</span>, <span class="hljs-variable">$value</span>, <span class="hljs-variable">$attributes</span></span>)
     </span>{
-        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AddressModel</span>(
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AddressValueObject</span>(
             <span class="hljs-variable">$attributes</span>[<span class="hljs-string">&#x27;address_line_one&#x27;</span>],
             <span class="hljs-variable">$attributes</span>[<span class="hljs-string">&#x27;address_line_two&#x27;</span>]
         );
@@ -525,13 +525,13 @@
      *
      * <span class="hljs-doctag">@param</span>  \Illuminate\Database\Eloquent\Model  $model
      * <span class="hljs-doctag">@param</span>  string  $key
-     * <span class="hljs-doctag">@param</span>  \App\Models\Address  $value
+     * <span class="hljs-doctag">@param</span>  \App\ValueObjects\Address  $value
      * <span class="hljs-doctag">@param</span>  array  $attributes
      * <span class="hljs-doctag">@return</span> array
      */</span>
     <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">set</span>(<span class="hljs-params"><span class="hljs-variable">$model</span>, <span class="hljs-variable">$key</span>, <span class="hljs-variable">$value</span>, <span class="hljs-variable">$attributes</span></span>)
     </span>{
-        <span class="hljs-keyword">if</span> (! <span class="hljs-variable">$value</span> <span class="hljs-keyword">instanceof</span> AddressModel) {
+        <span class="hljs-keyword">if</span> (! <span class="hljs-variable">$value</span> <span class="hljs-keyword">instanceof</span> AddressValueObject) {
             <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">InvalidArgumentException</span>(<span class="hljs-string">&#x27;The given value is not an Address instance.&#x27;</span>);
         }
 

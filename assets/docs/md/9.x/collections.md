@@ -1143,6 +1143,14 @@ If the collection contains simple strings or numeric values, you should pass the
 
     // '1-2-3-4-5'
 
+You may pass a closure to the `implode` method if you would like to format the values being imploded:
+
+    $collection->implode(function ($item, $key) {
+        return strtoupper($item['product']);
+    }, ', ');
+
+    // DESK, CHAIR
+
 <a name="method-intersect"></a>
 #### `intersect()` {.collection-method}
 
@@ -3358,7 +3366,20 @@ To create a lazy collection instance, you should pass a PHP generator function t
 
 Almost all methods available on the `Collection` class are also available on the `LazyCollection` class. Both of these classes implement the `Illuminate\Support\Enumerable` contract, which defines the following methods:
 
-<div id="collection-method-list" markdown="1">
+<style>
+    .collection-method-list > p {
+        columns: 10.8em 3; -moz-columns: 10.8em 3; -webkit-columns: 10.8em 3;
+    }
+
+    .collection-method-list a {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+</style>
+
+<div class="collection-method-list" markdown="1">
 
 [all](#method-all)
 [average](#method-average)

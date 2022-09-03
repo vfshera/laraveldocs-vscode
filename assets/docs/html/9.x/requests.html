@@ -239,7 +239,7 @@ composer require nyholm/psr7
 </code></pre>
 <p><a name="retrieving-json-input-values"></a></p>
 <h4 id="retrieving-json-input-values">Retrieving JSON Input Values</h4>
-<p>When sending JSON requests to your application, you may access the JSON data via the <code>input</code> method as long as the <code>Content-Type</code> header of the request is properly set to <code>application/json</code>. You may even use &quot;dot&quot; syntax to retrieve values that are nested within JSON arrays:</p>
+<p>When sending JSON requests to your application, you may access the JSON data via the <code>input</code> method as long as the <code>Content-Type</code> header of the request is properly set to <code>application/json</code>. You may even use &quot;dot&quot; syntax to retrieve values that are nested within JSON arrays / objects:</p>
 <pre><code><span class="hljs-variable">$name</span> = <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">input</span>(<span class="hljs-string">&#x27;user.name&#x27;</span>);
 </code></pre>
 <p><a name="retrieving-stringable-input-values"></a></p>
@@ -317,12 +317,12 @@ composer require nyholm/psr7
     <span class="hljs-comment">//</span>
 }
 </code></pre>
-<p>If you would like to determine if a value is present on the request and is not empty, you may use the <code>filled</code> method:</p>
+<p>If you would like to determine if a value is present on the request and is not an empty string, you may use the <code>filled</code> method:</p>
 <pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">filled</span>(<span class="hljs-string">&#x27;name&#x27;</span>)) {
     <span class="hljs-comment">//</span>
 }
 </code></pre>
-<p>The <code>whenFilled</code> method will execute the given closure if a value is present on the request and is not empty:</p>
+<p>The <code>whenFilled</code> method will execute the given closure if a value is present on the request and is not an empty string:</p>
 <pre><code><span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">whenFilled</span>(<span class="hljs-string">&#x27;name&#x27;</span>, function (<span class="hljs-variable">$input</span>) {
     <span class="hljs-comment">//</span>
 });

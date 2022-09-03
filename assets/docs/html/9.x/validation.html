@@ -179,7 +179,7 @@
 </code></pre>
 <p><a name="quick-customizing-the-error-messages"></a></p>
 <h4 id="customizing-the-error-messages">Customizing The Error Messages</h4>
-<p>Laravel&#39;s built-in validation rules each has an error message that is located in your application&#39;s <code>lang/en/validation.php</code> file. Within this file, you will find a translation entry for each validation rule. You are free to change or modify these messages based on the needs of your application.</p>
+<p>Laravel&#39;s built-in validation rules each have an error message that is located in your application&#39;s <code>lang/en/validation.php</code> file. Within this file, you will find a translation entry for each validation rule. You are free to change or modify these messages based on the needs of your application.</p>
 <p>In addition, you may copy this file to another translation language directory to translate the messages for your application&#39;s language. To learn more about Laravel localization, check out the complete <a href="/docs/%7B%7Bversion%7D%7D/localization">localization documentation</a>.</p>
 <p><a name="quick-xhr-requests-and-validation"></a></p>
 <h4 id="xhr-requests--validation">XHR Requests &amp; Validation</h4>
@@ -610,7 +610,7 @@
 </code></pre>
 <p><a name="specifying-custom-messages-in-language-files"></a></p>
 <h3 id="specifying-custom-messages-in-language-files">Specifying Custom Messages In Language Files</h3>
-<p>Laravel&#39;s built-in validation rules each has an error message that is located in your application&#39;s <code>lang/en/validation.php</code> file. Within this file, you will find a translation entry for each validation rule. You are free to change or modify these messages based on the needs of your application.</p>
+<p>Laravel&#39;s built-in validation rules each have an error message that is located in your application&#39;s <code>lang/en/validation.php</code> file. Within this file, you will find a translation entry for each validation rule. You are free to change or modify these messages based on the needs of your application.</p>
 <p>In addition, you may copy this file to another translation language directory to translate the messages for your application&#39;s language. To learn more about Laravel localization, check out the complete <a href="/docs/%7B%7Bversion%7D%7D/localization">localization documentation</a>.</p>
 <p><a name="custom-messages-for-specific-attributes"></a></p>
 <h4 id="custom-messages-for-specific-attributes">Custom Messages For Specific Attributes</h4>
@@ -718,9 +718,11 @@
 <a href="#rule-lte">Less Than Or Equal</a>
 <a href="#rule-mac">MAC Address</a>
 <a href="#rule-max">Max</a>
+<a href="#rule-max-digits">Max Digits</a>
 <a href="#rule-mimetypes">MIME Types</a>
 <a href="#rule-mimes">MIME Type By File Extension</a>
 <a href="#rule-min">Min</a>
+<a href="#rule-min-digits">Min Digits</a>
 <a href="#multiple-of">Multiple Of</a>
 <a href="#rule-not-in">Not In</a>
 <a href="#rule-not-regex">Not Regex</a>
@@ -816,7 +818,7 @@
 <p>The field under validation must be a value preceding or equal to the given date. The dates will be passed into the PHP <code>strtotime</code> function in order to be converted into a valid <code>DateTime</code> instance. In addition, like the <a href="#rule-after"><code>after</code></a> rule, the name of another field under validation may be supplied as the value of <code>date</code>.</p>
 <p><a name="rule-between"></a></p>
 <h4 id="betweenminmax">between:<em>min</em>,<em>max</em></h4>
-<p>The field under validation must have a size between the given <em>min</em> and <em>max</em>. Strings, numerics, arrays, and files are evaluated in the same fashion as the <a href="#rule-size"><code>size</code></a> rule.</p>
+<p>The field under validation must have a size between the given <em>min</em> and <em>max</em> (inclusive). Strings, numerics, arrays, and files are evaluated in the same fashion as the <a href="#rule-size"><code>size</code></a> rule.</p>
 <p><a name="rule-boolean"></a></p>
 <h4 id="boolean">boolean</h4>
 <p>The field under validation must be able to be cast as a boolean. Accepted input are <code>true</code>, <code>false</code>, <code>1</code>, <code>0</code>, <code>&quot;1&quot;</code>, and <code>&quot;0&quot;</code>.</p>
@@ -1065,6 +1067,9 @@
 <p><a name="rule-max"></a></p>
 <h4 id="maxvalue">max:<em>value</em></h4>
 <p>The field under validation must be less than or equal to a maximum <em>value</em>. Strings, numerics, arrays, and files are evaluated in the same fashion as the <a href="#rule-size"><code>size</code></a> rule.</p>
+<p><a name="rule-max-digits"></a></p>
+<h4 id="max_digitsvalue">max_digits:<em>value</em></h4>
+<p>The integer under validation must have a maximum length of <em>value</em>.</p>
 <p><a name="rule-mimetypes"></a></p>
 <h4 id="mimetypestextplain">mimetypes:<em>text/plain</em>,...</h4>
 <p>The file under validation must match one of the given MIME types:</p>
@@ -1083,6 +1088,9 @@
 <p><a name="rule-min"></a></p>
 <h4 id="minvalue">min:<em>value</em></h4>
 <p>The field under validation must have a minimum <em>value</em>. Strings, numerics, arrays, and files are evaluated in the same fashion as the <a href="#rule-size"><code>size</code></a> rule.</p>
+<p><a name="rule-min-digits"></a></p>
+<h4 id="min_digitsvalue">min_digits:<em>value</em></h4>
+<p>The integer under validation must have a minimum length of <em>value</em>.</p>
 <p><a name="multiple-of"></a></p>
 <h4 id="multiple_ofvalue">multiple_of:<em>value</em></h4>
 <p>The field under validation must be a multiple of <em>value</em>.</p>
@@ -1125,10 +1133,10 @@
 <p>The field under validation must be present in the input data but can be empty.</p>
 <p><a name="rule-prohibited"></a></p>
 <h4 id="prohibited">prohibited</h4>
-<p>The field under validation must be empty or not present.</p>
+<p>The field under validation must be an empty string or not present.</p>
 <p><a name="rule-prohibited-if"></a></p>
 <h4 id="prohibited_ifanotherfieldvalue">prohibited_if:<em>anotherfield</em>,<em>value</em>,...</h4>
-<p>The field under validation must be empty or not present if the <em>anotherfield</em> field is equal to any <em>value</em>.</p>
+<p>The field under validation must be an empty string or not present if the <em>anotherfield</em> field is equal to any <em>value</em>.</p>
 <p>If complex conditional prohibition logic is required, you may utilize the <code>Rule::prohibitedIf</code> method. This method accepts a boolean or a closure. When given a closure, the closure should return <code>true</code> or <code>false</code> to indicate if the field under validation should be prohibited:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Validator</span>;
 <span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Validation</span>\<span class="hljs-title">Rule</span>;
@@ -1143,7 +1151,7 @@
 </code></pre>
 <p><a name="rule-prohibited-unless"></a></p>
 <h4 id="prohibited_unlessanotherfieldvalue">prohibited_unless:<em>anotherfield</em>,<em>value</em>,...</h4>
-<p>The field under validation must be empty or not present unless the <em>anotherfield</em> field is equal to any <em>value</em>.</p>
+<p>The field under validation must be an empty string or not present unless the <em>anotherfield</em> field is equal to any <em>value</em>.</p>
 <p><a name="rule-prohibits"></a></p>
 <h4 id="prohibitsanotherfield">prohibits:<em>anotherfield</em>,...</h4>
 <p>If the field under validation is present, no fields in <em>anotherfield</em> can be present, even if empty.</p>
@@ -1692,8 +1700,7 @@
 
 <span class="hljs-title class_">Validator</span>::<span class="hljs-title function_ invoke__">make</span>(<span class="hljs-variable">$input</span>, <span class="hljs-variable">$rules</span>)-&gt;<span class="hljs-title function_ invoke__">passes</span>(); <span class="hljs-comment">// true</span>
 </code></pre>
-<p>For a custom rule to run even when an attribute is empty, the rule must imply that the attribute is required. To create an &quot;implicit&quot; rule, implement the <code>Illuminate\Contracts\Validation\ImplicitRule</code> interface. This interface serves as a &quot;marker interface&quot; for the validator; therefore, it does not contain any additional methods you need to implement beyond the methods required by the typical <code>Rule</code> interface.</p>
-<p>To generate a new implicit rule object, you may use the <code>make:rule</code> Artisan command with the <code>--implicit</code> option :</p>
+<p>For a custom rule to run even when an attribute is empty, the rule must imply that the attribute is required. To quickly generate a new implicit rule object, you may use the <code>make:rule</code> Artisan command with the <code>--implicit</code> option:</p>
 <pre><code class="language-shell">php artisan make:rule Uppercase --invokable --implicit
 </code></pre>
 <blockquote>

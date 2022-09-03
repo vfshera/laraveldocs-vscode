@@ -95,7 +95,7 @@
 <h2 id="upgrading-cashier">Upgrading Cashier</h2>
 <p>When upgrading to a new version of Cashier, it&#39;s important that you carefully review <a href="https://github.com/laravel/cashier-stripe/blob/master/UPGRADE.md">the upgrade guide</a>.</p>
 <blockquote>
-<p><strong>Warning</strong><br>To prevent breaking changes, Cashier uses a fixed Stripe API version. Cashier 13 utilizes Stripe API version <code>2020-08-27</code>. The Stripe API version will be updated on minor releases in order to make use of new Stripe features and improvements.</p>
+<p><strong>Warning</strong><br>To prevent breaking changes, Cashier uses a fixed Stripe API version. Cashier 14 utilizes Stripe API version <code>2022-08-01</code>. The Stripe API version will be updated on minor releases in order to make use of new Stripe features and improvements.</p>
 </blockquote>
 <p><a name="installation"></a></p>
 <h2 id="installation">Installation</h2>
@@ -263,11 +263,11 @@
 <p>Stripe allows you to credit or debit a customer&#39;s &quot;balance&quot;. Later, this balance will be credited or debited on new invoices. To check the customer&#39;s total balance you may use the <code>balance</code> method that is available on your billable model. The <code>balance</code> method will return a formatted string representation of the balance in the customer&#39;s currency:</p>
 <pre><code><span class="hljs-variable">$balance</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">balance</span>();
 </code></pre>
-<p>To credit a customer&#39;s balance, you may provide a negative value to the <code>applyBalance</code> method. If you wish, you may also provide a description:</p>
-<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">applyBalance</span>(-<span class="hljs-number">500</span>, <span class="hljs-string">&#x27;Premium customer top-up.&#x27;</span>);
+<p>To credit a customer&#39;s balance, you may provide a value to the <code>creditBalance</code> method. If you wish, you may also provide a description:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">creditBalance</span>(<span class="hljs-number">500</span>, <span class="hljs-string">&#x27;Premium customer top-up.&#x27;</span>);
 </code></pre>
-<p>Providing a positive value to the <code>applyBalance</code> method will debit the customer&#39;s balance:</p>
-<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">applyBalance</span>(<span class="hljs-number">300</span>, <span class="hljs-string">&#x27;Bad usage penalty.&#x27;</span>);
+<p>Providing a value to the <code>debitBalance</code> method will debit the customer&#39;s balance:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">debitBalance</span>(<span class="hljs-number">300</span>, <span class="hljs-string">&#x27;Bad usage penalty.&#x27;</span>);
 </code></pre>
 <p>The <code>applyBalance</code> method will create new customer balance transactions for the customer. You may retrieve these transaction records using the <code>balanceTransactions</code> method, which may be useful in order to provide a log of credits and debits for the customer to review:</p>
 <pre><code><span class="hljs-comment">// Retrieve all transactions...</span>
@@ -328,7 +328,7 @@
     <span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;company_name;
 }
 </code></pre>
-<p>Similarly, you may override the <code>stripeEmail</code>, <code>stripePhone</code>, and <code>stripeAddress</code> methods. These methods will sync information to their corresponding customer parameters when <a href="https://stripe.com/docs/api/customers/update">updating the Stripe customer object</a>. If you wish to take total control over the customer information sync process, you may override the <code>syncStripeCustomerDetails</code> method.</p>
+<p>Similarly, you may override the <code>stripeEmail</code>, <code>stripePhone</code>, <code>stripeAddress</code>, and <code>stripePreferredLocales</code> methods. These methods will sync information to their corresponding customer parameters when <a href="https://stripe.com/docs/api/customers/update">updating the Stripe customer object</a>. If you wish to take total control over the customer information sync process, you may override the <code>syncStripeCustomerDetails</code> method.</p>
 <p><a name="billing-portal"></a></p>
 <h3 id="billing-portal">Billing Portal</h3>
 <p>Stripe offers <a href="https://stripe.com/docs/billing/subscriptions/customer-portal">an easy way to set up a billing portal</a> so that your customer can manage their subscription, payment methods, and view their billing history. You can redirect your users to the billing portal by invoking the <code>redirectToBillingPortal</code> method on the billable model from a controller or route:</p>
@@ -352,7 +352,7 @@
 <h2 id="payment-methods">Payment Methods</h2>
 <p><a name="storing-payment-methods"></a></p>
 <h3 id="storing-payment-methods">Storing Payment Methods</h3>
-<p>In order to create subscriptions or perform &quot;one off&quot; charges with Stripe, you will need to store a payment method and retrieve its identifier from Stripe. The approach used to accomplish this differs based on whether you plan to use the payment method for subscriptions or single charges, so we will examine both below.</p>
+<p>In order to create subscriptions or perform &quot;one-off&quot; charges with Stripe, you will need to store a payment method and retrieve its identifier from Stripe. The approach used to accomplish this differs based on whether you plan to use the payment method for subscriptions or single charges, so we will examine both below.</p>
 <p><a name="payment-methods-for-subscriptions"></a></p>
 <h4 id="payment-methods-for-subscriptions">Payment Methods For Subscriptions</h4>
 <p>When storing a customer&#39;s credit card information for future use by a subscription, the Stripe &quot;Setup Intents&quot; API must be used to securely gather the customer&#39;s payment method details. A &quot;Setup Intent&quot; indicates to Stripe the intention to charge a customer&#39;s payment method. Cashier&#39;s <code>Billable</code> trait includes the <code>createSetupIntent</code> method to easily create a new Setup Intent. You should invoke this method from the route or controller that will render the form which gathers your customer&#39;s payment method details:</p>
@@ -620,7 +620,7 @@ cardButton.<span class="hljs-title function_">addEventListener</span>(<span clas
 <h4 id="creating-subscriptions-from-the-stripe-dashboard">Creating Subscriptions From The Stripe Dashboard</h4>
 <p>You may also create subscriptions from the Stripe dashboard itself. When doing so, Cashier will sync newly added subscriptions and assign them a name of <code>default</code>. To customize the subscription name that is assigned to dashboard created subscriptions, <a href="/docs/%7B%7Bversion%7D%7D/billing#defining-webhook-event-handlers">extend the <code>WebhookController</code></a> and overwrite the <code>newSubscriptionName</code> method.</p>
 <p>In addition, you may only create one type of subscription via the Stripe dashboard. If your application offers multiple subscriptions that use different names, only one type of subscription may be added through the Stripe dashboard.</p>
-<p>Finally, you should always make sure to only add one active subscription per type of subscription offered by your application. If customer has two <code>default</code> subscriptions, only the most recently added subscription will be used by Cashier even though both would be synced with your application&#39;s database.</p>
+<p>Finally, you should always make sure to only add one active subscription per type of subscription offered by your application. If a customer has two <code>default</code> subscriptions, only the most recently added subscription will be used by Cashier even though both would be synced with your application&#39;s database.</p>
 <p><a name="checking-subscription-status"></a></p>
 <h3 id="checking-subscription-status">Checking Subscription Status</h3>
 <p>Once a customer is subscribed to your application, you may easily check their subscription status using a variety of convenient methods. First, the <code>subscribed</code> method returns <code>true</code> if the customer has an active subscription, even if the subscription is currently within its trial period. The <code>subscribed</code> method accepts the name of the subscription as its first argument:</p>
@@ -1013,7 +1013,7 @@ cardButton.<span class="hljs-title function_">addEventListener</span>(<span clas
 }
 </code></pre>
 <blockquote>
-<p><strong>Warning</strong><br>The <code>taxRates</code> method only applies to subscription charges. If you use Cashier to make &quot;one off&quot; charges, you will need to manually specify the tax rate at that time.</p>
+<p><strong>Warning</strong><br>The <code>taxRates</code> method only applies to subscription charges. If you use Cashier to make &quot;one-off&quot; charges, you will need to manually specify the tax rate at that time.</p>
 </blockquote>
 <p><a name="syncing-tax-rates"></a></p>
 <h4 id="syncing-tax-rates">Syncing Tax Rates</h4>
@@ -1410,17 +1410,17 @@ cardButton.<span class="hljs-title function_">addEventListener</span>(<span clas
 </code></pre>
 <p><a name="generating-invoice-pdfs"></a></p>
 <h3 id="generating-invoice-pdfs">Generating Invoice PDFs</h3>
+<p>Before generating invoice PDFs, you should use Composer to install the Dompdf library, which is the default invoice renderer for Cashier:</p>
+<pre><code class="language-php">composer <span class="hljs-keyword">require</span> dompdf/dompdf
+</code></pre>
 <p>From within a route or controller, you may use the <code>downloadInvoice</code> method to generate a PDF download of a given invoice. This method will automatically generate the proper HTTP response needed to download the invoice:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
 
 <span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/user/invoice/{invoice}&#x27;</span>, function (Request <span class="hljs-variable">$request</span>, <span class="hljs-variable">$invoiceId</span>) {
-    <span class="hljs-keyword">return</span> <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">downloadInvoice</span>(<span class="hljs-variable">$invoiceId</span>, [
-        <span class="hljs-string">&#x27;vendor&#x27;</span> =&gt; <span class="hljs-string">&#x27;Your Company&#x27;</span>,
-        <span class="hljs-string">&#x27;product&#x27;</span> =&gt; <span class="hljs-string">&#x27;Your Product&#x27;</span>,
-    ]);
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">downloadInvoice</span>(<span class="hljs-variable">$invoiceId</span>);
 });
 </code></pre>
-<p>By default, all data on the invoice is derived from the customer and invoice data stored in Stripe. However, you can customize some of this data by providing an array as the second argument to the <code>downloadInvoice</code> method. This array allows you to customize information such as your company and product details:</p>
+<p>By default, all data on the invoice is derived from the customer and invoice data stored in Stripe. The filename is based on your <code>app.name</code> config value. However, you can customize some of this data by providing an array as the second argument to the <code>downloadInvoice</code> method. This array allows you to customize information such as your company and product details:</p>
 <pre><code><span class="hljs-keyword">return</span> <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">downloadInvoice</span>(<span class="hljs-variable">$invoiceId</span>, [
     <span class="hljs-string">&#x27;vendor&#x27;</span> =&gt; <span class="hljs-string">&#x27;Your Company&#x27;</span>,
     <span class="hljs-string">&#x27;product&#x27;</span> =&gt; <span class="hljs-string">&#x27;Your Product&#x27;</span>,
@@ -1430,7 +1430,7 @@ cardButton.<span class="hljs-title function_">addEventListener</span>(<span clas
     <span class="hljs-string">&#x27;email&#x27;</span> =&gt; <span class="hljs-string">&#x27;info@example.com&#x27;</span>,
     <span class="hljs-string">&#x27;url&#x27;</span> =&gt; <span class="hljs-string">&#x27;https://example.com&#x27;</span>,
     <span class="hljs-string">&#x27;vendorVat&#x27;</span> =&gt; <span class="hljs-string">&#x27;BE123456789&#x27;</span>,
-], <span class="hljs-string">&#x27;my-invoice&#x27;</span>);
+]);
 </code></pre>
 <p>The <code>downloadInvoice</code> method also allows for a custom filename via its third argument. This filename will automatically be suffixed with <code>.pdf</code>:</p>
 <pre><code><span class="hljs-keyword">return</span> <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">downloadInvoice</span>(<span class="hljs-variable">$invoiceId</span>, [], <span class="hljs-string">&#x27;my-invoice&#x27;</span>);

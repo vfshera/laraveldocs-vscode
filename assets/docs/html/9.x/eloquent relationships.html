@@ -1440,6 +1440,15 @@ taggables
 }])-&gt;<span class="hljs-title function_ invoke__">get</span>();
 </code></pre>
 <p>In this example, Eloquent will only eager load posts that have not been hidden and videos that have a <code>type</code> value of &quot;educational&quot;.</p>
+<p><a name="constraining-eager-loads-with-relationship-existence"></a></p>
+<h4 id="constraining-eager-loads-with-relationship-existence">Constraining Eager Loads With Relationship Existence</h4>
+<p>You may sometimes find yourself needing to check for the existence of a relationship while simultaneously loading the relationship based on the same conditions. For example, you may wish to only retrieve <code>User</code> models that have child <code>Post</code> models matching a given query condition while also eager loading the matching posts. You may accomplish this using the <code>withWhereHas</code> method:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+
+<span class="hljs-variable">$users</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">withWhereHas</span>(<span class="hljs-string">&#x27;posts&#x27;</span>, function (<span class="hljs-variable">$query</span>) {
+    <span class="hljs-variable">$query</span>-&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;featured&#x27;</span>, <span class="hljs-literal">true</span>);
+)-&gt;<span class="hljs-title function_ invoke__">get</span>();
+</code></pre>
 <p><a name="lazy-eager-loading"></a></p>
 <h3 id="lazy-eager-loading">Lazy Eager Loading</h3>
 <p>Sometimes you may need to eager load a relationship after the parent model has already been retrieved. For example, this may be useful if you need to dynamically decide whether to load related models:</p>

@@ -146,7 +146,7 @@
 </code></pre>
 <p><a name="retries"></a></p>
 <h3 id="retries">Retries</h3>
-<p>If you would like HTTP client to automatically retry the request if a client or server error occurs, you may use the <code>retry</code> method. The <code>retry</code> method accepts the maximum number of times the request should be attempted and the number of milliseconds that Laravel should wait in between attempts:</p>
+<p>If you would like the HTTP client to automatically retry the request if a client or server error occurs, you may use the <code>retry</code> method. The <code>retry</code> method accepts the maximum number of times the request should be attempted and the number of milliseconds that Laravel should wait in between attempts:</p>
 <pre><code><span class="hljs-variable">$response</span> = <span class="hljs-title class_">Http</span>::<span class="hljs-title function_ invoke__">retry</span>(<span class="hljs-number">3</span>, <span class="hljs-number">100</span>)-&gt;<span class="hljs-title function_ invoke__">post</span>(<span class="hljs-comment">/* ... */</span>);
 </code></pre>
 <p>If needed, you may pass a third argument to the <code>retry</code> method. The third argument should be a callable that determines if the retries should actually be attempted. For example, you may wish to only retry the request if the initial request encounters an <code>ConnectionException</code>:</p>
@@ -154,7 +154,7 @@
     <span class="hljs-keyword">return</span> <span class="hljs-variable">$exception</span> <span class="hljs-keyword">instanceof</span> ConnectionException;
 })-&gt;<span class="hljs-title function_ invoke__">post</span>(<span class="hljs-comment">/* ... */</span>);
 </code></pre>
-<p>If a request attempt fails, you may wish to make a change to the request before a new attempt is made. You can achieve this by modifying request argument provided to the callable you provided to the <code>retry</code> method. For example, you might want to retry the request with a new authorization token if the first attempt returned an authentication error:</p>
+<p>If a request attempt fails, you may wish to make a change to the request before a new attempt is made. You can achieve this by modifying the request argument provided to the callable you provided to the <code>retry</code> method. For example, you might want to retry the request with a new authorization token if the first attempt returned an authentication error:</p>
 <pre><code><span class="hljs-variable">$response</span> = <span class="hljs-title class_">Http</span>::<span class="hljs-title function_ invoke__">withToken</span>(<span class="hljs-variable">$this</span>-&gt;<span class="hljs-title function_ invoke__">getToken</span>())-&gt;<span class="hljs-title function_ invoke__">retry</span>(<span class="hljs-number">2</span>, <span class="hljs-number">0</span>, function (<span class="hljs-variable">$exception</span>, <span class="hljs-variable">$request</span>) {
     <span class="hljs-keyword">if</span> (! <span class="hljs-variable">$exception</span> <span class="hljs-keyword">instanceof</span> RequestException || <span class="hljs-variable">$exception</span>-&gt;response-&gt;<span class="hljs-title function_ invoke__">status</span>() !== <span class="hljs-number">401</span>) {
         <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;

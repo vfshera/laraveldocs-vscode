@@ -422,7 +422,7 @@ DB::<span class="hljs-title function_ invoke__">table</span>(<span class="hljs-s
                 -&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;preferences-&gt;dining-&gt;meal&#x27;</span>, <span class="hljs-string">&#x27;salad&#x27;</span>)
                 -&gt;<span class="hljs-title function_ invoke__">get</span>();
 </code></pre>
-<p>You may use <code>whereJsonContains</code> to query JSON arrays. This feature is not supported by the SQLite database:</p>
+<p>You may use <code>whereJsonContains</code> to query JSON arrays. This feature is not supported by SQLite database versions less than 3.38.0:</p>
 <pre><code><span class="hljs-variable">$users</span> = DB::<span class="hljs-title function_ invoke__">table</span>(<span class="hljs-string">&#x27;users&#x27;</span>)
                 -&gt;<span class="hljs-title function_ invoke__">whereJsonContains</span>(<span class="hljs-string">&#x27;options-&gt;languages&#x27;</span>, <span class="hljs-string">&#x27;en&#x27;</span>)
                 -&gt;<span class="hljs-title function_ invoke__">get</span>();
