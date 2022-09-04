@@ -1,5 +1,9 @@
 # Change Log
 
+## v1.2.2 - 2022-09-05
+
+- fix docs generator to create filenames in sentence case
+
 ## v1.2.1 - 2022-09-04
 
 - Theme support docs and demo
