@@ -21,12 +21,12 @@ Get Docs right in your vscode
 - [Highlightjs](https://github.com/highlightjs/highlight.js/) with GitHub Dark Theme and [Blade Language](https://github.com/miken32/highlightjs-blade)
 - [DOMPurify](https://github.com/cure53/DOMPurify) to sanitize html ofcos
 
-### Theme
+#### Theme
 
 - [x] Works well with Dark Themes
 - [ ] Light Themes to be supported soon
 
-Check [Themes](THEMES.md) for demo.
+Check [Themes Demo](THEMES.md)
 
 #### Author
 

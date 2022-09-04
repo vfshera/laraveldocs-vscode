@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as vscode from "vscode";
 import path = require("path");
-import { DOCS_DIR, HTML_DOCS } from "./constants";
+import { DOCS_DIR, HTML_DOCS, MD_DOCS } from "./constants";
 
 export function getNonce() {
   let text = "";
@@ -35,20 +35,12 @@ export function getDocContents(pathToFile: string) {
 }
 
 export function docs() {
-  /**
-   * Get Versions eg 8.x,9.x
-   */
   const versionList: string[] = fs.readdirSync(
-    path.join(__dirname, "..", DOCS_DIR)
+    path.join(__dirname, "..", MD_DOCS)
   );
 
   return versionList.map((ver) => {
-    /**
-     * Getting Files in each version folder
-     * [{ version: 9.x, files: [...list of .md filenames without extension ]}]
-     */
-
-    const versionDir = path.join(__dirname, "..", DOCS_DIR, ver);
+    const versionDir = path.join(__dirname, "..", MD_DOCS, ver);
 
     return {
       version: ver,

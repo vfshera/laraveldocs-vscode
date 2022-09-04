@@ -7,6 +7,8 @@
   function openDoc(file: IDocFile) {
     ldvscode.postMessage({ command: "open-doc", value: file });
   }
+
+
 </script>
 
 <div class="doc">

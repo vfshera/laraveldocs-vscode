@@ -14,14 +14,26 @@ export default class Generator {
    * Find directory if none, create!
    * @param dirPath
    */
-  private static existsOrCreate(dirPath: string) {
+  private static existsOrCreate(dirPath: string, deleteContents?: boolean) {
     console.log("Checking ", dirPath);
 
     if (!fs.existsSync(dirPath)) {
       console.log("Creating ", dirPath);
       fs.mkdirSync(dirPath, { recursive: true });
-    } else {
-      console.log("Exists!");
+      return;
+    }
+
+    console.log("Exists!");
+
+    if (deleteContents === true) {
+      console.log("Checking Folder Contents!");
+
+      fs.readdirSync(dirPath).forEach((htmlFile) => {
+        let foundFilePath = path.join(dirPath, htmlFile);
+
+        fs.unlinkSync(foundFilePath);
+        console.log("Deleted ", foundFilePath);
+      });
     }
   }
 
@@ -34,17 +46,12 @@ export default class Generator {
     );
 
     return versionList.map((ver) => {
-      /**
-       * Getting Files in each version folder
-       * [{ version: 9.x, files: [...list of .md filenames without extension ]}]
-       */
-
       const versionDir = path.join(Generator.baseDir, MD_DOCS, ver);
 
       return {
         version: ver,
         files: fs.readdirSync(versionDir).map((fileName) => ({
-          title: getName(fileName.split(".")[0]),
+          title: fileName.split(".")[0],
           filename: fileName,
           link: path.join(versionDir, fileName),
         })),
@@ -63,7 +70,7 @@ export default class Generator {
        */
       const docDir = path.join(Generator.baseDir, HTML_DOCS, d.version);
 
-      Generator.existsOrCreate(docDir);
+      Generator.existsOrCreate(docDir, true);
 
       d.files.forEach((f) => {
         const fileName = path.join(docDir, f.title.toLowerCase() + ".html");
