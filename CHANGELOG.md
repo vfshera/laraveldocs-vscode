@@ -1,5 +1,9 @@
 # Change Log
 
+## v1.2.1 - 2022-09-04
+
+- Theme support docs and demo
+
 ## v1.2.0 - 2022-09-03
 
 - docs 9.x update
