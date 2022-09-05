@@ -1,5 +1,9 @@
 # Change Log
 
+## v1.2.3 - 2022-09-05
+
+- fix generator runner bug in production
+
 ## v1.2.2 - 2022-09-05
 
 - fix docs generator to create filenames in sentence case
