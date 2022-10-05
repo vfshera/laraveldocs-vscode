@@ -493,6 +493,9 @@ Hello, @</span><span class="hljs-template-variable">{{</span><span class="langua
     <span class="hljs-variable">$counter</span> = <span class="hljs-number">1</span>;
 </span><span class="hljs-template-tag">@endphp</span>
 </code></pre>
+<p>If you only need to write a single PHP statement, you can include the statement within the <code>@php</code> directive:</p>
+<pre><code class="language-blade"><span class="hljs-template-tag">@php</span><span class="language-php">(<span class="hljs-variable">$counter</span> = <span class="hljs-number">1</span>)</span>
+</code></pre>
 <p><a name="comments"></a></p>
 <h3 id="comments">Comments</h3>
 <p>Blade also allows you to define comments in your views. However, unlike HTML comments, Blade comments are not included in the HTML returned by your application:</p>
@@ -632,6 +635,15 @@ Hello, @</span><span class="hljs-template-variable">{{</span><span class="langua
 <p>The <code>$alertType</code> argument may be provided to the component like so:</p>
 <pre><code class="language-blade"><span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">x-alert</span> <span class="hljs-attr">alert-type</span>=<span class="hljs-string">&quot;danger&quot;</span> /&gt;</span></span>
 </code></pre>
+<p><a name="short-attribute-syntax"></a></p>
+<h4 id="short-attribute-syntax">Short Attribute Syntax</h4>
+<p>When passing attributes to components, you may also use a &quot;short attribute&quot; syntax. This is often convenient since attribute names frequently match the variable names they correspond to:</p>
+<pre><code class="language-blade"><span class="hljs-comment">{{-- Short attribute syntax... --}}</span><span class="language-xml">
+<span class="hljs-tag">&lt;<span class="hljs-name">x-profile</span> <span class="hljs-attr">:</span>$<span class="hljs-attr">userId</span> <span class="hljs-attr">:</span>$<span class="hljs-attr">name</span> /&gt;</span>
+
+</span><span class="hljs-comment">{{-- Is equivalent to... --}}</span><span class="language-xml">
+<span class="hljs-tag">&lt;<span class="hljs-name">x-profile</span> <span class="hljs-attr">:user-id</span>=<span class="hljs-string">&quot;$userId&quot;</span> <span class="hljs-attr">:name</span>=<span class="hljs-string">&quot;$name&quot;</span> /&gt;</span></span>
+</code></pre>
 <p><a name="escaping-attribute-rendering"></a></p>
 <h4 id="escaping-attribute-rendering">Escaping Attribute Rendering</h4>
 <p>Since some JavaScript frameworks such as Alpine.js also use colon-prefixed attributes, you may use a double colon (<code>::</code>) prefix to inform Blade that the attribute is not a PHP expression. For example, given the following component:</p>
@@ -659,7 +671,7 @@ Hello, @</span><span class="hljs-template-variable">{{</span><span class="langua
 }
 </code></pre>
 <p>You may execute this method from your component template by invoking the variable matching the name of the method:</p>
-<pre><code class="language-blade"><span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">option</span> </span></span><span class="hljs-template-variable">{{</span><span class="language-php"> <span class="hljs-variable">$isSelected</span>(<span class="hljs-variable">$value</span>) ? <span class="hljs-string">&#x27;selected=&quot;selected&quot;&#x27;</span> : <span class="hljs-string">&#x27;&#x27;</span> </span><span class="hljs-template-variable">}}</span><span class="language-xml"><span class="hljs-tag"> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;</span></span></span><span class="hljs-template-variable">{{</span><span class="language-php"> <span class="hljs-variable">$value</span> </span><span class="hljs-template-variable">}}</span><span class="language-xml"><span class="hljs-tag"><span class="hljs-string">&quot;</span>&gt;</span>
+<pre><code class="language-blade"><span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">option</span> </span></span><span class="hljs-template-variable">{{</span><span class="language-php"> <span class="hljs-variable">$isSelected</span>(<span class="hljs-variable">$value</span>) ? <span class="hljs-string">&#x27;selected&#x27;</span> : <span class="hljs-string">&#x27;&#x27;</span> </span><span class="hljs-template-variable">}}</span><span class="language-xml"><span class="hljs-tag"> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;</span></span></span><span class="hljs-template-variable">{{</span><span class="language-php"> <span class="hljs-variable">$value</span> </span><span class="hljs-template-variable">}}</span><span class="language-xml"><span class="hljs-tag"><span class="hljs-string">&quot;</span>&gt;</span>
     </span><span class="hljs-template-variable">{{</span><span class="language-php"> <span class="hljs-variable">$label</span> </span><span class="hljs-template-variable">}}</span><span class="language-xml">
 <span class="hljs-tag">&lt;/<span class="hljs-name">option</span>&gt;</span></span>
 </code></pre>

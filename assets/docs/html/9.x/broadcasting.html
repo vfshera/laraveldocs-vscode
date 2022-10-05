@@ -456,10 +456,10 @@
                     <span class="hljs-attr">channel_name</span>: channel.<span class="hljs-property">name</span>
                 })
                 .<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> {
-                    <span class="hljs-title function_">callback</span>(<span class="hljs-literal">false</span>, response.<span class="hljs-property">data</span>);
+                    <span class="hljs-title function_">callback</span>(<span class="hljs-literal">null</span>, response.<span class="hljs-property">data</span>);
                 })
                 .<span class="hljs-title function_">catch</span>(<span class="hljs-function"><span class="hljs-params">error</span> =&gt;</span> {
-                    <span class="hljs-title function_">callback</span>(<span class="hljs-literal">true</span>, error);
+                    <span class="hljs-title function_">callback</span>(error);
                 });
             }
         };

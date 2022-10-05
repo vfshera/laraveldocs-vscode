@@ -228,6 +228,15 @@
     <span class="hljs-comment">// Authentication was successful...</span>
 }
 </code></pre>
+<p>For complex query conditions, you may provide a closure in your array of credentials. This closure will be invoked with the query instance, allowing you to customize the query based on your application&#39;s needs:</p>
+<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-title class_">Auth</span>::<span class="hljs-title function_ invoke__">attempt</span>([
+    <span class="hljs-string">&#x27;email&#x27;</span> =&gt; <span class="hljs-variable">$email</span>, 
+    <span class="hljs-string">&#x27;password&#x27;</span> =&gt; <span class="hljs-variable">$password</span>, 
+    fn (<span class="hljs-variable">$query</span>) =&gt; <span class="hljs-variable">$query</span>-&gt;<span class="hljs-title function_ invoke__">has</span>(<span class="hljs-string">&#x27;activeSubscription&#x27;</span>),
+]) {
+    <span class="hljs-comment">// Authentication was successful...</span>
+}
+</code></pre>
 <blockquote>
 <p><strong>Warning</strong><br>In these examples, <code>email</code> is not a required option, it is merely used as an example. You should use whatever column name corresponds to a &quot;username&quot; in your database table.</p>
 </blockquote>

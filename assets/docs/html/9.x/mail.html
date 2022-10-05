@@ -163,6 +163,7 @@
 <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">build</span>(<span class="hljs-params"></span>)
 </span>{
     <span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-keyword">from</span>(<span class="hljs-string">&#x27;example@example.com&#x27;</span>, <span class="hljs-string">&#x27;Example&#x27;</span>)
+                -&gt;<span class="hljs-title function_ invoke__">subject</span>(<span class="hljs-string">&#x27;Order Shipped&#x27;</span>)
                 -&gt;<span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;emails.orders.shipped&#x27;</span>);
 }
 </code></pre>
@@ -765,7 +766,7 @@ This is the panel content.
 </code></pre>
 <p><a name="testing-mailables"></a></p>
 <h2 id="testing-mailables">Testing Mailables</h2>
-<p>Laravel provides several convenient methods for testing that your mailables contain the content that you expect. These methods are: <code>assertSeeInHtml</code>, <code>assertDontSeeInHtml</code>, <code>assertSeeInOrderInHtml</code>, <code>assertSeeInText</code>, <code>assertDontSeeInText</code>, and <code>assertSeeInOrderInText</code>.</p>
+<p>Laravel provides several convenient methods for testing that your mailable contains the content that you expect. These methods are: <code>assertSeeInHtml</code>, <code>assertDontSeeInHtml</code>, <code>assertSeeInOrderInHtml</code>, <code>assertSeeInText</code>, <code>assertDontSeeInText</code>, <code>assertSeeInOrderInText</code>, <code>assertHasAttachment</code>, <code>assertHasAttachedData</code>, <code>assertHasAttachmentFromStorage</code>, and <code>assertHasAttachmentFromStorageDisk</code>.</p>
 <p>As you might expect, the &quot;HTML&quot; assertions assert that the HTML version of your mailable contains a given string, while the &quot;text&quot; assertions assert that the plain-text version of your mailable contains a given string:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Mail</span>\<span class="hljs-title">InvoicePaid</span>;
 <span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
@@ -782,6 +783,12 @@ This is the panel content.
 
     <span class="hljs-variable">$mailable</span>-&gt;<span class="hljs-title function_ invoke__">assertSeeInText</span>(<span class="hljs-variable">$user</span>-&gt;email);
     <span class="hljs-variable">$mailable</span>-&gt;<span class="hljs-title function_ invoke__">assertSeeInOrderInText</span>([<span class="hljs-string">&#x27;Invoice Paid&#x27;</span>, <span class="hljs-string">&#x27;Thanks&#x27;</span>]);
+
+    <span class="hljs-variable">$mailable</span>-&gt;<span class="hljs-title function_ invoke__">assertHasAttachment</span>(<span class="hljs-string">&#x27;/path/to/file&#x27;</span>);
+    <span class="hljs-variable">$mailable</span>-&gt;<span class="hljs-title function_ invoke__">assertHasAttachment</span>(<span class="hljs-title class_">Attachment</span>::<span class="hljs-title function_ invoke__">fromPath</span>(<span class="hljs-string">&#x27;/path/to/file&#x27;</span>));
+    <span class="hljs-variable">$mailable</span>-&gt;<span class="hljs-title function_ invoke__">assertHasAttachedData</span>(<span class="hljs-variable">$pdfData</span>, <span class="hljs-string">&#x27;name.pdf&#x27;</span>, [<span class="hljs-string">&#x27;mime&#x27;</span> =&gt; <span class="hljs-string">&#x27;application/pdf&#x27;</span>]);
+    <span class="hljs-variable">$mailable</span>-&gt;<span class="hljs-title function_ invoke__">assertHasAttachementFromStorage</span>(<span class="hljs-string">&#x27;/path/to/file&#x27;</span>, <span class="hljs-string">&#x27;name.pdf&#x27;</span>, [<span class="hljs-string">&#x27;mime&#x27;</span> =&gt; <span class="hljs-string">&#x27;application/pdf&#x27;</span>]);
+    <span class="hljs-variable">$mailable</span>-&gt;<span class="hljs-title function_ invoke__">assertHasAttachementFromStorageDisk</span>(<span class="hljs-string">&#x27;s3&#x27;</span>, <span class="hljs-string">&#x27;/path/to/file&#x27;</span>, <span class="hljs-string">&#x27;name.pdf&#x27;</span>, [<span class="hljs-string">&#x27;mime&#x27;</span> =&gt; <span class="hljs-string">&#x27;application/pdf&#x27;</span>]);
 }
 </code></pre>
 <p><a name="testing-mailable-sending"></a></p>
@@ -817,17 +824,23 @@ This is the panel content.
 <p><a name="events"></a></p>
 <h2 id="events">Events</h2>
 <p>Laravel fires two events during the process of sending mail messages. The <code>MessageSending</code> event is fired prior to a message being sent, while the <code>MessageSent</code> event is fired after a message has been sent. Remember, these events are fired when the mail is being <em>sent</em>, not when it is queued. You may register event listeners for this event in your <code>App\Providers\EventServiceProvider</code> service provider:</p>
-<pre><code><span class="hljs-comment">/**
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Listeners</span>\<span class="hljs-title">LogSendingMessage</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Listeners</span>\<span class="hljs-title">LogSentMessage</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Mail</span>\<span class="hljs-title">Events</span>\<span class="hljs-title">MessageSending</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Mail</span>\<span class="hljs-title">Events</span>\<span class="hljs-title">MessageSent</span>;
+
+<span class="hljs-comment">/**
  * The event listener mappings for the application.
  *
  * <span class="hljs-doctag">@var</span> array
  */</span>
 <span class="hljs-keyword">protected</span> <span class="hljs-variable">$listen</span> = [
-    <span class="hljs-string">&#x27;Illuminate\Mail\Events\MessageSending&#x27;</span> =&gt; [
-        <span class="hljs-string">&#x27;App\Listeners\LogSendingMessage&#x27;</span>,
+    <span class="hljs-title class_">MessageSending</span>::<span class="hljs-variable language_">class</span> =&gt; [
+        <span class="hljs-title class_">LogSendingMessage</span>::<span class="hljs-variable language_">class</span>,
     ],
-    <span class="hljs-string">&#x27;Illuminate\Mail\Events\MessageSent&#x27;</span> =&gt; [
-        <span class="hljs-string">&#x27;App\Listeners\LogSentMessage&#x27;</span>,
+
+    <span class="hljs-title class_">MessageSent</span>::<span class="hljs-variable language_">class</span> =&gt; [
+        <span class="hljs-title class_">LogSentMessage</span>::<span class="hljs-variable language_">class</span>,
     ],
 ];
 </code></pre>

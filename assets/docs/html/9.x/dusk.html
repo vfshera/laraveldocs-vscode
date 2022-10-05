@@ -71,14 +71,16 @@
 <pre><code class="language-shell">composer require --dev laravel/dusk
 </code></pre>
 <blockquote>
-<p><strong>Warning</strong><br>If you are manually registering Dusk&#39;s service provider, you should <strong>never</strong> register it in your production environment, as doing so could lead to arbitrary users being able to authenticate with your application.</p>
+<p><strong>Warning</strong>
+If you are manually registering Dusk&#39;s service provider, you should <strong>never</strong> register it in your production environment, as doing so could lead to arbitrary users being able to authenticate with your application.</p>
 </blockquote>
-<p>After installing the Dusk package, execute the <code>dusk:install</code> Artisan command. The <code>dusk:install</code> command will create a <code>tests/Browser</code> directory, an example Dusk test, and install the Chrome Driver binary for your operation system:</p>
+<p>After installing the Dusk package, execute the <code>dusk:install</code> Artisan command. The <code>dusk:install</code> command will create a <code>tests/Browser</code> directory, an example Dusk test, and install the Chrome Driver binary for your operating system:</p>
 <pre><code class="language-shell">php artisan dusk:install
 </code></pre>
 <p>Next, set the <code>APP_URL</code> environment variable in your application&#39;s <code>.env</code> file. This value should match the URL you use to access your application in a browser.</p>
 <blockquote>
-<p><strong>Note</strong><br>If you are using <a href="/docs/%7B%7Bversion%7D%7D/sail">Laravel Sail</a> to manage your local development environment, please also consult the Sail documentation on <a href="/docs/%7B%7Bversion%7D%7D/sail#laravel-dusk">configuring and running Dusk tests</a>.</p>
+<p><strong>Note</strong>
+If you are using <a href="/docs/%7B%7Bversion%7D%7D/sail">Laravel Sail</a> to manage your local development environment, please also consult the Sail documentation on <a href="/docs/%7B%7Bversion%7D%7D/sail#laravel-dusk">configuring and running Dusk tests</a>.</p>
 </blockquote>
 <p><a name="managing-chromedriver-installations"></a></p>
 <h3 id="managing-chromedriver-installations">Managing ChromeDriver Installations</h3>
@@ -96,7 +98,8 @@ php artisan dusk:chrome-driver --all
 php artisan dusk:chrome-driver --detect
 </code></pre>
 <blockquote>
-<p><strong>Warning</strong><br>Dusk requires the <code>chromedriver</code> binaries to be executable. If you&#39;re having problems running Dusk, you should ensure the binaries are executable using the following command: <code>chmod -R 0755 vendor/laravel/dusk/bin/</code>.</p>
+<p><strong>Warning</strong>
+Dusk requires the <code>chromedriver</code> binaries to be executable. If you&#39;re having problems running Dusk, you should ensure the binaries are executable using the following command: <code>chmod -R 0755 vendor/laravel/dusk/bin/</code>.</p>
 </blockquote>
 <p><a name="using-other-browsers"></a></p>
 <h3 id="using-other-browsers">Using Other Browsers</h3>
@@ -151,7 +154,8 @@ php artisan dusk:chrome-driver --detect
 }
 </code></pre>
 <blockquote>
-<p><strong>Warning</strong><br>SQLite in-memory databases may not be used when executing Dusk tests. Since the browser executes within its own process, it will not be able to access the in-memory databases of other processes.</p>
+<p><strong>Warning</strong>
+SQLite in-memory databases may not be used when executing Dusk tests. Since the browser executes within its own process, it will not be able to access the in-memory databases of other processes.</p>
 </blockquote>
 <p><a name="running-tests"></a></p>
 <h3 id="running-tests">Running Tests</h3>
@@ -161,11 +165,12 @@ php artisan dusk:chrome-driver --detect
 <p>If you had test failures the last time you ran the <code>dusk</code> command, you may save time by re-running the failing tests first using the <code>dusk:fails</code> command:</p>
 <pre><code class="language-shell">php artisan dusk:fails
 </code></pre>
-<p>The <code>dusk</code> command accepts any argument that is normally accepted by the PHPUnit test runner, such as allowing you to only run the tests for a given <a href="https://phpunit.de/manual/current/en/appendixes.annotations.html#appendixes.annotations.group">group</a>:</p>
+<p>The <code>dusk</code> command accepts any argument that is normally accepted by the PHPUnit test runner, such as allowing you to only run the tests for a given <a href="https://phpunit.readthedocs.io/en/9.5/annotations.html#group">group</a>:</p>
 <pre><code class="language-shell">php artisan dusk --group=foo
 </code></pre>
 <blockquote>
-<p><strong>Note</strong><br>If you are using <a href="/docs/%7B%7Bversion%7D%7D/sail">Laravel Sail</a> to manage your local development environment, please consult the Sail documentation on <a href="/docs/%7B%7Bversion%7D%7D/sail#laravel-dusk">configuring and running Dusk tests</a>.</p>
+<p><strong>Note</strong>
+If you are using <a href="/docs/%7B%7Bversion%7D%7D/sail">Laravel Sail</a> to manage your local development environment, please consult the Sail documentation on <a href="/docs/%7B%7Bversion%7D%7D/sail#laravel-dusk">configuring and running Dusk tests</a>.</p>
 </blockquote>
 <p><a name="manually-starting-chromedriver"></a></p>
 <h4 id="manually-starting-chromedriver">Manually Starting ChromeDriver</h4>
@@ -334,7 +339,8 @@ php artisan dusk:chrome-driver --detect
 });
 </code></pre>
 <blockquote>
-<p><strong>Warning</strong><br>After using the <code>loginAs</code> method, the user session will be maintained for all tests within the file.</p>
+<p><strong>Warning</strong>
+After using the <code>loginAs</code> method, the user session will be maintained for all tests within the file.</p>
 </blockquote>
 <p><a name="cookies"></a></p>
 <h3 id="cookies">Cookies</h3>
@@ -481,7 +487,8 @@ php artisan dusk:chrome-driver --detect
 <pre><code><span class="hljs-variable">$browser</span>-&gt;<span class="hljs-title function_ invoke__">attach</span>(<span class="hljs-string">&#x27;photo&#x27;</span>, <span class="hljs-keyword">__DIR__</span>.<span class="hljs-string">&#x27;/photos/mountains.png&#x27;</span>);
 </code></pre>
 <blockquote>
-<p><strong>Warning</strong><br>The attach function requires the <code>Zip</code> PHP extension to be installed and enabled on your server.</p>
+<p><strong>Warning</strong>
+The attach function requires the <code>Zip</code> PHP extension to be installed and enabled on your server.</p>
 </blockquote>
 <p><a name="pressing-buttons"></a></p>
 <h3 id="pressing-buttons">Pressing Buttons</h3>
@@ -506,7 +513,8 @@ php artisan dusk:chrome-driver --detect
 }
 </code></pre>
 <blockquote>
-<p><strong>Warning</strong><br>These methods interact with jQuery. If jQuery is not available on the page, Dusk will automatically inject it into the page so it is available for the test&#39;s duration.</p>
+<p><strong>Warning</strong>
+These methods interact with jQuery. If jQuery is not available on the page, Dusk will automatically inject it into the page so it is available for the test&#39;s duration.</p>
 </blockquote>
 <p><a name="using-the-keyboard"></a></p>
 <h3 id="using-the-keyboard">Using The Keyboard</h3>
@@ -517,7 +525,8 @@ php artisan dusk:chrome-driver --detect
 <pre><code><span class="hljs-variable">$browser</span>-&gt;<span class="hljs-title function_ invoke__">keys</span>(<span class="hljs-string">&#x27;.app&#x27;</span>, [<span class="hljs-string">&#x27;{command}&#x27;</span>, <span class="hljs-string">&#x27;j&#x27;</span>]);
 </code></pre>
 <blockquote>
-<p><strong>Note</strong><br>All modifier keys such as <code>{command}</code> are wrapped in <code>{}</code> characters, and match the constants defined in the <code>Facebook\WebDriver\WebDriverKeys</code> class, which can be <a href="https://github.com/php-webdriver/php-webdriver/blob/master/lib/WebDriverKeys.php">found on GitHub</a>.</p>
+<p><strong>Note</strong>
+All modifier keys such as <code>{command}</code> are wrapped in <code>{}</code> characters, and match the constants defined in the <code>Facebook\WebDriver\WebDriverKeys</code> class, which can be <a href="https://github.com/php-webdriver/php-webdriver/blob/master/lib/WebDriverKeys.php">found on GitHub</a>.</p>
 </blockquote>
 <p><a name="using-the-mouse"></a></p>
 <h3 id="using-the-mouse">Using The Mouse</h3>
@@ -612,6 +621,12 @@ php artisan dusk:chrome-driver --detect
 <p>If you just need to pause the test for a given number of milliseconds, use the <code>pause</code> method:</p>
 <pre><code><span class="hljs-variable">$browser</span>-&gt;<span class="hljs-title function_ invoke__">pause</span>(<span class="hljs-number">1000</span>);
 </code></pre>
+<p>If you need to pause the test only if a given condition is <code>true</code>, use the <code>pauseIf</code> method:</p>
+<pre><code><span class="hljs-variable">$browser</span>-&gt;<span class="hljs-title function_ invoke__">pauseIf</span>(<span class="hljs-title class_">App</span>::<span class="hljs-title function_ invoke__">environment</span>(<span class="hljs-string">&#x27;production&#x27;</span>), <span class="hljs-number">1000</span>);
+</code></pre>
+<p>Likewise, if you need to pause the test unless a given condition is <code>true</code>, you may use the <code>pauseUnless</code> method:</p>
+<pre><code><span class="hljs-variable">$browser</span>-&gt;<span class="hljs-title function_ invoke__">pauseUnless</span>(<span class="hljs-title class_">App</span>::<span class="hljs-title function_ invoke__">environment</span>(<span class="hljs-string">&#x27;testing&#x27;</span>), <span class="hljs-number">1000</span>);
+</code></pre>
 <p><a name="waiting-for-selectors"></a></p>
 <h4 id="waiting-for-selectors">Waiting For Selectors</h4>
 <p>The <code>waitFor</code> method may be used to pause the execution of the test until the element matching the given CSS or Dusk selector is displayed on the page. By default, this will pause the test for a maximum of five seconds before throwing an exception. If necessary, you may pass a custom timeout threshold as the second argument to the method:</p>
@@ -680,6 +695,15 @@ php artisan dusk:chrome-driver --detect
 
 <span class="hljs-comment">// Wait a maximum of one second for the link...</span>
 <span class="hljs-variable">$browser</span>-&gt;<span class="hljs-title function_ invoke__">waitForLink</span>(<span class="hljs-string">&#x27;Create&#x27;</span>, <span class="hljs-number">1</span>);
+</code></pre>
+<p><a name="waiting-for-inputs"></a></p>
+<h4 id="waiting-for-inputs">Waiting For Inputs</h4>
+<p>The <code>waitForInput</code> method may be used to wait until the given input field is visible on the page:</p>
+<pre><code><span class="hljs-comment">// Wait a maximum of five seconds for the input...</span>
+<span class="hljs-variable">$browser</span>-&gt;<span class="hljs-title function_ invoke__">waitForInput</span>(<span class="hljs-variable">$field</span>);
+
+<span class="hljs-comment">// Wait a maximum of one second for the input...</span>
+<span class="hljs-variable">$browser</span>-&gt;<span class="hljs-title function_ invoke__">waitForInput</span>(<span class="hljs-variable">$field</span>, <span class="hljs-number">1</span>);
 </code></pre>
 <p><a name="waiting-on-the-page-location"></a></p>
 <h4 id="waiting-on-the-page-location">Waiting On The Page Location</h4>
@@ -815,6 +839,7 @@ php artisan dusk:chrome-driver --detect
 <a href="#assert-input-value-is-not">assertInputValueIsNot</a>
 <a href="#assert-checked">assertChecked</a>
 <a href="#assert-not-checked">assertNotChecked</a>
+<a href="#assert-indeterminate">assertIndeterminate</a>
 <a href="#assert-radio-selected">assertRadioSelected</a>
 <a href="#assert-radio-not-selected">assertRadioNotSelected</a>
 <a href="#assert-selected">assertSelected</a>
@@ -1049,6 +1074,11 @@ php artisan dusk:chrome-driver --detect
 <h4 id="assertnotchecked">assertNotChecked</h4>
 <p>Assert that the given checkbox is not checked:</p>
 <pre><code><span class="hljs-variable">$browser</span>-&gt;<span class="hljs-title function_ invoke__">assertNotChecked</span>(<span class="hljs-variable">$field</span>);
+</code></pre>
+<p><a name="assert-indeterminate"></a></p>
+<h4 id="assertindeterminate">assertIndeterminate</h4>
+<p>Assert that the given checkbox is in an indeterminate state:</p>
+<pre><code><span class="hljs-variable">$browser</span>-&gt;<span class="hljs-title function_ invoke__">assertIndeterminate</span>(<span class="hljs-variable">$field</span>);
 </code></pre>
 <p><a name="assert-radio-selected"></a></p>
 <h4 id="assertradioselected">assertRadioSelected</h4>
@@ -1488,7 +1518,8 @@ Vue.<span class="hljs-title function_ invoke__">component</span>(<span class="hl
 <p><a name="continuous-integration"></a></p>
 <h2 id="continuous-integration">Continuous Integration</h2>
 <blockquote>
-<p><strong>Warning</strong><br>Most Dusk continuous integration configurations expect your Laravel application to be served using the built-in PHP development server on port 8000. Therefore, before continuing, you should ensure that your continuous integration environment has an <code>APP_URL</code> environment variable value of <code>http://127.0.0.1:8000</code>.</p>
+<p><strong>Warning</strong>
+Most Dusk continuous integration configurations expect your Laravel application to be served using the built-in PHP development server on port 8000. Therefore, before continuing, you should ensure that your continuous integration environment has an <code>APP_URL</code> environment variable value of <code>http://127.0.0.1:8000</code>.</p>
 </blockquote>
 <p><a name="running-tests-on-heroku-ci"></a></p>
 <h3 id="heroku-ci">Heroku CI</h3>
@@ -1541,6 +1572,11 @@ Vue.<span class="hljs-title function_ invoke__">component</span>(<span class="hl
 
   <span class="hljs-attr">dusk-php:</span>
     <span class="hljs-attr">runs-on:</span> <span class="hljs-string">ubuntu-latest</span>
+    <span class="hljs-attr">env:</span>
+      <span class="hljs-attr">APP_URL:</span> <span class="hljs-string">&quot;http://127.0.0.1:8000&quot;</span>
+      <span class="hljs-attr">DB_USERNAME:</span> <span class="hljs-string">root</span>
+      <span class="hljs-attr">DB_PASSWORD:</span> <span class="hljs-string">root</span>
+      <span class="hljs-attr">MAIL_MAILER:</span> <span class="hljs-string">log</span>
     <span class="hljs-attr">steps:</span>
       <span class="hljs-bullet">-</span> <span class="hljs-attr">uses:</span> <span class="hljs-string">actions/checkout@v3</span>
       <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Prepare</span> <span class="hljs-string">The</span> <span class="hljs-string">Environment</span>
@@ -1554,14 +1590,12 @@ Vue.<span class="hljs-title function_ invoke__">component</span>(<span class="hl
       <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Generate</span> <span class="hljs-string">Application</span> <span class="hljs-string">Key</span>
         <span class="hljs-attr">run:</span> <span class="hljs-string">php</span> <span class="hljs-string">artisan</span> <span class="hljs-string">key:generate</span>
       <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Upgrade</span> <span class="hljs-string">Chrome</span> <span class="hljs-string">Driver</span>
-        <span class="hljs-attr">run:</span> <span class="hljs-string">php</span> <span class="hljs-string">artisan</span> <span class="hljs-string">dusk:chrome-driver</span> <span class="hljs-string">`/opt/google/chrome/chrome</span> <span class="hljs-string">--version</span> <span class="hljs-string">|</span> <span class="hljs-string">cut</span> <span class="hljs-string">-d</span> <span class="hljs-string">&quot; &quot;</span> <span class="hljs-string">-f3</span> <span class="hljs-string">|</span> <span class="hljs-string">cut</span> <span class="hljs-string">-d</span> <span class="hljs-string">&quot;.&quot;</span> <span class="hljs-string">-f1`</span>
+        <span class="hljs-attr">run:</span> <span class="hljs-string">php</span> <span class="hljs-string">artisan</span> <span class="hljs-string">dusk:chrome-driver</span> <span class="hljs-string">--detect</span>
       <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Start</span> <span class="hljs-string">Chrome</span> <span class="hljs-string">Driver</span>
         <span class="hljs-attr">run:</span> <span class="hljs-string">./vendor/laravel/dusk/bin/chromedriver-linux</span> <span class="hljs-string">&amp;</span>
       <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Run</span> <span class="hljs-string">Laravel</span> <span class="hljs-string">Server</span>
         <span class="hljs-attr">run:</span> <span class="hljs-string">php</span> <span class="hljs-string">artisan</span> <span class="hljs-string">serve</span> <span class="hljs-string">--no-reload</span> <span class="hljs-string">&amp;</span>
       <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Run</span> <span class="hljs-string">Dusk</span> <span class="hljs-string">Tests</span>
-        <span class="hljs-attr">env:</span>
-          <span class="hljs-attr">APP_URL:</span> <span class="hljs-string">&quot;http://127.0.0.1:8000&quot;</span>
         <span class="hljs-attr">run:</span> <span class="hljs-string">php</span> <span class="hljs-string">artisan</span> <span class="hljs-string">dusk</span>
       <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Upload</span> <span class="hljs-string">Screenshots</span>
         <span class="hljs-attr">if:</span> <span class="hljs-string">failure()</span>

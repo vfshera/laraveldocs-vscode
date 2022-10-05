@@ -2,6 +2,10 @@
 <ul>
 <li><a href="#introduction">Introduction</a></li>
 <li><a href="#available-methods">Available Methods</a></li>
+<li><a href="#other-utilities">Other Utilities</a><ul>
+<li><a href="#benchmarking">Benchmarking</a></li>
+</ul>
+</li>
 </ul>
 <p><a name="introduction"></a></p>
 <h2 id="introduction">Introduction</h2>
@@ -146,6 +150,7 @@
 <a href="#method-str-ucfirst">Str::ucfirst</a>
 <a href="#method-str-ucsplit">Str::ucsplit</a>
 <a href="#method-str-upper">Str::upper</a>
+<a href="#method-str-ulid">Str::ulid</a>
 <a href="#method-str-uuid">Str::uuid</a>
 <a href="#method-str-word-count">Str::wordCount</a>
 <a href="#method-str-words">Str::words</a>
@@ -1745,6 +1750,15 @@
 
 <span class="hljs-comment">// LARAVEL</span>
 </code></pre>
+<p><a name="method-str-ulid"></a></p>
+<h4 id="strulid-collection-method"><code>Str::ulid()</code> {.collection-method}</h4>
+<p>The <code>Str::ulid</code> method generates a ULID:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-keyword">return</span> (<span class="hljs-keyword">string</span>) <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">ulid</span>();
+
+<span class="hljs-comment">// 01gd6r360bp37zj17nxb55yv40</span>
+</code></pre>
 <p><a name="method-str-uuid"></a></p>
 <h4 id="struuid-collection-method"><code>Str::uuid()</code> {.collection-method}</h4>
 <p>The <code>Str::uuid</code> method generates a UUID (version 4):</p>
@@ -3312,4 +3326,25 @@
 <span class="hljs-variable">$result</span> = <span class="hljs-title function_ invoke__">with</span>(<span class="hljs-number">5</span>, <span class="hljs-literal">null</span>);
 
 <span class="hljs-comment">// 5</span>
+</code></pre>
+<p><a name="other-utilities"></a></p>
+<h2 id="other-utilities">Other Utilities</h2>
+<p><a name="benchmarking"></a></p>
+<h3 id="benchmarking">Benchmarking</h3>
+<p>Sometimes you may wish to quickly test the performance of certain parts of your application. On those occasions, you may utilize the <code>Benchmark</code> support class to measure the number of milliseconds it takes for the given callbacks to complete:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Benchmark</span>;
+
+<span class="hljs-title class_">Benchmark</span>::<span class="hljs-title function_ invoke__">dd</span>(fn () =&gt; <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">1</span>)); <span class="hljs-comment">// 0.1 ms</span>
+
+<span class="hljs-title class_">Benchmark</span>::<span class="hljs-title function_ invoke__">dd</span>([
+    <span class="hljs-string">&#x27;Scenario 1&#x27;</span> =&gt; fn () =&gt; <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">count</span>(), <span class="hljs-comment">// 0.5 ms</span>
+    <span class="hljs-string">&#x27;Scenario 2&#x27;</span> =&gt; <span class="hljs-function"><span class="hljs-keyword">fn</span> (<span class="hljs-params"></span>) =&gt;</span> <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">all</span>()-&gt;<span class="hljs-title function_ invoke__">count</span>(), <span class="hljs-comment">// 20.0 ms</span>
+]);
+</code></pre>
+<p>By default, the given callbacks will be executed once (one iteration), and their duration will be displayed in the browser / console.</p>
+<p>To invoke a callback more than once, you may specify the number of iterations that the callback should be invoked as the second argument to the method. When executing a callback more than once, the <code>Benchmark</code> class will return the average amount of milliseconds it took to execute the callback across all iterations:</p>
+<pre><code><span class="hljs-title class_">Benchmark</span>::<span class="hljs-title function_ invoke__">dd</span>(fn () =&gt; <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">count</span>(), iterations: <span class="hljs-number">10</span>); <span class="hljs-comment">// 0.5 ms</span>
 </code></pre>

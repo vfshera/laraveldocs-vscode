@@ -350,6 +350,7 @@
 <h4 id="understanding-the-etc-method">Understanding The <code>etc</code> Method</h4>
 <p>In the example above, you may have noticed we invoked the <code>etc</code> method at the end of our assertion chain. This method informs Laravel that there may be other attributes present on the JSON object. If the <code>etc</code> method is not used, the test will fail if other attributes that you did not make assertions against exist on the JSON object.</p>
 <p>The intention behind this behavior is to protect you from unintentionally exposing sensitive information in your JSON responses by forcing you to either explicitly make an assertion against the attribute or explicitly allow additional attributes via the <code>etc</code> method.</p>
+<p>However, you should be aware that not including the <code>etc</code> method in your assertion chain does not ensure that additional attributes are not being added to arrays that are nested within your JSON object. The <code>etc</code> method only ensures that no additional attributes exist at the nesting level in which the <code>etc</code> method is invoked.</p>
 <p><a name="asserting-json-attribute-presence-and-absence"></a></p>
 <h4 id="asserting-attribute-presence--absence">Asserting Attribute Presence / Absence</h4>
 <p>To assert that an attribute is present or absent, you may use the <code>has</code> and <code>missing</code> methods:</p>

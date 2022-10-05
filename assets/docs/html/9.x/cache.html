@@ -395,26 +395,35 @@
 <p><a name="events"></a></p>
 <h2 id="events">Events</h2>
 <p>To execute code on every cache operation, you may listen for the <a href="/docs/%7B%7Bversion%7D%7D/events">events</a> fired by the cache. Typically, you should place these event listeners within your application&#39;s <code>App\Providers\EventServiceProvider</code> class:</p>
-<pre><code><span class="hljs-comment">/**
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Listeners</span>\<span class="hljs-title">LogCacheHit</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Listeners</span>\<span class="hljs-title">LogCacheMissed</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Listeners</span>\<span class="hljs-title">LogKeyForgotten</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Listeners</span>\<span class="hljs-title">LogKeyWritten</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Cache</span>\<span class="hljs-title">Events</span>\<span class="hljs-title">CacheHit</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Cache</span>\<span class="hljs-title">Events</span>\<span class="hljs-title">CacheMissed</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Cache</span>\<span class="hljs-title">Events</span>\<span class="hljs-title">KeyForgotten</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Cache</span>\<span class="hljs-title">Events</span>\<span class="hljs-title">KeyWritten</span>;
+
+<span class="hljs-comment">/**
  * The event listener mappings for the application.
  *
  * <span class="hljs-doctag">@var</span> array
  */</span>
 <span class="hljs-keyword">protected</span> <span class="hljs-variable">$listen</span> = [
-    <span class="hljs-string">&#x27;Illuminate\Cache\Events\CacheHit&#x27;</span> =&gt; [
-        <span class="hljs-string">&#x27;App\Listeners\LogCacheHit&#x27;</span>,
+    <span class="hljs-title class_">CacheHit</span>::<span class="hljs-variable language_">class</span> =&gt; [
+        <span class="hljs-title class_">LogCacheHit</span>::<span class="hljs-variable language_">class</span>,
     ],
 
-    <span class="hljs-string">&#x27;Illuminate\Cache\Events\CacheMissed&#x27;</span> =&gt; [
-        <span class="hljs-string">&#x27;App\Listeners\LogCacheMissed&#x27;</span>,
+    <span class="hljs-title class_">CacheMissed</span>::<span class="hljs-variable language_">class</span> =&gt; [
+        <span class="hljs-title class_">LogCacheMissed</span>::<span class="hljs-variable language_">class</span>,
     ],
 
-    <span class="hljs-string">&#x27;Illuminate\Cache\Events\KeyForgotten&#x27;</span> =&gt; [
-        <span class="hljs-string">&#x27;App\Listeners\LogKeyForgotten&#x27;</span>,
+    <span class="hljs-title class_">KeyForgotten</span>::<span class="hljs-variable language_">class</span> =&gt; [
+        <span class="hljs-title class_">LogKeyForgotten</span>::<span class="hljs-variable language_">class</span>,
     ],
 
-    <span class="hljs-string">&#x27;Illuminate\Cache\Events\KeyWritten&#x27;</span> =&gt; [
-        <span class="hljs-string">&#x27;App\Listeners\LogKeyWritten&#x27;</span>,
+    <span class="hljs-title class_">KeyWritten</span>::<span class="hljs-variable language_">class</span> =&gt; [
+        <span class="hljs-title class_">LogKeyWritten</span>::<span class="hljs-variable language_">class</span>,
     ],
 ];
 </code></pre>

@@ -457,7 +457,7 @@ php artisan migrate
     <span class="hljs-keyword">return</span> [<span class="hljs-keyword">new</span> <span class="hljs-title class_">WithoutOverlapping</span>(<span class="hljs-variable language_">$this</span>-&gt;user-&gt;id)];
 }
 </code></pre>
-<p>Any overlapping jobs will be released back to the queue. You may also specify the number of seconds that must elapse before the released job will be attempted again:</p>
+<p>Any overlapping jobs of the same type will be released back to the queue. You may also specify the number of seconds that must elapse before the released job will be attempted again:</p>
 <pre><code><span class="hljs-comment">/**
  * Get the middleware the job should pass through.
  *
@@ -491,8 +491,40 @@ php artisan migrate
 }
 </code></pre>
 <blockquote>
-<p><strong>Warning</strong><br>The <code>WithoutOverlapping</code> middleware requires a cache driver that supports <a href="/docs/%7B%7Bversion%7D%7D/cache#atomic-locks">locks</a>. Currently, the <code>memcached</code>, <code>redis</code>, <code>dynamodb</code>, <code>database</code>, <code>file</code>, and <code>array</code> cache drivers support atomic locks.</p>
+<p><strong>Warning</strong>
+The <code>WithoutOverlapping</code> middleware requires a cache driver that supports <a href="/docs/%7B%7Bversion%7D%7D/cache#atomic-locks">locks</a>. Currently, the <code>memcached</code>, <code>redis</code>, <code>dynamodb</code>, <code>database</code>, <code>file</code>, and <code>array</code> cache drivers support atomic locks.</p>
 </blockquote>
+<p><a name="sharing-lock-keys"></a></p>
+<h4 id="sharing-lock-keys-across-job-classes">Sharing Lock Keys Across Job Classes</h4>
+<p>By default, the <code>WithoutOverlapping</code> middleware will only prevent overlapping jobs of the same class. So, although two different job classes may use the same lock key, they will not be prevented from overlapping. However, you can instruct Laravel to apply the key across job classes using the <code>shared</code> method:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Queue</span>\<span class="hljs-title">Middleware</span>\<span class="hljs-title">WithoutOverlapping</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ProviderIsDown</span>
+</span>{
+    <span class="hljs-comment">// ...</span>
+
+
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">middleware</span>(<span class="hljs-params"></span>)
+    </span>{
+        <span class="hljs-keyword">return</span> [
+            (<span class="hljs-keyword">new</span> <span class="hljs-title class_">WithoutOverlapping</span>(<span class="hljs-string">&quot;status:<span class="hljs-subst">{$this-&gt;provider}</span>&quot;</span>))-&gt;<span class="hljs-title function_ invoke__">shared</span>(),
+        ];
+    }
+}
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ProviderIsUp</span>
+</span>{
+    <span class="hljs-comment">// ...</span>
+
+
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">middleware</span>(<span class="hljs-params"></span>)
+    </span>{
+        <span class="hljs-keyword">return</span> [
+            (<span class="hljs-keyword">new</span> <span class="hljs-title class_">WithoutOverlapping</span>(<span class="hljs-string">&quot;status:<span class="hljs-subst">{$this-&gt;provider}</span>&quot;</span>))-&gt;<span class="hljs-title function_ invoke__">shared</span>(),
+        ];
+    }
+}
+</code></pre>
 <p><a name="throttling-exceptions"></a></p>
 <h3 id="throttling-exceptions">Throttling Exceptions</h3>
 <p>Laravel includes a <code>Illuminate\Queue\Middleware\ThrottlesExceptions</code> middleware that allows you to throttle exceptions. Once the job throws a given number of exceptions, all further attempts to execute the job are delayed until a specified time interval lapses. This middleware is particularly useful for jobs that interact with third-party services that are unstable.</p>
@@ -621,7 +653,7 @@ php artisan migrate
 </blockquote>
 <p><a name="dispatching-after-the-response-is-sent-to-browser"></a></p>
 <h4 id="dispatching-after-the-response-is-sent-to-browser">Dispatching After The Response Is Sent To Browser</h4>
-<p>Alternatively, the <code>dispatchAfterResponse</code> method delays dispatching a job until after the HTTP response is sent to the user&#39;s browser. This will still allow the user to begin using the application even though a queued job is still executing. This should typically only be used for jobs that take about a second, such as sending an email. Since they are processed within the current HTTP request, jobs dispatched in this fashion do not require a queue worker to be running in order for them to be processed:</p>
+<p>Alternatively, the <code>dispatchAfterResponse</code> method delays dispatching a job until after the HTTP response is sent to the user&#39;s browser if your web server is using FastCGI. This will still allow the user to begin using the application even though a queued job is still executing. This should typically only be used for jobs that take about a second, such as sending an email. Since they are processed within the current HTTP request, jobs dispatched in this fashion do not require a queue worker to be running in order for them to be processed:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Jobs</span>\<span class="hljs-title">SendNotification</span>;
 
 <span class="hljs-title class_">SendNotification</span>::<span class="hljs-title function_ invoke__">dispatchAfterResponse</span>();
@@ -1558,10 +1590,10 @@ php artisan migrate
 </code></pre>
 <p><a name="pruning-failed-jobs"></a></p>
 <h3 id="pruning-failed-jobs">Pruning Failed Jobs</h3>
-<p>You may delete all of the records in your application&#39;s <code>failed_jobs</code> table by invoking the <code>queue:prune-failed</code> Artisan command:</p>
+<p>You may prune the records in your application&#39;s <code>failed_jobs</code> table by invoking the <code>queue:prune-failed</code> Artisan command:</p>
 <pre><code class="language-shell">php artisan queue:prune-failed
 </code></pre>
-<p>If you provide the <code>--hours</code> option to the command, only the failed job records that were inserted within the last N number of hours will be retained. For example, the following command will delete all of the failed job records that were inserted more than 48 hours ago:</p>
+<p>By default, all the failed job records that are more than 24 hours old will be pruned. If you provide the <code>--hours</code> option to the command, only the failed job records that were inserted within the last N number of hours will be retained. For example, the following command will delete all the failed job records that were inserted more than 48 hours ago:</p>
 <pre><code class="language-shell">php artisan queue:prune-failed --hours=48
 </code></pre>
 <p><a name="storing-failed-jobs-in-dynamodb"></a></p>

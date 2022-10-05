@@ -13,6 +13,7 @@
 <li><a href="#many-to-many">Many To Many Relationships</a><ul>
 <li><a href="#retrieving-intermediate-table-columns">Retrieving Intermediate Table Columns</a></li>
 <li><a href="#filtering-queries-via-intermediate-table-columns">Filtering Queries Via Intermediate Table Columns</a></li>
+<li><a href="#ordering-queries-via-intermediate-table-columns">Ordering Queries Via Intermediate Table Columns</a></li>
 <li><a href="#defining-custom-intermediate-table-models">Defining Custom Intermediate Table Models</a></li>
 </ul>
 </li>
@@ -585,6 +586,13 @@ role_user
 <span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">belongsToMany</span>(<span class="hljs-title class_">Podcast</span>::<span class="hljs-variable language_">class</span>)
                 -&gt;<span class="hljs-keyword">as</span>(<span class="hljs-string">&#x27;subscriptions&#x27;</span>)
                 -&gt;<span class="hljs-title function_ invoke__">wherePivotNotNull</span>(<span class="hljs-string">&#x27;expired_at&#x27;</span>);
+</code></pre>
+<p><a name="ordering-queries-via-intermediate-table-columns"></a></p>
+<h3 id="ordering-queries-via-intermediate-table-columns">Ordering Queries Via Intermediate Table Columns</h3>
+<p>You can order the results returned by <code>belongsToMany</code> relationship queries using the <code>orderByPivot</code> method. In the following example, we will retrieve all of the latest badges for the user:</p>
+<pre><code><span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">belongsToMany</span>(<span class="hljs-title class_">Badge</span>::<span class="hljs-variable language_">class</span>)
+                -&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;rank&#x27;</span>, <span class="hljs-string">&#x27;gold&#x27;</span>)
+                -&gt;<span class="hljs-title function_ invoke__">orderByPivot</span>(<span class="hljs-string">&#x27;created_at&#x27;</span>, <span class="hljs-string">&#x27;desc&#x27;</span>);
 </code></pre>
 <p><a name="defining-custom-intermediate-table-models"></a></p>
 <h3 id="defining-custom-intermediate-table-models">Defining Custom Intermediate Table Models</h3>
@@ -1447,7 +1455,7 @@ taggables
 
 <span class="hljs-variable">$users</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">withWhereHas</span>(<span class="hljs-string">&#x27;posts&#x27;</span>, function (<span class="hljs-variable">$query</span>) {
     <span class="hljs-variable">$query</span>-&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;featured&#x27;</span>, <span class="hljs-literal">true</span>);
-)-&gt;<span class="hljs-title function_ invoke__">get</span>();
+})-&gt;<span class="hljs-title function_ invoke__">get</span>();
 </code></pre>
 <p><a name="lazy-eager-loading"></a></p>
 <h3 id="lazy-eager-loading">Lazy Eager Loading</h3>
@@ -1650,6 +1658,12 @@ taggables
 <h4 id="toggling-associations">Toggling Associations</h4>
 <p>The many-to-many relationship also provides a <code>toggle</code> method which &quot;toggles&quot; the attachment status of the given related model IDs. If the given ID is currently attached, it will be detached. Likewise, if it is currently detached, it will be attached:</p>
 <pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">roles</span>()-&gt;<span class="hljs-title function_ invoke__">toggle</span>([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>]);
+</code></pre>
+<p>You may also pass additional intermediate table values with the IDs:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">roles</span>()-&gt;<span class="hljs-title function_ invoke__">toggle</span>([
+    <span class="hljs-number">1</span> =&gt; [<span class="hljs-string">&#x27;expires&#x27;</span> =&gt; <span class="hljs-literal">true</span>],
+    <span class="hljs-number">2</span> =&gt; [<span class="hljs-string">&#x27;expires&#x27;</span> =&gt; <span class="hljs-literal">true</span>],
+]);
 </code></pre>
 <p><a name="updating-a-record-on-the-intermediate-table"></a></p>
 <h4 id="updating-a-record-on-the-intermediate-table">Updating A Record On The Intermediate Table</h4>

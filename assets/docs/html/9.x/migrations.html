@@ -306,6 +306,7 @@ php artisan migrate:fresh --seed
 <a href="#column-method-float">float</a>
 <a href="#column-method-foreignId">foreignId</a>
 <a href="#column-method-foreignIdFor">foreignIdFor</a>
+<a href="#column-method-foreignUlid">foreignUlid</a>
 <a href="#column-method-foreignUuid">foreignUuid</a>
 <a href="#column-method-geometryCollection">geometryCollection</a>
 <a href="#column-method-geometry">geometry</a>
@@ -354,6 +355,7 @@ php artisan migrate:fresh --seed
 <a href="#column-method-unsignedSmallInteger">unsignedSmallInteger</a>
 <a href="#column-method-unsignedTinyInteger">unsignedTinyInteger</a>
 <a href="#column-method-uuidMorphs">uuidMorphs</a>
+<a href="#column-method-ulid">ulid</a>
 <a href="#column-method-uuid">uuid</a>
 <a href="#column-method-year">year</a></p>
 </div>
@@ -427,6 +429,11 @@ php artisan migrate:fresh --seed
 <h4 id="foreignidfor-collection-method"><code>foreignIdFor()</code> {.collection-method}</h4>
 <p>The <code>foreignIdFor</code> method adds a <code>{column}_id UNSIGNED BIGINT</code> equivalent column for a given model class:</p>
 <pre><code><span class="hljs-variable">$table</span>-&gt;<span class="hljs-title function_ invoke__">foreignIdFor</span>(<span class="hljs-title class_">User</span>::<span class="hljs-variable language_">class</span>);
+</code></pre>
+<p><a name="column-method-foreignUlid"></a></p>
+<h4 id="foreignulid-collection-method"><code>foreignUlid()</code> {.collection-method}</h4>
+<p>The <code>foreignUlid</code> method creates a <code>ULID</code> equivalent column:</p>
+<pre><code><span class="hljs-variable">$table</span>-&gt;<span class="hljs-title function_ invoke__">foreignUlid</span>(<span class="hljs-string">&#x27;user_id&#x27;</span>);
 </code></pre>
 <p><a name="column-method-foreignUuid"></a></p>
 <h4 id="foreignuuid-collection-method"><code>foreignUuid()</code> {.collection-method}</h4>
@@ -670,6 +677,11 @@ php artisan migrate:fresh --seed
 <p>This method is intended to be used when defining the columns necessary for a polymorphic <a href="/docs/%7B%7Bversion%7D%7D/eloquent-relationships">Eloquent relationship</a> that use UUID identifiers. In the following example, <code>taggable_id</code> and <code>taggable_type</code> columns would be created:</p>
 <pre><code><span class="hljs-variable">$table</span>-&gt;<span class="hljs-title function_ invoke__">uuidMorphs</span>(<span class="hljs-string">&#x27;taggable&#x27;</span>);
 </code></pre>
+<p><a name="column-method-ulid"></a></p>
+<h4 id="ulid-collection-method"><code>ulid()</code> {.collection-method}</h4>
+<p>The <code>ulid</code> method creates a <code>ULID</code> equivalent column:</p>
+<pre><code><span class="hljs-variable">$table</span>-&gt;<span class="hljs-title function_ invoke__">ulid</span>(<span class="hljs-string">&#x27;id&#x27;</span>);
+</code></pre>
 <p><a name="column-method-uuid"></a></p>
 <h4 id="uuid-collection-method"><code>uuid()</code> {.collection-method}</h4>
 <p>The <code>uuid</code> method creates a <code>UUID</code> equivalent column:</p>
@@ -842,7 +854,7 @@ php artisan migrate:fresh --seed
 });
 </code></pre>
 <blockquote>
-<p><strong>Warning</strong><br>The following column types can be modified: <code>bigInteger</code>, <code>binary</code>, <code>boolean</code>, <code>char</code>, <code>date</code>, <code>dateTime</code>, <code>dateTimeTz</code>, <code>decimal</code>, <code>integer</code>, <code>json</code>, <code>longText</code>, <code>mediumText</code>, <code>smallInteger</code>, <code>string</code>, <code>text</code>, <code>time</code>, <code>unsignedBigInteger</code>, <code>unsignedInteger</code>, <code>unsignedSmallInteger</code>, and <code>uuid</code>.  To modify a <code>timestamp</code> column type a <a href="#prerequisites">Doctrine type must be registered</a>.</p>
+<p><strong>Warning</strong><br>The following column types can be modified: <code>bigInteger</code>, <code>binary</code>, <code>boolean</code>, <code>char</code>, <code>date</code>, <code>dateTime</code>, <code>dateTimeTz</code>, <code>decimal</code>, <code>double</code>, <code>integer</code>, <code>json</code>, <code>longText</code>, <code>mediumText</code>, <code>smallInteger</code>, <code>string</code>, <code>text</code>, <code>time</code>, <code>tinyText</code>, <code>unsignedBigInteger</code>, <code>unsignedInteger</code>, <code>unsignedSmallInteger</code>, and <code>uuid</code>.  To modify a <code>timestamp</code> column type a <a href="#prerequisites">Doctrine type must be registered</a>.</p>
 </blockquote>
 <p><a name="renaming-columns"></a></p>
 <h4 id="renaming-columns">Renaming Columns</h4>

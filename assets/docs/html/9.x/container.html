@@ -202,7 +202,9 @@
 <p><a name="binding-primitives"></a></p>
 <h3 id="binding-primitives">Binding Primitives</h3>
 <p>Sometimes you may have a class that receives some injected classes, but also needs an injected primitive value such as an integer. You may easily use contextual binding to inject any value your class may need:</p>
-<pre><code><span class="hljs-variable language_">$this</span>-&gt;app-&gt;<span class="hljs-title function_ invoke__">when</span>(<span class="hljs-string">&#x27;App\Http\Controllers\UserController&#x27;</span>)
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Controllers</span>\<span class="hljs-title">UserController</span>;
+
+<span class="hljs-variable language_">$this</span>-&gt;app-&gt;<span class="hljs-title function_ invoke__">when</span>(<span class="hljs-title class_">UserController</span>::<span class="hljs-variable language_">class</span>)
           -&gt;<span class="hljs-title function_ invoke__">needs</span>(<span class="hljs-string">&#x27;$variableName&#x27;</span>)
           -&gt;<span class="hljs-title function_ invoke__">give</span>(<span class="hljs-variable">$value</span>);
 </code></pre>

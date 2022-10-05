@@ -388,12 +388,12 @@ composer require nyholm/psr7
 </code></pre>
 <p><a name="input-trimming-and-normalization"></a></p>
 <h2 id="input-trimming--normalization">Input Trimming &amp; Normalization</h2>
-<p>By default, Laravel includes the <code>App\Http\Middleware\TrimStrings</code> and <code>App\Http\Middleware\ConvertEmptyStringsToNull</code> middleware in your application&#39;s global middleware stack. These middleware are listed in the global middleware stack by the <code>App\Http\Kernel</code> class. These middleware will automatically trim all incoming string fields on the request, as well as convert any empty string fields to <code>null</code>. This allows you to not have to worry about these normalization concerns in your routes and controllers.</p>
+<p>By default, Laravel includes the <code>App\Http\Middleware\TrimStrings</code> and <code>Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull</code> middleware in your application&#39;s global middleware stack. These middleware are listed in the global middleware stack by the <code>App\Http\Kernel</code> class. These middleware will automatically trim all incoming string fields on the request, as well as convert any empty string fields to <code>null</code>. This allows you to not have to worry about these normalization concerns in your routes and controllers.</p>
 <h4 id="disabling-input-normalization">Disabling Input Normalization</h4>
 <p>If you would like to disable this behavior for all requests, you may remove the two middleware from your application&#39;s middleware stack by removing them from the <code>$middleware</code> property of your <code>App\Http\Kernel</code> class.</p>
 <p>If you would like to disable string trimming and empty string conversion for a subset of requests to your application, you may use the <code>skipWhen</code> method offered by both middleware. This method accepts a closure which should return <code>true</code> or <code>false</code> to indicate if input normalization should be skipped. Typically, the <code>skipWhen</code> method should be invoked in the <code>boot</code> method of your application&#39;s <code>AppServiceProvider</code>.</p>
-<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Middleware</span>\<span class="hljs-title">ConvertEmptyStringsToNull</span>;
-<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Middleware</span>\<span class="hljs-title">TrimStrings</span>;
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Middleware</span>\<span class="hljs-title">TrimStrings</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Foundation</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Middleware</span>\<span class="hljs-title">ConvertEmptyStringsToNull</span>;
 
 <span class="hljs-comment">/**
  * Bootstrap any application services.
