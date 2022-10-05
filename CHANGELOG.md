@@ -1,5 +1,16 @@
 # Change Log
 
+## v1.4.0 - 2022-10-05
+
+- docs update
+- feat: Generator exclude list
+- License Update
+
+## v1.3.0 - 2022-09-07
+
+- activation on laravel workspace
+- performance fixes
+
 ## v1.2.3 - 2022-09-05
 
 - fix generator runner bug in production
