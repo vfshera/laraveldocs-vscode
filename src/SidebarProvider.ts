@@ -21,8 +21,6 @@ export default class SidebarProvider implements vscode.WebviewViewProvider {
 
     webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
-    console.log("HTML DOCS ", htmlDocs());
-
     webviewView.webview.onDidReceiveMessage(async ({ command, value }) => {
       switch (command) {
         case OPEN_DOC: {
