@@ -189,6 +189,26 @@
     <span class="hljs-title">return</span> $<span class="hljs-title">job</span>-&gt;<span class="hljs-title">order</span>-&gt;<span class="hljs-title">id</span> === $<span class="hljs-title">order</span>-&gt;<span class="hljs-title">id</span>;
 });
 </code></pre>
+<p><a name="faking-a-subset-of-jobs"></a></p>
+<h4 id="faking-a-subset-of-jobs">Faking A Subset Of Jobs</h4>
+<p>If you only want to prevent certain jobs from being dispatched, you may pass the jobs that should be faked to the <code>fake</code> method:</p>
+<pre><code><span class="hljs-comment">/**
+ * Test order process.
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test_orders_can_be_shipped</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-title class_">Bus</span>::<span class="hljs-title function_ invoke__">fake</span>([
+        <span class="hljs-title class_">ShipOrder</span>::<span class="hljs-variable language_">class</span>,
+    ]);
+
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p>You may fake all jobs except for a set of specified jobs using the <code>except</code> method:</p>
+<pre><code><span class="hljs-title class_">Bus</span>::<span class="hljs-title function_ invoke__">fake</span>()-&gt;<span class="hljs-title function_ invoke__">except</span>([
+    <span class="hljs-title class_">ShipOrder</span>::<span class="hljs-variable language_">class</span>,
+]);
+</code></pre>
 <p><a name="bus-job-chains"></a></p>
 <h3 id="job-chains">Job Chains</h3>
 <p>The <code>Bus</code> facade&#39;s <code>assertChained</code> method may be used to assert that a <a href="/docs/%7B%7Bversion%7D%7D/queues#job-chaining">chain of jobs</a> was dispatched. The <code>assertChained</code> method accepts an array of chained jobs as its first argument:</p>
@@ -220,6 +240,16 @@
     <span class="hljs-keyword">return</span> <span class="hljs-variable">$batch</span>-&gt;name == <span class="hljs-string">&#x27;import-csv&#x27;</span> &amp;&amp;
            <span class="hljs-variable">$batch</span>-&gt;jobs-&gt;<span class="hljs-title function_ invoke__">count</span>() === <span class="hljs-number">10</span>;
 });
+</code></pre>
+<p><a name="testing-job-batch-interaction"></a></p>
+<h4 id="testing-job--batch-interaction">Testing Job / Batch Interaction</h4>
+<p>In addition, you may occasionally need to test an individual job&#39;s interaction with its underlying batch. For example, you may need to test if a job cancelled further processing for its batch. To accomplish this, you need to assign a fake batch to the job via the <code>withFakeBatch</code> method. The <code>withFakeBatch</code> method returns a tuple containing the job instance and the fake batch:</p>
+<pre><code>[<span class="hljs-variable">$job</span>, <span class="hljs-variable">$batch</span>] = (<span class="hljs-keyword">new</span> <span class="hljs-title class_">ShipOrder</span>)-&gt;<span class="hljs-title function_ invoke__">withFakeBatch</span>();
+
+<span class="hljs-variable">$job</span>-&gt;<span class="hljs-title function_ invoke__">handle</span>();
+
+<span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">assertTrue</span>(<span class="hljs-variable">$batch</span>-&gt;<span class="hljs-title function_ invoke__">cancelled</span>());
+<span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">assertEmpty</span>(<span class="hljs-variable">$batch</span>-&gt;added);
 </code></pre>
 <p><a name="event-fake"></a></p>
 <h2 id="event-fake">Event Fake</h2>
@@ -294,8 +324,8 @@
     <span class="hljs-variable">$order</span>-&gt;<span class="hljs-title function_ invoke__">update</span>([...]);
 }
 </code></pre>
-<p>You may fake all events except for a set of specified events using the <code>fakeExcept</code> method:</p>
-<pre><code><span class="hljs-title class_">Event</span>::<span class="hljs-title function_ invoke__">fakeExcept</span>([
+<p>You may fake all events except for a set of specified events using the <code>except</code> method:</p>
+<pre><code><span class="hljs-title class_">Event</span>::<span class="hljs-title function_ invoke__">fake</span>()-&gt;<span class="hljs-title function_ invoke__">except</span>([
     <span class="hljs-title class_">OrderCreated</span>::<span class="hljs-variable language_">class</span>,
 ]);
 </code></pre>
@@ -392,6 +422,28 @@
            $<span class="hljs-title">mail</span>-&gt;<span class="hljs-title">hasReplyTo</span>(&#x27;...&#x27;) &amp;&amp;
            $<span class="hljs-title">mail</span>-&gt;<span class="hljs-title">hasFrom</span>(&#x27;...&#x27;) &amp;&amp;
            $<span class="hljs-title">mail</span>-&gt;<span class="hljs-title">hasSubject</span>(&#x27;...&#x27;);
+});
+</code></pre>
+<p>The mailable instance also includes several helpful methods for examining the attachments on a mailable:</p>
+<pre><code><span class="hljs-title class_">Mail</span>::<span class="hljs-title function_ invoke__">assertSent</span>(<span class="hljs-title class_">OrderShipped</span>::<span class="hljs-variable language_">class</span>, function (<span class="hljs-variable">$mail</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$mail</span>-&gt;<span class="hljs-title function_ invoke__">hasAttachment</span>(<span class="hljs-string">&#x27;/path/to/file&#x27;</span>);
+});
+
+<span class="hljs-title class_">Mail</span>::<span class="hljs-title function_ invoke__">assertSent</span>(<span class="hljs-title class_">OrderShipped</span>::<span class="hljs-variable language_">class</span>, function (<span class="hljs-variable">$mail</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$mail</span>-&gt;<span class="hljs-title function_ invoke__">hasAttachment</span>(<span class="hljs-string">&#x27;/path/to/file&#x27;</span>, [
+        <span class="hljs-string">&#x27;as&#x27;</span> =&gt; <span class="hljs-string">&#x27;name.pdf&#x27;</span>,
+        <span class="hljs-string">&#x27;mime&#x27;</span> =&gt; <span class="hljs-string">&#x27;application/pdf&#x27;</span>,
+    ]);
+});
+
+<span class="hljs-title class_">Mail</span>::<span class="hljs-title function_ invoke__">assertSent</span>(<span class="hljs-title class_">OrderShipped</span>::<span class="hljs-variable language_">class</span>, function (<span class="hljs-variable">$mail</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$mail</span>-&gt;<span class="hljs-title function_ invoke__">hasAttachmentFromStorageDisk</span>(<span class="hljs-string">&#x27;s3&#x27;</span>, <span class="hljs-string">&#x27;/path/to/file&#x27;</span>);
+});
+
+<span class="hljs-title class_">Mail</span>::<span class="hljs-title function_ invoke__">assertSent</span>(<span class="hljs-title class_">OrderShipped</span>::<span class="hljs-variable language_">class</span>, function (<span class="hljs-variable">$mail</span>) <span class="hljs-keyword">use</span> ($<span class="hljs-title">pdfData</span>) {
+    <span class="hljs-title">return</span> $<span class="hljs-title">mail</span>-&gt;<span class="hljs-title">hasAttachedData</span>($<span class="hljs-title">pdfData</span>, &#x27;<span class="hljs-title">name</span>.<span class="hljs-title">pdf</span>&#x27;, [
+        &#x27;<span class="hljs-title">mime</span>&#x27; =&gt; &#x27;<span class="hljs-title">application</span>/<span class="hljs-title">pdf</span>&#x27;
+    ]);
 });
 </code></pre>
 <p>You may have noticed that there are two methods for asserting that mail was not sent: <code>assertNotSent</code> and <code>assertNotQueued</code>. Sometimes you may wish to assert that no mail was sent <strong>or</strong> queued. To accomplish this, you may use the <code>assertNothingOutgoing</code> and <code>assertNotOutgoing</code> methods:</p>

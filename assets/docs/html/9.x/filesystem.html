@@ -5,6 +5,7 @@
 <li><a href="#the-local-driver">The Local Driver</a></li>
 <li><a href="#the-public-disk">The Public Disk</a></li>
 <li><a href="#driver-prerequisites">Driver Prerequisites</a></li>
+<li><a href="#scoped-and-read-only-filesystems">Scoped &amp; Read-Only Filesystems</a></li>
 <li><a href="#amazon-s3-compatible-filesystems">Amazon S3 Compatible Filesystems</a></li>
 </ul>
 </li>
@@ -38,7 +39,8 @@
 <p>Laravel&#39;s filesystem configuration file is located at <code>config/filesystems.php</code>. Within this file, you may configure all of your filesystem &quot;disks&quot;. Each disk represents a particular storage driver and storage location. Example configurations for each supported driver are included in the configuration file so you can modify the configuration to reflect your storage preferences and credentials.</p>
 <p>The <code>local</code> driver interacts with files stored locally on the server running the Laravel application while the <code>s3</code> driver is used to write to Amazon&#39;s S3 cloud storage service.</p>
 <blockquote>
-<p><strong>Note</strong><br>You may configure as many disks as you like and may even have multiple disks that use the same driver.</p>
+<p><strong>Note</strong>
+You may configure as many disks as you like and may even have multiple disks that use the same driver.</p>
 </blockquote>
 <p><a name="the-local-driver"></a></p>
 <h3 id="the-local-driver">The Local Driver</h3>
@@ -100,7 +102,7 @@
 <pre><code><span class="hljs-string">&#x27;sftp&#x27;</span> =&gt; [
     <span class="hljs-string">&#x27;driver&#x27;</span> =&gt; <span class="hljs-string">&#x27;sftp&#x27;</span>,
     <span class="hljs-string">&#x27;host&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;SFTP_HOST&#x27;</span>),
-    
+
     <span class="hljs-comment">// Settings for basic authentication...</span>
     <span class="hljs-string">&#x27;username&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;SFTP_USERNAME&#x27;</span>),
     <span class="hljs-string">&#x27;password&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;SFTP_PASSWORD&#x27;</span>),
@@ -117,6 +119,22 @@
     <span class="hljs-comment">// &#x27;root&#x27; =&gt; env(&#x27;SFTP_ROOT&#x27;, &#x27;&#x27;),</span>
     <span class="hljs-comment">// &#x27;timeout&#x27; =&gt; 30,</span>
     <span class="hljs-comment">// &#x27;useAgent&#x27; =&gt; true,</span>
+],
+</code></pre>
+<p><a name="scoped-and-read-only-filesystems"></a></p>
+<h3 id="scoped--read-only-filesystems">Scoped &amp; Read-Only Filesystems</h3>
+<p>You may create a path scoped instance of any existing filesystem disk by defining a disk that utilizes the <code>scoped</code> driver. Scoped disks allow you to define a filesystem where all paths are automatically prefixed with a given path prefix. For example, you may create a disk which scopes your existing <code>s3</code> disk to a specific path prefix, and then every file operation using your scoped disk will utilize the specified prefix:</p>
+<pre><code class="language-php"><span class="hljs-string">&#x27;s3-videos&#x27;</span> =&gt; [
+    <span class="hljs-string">&#x27;driver&#x27;</span> =&gt; <span class="hljs-string">&#x27;scoped&#x27;</span>,
+    <span class="hljs-string">&#x27;disk&#x27;</span> =&gt; <span class="hljs-string">&#x27;s3&#x27;</span>,
+    <span class="hljs-string">&#x27;prefix&#x27;</span> =&gt; <span class="hljs-string">&#x27;path/to/videos&#x27;</span>,
+],
+</code></pre>
+<p>If you would like to specify that any filesystem disk should be &quot;read-only&quot;, you may include the <code>read-only</code> configuration option in the disk&#39;s configuration array:</p>
+<pre><code class="language-php"><span class="hljs-string">&#x27;s3-videos&#x27;</span> =&gt; [
+    <span class="hljs-string">&#x27;driver&#x27;</span> =&gt; <span class="hljs-string">&#x27;s3&#x27;</span>,
+    <span class="hljs-comment">// ...</span>
+    <span class="hljs-string">&#x27;read-only&#x27;</span> =&gt; <span class="hljs-literal">true</span>,
 ],
 </code></pre>
 <p><a name="amazon-s3-compatible-filesystems"></a></p>

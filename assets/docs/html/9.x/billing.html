@@ -70,6 +70,7 @@
 <li><a href="#single-charge-checkouts">Single Charge Checkouts</a></li>
 <li><a href="#subscription-checkouts">Subscription Checkouts</a></li>
 <li><a href="#collecting-tax-ids">Collecting Tax IDs</a></li>
+<li><a href="#guest-checkouts">Guest Checkouts</a></li>
 </ul>
 </li>
 <li><a href="#invoices">Invoices</a><ul>
@@ -544,7 +545,11 @@ cardButton.<span class="hljs-title function_">addEventListener</span>(<span clas
 <p>Instead of collecting a customer&#39;s recurring payments automatically, you may instruct Stripe to email an invoice to the customer each time their recurring payment is due. Then, the customer may manually pay the invoice once they receive it. The customer does not need to provide a payment method up front when collecting recurring payments via invoices:</p>
 <pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">newSubscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>, <span class="hljs-string">&#x27;price_monthly&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">createAndSendInvoice</span>();
 </code></pre>
-<p>The amount of time a customer has to pay their invoice before their subscription is canceled is determined by your subscription and invoice settings within the <a href="https://dashboard.stripe.com/settings/billing/automatic">Stripe dashboard</a>.</p>
+<p>The amount of time a customer has to pay their invoice before their subscription is cancelled is determined by the <code>days_until_due</code> option. By default, this is 30 days; however, you may provide a specific value for this option if you wish:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">newSubscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>, <span class="hljs-string">&#x27;price_monthly&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">createAndSendInvoice</span>([], [
+    <span class="hljs-string">&#x27;days_until_due&#x27;</span> =&gt; <span class="hljs-number">30</span>
+]);
+</code></pre>
 <p><a name="subscription-quantities"></a></p>
 <h4 id="quantities">Quantities</h4>
 <p>If you would like to set a specific <a href="https://stripe.com/docs/billing/subscriptions/quantities">quantity</a> for the price when creating the subscription, you should invoke the <code>quantity</code> method on the subscription builder before creating the subscription:</p>
@@ -618,7 +623,7 @@ cardButton.<span class="hljs-title function_">addEventListener</span>(<span clas
 </code></pre>
 <p><a name="creating-subscriptions-from-the-stripe-dashboard"></a></p>
 <h4 id="creating-subscriptions-from-the-stripe-dashboard">Creating Subscriptions From The Stripe Dashboard</h4>
-<p>You may also create subscriptions from the Stripe dashboard itself. When doing so, Cashier will sync newly added subscriptions and assign them a name of <code>default</code>. To customize the subscription name that is assigned to dashboard created subscriptions, <a href="/docs/%7B%7Bversion%7D%7D/billing#defining-webhook-event-handlers">extend the <code>WebhookController</code></a> and overwrite the <code>newSubscriptionName</code> method.</p>
+<p>You may also create subscriptions from the Stripe dashboard itself. When doing so, Cashier will sync newly added subscriptions and assign them a name of <code>default</code>. To customize the subscription name that is assigned to dashboard created subscriptions, <a href="#defining-webhook-event-handlers">extend the <code>WebhookController</code></a> and overwrite the <code>newSubscriptionName</code> method.</p>
 <p>In addition, you may only create one type of subscription via the Stripe dashboard. If your application offers multiple subscriptions that use different names, only one type of subscription may be added through the Stripe dashboard.</p>
 <p>Finally, you should always make sure to only add one active subscription per type of subscription offered by your application. If a customer has two <code>default</code> subscriptions, only the most recently added subscription will be used by Cashier even though both would be synced with your application&#39;s database.</p>
 <p><a name="checking-subscription-status"></a></p>
@@ -1591,6 +1596,33 @@ cardButton.<span class="hljs-title function_">addEventListener</span>(<span clas
 <blockquote>
 <p><strong>Warning</strong><br>If you have already configured <a href="#tax-configuration">automatic tax collection</a> in your application&#39;s service provider then this feature will be enabled automatically and there is no need to invoke the <code>collectTaxIds</code> method.</p>
 </blockquote>
+<p><a name="guest-checkouts"></a></p>
+<h3 id="guest-checkouts">Guest Checkouts</h3>
+<p>Using the <code>Checkout::guest</code> method, you may initiate checkout sessions for guests of your application that do not have an &quot;account&quot;:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Cashier</span>\<span class="hljs-title">Checkout</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/product-checkout&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-title class_">Checkout</span>::<span class="hljs-title function_ invoke__">guest</span>()-&gt;<span class="hljs-title function_ invoke__">create</span>(<span class="hljs-string">&#x27;price_tshirt&#x27;</span>, [
+        <span class="hljs-string">&#x27;success_url&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">route</span>(<span class="hljs-string">&#x27;your-success-route&#x27;</span>),
+        <span class="hljs-string">&#x27;cancel_url&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">route</span>(<span class="hljs-string">&#x27;your-cancel-route&#x27;</span>),
+    ]);
+});
+</code></pre>
+<p>Similarly to when creating checkout sessions for existing users, you may utilize additional methods available on the <code>Laravel\Cashier\CheckoutBuilder</code> instance to customize the guest checkout session:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Cashier</span>\<span class="hljs-title">Checkout</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/product-checkout&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-title class_">Checkout</span>::<span class="hljs-title function_ invoke__">guest</span>()
+        -&gt;<span class="hljs-title function_ invoke__">withPromotionCode</span>(<span class="hljs-string">&#x27;promo-code&#x27;</span>)
+        -&gt;<span class="hljs-title function_ invoke__">create</span>(<span class="hljs-string">&#x27;price_tshirt&#x27;</span>, [
+            <span class="hljs-string">&#x27;success_url&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">route</span>(<span class="hljs-string">&#x27;your-success-route&#x27;</span>),
+            <span class="hljs-string">&#x27;cancel_url&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">route</span>(<span class="hljs-string">&#x27;your-cancel-route&#x27;</span>),
+        ]);
+});
+</code></pre>
+<p>After a guest checkout has been completed, Stripe can dispatch a <code>checkout.session.completed</code> webhook event, so make sure to <a href="https://dashboard.stripe.com/webhooks">configure your Stripe webhook</a> to actually send this event to your application. Once the webhook has been enabled within the Stripe dashboard, you may <a href="#handling-stripe-webhooks">handle the webhook with Cashier</a>. The object contained in the webhook payload will be a <a href="https://stripe.com/docs/api/checkout/sessions/object"><code>checkout</code> object</a> that you may inspect in order to fulfill your customer&#39;s order.</p>
 <p><a name="handling-failed-payments"></a></p>
 <h2 id="handling-failed-payments">Handling Failed Payments</h2>
 <p>Sometimes, payments for subscriptions or single charges can fail. When this happens, Cashier will throw an <code>Laravel\Cashier\Exceptions\IncompletePayment</code> exception that informs you that this happened. After catching this exception, you have two options on how to proceed.</p>

@@ -557,8 +557,9 @@ php81
 <h4 id="autostarting-xdebug">Autostarting Xdebug</h4>
 <p>When debugging functional tests that make requests to the web server, it is easier to autostart debugging rather than modifying tests to pass through a custom header or cookie to trigger debugging. To force Xdebug to start automatically, modify the <code>/etc/php/7.x/fpm/conf.d/20-xdebug.ini</code> file inside your Homestead virtual machine and add the following configuration:</p>
 <pre><code class="language-ini"><span class="hljs-comment">; If Homestead.yaml contains a different subnet for the IP address, this address may be different...</span>
-<span class="hljs-attr">xdebug.remote_host</span> = <span class="hljs-number">192.168</span>.<span class="hljs-number">10.1</span>
-<span class="hljs-attr">xdebug.remote_autostart</span> = <span class="hljs-number">1</span>
+<span class="hljs-attr">xdebug.client_host</span> = <span class="hljs-number">192.168</span>.<span class="hljs-number">10.1</span>
+<span class="hljs-attr">xdebug.mode</span> = debug
+<span class="hljs-attr">xdebug.start_with_request</span> = <span class="hljs-literal">yes</span>
 </code></pre>
 <p><a name="debugging-cli-applications"></a></p>
 <h3 id="debugging-cli-applications">Debugging CLI Applications</h3>

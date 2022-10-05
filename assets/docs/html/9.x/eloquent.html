@@ -5,6 +5,7 @@
 <li><a href="#eloquent-model-conventions">Eloquent Model Conventions</a><ul>
 <li><a href="#table-names">Table Names</a></li>
 <li><a href="#primary-keys">Primary Keys</a></li>
+<li><a href="#uuid-and-ulid-keys">UUID &amp; ULID Keys</a></li>
 <li><a href="#timestamps">Timestamps</a></li>
 <li><a href="#database-connections">Database Connections</a></li>
 <li><a href="#default-attribute-values">Default Attribute Values</a></li>
@@ -56,6 +57,8 @@
 <blockquote>
 <p><strong>Note</strong><br>Before getting started, be sure to configure a database connection in your application&#39;s <code>config/database.php</code> configuration file. For more information on configuring your database, check out <a href="/docs/%7B%7Bversion%7D%7D/database#configuration">the database configuration documentation</a>.</p>
 </blockquote>
+<h4 id="laravel-bootcamp">Laravel Bootcamp</h4>
+<p>If you&#39;re new to Laravel, feel free to jump into the <a href="https://bootcamp.laravel.com">Laravel Bootcamp</a>. The Laravel Bootcamp will walk you through building your first Laravel application using Eloquent. It&#39;s a great way to get a tour of everything the Laravel and Eloquent have to offer.</p>
 <p><a name="generating-model-classes"></a></p>
 <h2 id="generating-model-classes">Generating Model Classes</h2>
 <p>To get started, let&#39;s create an Eloquent model. Models typically live in the <code>app\Models</code> directory and extend the <code>Illuminate\Database\Eloquent\Model</code> class. You may use the <code>make:model</code> <a href="/docs/%7B%7Bversion%7D%7D/artisan">Artisan command</a> to generate a new model:</p>
@@ -180,6 +183,63 @@ php artisan make:model Member --pivot
 <p><a name="composite-primary-keys"></a></p>
 <h4 id="composite-primary-keys">&quot;Composite&quot; Primary Keys</h4>
 <p>Eloquent requires each model to have at least one uniquely identifying &quot;ID&quot; that can serve as its primary key. &quot;Composite&quot; primary keys are not supported by Eloquent models. However, you are free to add additional multi-column, unique indexes to your database tables in addition to the table&#39;s uniquely identifying primary key.</p>
+<p><a name="uuid-and-ulid-keys"></a></p>
+<h3 id="uuid--ulid-keys">UUID &amp; ULID Keys</h3>
+<p>Instead of using auto-incrementing integers as your Eloquent model&#39;s primary keys, you may choose to use UUIDs instead. UUIDs are universally unique alpha-numeric identifiers that are 36 characters long.</p>
+<p>If you would like a model to use a UUID key instead of an auto-incrementing integer key, you may use the <code>Illuminate\Database\Eloquent\Concerns\HasUuids</code> trait on the model. Of course, you should ensure that the model has a <a href="/docs/%7B%7Bversion%7D%7D/migrations#column-method-uuid">UUID equivalent primary key column</a>:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Concerns</span>\<span class="hljs-title">HasUuids</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Model</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Article</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Model</span>
+</span>{
+    <span class="hljs-keyword">use</span> <span class="hljs-title">HasUuids</span>;
+
+    <span class="hljs-comment">// ...</span>
+}
+
+<span class="hljs-variable">$article</span> = <span class="hljs-title class_">Article</span>::<span class="hljs-title function_ invoke__">create</span>([<span class="hljs-string">&#x27;title&#x27;</span> =&gt; <span class="hljs-string">&#x27;Traveling to Europe&#x27;</span>]);
+
+<span class="hljs-variable">$article</span>-&gt;id; <span class="hljs-comment">// &quot;8f8e8478-9035-4d23-b9a7-62f4d2612ce5&quot;</span>
+</code></pre>
+<p>By default, The <code>HasUuids</code> trait will generate <a href="/docs/%7B%7Bversion%7D%7D/helpers#method-str-ordered-uuid">&quot;ordered&quot; UUIDs</a> for your models. These UUIDs are more efficient for indexed database storage because they can be sorted lexicographically.</p>
+<p>You can override the UUID generation process for a given model by defining a <code>newUniqueId</code> method on the model. In addition, you may specify which columns should receive UUIDs by defining a <code>uniqueIds</code> method on the model:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Ramsey</span>\<span class="hljs-title">Uuid</span>\<span class="hljs-title">Uuid</span>;
+
+<span class="hljs-comment">/**
+ * Generate a new UUID for the model.
+ *
+ * <span class="hljs-doctag">@return</span> string
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">newUniqueId</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-keyword">return</span> (<span class="hljs-keyword">string</span>) <span class="hljs-title class_">Uuid</span>::<span class="hljs-title function_ invoke__">uuid4</span>();
+}
+
+<span class="hljs-comment">/**
+ * Get the columns that should receive a unique identifier.
+ *
+ * <span class="hljs-doctag">@return</span> array
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">uniqueIds</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-keyword">return</span> [<span class="hljs-string">&#x27;id&#x27;</span>, <span class="hljs-string">&#x27;discount_code&#x27;</span>];
+}
+</code></pre>
+<p>If you wish, you may choose to utilize &quot;ULIDs&quot; instead of UUIDs. ULIDs are similar to UUIDs; however, they are only 26 characters in length. Like ordered UUIDs, ULIDs are lexicographically sortable for efficient database indexing. To utilize ULIDs, you should use the <code>Illuminate\Database\Eloquent\Concerns\HasUlids</code> trait on your model:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Concerns</span>\<span class="hljs-title">HasUlids</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Model</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Article</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Model</span>
+</span>{
+    <span class="hljs-keyword">use</span> <span class="hljs-title">HasUlids</span>;
+
+    <span class="hljs-comment">// ...</span>
+}
+
+<span class="hljs-variable">$article</span> = <span class="hljs-title class_">Article</span>::<span class="hljs-title function_ invoke__">create</span>([<span class="hljs-string">&#x27;title&#x27;</span> =&gt; <span class="hljs-string">&#x27;Traveling to Asia&#x27;</span>]);
+
+<span class="hljs-variable">$article</span>-&gt;id; <span class="hljs-comment">// &quot;01gd4d3tgrrfqeda94gdbtdk5c&quot;</span>
+</code></pre>
 <p><a name="timestamps"></a></p>
 <h3 id="timestamps">Timestamps</h3>
 <p>By default, Eloquent expects <code>created_at</code> and <code>updated_at</code> columns to exist on your model&#39;s corresponding database table.  Eloquent will automatically set these column&#39;s values when models are created or updated. If you do not want these columns to be automatically managed by Eloquent, you should define a <code>$timestamps</code> property on your model with a value of <code>false</code>:</p>
@@ -224,6 +284,9 @@ php artisan make:model Member --pivot
     <span class="hljs-keyword">const</span> <span class="hljs-variable constant_">CREATED_AT</span> = <span class="hljs-string">&#x27;creation_date&#x27;</span>;
     <span class="hljs-keyword">const</span> <span class="hljs-variable constant_">UPDATED_AT</span> = <span class="hljs-string">&#x27;updated_date&#x27;</span>;
 }
+</code></pre>
+<p>If you would like to perform model operations without the model having its <code>updated_at</code> timestamp modified, you may operate on the model within a closure given to the <code>withoutTimestamps</code> method:</p>
+<pre><code><span class="hljs-title class_">Model</span>::<span class="hljs-title function_ invoke__">withoutTimestamps</span>(fn () =&gt; <span class="hljs-variable">$post</span>-&gt;<span class="hljs-title function_ invoke__">incrememt</span>([<span class="hljs-string">&#x27;reads&#x27;</span>]));
 </code></pre>
 <p><a name="database-connections"></a></p>
 <h3 id="database-connections">Database Connections</h3>
@@ -652,6 +715,22 @@ php artisan make:model Member --pivot
  */</span>
 <span class="hljs-keyword">protected</span> <span class="hljs-variable">$guarded</span> = [];
 </code></pre>
+<p><a name="mass-assignment-exceptions"></a></p>
+<h4 id="mass-assignment-exceptions">Mass Assignment Exceptions</h4>
+<p>By default, attributes that are not included in the <code>$fillable</code> array are silently discarded when performing mass-assignment operations. In production, this is expected behavior; however, during local development it can lead to confusion as to why model changes are not taking effect.</p>
+<p>If you wish, you may instruct Laravel to throw an exception when attempting to fill an unfillable attribute by invoking the <code>preventSilentlyDiscardingAttributes</code> method. Typically, this method should be invoked within the <code>boot</code> method of one of your application&#39;s service providers:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Model</span>;
+
+<span class="hljs-comment">/**
+ * Bootstrap any application services.
+ *
+ * <span class="hljs-doctag">@return</span> void
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-title class_">Model</span>::<span class="hljs-title function_ invoke__">preventSilentlyDiscardingAttributes</span>(<span class="hljs-variable">$this</span>-&gt;app-&gt;<span class="hljs-title function_ invoke__">isLocal</span>());
+}
+</code></pre>
 <p><a name="upserts"></a></p>
 <h3 id="upserts">Upserts</h3>
 <p>Occasionally, you may need to update an existing model or create a new model if no matching model exists. Like the <code>firstOrCreate</code> method, the <code>updateOrCreate</code> method persists the model, so there&#39;s no need to manually call the <code>save</code> method.</p>
@@ -914,7 +993,7 @@ php artisan make:model Member --pivot
 <p>The <code>Scope</code> interface requires you to implement one method: <code>apply</code>. The <code>apply</code> method may add <code>where</code> constraints or other types of clauses to the query as needed:</p>
 <pre><code><span class="hljs-meta">&lt;?php</span>
 
-<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Scopes</span>;
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Models</span>\<span class="hljs-title class_">Scopes</span>;
 
 <span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Builder</span>;
 <span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Model</span>;
@@ -1114,6 +1193,7 @@ php artisan make:model Member --pivot
 <span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Events</span>\<span class="hljs-title">UserDeleted</span>;
 <span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Events</span>\<span class="hljs-title">UserSaved</span>;
 <span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Foundation</span>\<span class="hljs-title">Auth</span>\<span class="hljs-title">User</span> <span class="hljs-keyword">as</span> <span class="hljs-title">Authenticatable</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Notifications</span>\<span class="hljs-title">Notifiable</span>;
 
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Authenticatable</span>
 </span>{
@@ -1302,8 +1382,8 @@ php artisan make:model Member --pivot
 <p>You may occasionally need to temporarily &quot;mute&quot; all events fired by a model. You may achieve this using the <code>withoutEvents</code> method. The <code>withoutEvents</code> method accepts a closure as its only argument. Any code executed within this closure will not dispatch model events, and any value returned by the closure will be returned by the <code>withoutEvents</code> method:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
 
-<span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">withoutEvents</span>(function () <span class="hljs-keyword">use</span> () {
-    <span class="hljs-title">User</span>::<span class="hljs-title">findOrFail</span>(1)-&gt;<span class="hljs-title">delete</span>();
+<span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">withoutEvents</span>(function () {
+    <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">findOrFail</span>(<span class="hljs-number">1</span>)-&gt;<span class="hljs-title function_ invoke__">delete</span>();
 
     <span class="hljs-keyword">return</span> <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">2</span>);
 });

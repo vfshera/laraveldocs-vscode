@@ -138,7 +138,7 @@ php artisan migrate
     <span class="hljs-comment">//</span>
 }
 </code></pre>
-<p>To determine if an item is not present in the session, you may use the <code>missing</code> method. The <code>missing</code> method returns <code>true</code> if the item is <code>null</code> or if the item is not present:</p>
+<p>To determine if an item is not present in the session, you may use the <code>missing</code> method. The <code>missing</code> method returns <code>true</code> if the item is not present:</p>
 <pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">session</span>()-&gt;<span class="hljs-title function_ invoke__">missing</span>(<span class="hljs-string">&#x27;users&#x27;</span>)) {
     <span class="hljs-comment">//</span>
 }

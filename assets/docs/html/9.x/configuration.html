@@ -5,6 +5,7 @@
 <li><a href="#environment-variable-types">Environment Variable Types</a></li>
 <li><a href="#retrieving-environment-configuration">Retrieving Environment Configuration</a></li>
 <li><a href="#determining-the-current-environment">Determining The Current Environment</a></li>
+<li><a href="#encrypting-environment-files">Encrypting Environment Files</a></li>
 </ul>
 </li>
 <li><a href="#accessing-configuration-values">Accessing Configuration Values</a></li>
@@ -36,6 +37,7 @@
 <p><a name="environment-file-security"></a></p>
 <h4 id="environment-file-security">Environment File Security</h4>
 <p>Your <code>.env</code> file should not be committed to your application&#39;s source control, since each developer / server using your application could require a different environment configuration. Furthermore, this would be a security risk in the event an intruder gains access to your source control repository, since any sensitive credentials would get exposed.</p>
+<p>However, it is possible to encrypt your environment file using Laravel&#39;s built-in <a href="#encrypting-environment-files">environment encryption</a>. Encrypted environment files may be placed in source control safely.</p>
 <p><a name="additional-environment-files"></a></p>
 <h4 id="additional-environment-files">Additional Environment Files</h4>
 <p>Before loading your application&#39;s environment variables, Laravel determines if an <code>APP_ENV</code> environment variable has been externally provided or if the <code>--env</code> CLI argument has been specified. If so, Laravel will attempt to load an <code>.env.[APP_ENV]</code> file if it exists. If it does not exist, the default <code>.env</code> file will be loaded.</p>
@@ -110,6 +112,41 @@
 <blockquote>
 <p><strong>Note</strong><br>The current application environment detection can be overridden by defining a server-level <code>APP_ENV</code> environment variable.</p>
 </blockquote>
+<p><a name="encrypting-environment-files"></a></p>
+<h3 id="encrypting-environment-files">Encrypting Environment Files</h3>
+<p>Unencrypted environment files should never be stored in source control. However, Laravel allows you to encrypt your environment files so that they may be safely be added to source control with the rest of your application.</p>
+<p><a name="encryption"></a></p>
+<h4 id="encryption">Encryption</h4>
+<p>To encrypt an environment file, you may use the <code>env:encrypt</code> command:</p>
+<pre><code class="language-shell">php artisan env:encrypt
+</code></pre>
+<p>Running the <code>env:encrypt</code> command will encrypt your <code>.env</code> file and place the encrypted contents in an <code>.env.encrypted</code> file. The decryption key is presented in the output of the command and should be stored in a secure password manager. If you would like to provide your own encryption key you may use the <code>--key</code> option when invoking the command:</p>
+<pre><code class="language-shell">php artisan env:encrypt --key=3UVsEgGVK36XN82KKeyLFMhvosbZN1aF
+</code></pre>
+<blockquote>
+<p><strong>Note</strong><br>The length of the key provided should match the key length required by the encryption cipher being used. By default, Laravel will use the <code>AES-256-CBC</code> cipher which requires a 32 character key. You are free to use any cipher supported by Laravel&#39;s <a href="/docs/%7B%7Bversion%7D%7D/encryption">encrypter</a> by passing the <code>--cipher</code> option when invoking the command.</p>
+</blockquote>
+<p>If your application has multiple environment files, such as <code>.env</code> and <code>.env.staging</code>, you may specify the environment file that should be encrypted by providing the environment name via the <code>--env</code> option:</p>
+<pre><code class="language-shell">php artisan env:encrypt --env=staging
+</code></pre>
+<p><a name="decryption"></a></p>
+<h4 id="decryption">Decryption</h4>
+<p>To decrypt an environment file, you may use the <code>env:decrypt</code> command. This command requires a decryption key, which Laravel will retrieve from the <code>LARAVEL_ENV_ENCRYPTION_KEY</code> environment variable:</p>
+<pre><code class="language-shell">php artisan env:decrypt
+</code></pre>
+<p>Or, the key may be provided directly to the command via the <code>--key</code> option:</p>
+<pre><code class="language-shell">php artisan env:decrypt --key=3UVsEgGVK36XN82KKeyLFMhvosbZN1aF
+</code></pre>
+<p>When the <code>env:decrypt</code> command is invoked, Laravel will decrypt the contents of the <code>.env.encrypted</code> file and place the decrypted contents in the <code>.env</code> file.</p>
+<p>The <code>--cipher</code> option may be provided to the <code>env:decrypt</code> command in order to use a custom encryption cipher:</p>
+<pre><code class="language-shell">php artisan env:decrypt --key=qUWuNRdfuImXcKxZ --cipher=AES-128-CBC
+</code></pre>
+<p>If your application has multiple environment files, such as <code>.env</code> and <code>.env.staging</code>, you may specify the environment file that should be decrypted by providing the environment name via the <code>--env</code> option:</p>
+<pre><code class="language-shell">php artisan env:decrypt --env=staging
+</code></pre>
+<p>In order to overwrite an existing environment file, you may provide the <code>--force</code> option to the <code>env:decrypt</code> command:</p>
+<pre><code class="language-shell">php artisan env:decrypt --force
+</code></pre>
 <p><a name="accessing-configuration-values"></a></p>
 <h2 id="accessing-configuration-values">Accessing Configuration Values</h2>
 <p>You may easily access your configuration values using the global <code>config</code> function from anywhere in your application. The configuration values may be accessed using &quot;dot&quot; syntax, which includes the name of the file and option you wish to access. A default value may also be specified and will be returned if the configuration option does not exist:</p>

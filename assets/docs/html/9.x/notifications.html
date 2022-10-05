@@ -1114,14 +1114,17 @@ php artisan migrate
 <p><a name="notification-sending-event"></a></p>
 <h4 id="notification-sending-event">Notification Sending Event</h4>
 <p>When a notification is sending, the <code>Illuminate\Notifications\Events\NotificationSending</code> <a href="/docs/%7B%7Bversion%7D%7D/events">event</a> is dispatched by the notification system. This contains the &quot;notifiable&quot; entity and the notification instance itself. You may register listeners for this event in your application&#39;s <code>EventServiceProvider</code>:</p>
-<pre><code><span class="hljs-comment">/**
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Listeners</span>\<span class="hljs-title">CheckNotificationStatus</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Notifications</span>\<span class="hljs-title">Events</span>\<span class="hljs-title">NotificationSending</span>;
+
+<span class="hljs-comment">/**
  * The event listener mappings for the application.
  *
  * <span class="hljs-doctag">@var</span> array
  */</span>
 <span class="hljs-keyword">protected</span> <span class="hljs-variable">$listen</span> = [
-    <span class="hljs-string">&#x27;Illuminate\Notifications\Events\NotificationSending&#x27;</span> =&gt; [
-        <span class="hljs-string">&#x27;App\Listeners\CheckNotificationStatus&#x27;</span>,
+    <span class="hljs-title class_">NotificationSending</span>::<span class="hljs-variable language_">class</span> =&gt; [
+        <span class="hljs-title class_">CheckNotificationStatus</span>::<span class="hljs-variable language_">class</span>,
     ],
 ];
 </code></pre>
@@ -1156,14 +1159,17 @@ php artisan migrate
 <p><a name="notification-sent-event"></a></p>
 <h4 id="notification-sent-event">Notification Sent Event</h4>
 <p>When a notification is sent, the <code>Illuminate\Notifications\Events\NotificationSent</code> <a href="/docs/%7B%7Bversion%7D%7D/events">event</a> is dispatched by the notification system. This contains the &quot;notifiable&quot; entity and the notification instance itself. You may register listeners for this event in your <code>EventServiceProvider</code>:</p>
-<pre><code><span class="hljs-comment">/**
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Listeners</span>\<span class="hljs-title">LogNotification</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Notifications</span>\<span class="hljs-title">Events</span>\<span class="hljs-title">NotificationSent</span>;
+
+<span class="hljs-comment">/**
  * The event listener mappings for the application.
  *
  * <span class="hljs-doctag">@var</span> array
  */</span>
 <span class="hljs-keyword">protected</span> <span class="hljs-variable">$listen</span> = [
-    <span class="hljs-string">&#x27;Illuminate\Notifications\Events\NotificationSent&#x27;</span> =&gt; [
-        <span class="hljs-string">&#x27;App\Listeners\LogNotification&#x27;</span>,
+    <span class="hljs-title class_">NotificationSent</span>::<span class="hljs-variable language_">class</span> =&gt; [
+        <span class="hljs-title class_">LogNotification</span>::<span class="hljs-variable language_">class</span>,
     ],
 ];
 </code></pre>

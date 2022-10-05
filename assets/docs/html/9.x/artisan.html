@@ -502,43 +502,28 @@ automatically calculate the appropriate width and height of the table for you:</
 </code></pre>
 <p><a name="signal-handling"></a></p>
 <h2 id="signal-handling">Signal Handling</h2>
-<p>The Symfony Console component, which powers the Artisan console, allows you to indicate which process signals (if any) your command handles. For example, you may indicate that your command handles the <code>SIGINT</code> and <code>SIGTERM</code> signals.</p>
-<p>To get started, you should implement the <code>Symfony\Component\Console\Command\SignalableCommandInterface</code> interface on your Artisan command class. This interface requires you to define two methods: <code>getSubscribedSignals</code> and <code>handleSignal</code>:</p>
-<pre><code class="language-php"><span class="hljs-meta">&lt;?php</span>
-
-<span class="hljs-keyword">use</span> <span class="hljs-title">Symfony</span>\<span class="hljs-title">Component</span>\<span class="hljs-title">Console</span>\<span class="hljs-title">Command</span>\<span class="hljs-title">SignalableCommandInterface</span>;
-
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">StartServer</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Command</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">SignalableCommandInterface</span>
+<p>As you may know, operating systems allow signals to be sent to running processes. For example, the <code>SIGTERM</code> signal is how operating systems ask a program to terminate. If you wish to listen for signals in your Artisan console commands and execute code when they occur, you may use the <code>trap</code> method:</p>
+<pre><code><span class="hljs-comment">/**
+ * Execute the console command.
+ *
+ * <span class="hljs-doctag">@return</span> mixed
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">handle</span>(<span class="hljs-params"></span>)
 </span>{
-    <span class="hljs-comment">// ...</span>
+    <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">trap</span>(SIGTERM, fn () =&gt; <span class="hljs-variable language_">$this</span>-&gt;shouldKeepRunning = <span class="hljs-literal">false</span>);
 
-    <span class="hljs-comment">/**
-     * Get the list of signals handled by the command.
-     *
-     * <span class="hljs-doctag">@return</span> array
-     */</span>
-    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getSubscribedSignals</span>(<span class="hljs-params"></span>): <span class="hljs-title">array</span>
-    </span>{
-        <span class="hljs-keyword">return</span> [SIGINT, SIGTERM];
-    }
-
-    <span class="hljs-comment">/**
-     * Handle an incoming signal.
-     *
-     * <span class="hljs-doctag">@param</span>  int  $signal
-     * <span class="hljs-doctag">@return</span> void
-     */</span>
-    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">handleSignal</span>(<span class="hljs-params"><span class="hljs-keyword">int</span> <span class="hljs-variable">$signal</span></span>): <span class="hljs-title">void</span>
-    </span>{
-        <span class="hljs-keyword">if</span> (<span class="hljs-variable">$signal</span> === SIGINT) {
-            <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">stopServer</span>();
-
-            <span class="hljs-keyword">return</span>;
-        }
+    <span class="hljs-keyword">while</span> (<span class="hljs-variable language_">$this</span>-&gt;shouldKeepRunning) {
+        <span class="hljs-comment">// ...</span>
     }
 }
 </code></pre>
-<p>As you might expect, the <code>getSubscribedSignals</code> method should return an array of the signals that your command can handle, while the <code>handleSignal</code> method receives the signal and can respond accordingly.</p>
+<p>To listen for multiple signals at once, you may provide an array of signals to the <code>trap</code> method:</p>
+<pre><code><span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">trap</span>([SIGTERM, SIGQUIT], function (<span class="hljs-variable">$signal</span>) {
+    <span class="hljs-variable language_">$this</span>-&gt;shouldKeepRunning = <span class="hljs-literal">false</span>;
+
+    <span class="hljs-title function_ invoke__">dump</span>(<span class="hljs-variable">$signal</span>); <span class="hljs-comment">// SIGTERM / SIGQUIT</span>
+});
+</code></pre>
 <p><a name="stub-customization"></a></p>
 <h2 id="stub-customization">Stub Customization</h2>
 <p>The Artisan console&#39;s <code>make</code> commands are used to create a variety of classes, such as controllers, jobs, migrations, and tests. These classes are generated using &quot;stub&quot; files that are populated with values based on your input. However, you may want to make small changes to files generated by Artisan. To accomplish this, you may use the <code>stub:publish</code> command to publish the most common stubs to your application so that you can customize them:</p>

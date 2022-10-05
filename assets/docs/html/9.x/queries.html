@@ -455,6 +455,17 @@ DB::<span class="hljs-title function_ invoke__">table</span>(<span class="hljs-s
                     -&gt;<span class="hljs-title function_ invoke__">whereNotBetween</span>(<span class="hljs-string">&#x27;votes&#x27;</span>, [<span class="hljs-number">1</span>, <span class="hljs-number">100</span>])
                     -&gt;<span class="hljs-title function_ invoke__">get</span>();
 </code></pre>
+<p><strong>whereBetweenColumns / whereNotBetweenColumns / orWhereBetweenColumns / orWhereNotBetweenColumns</strong></p>
+<p>The <code>whereBetweenColumns</code> method verifies that a column&#39;s value is between the two values of two columns in the same table row:</p>
+<pre><code><span class="hljs-variable">$patients</span> = DB::<span class="hljs-title function_ invoke__">table</span>(<span class="hljs-string">&#x27;patients&#x27;</span>)
+                       -&gt;<span class="hljs-title function_ invoke__">whereBetweenColumns</span>(<span class="hljs-string">&#x27;weight&#x27;</span>, [<span class="hljs-string">&#x27;minimum_allowed_weight&#x27;</span>, <span class="hljs-string">&#x27;maximum_allowed_weight&#x27;</span>])
+                       -&gt;<span class="hljs-title function_ invoke__">get</span>();
+</code></pre>
+<p>The <code>whereNotBetweenColumns</code> method verifies that a column&#39;s value lies outside the two values of two columns in the same table row:</p>
+<pre><code><span class="hljs-variable">$patients</span> = DB::<span class="hljs-title function_ invoke__">table</span>(<span class="hljs-string">&#x27;patients&#x27;</span>)
+                       -&gt;<span class="hljs-title function_ invoke__">whereNotBetweenColumns</span>(<span class="hljs-string">&#x27;weight&#x27;</span>, [<span class="hljs-string">&#x27;minimum_allowed_weight&#x27;</span>, <span class="hljs-string">&#x27;maximum_allowed_weight&#x27;</span>])
+                       -&gt;<span class="hljs-title function_ invoke__">get</span>();
+</code></pre>
 <p><strong>whereIn / whereNotIn / orWhereIn / orWhereNotIn</strong></p>
 <p>The <code>whereIn</code> method verifies that a given column&#39;s value is contained within the given array:</p>
 <pre><code><span class="hljs-variable">$users</span> = DB::<span class="hljs-title function_ invoke__">table</span>(<span class="hljs-string">&#x27;users&#x27;</span>)

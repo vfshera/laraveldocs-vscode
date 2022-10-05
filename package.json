@@ -7,8 +7,8 @@
   "author": {
     "name": "Franlin Shera"
   },
-  "license": "",
-  "version": "1.2.1",
+  "license": "GPL-3.0",
+  "version": "1.3.0",
   "homepage": "https://github.com/franklinshera/laraveldocs-vscode",
   "bugs": "https://github.com/franklinshera/laraveldocs-vscode/issues",
   "repository": {
@@ -28,7 +28,8 @@
     "Other"
   ],
   "activationEvents": [
-    "onView:docs-list"
+    "onView:docs-list",
+    "workspaceContains:artisan"
   ],
   "main": "./dist/extension.js",
   "contributes": {

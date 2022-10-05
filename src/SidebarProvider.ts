@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import DocPreviewPanel from "./DocPreviewPanel";
 import { COMPILED_DIR, CSS_ASSET, DOCS_LIST, OPEN_DOC } from "./constants";
-import { getNonce, htmlDocs } from "./Utils";
+import { docs, getNonce, htmlDocs } from "./Utils";
 
 export default class SidebarProvider implements vscode.WebviewViewProvider {
   _view?: vscode.WebviewView;
@@ -20,6 +20,8 @@ export default class SidebarProvider implements vscode.WebviewViewProvider {
     };
 
     webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
+
+    console.log("HTML DOCS ", htmlDocs());
 
     webviewView.webview.onDidReceiveMessage(async ({ command, value }) => {
       switch (command) {

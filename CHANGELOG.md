@@ -1,5 +1,24 @@
 # Change Log
 
+## v1.4.0 - 2022-10-05
+
+- docs update
+- feat: Generator exclude list
+- License Update
+
+## v1.3.0 - 2022-09-07
+
+- activation on laravel workspace
+- performance fixes
+
+## v1.2.3 - 2022-09-05
+
+- fix generator runner bug in production
+
+## v1.2.2 - 2022-09-05
+
+- fix docs generator to create filenames in sentence case
+
 ## v1.2.1 - 2022-09-04
 
 - Theme support docs and demo
