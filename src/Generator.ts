@@ -5,11 +5,22 @@ hljs.registerLanguage("blade", hljsBlade);
 import * as path from "path";
 
 import { marked } from "marked";
-import { getDocContents, getName } from "./Utils";
+import { getDocContents } from "./Utils";
 import { HTML_DOCS, MD_DOCS } from "./constants";
 
 export default class Generator {
   static baseDir = path.join(__dirname, "..");
+
+  /**
+   * Files to be excluded from compilation to html
+   */
+  static excludeFiles: string[] = [
+    "deployment.md",
+    "releases.md",
+    "contributions.md",
+    "readme.md",
+  ];
+
   /**
    * Find directory if none, create!
    * @param dirPath
@@ -32,6 +43,7 @@ export default class Generator {
         let foundFilePath = path.join(dirPath, htmlFile);
 
         fs.unlinkSync(foundFilePath);
+
         console.log("Deleted ", foundFilePath);
       });
     }
@@ -73,23 +85,27 @@ export default class Generator {
       Generator.existsOrCreate(docDir, true);
 
       d.files.forEach((f) => {
-        const fileName = path.join(docDir, f.title.toLowerCase() + ".html");
+        if (Generator.excludeFiles.includes(f.filename.toLowerCase())) {
+          console.log(`${f.filename} has been excluded!`);
+        } else {
+          const fileName = path.join(docDir, f.title.toLowerCase() + ".html");
 
-        const fileContents = getDocContents(f.link);
+          const fileContents = getDocContents(f.link);
 
-        const HTML = marked(fileContents, {
-          highlight: (code, lang) => {
-            const language = hljs.getLanguage(lang) ? lang : "php";
-            return hljs.highlight(code, { language }).value;
-          },
-        });
+          const HTML = marked(fileContents, {
+            highlight: (code, lang) => {
+              const language = hljs.getLanguage(lang) ? lang : "php";
+              return hljs.highlight(code, { language }).value;
+            },
+          });
 
-        fs.writeFile(fileName, HTML, (err) => {
-          if (err) {
-            throw err;
-          }
-          console.log("Created File", fileName);
-        });
+          fs.writeFile(fileName, HTML, (err) => {
+            if (err) {
+              throw err;
+            }
+            console.log("Created File", fileName);
+          });
+        }
       });
     });
   }
