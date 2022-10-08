@@ -1,37 +1,76 @@
-name: CI
+name: Build & Publish
 
-# Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
 on:
   push:
-  pull_request:
-    branches: [master]
-  workflow_dispatch:
+    branches:
+      - dev
+    tags:
+      - "v*.*.*"
 
 jobs:
   build:
-    runs-on: windows-latest
-
+    runs-on: ubuntu-latest
+    outputs:
+      vsixPath: ${{ steps.packageExtension.outputs.vsixPath }}
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - name: Checkout Source
+        uses: actions/checkout@v2
 
-      - name: npm install & build
-        run: |
-          npm install
-          npm run build
-      - name: package with vsce
-        run: |
-          npm install -g vsce
-          vsce package
-
-      - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v2.1.4
+      - name: Install Node 16
+        uses: actions/setup-node@v1
         with:
-          name: AL Test Runner
-          path: ./*.vsix
+          node-version: 16
 
-      - name: Publish to marketplace
-        if: github.ref == 'refs/heads/pre-release'
-        run: |
-          vsce publish -p ${{ secrets.VSCE_PAT }} --pre-release
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Package Extension
+        id: packageExtension
+        uses: HaaLeo/publish-vscode-extension@v1
+        with:
+          pat: stub
+          dryRun: true
+
+      - name: Upload Extension Package as Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: extension
+          path: ${{ steps.packageExtension.outputs.vsixPath }}
+
+  publish:
+    name: Publish Extension
+    needs:
+      - build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v2
+      - name: Install Node v16
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ubuntu-latest
+
+      - name: GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          generate_release_notes: true
+          name: ${{ github.ref_name }}
+          fail_on_unmatched_files: true
+          files: ${{ needs.build.outputs.vsixPath }}
+
+      # - name: Publish to Visual Studio Marketplace
+      #   uses: HaaLeo/publish-vscode-extension@v1
+      #   with:
+      #     pat: ${{ secrets.VSCE_PAT }}
+      #     extensionFile: ${{ needs.build.outputs.vsixPath }}
+      #     registryUrl: https://marketplace.visualstudio.com
