@@ -1,6 +1,17 @@
-# Laravel Documentation VSCode Extension
+<p align="center">
+    <img width="128" alt="preview" src="./assets/images/icon.png">
+</p>
+<br />
 
-Get Docs right in your vscode
+<h2 align="center"> Laravel Documentation VSCode Extension </h2>
+<p align="center">
+<img alt="version" src="https://vsmarketplacebadge.apphb.com/version-short/vscodelaraveldocs.svg">
+<img alt="downloads" src="https://vsmarketplacebadge.apphb.com/downloads-short/vscodelaraveldocs.svg">
+<img alt="installs" src="https://vsmarketplacebadge.apphb.com/installs-short/vscodelaraveldocs.svg">
+
+</p>
+
+<p align="center">Get Docs right in your vscode</p>
 
 ![Preview](/assets/images/preview.gif)
 
