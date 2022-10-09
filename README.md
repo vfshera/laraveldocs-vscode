@@ -5,9 +5,10 @@
 
 <h2 align="center"> Laravel Documentation VSCode Extension </h2>
 <p align="center">
-<img alt="version" src="https://vsmarketplacebadge.apphb.com/version-short/vscodelaraveldocs.svg">
-<img alt="downloads" src="https://vsmarketplacebadge.apphb.com/downloads-short/vscodelaraveldocs.svg">
-<img alt="installs" src="https://vsmarketplacebadge.apphb.com/installs-short/vscodelaraveldocs.svg">
+<img alt="version" src="https://img.shields.io/visual-studio-marketplace/v/FranklinShera.vscodelaraveldocs?style=plastic">
+
+<img alt="downloads" src="https://img.shields.io/visual-studio-marketplace/d/FranklinShera.vscodelaraveldocs?style=plastic&color=orange">
+<img alt="installs" src="https://img.shields.io/visual-studio-marketplace/i/FranklinShera.vscodelaraveldocs?style=plastic">
 
 </p>
 

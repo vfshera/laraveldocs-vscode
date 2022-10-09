@@ -1,0 +1,34 @@
+name: Build & Publish
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+
+jobs:
+  publish:
+    name: Publish Extension
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event.pull_request.merged == true
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v2
+
+      - name: Install Node v16
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Publish to Visual Studio Marketplace
+        uses: HaaLeo/publish-vscode-extension@v1
+        with:
+          pat: ${{ secrets.VSCE_PAT }}
+          extensionFile: ${{ needs.build.outputs.vsixPath }}
+          registryUrl: https://marketplace.visualstudio.com
