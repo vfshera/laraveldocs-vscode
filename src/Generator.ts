@@ -15,6 +15,7 @@ export default class Generator {
    * Files to be excluded from compilation to html
    */
   static excludeFiles: string[] = [
+    "documentation.md",
     "deployment.md",
     "releases.md",
     "contributions.md",
