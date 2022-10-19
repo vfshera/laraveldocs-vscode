@@ -14,6 +14,7 @@
 <li><a href="#attachments">Attachments</a></li>
 <li><a href="#inline-attachments">Inline Attachments</a></li>
 <li><a href="#attachable-objects">Attachable Objects</a></li>
+<li><a href="#headers">Headers</a></li>
 <li><a href="#tags-and-metadata">Tags &amp; Metadata</a></li>
 <li><a href="#customizing-the-symfony-message">Customizing The Symfony Message</a></li>
 </ul>
@@ -146,25 +147,27 @@
 </code></pre>
 <p><a name="writing-mailables"></a></p>
 <h2 id="writing-mailables">Writing Mailables</h2>
-<p>Once you have generated a mailable class, open it up so we can explore its contents. First, note that all of a mailable class&#39; configuration is done in the <code>build</code> method. Within this method, you may call various methods such as <code>from</code>, <code>subject</code>, <code>view</code>, and <code>attach</code> to configure the email&#39;s presentation and delivery.</p>
-<blockquote>
-<p><strong>Note</strong><br>You may type-hint dependencies on the mailable&#39;s <code>build</code> method. The Laravel <a href="/docs/%7B%7Bversion%7D%7D/container">service container</a> automatically injects these dependencies.</p>
-</blockquote>
+<p>Once you have generated a mailable class, open it up so we can explore its contents. Mailable class configuration is done in several methods, including the <code>envelope</code>, <code>content</code>, and <code>attachments</code> methods.</p>
+<p>The <code>envelope</code> method returns an <code>Illuminate\Mail\Mailables\Envelope</code> object that defines the subject and, sometimes, the recipients of the message. The <code>content</code> method returns an <code>Illuminate\Mail\Mailables\Content</code> object that defines the <a href="/docs/%7B%7Bversion%7D%7D/blade">Blade template</a> that will be used to generate the message content.</p>
 <p><a name="configuring-the-sender"></a></p>
 <h3 id="configuring-the-sender">Configuring The Sender</h3>
-<p><a name="using-the-from-method"></a></p>
-<h4 id="using-the-from-method">Using The <code>from</code> Method</h4>
-<p>First, let&#39;s explore configuring the sender of the email. Or, in other words, who the email is going to be &quot;from&quot;. There are two ways to configure the sender. First, you may use the <code>from</code> method within your mailable class&#39; <code>build</code> method:</p>
-<pre><code><span class="hljs-comment">/**
- * Build the message.
+<p><a name="using-the-envelope"></a></p>
+<h4 id="using-the-envelope">Using The Envelope</h4>
+<p>First, let&#39;s explore configuring the sender of the email. Or, in other words, who the email is going to be &quot;from&quot;. There are two ways to configure the sender. First, you may specify the &quot;from&quot; address on your message&#39;s envelope:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Mail</span>\<span class="hljs-title">Mailables</span>\<span class="hljs-title">Address</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Mail</span>\<span class="hljs-title">Mailables</span>\<span class="hljs-title">Envelope</span>;
+
+<span class="hljs-comment">/**
+ * Get the message envelope.
  *
- * <span class="hljs-doctag">@return</span> $this
+ * <span class="hljs-doctag">@return</span> \Illuminate\Mail\Mailables\Envelope
  */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">build</span>(<span class="hljs-params"></span>)
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">envelope</span>(<span class="hljs-params"></span>)
 </span>{
-    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-keyword">from</span>(<span class="hljs-string">&#x27;example@example.com&#x27;</span>, <span class="hljs-string">&#x27;Example&#x27;</span>)
-                -&gt;<span class="hljs-title function_ invoke__">subject</span>(<span class="hljs-string">&#x27;Order Shipped&#x27;</span>)
-                -&gt;<span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;emails.orders.shipped&#x27;</span>);
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Envelope</span>(
+        <span class="hljs-keyword">from</span>: <span class="hljs-keyword">new</span> <span class="hljs-title class_">Address</span>(<span class="hljs-string">&#x27;jeffrey@example.com&#x27;</span>, <span class="hljs-string">&#x27;Jeffrey Way&#x27;</span>),
+        subject: <span class="hljs-string">&#x27;Order Shipped&#x27;</span>,
+    );
 }
 </code></pre>
 <p><a name="using-a-global-from-address"></a></p>
@@ -177,15 +180,17 @@
 </code></pre>
 <p><a name="configuring-the-view"></a></p>
 <h3 id="configuring-the-view">Configuring The View</h3>
-<p>Within a mailable class&#39; <code>build</code> method, you may use the <code>view</code> method to specify which template should be used when rendering the email&#39;s contents. Since each email typically uses a <a href="/docs/%7B%7Bversion%7D%7D/blade">Blade template</a> to render its contents, you have the full power and convenience of the Blade templating engine when building your email&#39;s HTML:</p>
+<p>Within a mailable class&#39; <code>content</code> method, you may define the <code>view</code>, or which template should be used when rendering the email&#39;s contents. Since each email typically uses a <a href="/docs/%7B%7Bversion%7D%7D/blade">Blade template</a> to render its contents, you have the full power and convenience of the Blade templating engine when building your email&#39;s HTML:</p>
 <pre><code><span class="hljs-comment">/**
- * Build the message.
+ * Get the message content definition.
  *
- * <span class="hljs-doctag">@return</span> $this
+ * <span class="hljs-doctag">@return</span> \Illuminate\Mail\Mailables\Content
  */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">build</span>(<span class="hljs-params"></span>)
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">content</span>(<span class="hljs-params"></span>)
 </span>{
-    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;emails.orders.shipped&#x27;</span>);
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Content</span>(
+        view: <span class="hljs-string">&#x27;emails.orders.shipped&#x27;</span>,
+    );
 }
 </code></pre>
 <blockquote>
@@ -193,17 +198,25 @@
 </blockquote>
 <p><a name="plain-text-emails"></a></p>
 <h4 id="plain-text-emails">Plain Text Emails</h4>
-<p>If you would like to define a plain-text version of your email, you may use the <code>text</code> method. Like the <code>view</code> method, the <code>text</code> method accepts a template name which will be used to render the contents of the email. You are free to define both an HTML and plain-text version of your message:</p>
+<p>If you would like to define a plain-text version of your email, you may specify the plain-text template when creating the message&#39;s <code>Content</code> definition. Like the <code>view</code> parameter, the <code>text</code> parameter should be a template name which will be used to render the contents of the email. You are free to define both an HTML and plain-text version of your message:</p>
 <pre><code><span class="hljs-comment">/**
- * Build the message.
+ * Get the message content definition.
  *
- * <span class="hljs-doctag">@return</span> $this
+ * <span class="hljs-doctag">@return</span> \Illuminate\Mail\Mailables\Content
  */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">build</span>(<span class="hljs-params"></span>)
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">content</span>(<span class="hljs-params"></span>)
 </span>{
-    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;emails.orders.shipped&#x27;</span>)
-                -&gt;<span class="hljs-title function_ invoke__">text</span>(<span class="hljs-string">&#x27;emails.orders.shipped_plain&#x27;</span>);
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Content</span>(
+        view: <span class="hljs-string">&#x27;emails.orders.shipped&#x27;</span>,
+        text: <span class="hljs-string">&#x27;emails.orders.shipped-text&#x27;</span>
+    );
 }
+</code></pre>
+<p>For clarity, the <code>html</code> parameter may be used as an alias of the <code>view</code> parameter:</p>
+<pre><code><span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Content</span>(
+    html: <span class="hljs-string">&#x27;emails.orders.shipped&#x27;</span>,
+    text: <span class="hljs-string">&#x27;emails.orders.shipped-text&#x27;</span>
+);
 </code></pre>
 <p><a name="view-data"></a></p>
 <h3 id="view-data">View Data</h3>
@@ -217,6 +230,7 @@
 <span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Order</span>;
 <span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Bus</span>\<span class="hljs-title">Queueable</span>;
 <span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Mail</span>\<span class="hljs-title">Mailable</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Mail</span>\<span class="hljs-title">Mailables</span>\<span class="hljs-title">Content</span>;
 <span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Queue</span>\<span class="hljs-title">SerializesModels</span>;
 
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">OrderShipped</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Mailable</span>
@@ -242,13 +256,15 @@
     }
 
     <span class="hljs-comment">/**
-     * Build the message.
+     * Get the message content definition.
      *
-     * <span class="hljs-doctag">@return</span> $this
+     * <span class="hljs-doctag">@return</span> \Illuminate\Mail\Mailables\Content
      */</span>
-    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">build</span>(<span class="hljs-params"></span>)
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">content</span>(<span class="hljs-params"></span>)
     </span>{
-        <span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;emails.orders.shipped&#x27;</span>);
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Content</span>(
+            view: <span class="hljs-string">&#x27;emails.orders.shipped&#x27;</span>,
+        );
     }
 }
 </code></pre>
@@ -257,9 +273,9 @@
     Price: {{ <span class="hljs-variable">$order</span>-&gt;price }}
 &lt;/div&gt;
 </code></pre>
-<p><a name="via-the-with-method"></a></p>
-<h4 id="via-the-with-method">Via The <code>with</code> Method:</h4>
-<p>If you would like to customize the format of your email&#39;s data before it is sent to the template, you may manually pass your data to the view via the <code>with</code> method. Typically, you will still pass data via the mailable class&#39; constructor; however, you should set this data to <code>protected</code> or <code>private</code> properties so the data is not automatically made available to the template. Then, when calling the <code>with</code> method, pass an array of data that you wish to make available to the template:</p>
+<p><a name="via-the-with-parameter"></a></p>
+<h4 id="via-the-with-parameter">Via The <code>with</code> Parameter:</h4>
+<p>If you would like to customize the format of your email&#39;s data before it is sent to the template, you may manually pass your data to the view via the <code>Content</code> definition&#39;s <code>with</code> parameter. Typically, you will still pass data via the mailable class&#39; constructor; however, you should set this data to <code>protected</code> or <code>private</code> properties so the data is not automatically made available to the template:</p>
 <pre><code><span class="hljs-meta">&lt;?php</span>
 
 <span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Mail</span>;
@@ -267,6 +283,7 @@
 <span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Order</span>;
 <span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Bus</span>\<span class="hljs-title">Queueable</span>;
 <span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Mail</span>\<span class="hljs-title">Mailable</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Mail</span>\<span class="hljs-title">Mailables</span>\<span class="hljs-title">Content</span>;
 <span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Queue</span>\<span class="hljs-title">SerializesModels</span>;
 
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">OrderShipped</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Mailable</span>
@@ -292,17 +309,19 @@
     }
 
     <span class="hljs-comment">/**
-     * Build the message.
+     * Get the message content definition.
      *
-     * <span class="hljs-doctag">@return</span> $this
+     * <span class="hljs-doctag">@return</span> \Illuminate\Mail\Mailables\Content
      */</span>
-    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">build</span>(<span class="hljs-params"></span>)
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">content</span>(<span class="hljs-params"></span>)
     </span>{
-        <span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;emails.orders.shipped&#x27;</span>)
-                    -&gt;<span class="hljs-title function_ invoke__">with</span>([
-                        <span class="hljs-string">&#x27;orderName&#x27;</span> =&gt; <span class="hljs-variable">$this</span>-&gt;order-&gt;name,
-                        <span class="hljs-string">&#x27;orderPrice&#x27;</span> =&gt; <span class="hljs-variable">$this</span>-&gt;order-&gt;price,
-                    ]);
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Content</span>(
+            view: <span class="hljs-string">&#x27;emails.orders.shipped&#x27;</span>,
+            with: [
+                <span class="hljs-string">&#x27;orderName&#x27;</span> =&gt; <span class="hljs-variable language_">$this</span>-&gt;order-&gt;name,
+                <span class="hljs-string">&#x27;orderPrice&#x27;</span> =&gt; <span class="hljs-variable language_">$this</span>-&gt;order-&gt;price,
+            ],
+        );
     }
 }
 </code></pre>
@@ -313,87 +332,95 @@
 </code></pre>
 <p><a name="attachments"></a></p>
 <h3 id="attachments">Attachments</h3>
-<p>To add attachments to an email, use the <code>attach</code> method within the mailable class&#39; <code>build</code> method. The <code>attach</code> method accepts the full path to the file as its first argument:</p>
-<pre><code><span class="hljs-comment">/**
- * Build the message.
+<p>To add attachments to an email, you will add attachments to the array returned by the message&#39;s <code>attachments</code> method. First, you may add an attachment by providing a file path to the <code>fromPath</code> method provided by the <code>Attachment</code> class:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Mail</span>\<span class="hljs-title">Mailables</span>\<span class="hljs-title">Attachment</span>;
+
+<span class="hljs-comment">/**
+ * Get the attachments for the message.
  *
- * <span class="hljs-doctag">@return</span> $this
+ * <span class="hljs-doctag">@return</span> \Illuminate\Mail\Mailables\Attachment[]
  */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">build</span>(<span class="hljs-params"></span>)
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">attachments</span>(<span class="hljs-params"></span>)
 </span>{
-    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;emails.orders.shipped&#x27;</span>)
-                -&gt;<span class="hljs-title function_ invoke__">attach</span>(<span class="hljs-string">&#x27;/path/to/file&#x27;</span>);
+    <span class="hljs-keyword">return</span> [
+        <span class="hljs-title class_">Attachment</span>::<span class="hljs-title function_ invoke__">fromPath</span>(<span class="hljs-string">&#x27;/path/to/file&#x27;</span>),
+    ];
 }
 </code></pre>
-<p>When attaching files to a message, you may also specify the display name and / or MIME type by passing an <code>array</code> as the second argument to the <code>attach</code> method:</p>
+<p>When attaching files to a message, you may also specify the display name and / or MIME type for the attachment using the <code>as</code> and <code>withMime</code> methods:</p>
 <pre><code><span class="hljs-comment">/**
- * Build the message.
+ * Get the attachments for the message.
  *
- * <span class="hljs-doctag">@return</span> $this
+ * <span class="hljs-doctag">@return</span> \Illuminate\Mail\Mailables\Attachment[]
  */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">build</span>(<span class="hljs-params"></span>)
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">attachments</span>(<span class="hljs-params"></span>)
 </span>{
-    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;emails.orders.shipped&#x27;</span>)
-                -&gt;<span class="hljs-title function_ invoke__">attach</span>(<span class="hljs-string">&#x27;/path/to/file&#x27;</span>, [
-                    <span class="hljs-string">&#x27;as&#x27;</span> =&gt; <span class="hljs-string">&#x27;name.pdf&#x27;</span>,
-                    <span class="hljs-string">&#x27;mime&#x27;</span> =&gt; <span class="hljs-string">&#x27;application/pdf&#x27;</span>,
-                ]);
+    <span class="hljs-keyword">return</span> [
+        <span class="hljs-title class_">Attachment</span>::<span class="hljs-title function_ invoke__">fromPath</span>(<span class="hljs-string">&#x27;/path/to/file&#x27;</span>)
+                -&gt;<span class="hljs-keyword">as</span>(<span class="hljs-string">&#x27;name.pdf&#x27;</span>)
+                -&gt;<span class="hljs-title function_ invoke__">withMime</span>(<span class="hljs-string">&#x27;application/pdf&#x27;</span>),
+    ];
 }
 </code></pre>
 <p><a name="attaching-files-from-disk"></a></p>
 <h4 id="attaching-files-from-disk">Attaching Files From Disk</h4>
-<p>If you have stored a file on one of your <a href="/docs/%7B%7Bversion%7D%7D/filesystem">filesystem disks</a>, you may attach it to the email using the <code>attachFromStorage</code> method:</p>
+<p>If you have stored a file on one of your <a href="/docs/%7B%7Bversion%7D%7D/filesystem">filesystem disks</a>, you may attach it to the email using the <code>fromStorage</code> attachment method:</p>
 <pre><code><span class="hljs-comment">/**
- * Build the message.
+ * Get the attachments for the message.
  *
- * <span class="hljs-doctag">@return</span> $this
+ * <span class="hljs-doctag">@return</span> \Illuminate\Mail\Mailables\Attachment[]
  */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">build</span>(<span class="hljs-params"></span>)
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">attachments</span>(<span class="hljs-params"></span>)
 </span>{
-   <span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;emails.orders.shipped&#x27;</span>)
-               -&gt;<span class="hljs-title function_ invoke__">attachFromStorage</span>(<span class="hljs-string">&#x27;/path/to/file&#x27;</span>);
+    <span class="hljs-keyword">return</span> [
+        <span class="hljs-title class_">Attachment</span>::<span class="hljs-title function_ invoke__">fromStorage</span>(<span class="hljs-string">&#x27;/path/to/file&#x27;</span>),
+    ];
 }
 </code></pre>
-<p>If necessary, you may specify the file&#39;s attachment name and additional options using the second and third arguments to the <code>attachFromStorage</code> method:</p>
+<p>Of course, you may also specify the attachment&#39;s name and MIME type:</p>
 <pre><code><span class="hljs-comment">/**
- * Build the message.
+ * Get the attachments for the message.
  *
- * <span class="hljs-doctag">@return</span> $this
+ * <span class="hljs-doctag">@return</span> \Illuminate\Mail\Mailables\Attachment[]
  */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">build</span>(<span class="hljs-params"></span>)
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">attachments</span>(<span class="hljs-params"></span>)
 </span>{
-   <span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;emails.orders.shipped&#x27;</span>)
-               -&gt;<span class="hljs-title function_ invoke__">attachFromStorage</span>(<span class="hljs-string">&#x27;/path/to/file&#x27;</span>, <span class="hljs-string">&#x27;name.pdf&#x27;</span>, [
-                   <span class="hljs-string">&#x27;mime&#x27;</span> =&gt; <span class="hljs-string">&#x27;application/pdf&#x27;</span>
-               ]);
+    <span class="hljs-keyword">return</span> [
+        <span class="hljs-title class_">Attachment</span>::<span class="hljs-title function_ invoke__">fromStorage</span>(<span class="hljs-string">&#x27;/path/to/file&#x27;</span>)
+                -&gt;<span class="hljs-keyword">as</span>(<span class="hljs-string">&#x27;name.pdf&#x27;</span>)
+                -&gt;<span class="hljs-title function_ invoke__">withMime</span>(<span class="hljs-string">&#x27;application/pdf&#x27;</span>),
+    ];
 }
 </code></pre>
-<p>The <code>attachFromStorageDisk</code> method may be used if you need to specify a storage disk other than your default disk:</p>
+<p>The <code>fromStorageDisk</code> method may be used if you need to specify a storage disk other than your default disk:</p>
 <pre><code><span class="hljs-comment">/**
- * Build the message.
+ * Get the attachments for the message.
  *
- * <span class="hljs-doctag">@return</span> $this
+ * <span class="hljs-doctag">@return</span> \Illuminate\Mail\Mailables\Attachment[]
  */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">build</span>(<span class="hljs-params"></span>)
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">attachments</span>(<span class="hljs-params"></span>)
 </span>{
-   <span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;emails.orders.shipped&#x27;</span>)
-               -&gt;<span class="hljs-title function_ invoke__">attachFromStorageDisk</span>(<span class="hljs-string">&#x27;s3&#x27;</span>, <span class="hljs-string">&#x27;/path/to/file&#x27;</span>);
+    <span class="hljs-keyword">return</span> [
+        <span class="hljs-title class_">Attachment</span>::<span class="hljs-title function_ invoke__">fromStorageDisk</span>(<span class="hljs-string">&#x27;s3&#x27;</span>, <span class="hljs-string">&#x27;/path/to/file&#x27;</span>)
+                -&gt;<span class="hljs-keyword">as</span>(<span class="hljs-string">&#x27;name.pdf&#x27;</span>)
+                -&gt;<span class="hljs-title function_ invoke__">withMime</span>(<span class="hljs-string">&#x27;application/pdf&#x27;</span>),
+    ];
 }
 </code></pre>
 <p><a name="raw-data-attachments"></a></p>
 <h4 id="raw-data-attachments">Raw Data Attachments</h4>
-<p>The <code>attachData</code> method may be used to attach a raw string of bytes as an attachment. For example, you might use this method if you have generated a PDF in memory and want to attach it to the email without writing it to disk. The <code>attachData</code> method accepts the raw data bytes as its first argument, the name of the file as its second argument, and an array of options as its third argument:</p>
+<p>The <code>fromData</code> attachment method may be used to attach a raw string of bytes as an attachment. For example, you might use this method if you have generated a PDF in memory and want to attach it to the email without writing it to disk. The <code>fromData</code> method accepts a closure which resolves the raw data bytes as well as the name that the attachment should be assigned:</p>
 <pre><code><span class="hljs-comment">/**
- * Build the message.
+ * Get the attachments for the message.
  *
- * <span class="hljs-doctag">@return</span> $this
+ * <span class="hljs-doctag">@return</span> \Illuminate\Mail\Mailables\Attachment[]
  */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">build</span>(<span class="hljs-params"></span>)
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">attachments</span>(<span class="hljs-params"></span>)
 </span>{
-    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;emails.orders.shipped&#x27;</span>)
-                -&gt;<span class="hljs-title function_ invoke__">attachData</span>(<span class="hljs-variable">$this</span>-&gt;pdf, <span class="hljs-string">&#x27;name.pdf&#x27;</span>, [
-                    <span class="hljs-string">&#x27;mime&#x27;</span> =&gt; <span class="hljs-string">&#x27;application/pdf&#x27;</span>,
-                ]);
+    <span class="hljs-keyword">return</span> [
+        <span class="hljs-title class_">Attachment</span>::<span class="hljs-title function_ invoke__">fromData</span>(fn () =&gt; <span class="hljs-variable language_">$this</span>-&gt;pdf, <span class="hljs-string">&#x27;Report.pdf&#x27;</span>)
+                -&gt;<span class="hljs-title function_ invoke__">withMime</span>(<span class="hljs-string">&#x27;application/pdf&#x27;</span>),
+    ];
 }
 </code></pre>
 <p><a name="inline-attachments"></a></p>
@@ -442,16 +469,15 @@
     }
 }
 </code></pre>
-<p>Once you have defined your attachable object, you may simply pass an instance of that object to the <code>attach</code> method when building an email message:</p>
+<p>Once you have defined your attachable object, you may return an instance of that object from the <code>attachments</code> method when building an email message:</p>
 <pre><code><span class="hljs-comment">/**
- * Build the message.
+ * Get the attachments for the message.
  *
- * <span class="hljs-doctag">@return</span> $this
+ * <span class="hljs-doctag">@return</span> array
  */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">build</span>(<span class="hljs-params"></span>)
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">attachments</span>(<span class="hljs-params"></span>)
 </span>{
-    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;photos.resized&#x27;</span>)
-                -&gt;<span class="hljs-title function_ invoke__">attach</span>(<span class="hljs-variable">$this</span>-&gt;photo);
+    <span class="hljs-keyword">return</span> [<span class="hljs-variable language_">$this</span>-&gt;photo];
 }
 </code></pre>
 <p>Of course, attachment data may be stored on a remote file storage service such as Amazon S3. So, Laravel also allows you to generate attachment instances from data that is stored on one of your application&#39;s <a href="/docs/%7B%7Bversion%7D%7D/filesystem">filesystem disks</a>:</p>
@@ -469,44 +495,72 @@
         -&gt;<span class="hljs-keyword">as</span>(<span class="hljs-string">&#x27;Photo Name&#x27;</span>)
         -&gt;<span class="hljs-title function_ invoke__">withMime</span>(<span class="hljs-string">&#x27;image/jpeg&#x27;</span>);
 </code></pre>
+<p><a name="headers"></a></p>
+<h3 id="headers">Headers</h3>
+<p>Sometimes you may need to attach additional headers to the outgoing message. For instance, you may need to set a custom <code>Message-Id</code> or other arbitrary text headers.</p>
+<p>To accomplish this, define a <code>headers</code> method on your mailable. The <code>headers</code> method should return an <code>Illuminate\Mail\Mailables\Headers</code> instance. This class accepts <code>messageId</code>, <code>references</code>, and <code>text</code> parameters. Of course, you may provide only the parameters you need for your particular message:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Mail</span>\<span class="hljs-title">Mailables</span>\<span class="hljs-title">Headers</span>;
+
+<span class="hljs-comment">/**
+ * Get the message headers.
+ *
+ * <span class="hljs-doctag">@return</span> \Illuminate\Mail\Mailables\Headers
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">headers</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Headers</span>(
+        messageId: <span class="hljs-string">&#x27;custom-message-id@example.com&#x27;</span>,
+        references: [<span class="hljs-string">&#x27;previous-message@example.com&#x27;</span>],
+        text: [
+            <span class="hljs-string">&#x27;X-Custom-Header&#x27;</span> =&gt; <span class="hljs-string">&#x27;Custom Value&#x27;</span>,
+        ],
+    );
+}
+</code></pre>
 <p><a name="tags-and-metadata"></a></p>
 <h3 id="tags--metadata">Tags &amp; Metadata</h3>
-<p>Some third-party email providers such as Mailgun and Postmark support message &quot;tags&quot; and &quot;metadata&quot;, which may be used to group and track emails sent by your application. You may add tags and metadata to an email message via the <code>tag</code> and <code>metadata</code> methods:</p>
-<pre><code><span class="hljs-comment">/**
- * Build the message.
+<p>Some third-party email providers such as Mailgun and Postmark support message &quot;tags&quot; and &quot;metadata&quot;, which may be used to group and track emails sent by your application. You may add tags and metadata to an email message via your <code>Envelope</code> definition:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Mail</span>\<span class="hljs-title">Mailables</span>\<span class="hljs-title">Envelope</span>;
+
+<span class="hljs-comment">/**
+ * Get the message envelope.
  *
- * <span class="hljs-doctag">@return</span> $this
+ * <span class="hljs-doctag">@return</span> \Illuminate\Mail\Mailables\Envelope
  */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">build</span>(<span class="hljs-params"></span>)
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">envelope</span>(<span class="hljs-params"></span>)
 </span>{
-    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;emails.orders.shipped&#x27;</span>)
-                -&gt;<span class="hljs-title function_ invoke__">tag</span>(<span class="hljs-string">&#x27;shipment&#x27;</span>)
-                -&gt;<span class="hljs-title function_ invoke__">metadata</span>(<span class="hljs-string">&#x27;order_id&#x27;</span>, <span class="hljs-variable">$this</span>-&gt;order-&gt;id);
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Envelope</span>(
+        subject: <span class="hljs-string">&#x27;Order Shipped&#x27;</span>,
+        tags: [<span class="hljs-string">&#x27;shipment&#x27;</span>],
+        metadata: [
+            <span class="hljs-string">&#x27;order_id&#x27;</span> =&gt; <span class="hljs-variable language_">$this</span>-&gt;order-&gt;id,
+        ],
+    );
 }
 </code></pre>
 <p>If your application is using the Mailgun driver, you may consult Mailgun&#39;s documentation for more information on <a href="https://documentation.mailgun.com/en/latest/user_manual.html#tagging-1">tags</a> and <a href="https://documentation.mailgun.com/en/latest/user_manual.html#attaching-data-to-messages">metadata</a>. Likewise, the Postmark documentation may also be consulted for more information on their support for <a href="https://postmarkapp.com/blog/tags-support-for-smtp">tags</a> and <a href="https://postmarkapp.com/support/article/1125-custom-metadata-faq">metadata</a>.</p>
 <p>If your application is using Amazon SES to send emails, you should use the <code>metadata</code> method to attach <a href="https://docs.aws.amazon.com/ses/latest/APIReference/API_MessageTag.html">SES &quot;tags&quot;</a> to the message.</p>
 <p><a name="customizing-the-symfony-message"></a></p>
 <h3 id="customizing-the-symfony-message">Customizing The Symfony Message</h3>
-<p>The <code>withSymfonyMessage</code> method of the <code>Mailable</code> base class allows you to register a closure which will be invoked with the Symfony Message instance before sending the message. This gives you an opportunity to deeply customize the message before it is delivered:</p>
-<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Symfony</span>\<span class="hljs-title">Component</span>\<span class="hljs-title">Mime</span>\<span class="hljs-title">Email</span>;
+<p>Laravel&#39;s mail capabilities are powered by Symfony Mailer. Laravel allows you to register custom callbacks that will be invoked with the Symfony Message instance before sending the message. This gives you an opportunity to deeply customize the message before it is sent. To accomplish this, define a <code>using</code> parameter on your <code>Envelope</code> definition:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Mail</span>\<span class="hljs-title">Mailables</span>\<span class="hljs-title">Envelope</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Symfony</span>\<span class="hljs-title">Component</span>\<span class="hljs-title">Mime</span>\<span class="hljs-title">Email</span>;
 
 <span class="hljs-comment">/**
- * Build the message.
+ * Get the message envelope.
  *
- * <span class="hljs-doctag">@return</span> $this
+ * <span class="hljs-doctag">@return</span> \Illuminate\Mail\Mailables\Envelope
  */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">build</span>(<span class="hljs-params"></span>)
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">envelope</span>(<span class="hljs-params"></span>)
 </span>{
-    <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;emails.orders.shipped&#x27;</span>);
-
-    <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">withSymfonyMessage</span>(function (Email <span class="hljs-variable">$message</span>) {
-        <span class="hljs-variable">$message</span>-&gt;<span class="hljs-title function_ invoke__">getHeaders</span>()-&gt;<span class="hljs-title function_ invoke__">addTextHeader</span>(
-            <span class="hljs-string">&#x27;Custom-Header&#x27;</span>, <span class="hljs-string">&#x27;Header Value&#x27;</span>
-        );
-    });
-
-    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>;
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Envelope</span>(
+        subject: <span class="hljs-string">&#x27;Order Shipped&#x27;</span>,
+        using: [
+            <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">Email <span class="hljs-variable">$message</span></span>) </span>{
+                <span class="hljs-comment">// ...</span>
+            },
+        ]
+    );
 }
 </code></pre>
 <p><a name="markdown-mailables"></a></p>
@@ -517,35 +571,39 @@
 <p>To generate a mailable with a corresponding Markdown template, you may use the <code>--markdown</code> option of the <code>make:mail</code> Artisan command:</p>
 <pre><code class="language-shell">php artisan make:mail OrderShipped --markdown=emails.orders.shipped
 </code></pre>
-<p>Then, when configuring the mailable within its <code>build</code> method, call the <code>markdown</code> method instead of the <code>view</code> method. The <code>markdown</code> method accepts the name of the Markdown template and an optional array of data to make available to the template:</p>
-<pre><code><span class="hljs-comment">/**
- * Build the message.
+<p>Then, when configuring the mailable <code>Content</code> definition within its <code>content</code> method, use the <code>markdown</code> parameter instead of the <code>view</code> parameter:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Mail</span>\<span class="hljs-title">Mailables</span>\<span class="hljs-title">Content</span>;
+
+<span class="hljs-comment">/**
+ * Get the message content definition.
  *
- * <span class="hljs-doctag">@return</span> $this
+ * <span class="hljs-doctag">@return</span> \Illuminate\Mail\Mailables\Content
  */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">build</span>(<span class="hljs-params"></span>)
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">content</span>(<span class="hljs-params"></span>)
 </span>{
-    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-keyword">from</span>(<span class="hljs-string">&#x27;example@example.com&#x27;</span>)
-                -&gt;<span class="hljs-title function_ invoke__">markdown</span>(<span class="hljs-string">&#x27;emails.orders.shipped&#x27;</span>, [
-                    <span class="hljs-string">&#x27;url&#x27;</span> =&gt; <span class="hljs-variable">$this</span>-&gt;orderUrl,
-                ]);
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Content</span>(
+        markdown: <span class="hljs-string">&#x27;emails.orders.shipped&#x27;</span>,
+        with: [
+            <span class="hljs-string">&#x27;url&#x27;</span> =&gt; <span class="hljs-variable language_">$this</span>-&gt;orderUrl,
+        ],
+    );
 }
 </code></pre>
 <p><a name="writing-markdown-messages"></a></p>
 <h3 id="writing-markdown-messages">Writing Markdown Messages</h3>
 <p>Markdown mailables use a combination of Blade components and Markdown syntax which allow you to easily construct mail messages while leveraging Laravel&#39;s pre-built email UI components:</p>
-<pre><code class="language-blade"><span class="hljs-template-tag">@component</span><span class="language-xml">(&#x27;mail::message&#x27;)
+<pre><code class="language-blade"><span class="language-xml">&lt;x-mail::message&gt;
 # Order Shipped
 
 Your order has been shipped!
 
-</span><span class="hljs-template-tag">@component</span><span class="language-xml">(&#x27;mail::button&#x27;, [&#x27;url&#x27; =&gt; $url])
+&lt;x-mail::button :url=&quot;$url&quot;&gt;
 View Order
-</span><span class="hljs-template-tag">@endcomponent</span><span class="language-xml">
+&lt;/x-mail::button&gt;
 
 Thanks,<span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span>
 </span><span class="hljs-template-variable">{{</span><span class="language-php"> <span class="hljs-title function_ invoke__">config</span>(<span class="hljs-string">&#x27;app.name&#x27;</span>) </span><span class="hljs-template-variable">}}</span><span class="language-xml">
-</span><span class="hljs-template-tag">@endcomponent</span>
+&lt;/x-mail::message&gt;</span>
 </code></pre>
 <blockquote>
 <p><strong>Note</strong><br>Do not use excess indentation when writing Markdown emails. Per Markdown standards, Markdown parsers will render indented content as code blocks.</p>
@@ -553,26 +611,26 @@ Thanks,<span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span>
 <p><a name="button-component"></a></p>
 <h4 id="button-component">Button Component</h4>
 <p>The button component renders a centered button link. The component accepts two arguments, a <code>url</code> and an optional <code>color</code>. Supported colors are <code>primary</code>, <code>success</code>, and <code>error</code>. You may add as many button components to a message as you wish:</p>
-<pre><code class="language-blade"><span class="hljs-template-tag">@component</span><span class="language-xml">(&#x27;mail::button&#x27;, [&#x27;url&#x27; =&gt; $url, &#x27;color&#x27; =&gt; &#x27;success&#x27;])
+<pre><code class="language-blade"><span class="language-xml">&lt;x-mail::button :url=&quot;$url&quot; color=&quot;success&quot;&gt;
 View Order
-</span><span class="hljs-template-tag">@endcomponent</span>
+&lt;/x-mail::button&gt;</span>
 </code></pre>
 <p><a name="panel-component"></a></p>
 <h4 id="panel-component">Panel Component</h4>
 <p>The panel component renders the given block of text in a panel that has a slightly different background color than the rest of the message. This allows you to draw attention to a given block of text:</p>
-<pre><code class="language-blade"><span class="hljs-template-tag">@component</span><span class="language-xml">(&#x27;mail::panel&#x27;)
+<pre><code class="language-blade"><span class="language-xml">&lt;x-mail::panel&gt;
 This is the panel content.
-</span><span class="hljs-template-tag">@endcomponent</span>
+&lt;/x-mail::panel&gt;</span>
 </code></pre>
 <p><a name="table-component"></a></p>
 <h4 id="table-component">Table Component</h4>
 <p>The table component allows you to transform a Markdown table into an HTML table. The component accepts the Markdown table as its content. Table column alignment is supported using the default Markdown table alignment syntax:</p>
-<pre><code class="language-blade"><span class="hljs-template-tag">@component</span><span class="language-xml">(&#x27;mail::table&#x27;)
+<pre><code class="language-blade"><span class="language-xml">&lt;x-mail::table&gt;
 | Laravel       | Table         | Example  |
 | ------------- |:-------------:| --------:|
 | Col 2 is      | Centered      | $10      |
 | Col 3 is      | Right-Aligned | $20      |
-</span><span class="hljs-template-tag">@endcomponent</span>
+&lt;/x-mail::table&gt;</span>
 </code></pre>
 <p><a name="customizing-the-components"></a></p>
 <h3 id="customizing-the-components">Customizing The Components</h3>
@@ -766,7 +824,7 @@ This is the panel content.
 </code></pre>
 <p><a name="testing-mailables"></a></p>
 <h2 id="testing-mailables">Testing Mailables</h2>
-<p>Laravel provides several convenient methods for testing that your mailable contains the content that you expect. These methods are: <code>assertSeeInHtml</code>, <code>assertDontSeeInHtml</code>, <code>assertSeeInOrderInHtml</code>, <code>assertSeeInText</code>, <code>assertDontSeeInText</code>, <code>assertSeeInOrderInText</code>, <code>assertHasAttachment</code>, <code>assertHasAttachedData</code>, <code>assertHasAttachmentFromStorage</code>, and <code>assertHasAttachmentFromStorageDisk</code>.</p>
+<p>Laravel provides a variety of methods for inspecting your mailable&#39;s structure. In addition, Laravel provides several convenient methods for testing that your mailable contains the content that you expect. These methods are: <code>assertSeeInHtml</code>, <code>assertDontSeeInHtml</code>, <code>assertSeeInOrderInHtml</code>, <code>assertSeeInText</code>, <code>assertDontSeeInText</code>, <code>assertSeeInOrderInText</code>, <code>assertHasAttachment</code>, <code>assertHasAttachedData</code>, <code>assertHasAttachmentFromStorage</code>, and <code>assertHasAttachmentFromStorageDisk</code>.</p>
 <p>As you might expect, the &quot;HTML&quot; assertions assert that the HTML version of your mailable contains a given string, while the &quot;text&quot; assertions assert that the plain-text version of your mailable contains a given string:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Mail</span>\<span class="hljs-title">InvoicePaid</span>;
 <span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
@@ -776,6 +834,14 @@ This is the panel content.
     <span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()-&gt;<span class="hljs-title function_ invoke__">create</span>();
 
     <span class="hljs-variable">$mailable</span> = <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvoicePaid</span>(<span class="hljs-variable">$user</span>);
+
+    <span class="hljs-variable">$mailable</span>-&gt;<span class="hljs-title function_ invoke__">assertFrom</span>(<span class="hljs-string">&#x27;jeffrey@example.com&#x27;</span>);
+    <span class="hljs-variable">$mailable</span>-&gt;<span class="hljs-title function_ invoke__">assertTo</span>(<span class="hljs-string">&#x27;taylor@example.com&#x27;</span>);
+    <span class="hljs-variable">$mailable</span>-&gt;<span class="hljs-title function_ invoke__">assertHasCc</span>(<span class="hljs-string">&#x27;abigail@example.com&#x27;</span>);
+    <span class="hljs-variable">$mailable</span>-&gt;<span class="hljs-title function_ invoke__">assertHasBcc</span>(<span class="hljs-string">&#x27;victoria@example.com&#x27;</span>);
+    <span class="hljs-variable">$mailable</span>-&gt;<span class="hljs-title function_ invoke__">assertHasReplyTo</span>(<span class="hljs-string">&#x27;tyler@example.com&#x27;</span>);
+    <span class="hljs-variable">$mailable</span>-&gt;<span class="hljs-title function_ invoke__">assertHasTag</span>(<span class="hljs-string">&#x27;example-tag&#x27;</span>);
+    <span class="hljs-variable">$mailable</span>-&gt;<span class="hljs-title function_ invoke__">assertHasMetadata</span>(<span class="hljs-string">&#x27;key&#x27;</span>, <span class="hljs-string">&#x27;value&#x27;</span>);
 
     <span class="hljs-variable">$mailable</span>-&gt;<span class="hljs-title function_ invoke__">assertSeeInHtml</span>(<span class="hljs-variable">$user</span>-&gt;email);
     <span class="hljs-variable">$mailable</span>-&gt;<span class="hljs-title function_ invoke__">assertSeeInHtml</span>(<span class="hljs-string">&#x27;Invoice Paid&#x27;</span>);

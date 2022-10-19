@@ -305,21 +305,25 @@ axios.<span class="hljs-title function_">put</span>(<span class="hljs-string">&#
         <span class="hljs-string">&#x27;response_type&#x27;</span> =&gt; <span class="hljs-string">&#x27;code&#x27;</span>,
         <span class="hljs-string">&#x27;scope&#x27;</span> =&gt; <span class="hljs-string">&#x27;&#x27;</span>,
         <span class="hljs-string">&#x27;state&#x27;</span> =&gt; <span class="hljs-variable">$state</span>,
+        // <span class="hljs-string">&#x27;prompt&#x27;</span> =&gt; <span class="hljs-string">&#x27;&#x27;</span>, // <span class="hljs-string">&quot;none&quot;</span>, <span class="hljs-string">&quot;consent&quot;</span>, <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;login&quot;</span>
     ]);
 
     <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">redirect</span>(<span class="hljs-string">&#x27;http://passport-app.test/oauth/authorize?&#x27;</span>.<span class="hljs-variable">$query</span>);
 });
 </code></pre>
+<p>The <code>prompt</code> parameter may be used to specify the authentication behavior of the Passport application.</p>
+<p>If the <code>prompt</code> value is <code>none</code>, Passport will always throw an authentication error if the user is not already authenticated with the Passport application. If the value is <code>consent</code>, Passport will always display the authorization approval screen, even if all scopes were previously granted to the consuming application. When the value is <code>login</code>, the Passport application will always prompt the user to re-login to the application, even if they already have an existing session.</p>
+<p>If no <code>prompt</code> value is provided, the user will be prompted for authorization only if they have not previously authorized access to the consuming application for the requested scopes.</p>
 <blockquote>
 <p><strong>Note</strong><br>Remember, the <code>/oauth/authorize</code> route is already defined by Passport. You do not need to manually define this route.</p>
 </blockquote>
 <p><a name="approving-the-request"></a></p>
 <h4 id="approving-the-request">Approving The Request</h4>
-<p>When receiving authorization requests, Passport will automatically display a template to the user allowing them to approve or deny the authorization request. If they approve the request, they will be redirected back to the <code>redirect_uri</code> that was specified by the consuming application. The <code>redirect_uri</code> must match the <code>redirect</code> URL that was specified when the client was created.</p>
+<p>When receiving authorization requests, Passport will automatically respond based on the value of <code>prompt</code> parameter (if present) and may display a template to the user allowing them to approve or deny the authorization request. If they approve the request, they will be redirected back to the <code>redirect_uri</code> that was specified by the consuming application. The <code>redirect_uri</code> must match the <code>redirect</code> URL that was specified when the client was created.</p>
 <p>If you would like to customize the authorization approval screen, you may publish Passport&#39;s views using the <code>vendor:publish</code> Artisan command. The published views will be placed in the <code>resources/views/vendor/passport</code> directory:</p>
 <pre><code class="language-shell">php artisan vendor:publish --tag=passport-views
 </code></pre>
-<p>Sometimes you may wish to skip the authorization prompt, such as when authorizing a first-party client. You may accomplish this by <a href="#overriding-default-models">extending the <code>Client</code> model</a> and defining a <code>skipsAuthorization</code> method. If <code>skipsAuthorization</code> returns <code>true</code> the client will be approved and the user will be redirected back to the <code>redirect_uri</code> immediately:</p>
+<p>Sometimes you may wish to skip the authorization prompt, such as when authorizing a first-party client. You may accomplish this by <a href="#overriding-default-models">extending the <code>Client</code> model</a> and defining a <code>skipsAuthorization</code> method. If <code>skipsAuthorization</code> returns <code>true</code> the client will be approved and the user will be redirected back to the <code>redirect_uri</code> immediately, unless the consuming application has explicitly set the <code>prompt</code> parameter when redirecting for authorization:</p>
 <pre><code><span class="hljs-meta">&lt;?php</span>
 
 <span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Models</span>\<span class="hljs-title class_">Passport</span>;
@@ -483,6 +487,7 @@ php artisan passport:purge --expired
         <span class="hljs-string">&#x27;state&#x27;</span> =&gt; <span class="hljs-variable">$state</span>,
         <span class="hljs-string">&#x27;code_challenge&#x27;</span> =&gt; <span class="hljs-variable">$codeChallenge</span>,
         <span class="hljs-string">&#x27;code_challenge_method&#x27;</span> =&gt; <span class="hljs-string">&#x27;S256&#x27;</span>,
+        // <span class="hljs-string">&#x27;prompt&#x27;</span> =&gt; <span class="hljs-string">&#x27;&#x27;</span>, // <span class="hljs-string">&quot;none&quot;</span>, <span class="hljs-string">&quot;consent&quot;</span>, <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;login&quot;</span>
     ]);
 
     <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">redirect</span>(<span class="hljs-string">&#x27;http://passport-app.test/oauth/authorize?&#x27;</span>.<span class="hljs-variable">$query</span>);
@@ -648,6 +653,7 @@ php artisan passport:purge --expired
         <span class="hljs-string">&#x27;response_type&#x27;</span> =&gt; <span class="hljs-string">&#x27;token&#x27;</span>,
         <span class="hljs-string">&#x27;scope&#x27;</span> =&gt; <span class="hljs-string">&#x27;&#x27;</span>,
         <span class="hljs-string">&#x27;state&#x27;</span> =&gt; <span class="hljs-variable">$state</span>,
+        // <span class="hljs-string">&#x27;prompt&#x27;</span> =&gt; <span class="hljs-string">&#x27;&#x27;</span>, // <span class="hljs-string">&quot;none&quot;</span>, <span class="hljs-string">&quot;consent&quot;</span>, <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;login&quot;</span>
     ]);
 
     <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">redirect</span>(<span class="hljs-string">&#x27;http://passport-app.test/oauth/authorize?&#x27;</span>.<span class="hljs-variable">$query</span>);

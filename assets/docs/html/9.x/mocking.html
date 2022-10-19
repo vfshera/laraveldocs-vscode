@@ -425,25 +425,26 @@
 });
 </code></pre>
 <p>The mailable instance also includes several helpful methods for examining the attachments on a mailable:</p>
-<pre><code><span class="hljs-title class_">Mail</span>::<span class="hljs-title function_ invoke__">assertSent</span>(<span class="hljs-title class_">OrderShipped</span>::<span class="hljs-variable language_">class</span>, function (<span class="hljs-variable">$mail</span>) {
-    <span class="hljs-keyword">return</span> <span class="hljs-variable">$mail</span>-&gt;<span class="hljs-title function_ invoke__">hasAttachment</span>(<span class="hljs-string">&#x27;/path/to/file&#x27;</span>);
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Mail</span>\<span class="hljs-title">Mailables</span>\<span class="hljs-title">Attachment</span>;
+
+<span class="hljs-title class_">Mail</span>::<span class="hljs-title function_ invoke__">assertSent</span>(<span class="hljs-title class_">OrderShipped</span>::<span class="hljs-variable language_">class</span>, function (<span class="hljs-variable">$mail</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$mail</span>-&gt;<span class="hljs-title function_ invoke__">hasAttachment</span>(
+        <span class="hljs-title class_">Attachment</span>::<span class="hljs-title function_ invoke__">fromPath</span>(<span class="hljs-string">&#x27;/path/to/file&#x27;</span>)
+                -&gt;<span class="hljs-keyword">as</span>(<span class="hljs-string">&#x27;name.pdf&#x27;</span>)
+                -&gt;<span class="hljs-title function_ invoke__">withMime</span>(<span class="hljs-string">&#x27;application/pdf&#x27;</span>)
+    );
 });
 
 <span class="hljs-title class_">Mail</span>::<span class="hljs-title function_ invoke__">assertSent</span>(<span class="hljs-title class_">OrderShipped</span>::<span class="hljs-variable language_">class</span>, function (<span class="hljs-variable">$mail</span>) {
-    <span class="hljs-keyword">return</span> <span class="hljs-variable">$mail</span>-&gt;<span class="hljs-title function_ invoke__">hasAttachment</span>(<span class="hljs-string">&#x27;/path/to/file&#x27;</span>, [
-        <span class="hljs-string">&#x27;as&#x27;</span> =&gt; <span class="hljs-string">&#x27;name.pdf&#x27;</span>,
-        <span class="hljs-string">&#x27;mime&#x27;</span> =&gt; <span class="hljs-string">&#x27;application/pdf&#x27;</span>,
-    ]);
-});
-
-<span class="hljs-title class_">Mail</span>::<span class="hljs-title function_ invoke__">assertSent</span>(<span class="hljs-title class_">OrderShipped</span>::<span class="hljs-variable language_">class</span>, function (<span class="hljs-variable">$mail</span>) {
-    <span class="hljs-keyword">return</span> <span class="hljs-variable">$mail</span>-&gt;<span class="hljs-title function_ invoke__">hasAttachmentFromStorageDisk</span>(<span class="hljs-string">&#x27;s3&#x27;</span>, <span class="hljs-string">&#x27;/path/to/file&#x27;</span>);
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$mail</span>-&gt;<span class="hljs-title function_ invoke__">hasAttachment</span>(
+        <span class="hljs-title class_">Attachment</span>::<span class="hljs-title function_ invoke__">fromStorageDisk</span>(<span class="hljs-string">&#x27;s3&#x27;</span>, <span class="hljs-string">&#x27;/path/to/file&#x27;</span>)
+    );
 });
 
 <span class="hljs-title class_">Mail</span>::<span class="hljs-title function_ invoke__">assertSent</span>(<span class="hljs-title class_">OrderShipped</span>::<span class="hljs-variable language_">class</span>, function (<span class="hljs-variable">$mail</span>) <span class="hljs-keyword">use</span> ($<span class="hljs-title">pdfData</span>) {
-    <span class="hljs-title">return</span> $<span class="hljs-title">mail</span>-&gt;<span class="hljs-title">hasAttachedData</span>($<span class="hljs-title">pdfData</span>, &#x27;<span class="hljs-title">name</span>.<span class="hljs-title">pdf</span>&#x27;, [
-        &#x27;<span class="hljs-title">mime</span>&#x27; =&gt; &#x27;<span class="hljs-title">application</span>/<span class="hljs-title">pdf</span>&#x27;
-    ]);
+    <span class="hljs-title">return</span> $<span class="hljs-title">mail</span>-&gt;<span class="hljs-title">hasAttachment</span>(
+        <span class="hljs-title">Attachment</span>::<span class="hljs-title">fromData</span>(<span class="hljs-title">fn</span> () =&gt; $<span class="hljs-title">pdfData</span>, &#x27;<span class="hljs-title">name</span>.<span class="hljs-title">pdf</span>&#x27;)
+    );
 });
 </code></pre>
 <p>You may have noticed that there are two methods for asserting that mail was not sent: <code>assertNotSent</code> and <code>assertNotQueued</code>. Sometimes you may wish to assert that no mail was sent <strong>or</strong> queued. To accomplish this, you may use the <code>assertNothingOutgoing</code> and <code>assertNotOutgoing</code> methods:</p>

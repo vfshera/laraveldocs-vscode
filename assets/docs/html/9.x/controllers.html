@@ -201,6 +201,16 @@
             <span class="hljs-keyword">return</span> <span class="hljs-title class_">Redirect</span>::<span class="hljs-title function_ invoke__">route</span>(<span class="hljs-string">&#x27;photos.index&#x27;</span>);
         });
 </code></pre>
+<p><a name="soft-deleted-models"></a></p>
+<h4 id="soft-deleted-models">Soft Deleted Models</h4>
+<p>Typically, implicit model binding will not retrieve models that have been <a href="/docs/%7B%7Bversion%7D%7D/eloquent#soft-deleting">soft deleted</a>, and will instead return a 404 HTTP response. However, you can instruct the framework to allow soft deleted models by invoking the <code>withTrashed</code> method when defining your resource route:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Controllers</span>\<span class="hljs-title">PhotoController</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">resource</span>(<span class="hljs-string">&#x27;photos&#x27;</span>, <span class="hljs-title class_">PhotoController</span>::<span class="hljs-variable language_">class</span>)-&gt;<span class="hljs-title function_ invoke__">withTrashed</span>();
+</code></pre>
+<p>Calling <code>withTrashed</code> with no arguments will allow soft deleted models for the <code>show</code>, <code>edit</code>, and <code>update</code> resource routes. You may specify a subset of these routes by passing an array to the <code>withTrashed</code> method:</p>
+<pre><code><span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">resource</span>(<span class="hljs-string">&#x27;photos&#x27;</span>, <span class="hljs-title class_">PhotoController</span>::<span class="hljs-variable language_">class</span>)-&gt;<span class="hljs-title function_ invoke__">withTrashed</span>([<span class="hljs-string">&#x27;show&#x27;</span>]);
+</code></pre>
 <p><a name="specifying-the-resource-model"></a></p>
 <h4 id="specifying-the-resource-model">Specifying The Resource Model</h4>
 <p>If you are using <a href="/docs/%7B%7Bversion%7D%7D/routing#route-model-binding">route model binding</a> and would like the resource controller&#39;s methods to type-hint a model instance, you may use the <code>--model</code> option when generating the controller:</p>

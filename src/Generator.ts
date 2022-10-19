@@ -85,7 +85,7 @@ export default class Generator {
 
       Generator.existsOrCreate(docDir, true);
 
-      d.files.forEach((f) => {
+      d.files.forEach(async (f) => {
         if (Generator.excludeFiles.includes(f.filename.toLowerCase())) {
           console.log(`${f.filename} has been excluded!`);
         } else {
