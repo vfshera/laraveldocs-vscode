@@ -227,7 +227,7 @@
         
         <span class="hljs-keyword">return</span> <span class="hljs-variable">$request</span>;
     })
--&gt;<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;http://example.com&#x27;</span>);
+)-&gt;<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;http://example.com&#x27;</span>);
 </code></pre>
 <p>Likewise, you can inspect the incoming HTTP response by registering a middleware via the <code>withMiddleware</code> method in combination with Guzzle&#39;s <code>mapResponse</code> middleware factory:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">GuzzleHttp</span>\<span class="hljs-title">Middleware</span>;

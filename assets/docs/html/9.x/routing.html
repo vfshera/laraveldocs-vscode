@@ -436,6 +436,11 @@
     });
 });
 </code></pre>
+<p>Similarly, you may explicitly instruct Laravel to not scope bindings by invoking the <code>withoutScopedBindings</code> method:</p>
+<pre><code><span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/users/{user}/posts/{post:slug}&#x27;</span>, function (User <span class="hljs-variable">$user</span>, Post <span class="hljs-variable">$post</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$post</span>;
+})-&gt;<span class="hljs-title function_ invoke__">withoutScopedBindings</span>();
+</code></pre>
 <p><a name="customizing-missing-model-behavior"></a></p>
 <h4 id="customizing-missing-model-behavior">Customizing Missing Model Behavior</h4>
 <p>Typically, a 404 HTTP response will be generated if an implicitly bound model is not found. However, you may customize this behavior by calling the <code>missing</code> method when defining your route. The <code>missing</code> method accepts a closure that will be invoked if an implicitly bound model can not be found:</p>
@@ -451,7 +456,7 @@
 </code></pre>
 <p><a name="implicit-enum-binding"></a></p>
 <h3 id="implicit-enum-binding">Implicit Enum Binding</h3>
-<p>PHP 8.1 introduced support for <a href="https://www.php.net/manual/en/language.enumerations.backed.php">Enums</a>. To compliment this feature, Laravel allows you to type-hint a <a href="https://www.php.net/manual/en/language.enumerations.backed.php">backed Enum</a> on your route definition and Laravel will only invoke the route if that route segment corresponds to a valid Enum value. Otherwise, a 404 HTTP response will be returned automatically. For example, given the following Enum:</p>
+<p>PHP 8.1 introduced support for <a href="https://www.php.net/manual/en/language.enumerations.backed.php">Enums</a>. To compliment this feature, Laravel allows you to type-hint a <a href="https://www.php.net/manual/en/language.enumerations.backed.php">string-backed Enum</a> on your route definition and Laravel will only invoke the route if that route segment corresponds to a valid Enum value. Otherwise, a 404 HTTP response will be returned automatically. For example, given the following Enum:</p>
 <pre><code class="language-php"><span class="hljs-meta">&lt;?php</span>
 
 <span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Enums</span>;

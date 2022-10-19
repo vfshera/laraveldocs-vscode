@@ -647,42 +647,42 @@
 <p><a name="writing-the-message"></a></p>
 <h3 id="writing-the-message">Writing The Message</h3>
 <p>Markdown mail notifications use a combination of Blade components and Markdown syntax which allow you to easily construct notifications while leveraging Laravel&#39;s pre-crafted notification components:</p>
-<pre><code class="language-blade"><span class="hljs-template-tag">@component</span><span class="language-xml">(&#x27;mail::message&#x27;)
+<pre><code class="language-blade"><span class="language-xml">&lt;x-mail::message&gt;
 # Invoice Paid
 
 Your invoice has been paid!
 
-</span><span class="hljs-template-tag">@component</span><span class="language-xml">(&#x27;mail::button&#x27;, [&#x27;url&#x27; =&gt; $url])
+&lt;x-mail::button :url=&quot;$url&quot;&gt;
 View Invoice
-</span><span class="hljs-template-tag">@endcomponent</span><span class="language-xml">
+&lt;/x-mail::button&gt;
 
 Thanks,<span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span>
 </span><span class="hljs-template-variable">{{</span><span class="language-php"> <span class="hljs-title function_ invoke__">config</span>(<span class="hljs-string">&#x27;app.name&#x27;</span>) </span><span class="hljs-template-variable">}}</span><span class="language-xml">
-</span><span class="hljs-template-tag">@endcomponent</span>
+&lt;/x-mail::message&gt;</span>
 </code></pre>
 <p><a name="button-component"></a></p>
 <h4 id="button-component">Button Component</h4>
 <p>The button component renders a centered button link. The component accepts two arguments, a <code>url</code> and an optional <code>color</code>. Supported colors are <code>primary</code>, <code>green</code>, and <code>red</code>. You may add as many button components to a notification as you wish:</p>
-<pre><code class="language-blade"><span class="hljs-template-tag">@component</span><span class="language-xml">(&#x27;mail::button&#x27;, [&#x27;url&#x27; =&gt; $url, &#x27;color&#x27; =&gt; &#x27;green&#x27;])
+<pre><code class="language-blade"><span class="language-xml">&lt;x-mail::button :url=&quot;$url&quot; color=&quot;green&quot;&gt;
 View Invoice
-</span><span class="hljs-template-tag">@endcomponent</span>
+&lt;/x-mail::button&gt;</span>
 </code></pre>
 <p><a name="panel-component"></a></p>
 <h4 id="panel-component">Panel Component</h4>
 <p>The panel component renders the given block of text in a panel that has a slightly different background color than the rest of the notification. This allows you to draw attention to a given block of text:</p>
-<pre><code class="language-blade"><span class="hljs-template-tag">@component</span><span class="language-xml">(&#x27;mail::panel&#x27;)
+<pre><code class="language-blade"><span class="language-xml">&lt;x-mail::panel&gt;
 This is the panel content.
-</span><span class="hljs-template-tag">@endcomponent</span>
+&lt;/x-mail::panel&gt;</span>
 </code></pre>
 <p><a name="table-component"></a></p>
 <h4 id="table-component">Table Component</h4>
 <p>The table component allows you to transform a Markdown table into an HTML table. The component accepts the Markdown table as its content. Table column alignment is supported using the default Markdown table alignment syntax:</p>
-<pre><code class="language-blade"><span class="hljs-template-tag">@component</span><span class="language-xml">(&#x27;mail::table&#x27;)
+<pre><code class="language-blade"><span class="language-xml">&lt;x-mail::table&gt;
 | Laravel       | Table         | Example  |
 | ------------- |:-------------:| --------:|
 | Col 2 is      | Centered      | $10      |
 | Col 3 is      | Right-Aligned | $20      |
-</span><span class="hljs-template-tag">@endcomponent</span>
+&lt;/x-mail::table&gt;</span>
 </code></pre>
 <p><a name="customizing-the-components"></a></p>
 <h3 id="customizing-the-components">Customizing The Components</h3>

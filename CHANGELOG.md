@@ -1,5 +1,9 @@
 # Change Log
 
+## v1.5.0 - 2022-10-18
+
+- docs update
+
 ## v1.4.0 - 2022-10-05
 
 - docs update

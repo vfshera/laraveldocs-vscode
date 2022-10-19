@@ -371,7 +371,7 @@ resources/
  */</span>
 <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>)
 </span>{
-    <span class="hljs-title class_">Vite</span>::<span class="hljs-title function_ invoke__">macro</span>(<span class="hljs-string">&#x27;image&#x27;</span>, fn (<span class="hljs-variable">$asset</span>) =&gt; <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">asset</span>(<span class="hljs-string">&quot;/resources/images/<span class="hljs-subst">{$asset}</span>&quot;</span>));
+    <span class="hljs-title class_">Vite</span>::<span class="hljs-title function_ invoke__">macro</span>(<span class="hljs-string">&#x27;image&#x27;</span>, fn (<span class="hljs-variable">$asset</span>) =&gt; <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">asset</span>(<span class="hljs-string">&quot;resources/images/<span class="hljs-subst">{$asset}</span>&quot;</span>));
 }
 </code></pre>
 <p>Once a macro has been defined, it can be invoked within your templates. For example, we can use the <code>image</code> macro defined above to reference an asset located at <code>resources/images/logo.png</code>:</p>
