@@ -583,6 +583,7 @@
 <a href="#assert-json-validation-errors">assertJsonValidationErrors</a>
 <a href="#assert-json-validation-error-for">assertJsonValidationErrorFor</a>
 <a href="#assert-location">assertLocation</a>
+<a href="#assert-content">assertContent</a>
 <a href="#assert-no-content">assertNoContent</a>
 <a href="#assert-not-found">assertNotFound</a>
 <a href="#assert-ok">assertOk</a>
@@ -814,6 +815,11 @@
 <h4 id="assertlocation">assertLocation</h4>
 <p>Assert that the response has the given URI value in the <code>Location</code> header:</p>
 <pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertLocation</span>(<span class="hljs-variable">$uri</span>);
+</code></pre>
+<p><a name="assert-content"></a></p>
+<h4 id="assertcontent">assertContent</h4>
+<p>Assert that the given string matches the response content:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertContent</span>(<span class="hljs-variable">$value</span>);
 </code></pre>
 <p><a name="assert-no-content"></a></p>
 <h4 id="assertnocontent">assertNoContent</h4>

@@ -55,7 +55,11 @@
 # </span><span class="language-bash">Dump the current database schema and prune all existing migrations...</span>
 php artisan schema:dump --prune
 </code></pre>
-<p>When you execute this command, Laravel will write a &quot;schema&quot; file to your application&#39;s <code>database/schema</code> directory. Now, when you attempt to migrate your database and no other migrations have been executed, Laravel will execute the schema file&#39;s SQL statements first. After executing the schema file&#39;s statements, Laravel will execute any remaining migrations that were not part of the schema dump.</p>
+<p>When you execute this command, Laravel will write a &quot;schema&quot; file to your application&#39;s <code>database/schema</code> directory. The schema file&#39;s name will correspond to the database connection. Now, when you attempt to migrate your database and no other migrations have been executed, Laravel will execute first the SQL statements of the schema file of the database connection you are using. After executing the schema file&#39;s statements, Laravel will execute any remaining migrations that were not part of the schema dump.</p>
+<p>If your application&#39;s tests use a different database connection than the one you typically use during local development, you should ensure you have a dumped a schema file using that database connection so that your tests are able to build your database. You may wish to do this after dumping the database connection you typically use during local development:</p>
+<pre><code class="language-shell">php artisan schema:dump
+php artisan schema:dump --database=testing --prune
+</code></pre>
 <p>You should commit your database schema file to source control so that other new developers on your team may quickly create your application&#39;s initial database structure.</p>
 <blockquote>
 <p><strong>Warning</strong><br>Migration squashing is only available for the MySQL, PostgreSQL, and SQLite databases and utilizes the database&#39;s command-line client. Schema dumps may not be restored to in-memory SQLite databases.</p>
@@ -129,6 +133,15 @@ php artisan schema:dump --prune
 <p>If you would like to see the SQL statements that will be executed by the migrations without actually running them, you may provide the <code>--pretend</code> flag to the <code>migrate</code> command:</p>
 <pre><code class="language-shell">php artisan migrate --pretend
 </code></pre>
+<h4 id="isolating-migration-execution">Isolating Migration Execution</h4>
+<p>If you are deploying your application across multiple servers and running migrations as part of your deployment process, you likely do not want two servers attempting to migrate the database at the same time. To avoid this, you may use the <code>isolated</code> option when invoking the <code>migrate</code> command.</p>
+<p>When the <code>isolated</code> option is provided, Laravel will acquire an atomic lock using your application&#39;s cache driver before attempting to run your migrations. All other attempts to run the <code>migrate</code> command while that lock is held will not execute; however, the command will still exit with a successful exit status code:</p>
+<pre><code class="language-shell">php artisan migrate --isolated
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong>
+To utilize this feature, your application must be using the <code>memcached</code>, <code>redis</code>, <code>dynamodb</code>, <code>database</code>, <code>file</code>, or <code>array</code> cache driver as your application&#39;s default cache driver. In addition, all servers must be communicating with the same central cache server.</p>
+</blockquote>
 <p><a name="forcing-migrations-to-run-in-production"></a></p>
 <h4 id="forcing-migrations-to-run-in-production">Forcing Migrations To Run In Production</h4>
 <p>Some migration operations are destructive, which means they may cause you to lose data. In order to protect you from running these commands against your production database, you will be prompted for confirmation before the commands are executed. To force the commands to run without a prompt, use the <code>--force</code> flag:</p>

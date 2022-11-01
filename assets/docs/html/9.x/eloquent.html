@@ -287,7 +287,7 @@ php artisan make:model Member --pivot
 }
 </code></pre>
 <p>If you would like to perform model operations without the model having its <code>updated_at</code> timestamp modified, you may operate on the model within a closure given to the <code>withoutTimestamps</code> method:</p>
-<pre><code><span class="hljs-title class_">Model</span>::<span class="hljs-title function_ invoke__">withoutTimestamps</span>(fn () =&gt; <span class="hljs-variable">$post</span>-&gt;<span class="hljs-title function_ invoke__">incrememt</span>([<span class="hljs-string">&#x27;reads&#x27;</span>]));
+<pre><code><span class="hljs-title class_">Model</span>::<span class="hljs-title function_ invoke__">withoutTimestamps</span>(fn () =&gt; <span class="hljs-variable">$post</span>-&gt;<span class="hljs-title function_ invoke__">increment</span>([<span class="hljs-string">&#x27;reads&#x27;</span>]));
 </code></pre>
 <p><a name="database-connections"></a></p>
 <h3 id="database-connections">Database Connections</h3>
@@ -1052,7 +1052,7 @@ php artisan make:model Member --pivot
 
 <span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Models</span>;
 
-<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Scopes</span>\<span class="hljs-title">AncientScope</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Scopes</span>\<span class="hljs-title">AncientScope</span>;
 <span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Model</span>;
 
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Model</span>

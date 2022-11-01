@@ -14,6 +14,7 @@
 <li><a href="#client-secret-hashing">Client Secret Hashing</a></li>
 <li><a href="#token-lifetimes">Token Lifetimes</a></li>
 <li><a href="#overriding-default-models">Overriding Default Models</a></li>
+<li><a href="#overriding-routes">Overriding Routes</a></li>
 </ul>
 </li>
 <li><a href="#issuing-access-tokens">Issuing Access Tokens</a><ul>
@@ -218,6 +219,30 @@
     <span class="hljs-title class_">Passport</span>::<span class="hljs-title function_ invoke__">useAuthCodeModel</span>(<span class="hljs-title class_">AuthCode</span>::<span class="hljs-variable language_">class</span>);
     <span class="hljs-title class_">Passport</span>::<span class="hljs-title function_ invoke__">usePersonalAccessClientModel</span>(<span class="hljs-title class_">PersonalAccessClient</span>::<span class="hljs-variable language_">class</span>);
 }
+</code></pre>
+<p><a name="overriding-routes"></a></p>
+<h3 id="overriding-routes">Overriding Routes</h3>
+<p>Sometimes you may wish to customize the routes defined by Passport. To achieve this, you first need to ignore the routes registered by Passport by adding <code>Passport::ignoreRoutes</code> to the <code>register</code> method of your application&#39;s <code>AppServiceProvider</code>:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Passport</span>\<span class="hljs-title">Passport</span>;
+
+<span class="hljs-comment">/**
+ * Register any application services.
+ *
+ * <span class="hljs-doctag">@return</span> void
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">register</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-title class_">Passport</span>::<span class="hljs-title function_ invoke__">ignoreRoutes</span>();
+}
+</code></pre>
+<p>Then, you may copy the routes defined by Passport in <a href="https://github.com/laravel/passport/blob/11.x/routes/web.php">its routes file</a> to your application&#39;s <code>routes/web.php</code> file and modify them to your liking:</p>
+<pre><code><span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">group</span>([
+    <span class="hljs-string">&#x27;as&#x27;</span> =&gt; <span class="hljs-string">&#x27;passport.&#x27;</span>,
+    <span class="hljs-string">&#x27;prefix&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">config</span>(<span class="hljs-string">&#x27;passport.path&#x27;</span>, <span class="hljs-string">&#x27;oauth&#x27;</span>),
+    <span class="hljs-string">&#x27;namespace&#x27;</span> =&gt; <span class="hljs-string">&#x27;Laravel\Passport\Http\Controllers&#x27;</span>,
+], function () {
+    <span class="hljs-comment">// Passport routes...</span>
+});
 </code></pre>
 <p><a name="issuing-access-tokens"></a></p>
 <h2 id="issuing-access-tokens">Issuing Access Tokens</h2>

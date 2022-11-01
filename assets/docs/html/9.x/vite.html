@@ -115,7 +115,7 @@ npm -v
     <span class="hljs-attr">plugins</span>: [
         <span class="hljs-title function_">laravel</span>({
             <span class="hljs-comment">// ...</span>
-            <span class="hljs-attr">valetTls</span>: <span class="hljs-string">&#x27;my-app.test&#x27;</span>, <span class="hljs-comment">// [!tl add]</span>
+            <span class="hljs-attr">valetTls</span>: <span class="hljs-string">&#x27;my-app.test&#x27;</span>, <span class="hljs-comment">// [tl! add]</span>
         }),
     ],
 });
@@ -128,14 +128,14 @@ npm -v
 
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-title function_">defineConfig</span>({
     <span class="hljs-comment">// ...</span>
-    <span class="hljs-attr">server</span>: { <span class="hljs-comment">// [!tl add]</span>
-        host, <span class="hljs-comment">// [!tl add]</span>
-        <span class="hljs-attr">hmr</span>: { host }, <span class="hljs-comment">// [!tl add]</span>
-        <span class="hljs-attr">https</span>: { <span class="hljs-comment">// [!tl add]</span>
-            <span class="hljs-attr">key</span>: fs.<span class="hljs-title function_">readFileSync</span>(<span class="hljs-string">`/path/to/<span class="hljs-subst">${host}</span>.key`</span>), <span class="hljs-comment">// [!tl add]</span>
-            <span class="hljs-attr">cert</span>: fs.<span class="hljs-title function_">readFileSync</span>(<span class="hljs-string">`/path/to/<span class="hljs-subst">${host}</span>.crt`</span>), <span class="hljs-comment">// [!tl add]</span>
-        }, <span class="hljs-comment">// [!tl add]</span>
-    }, <span class="hljs-comment">// [!tl add]</span>
+    <span class="hljs-attr">server</span>: { <span class="hljs-comment">// [tl! add]</span>
+        host, <span class="hljs-comment">// [tl! add]</span>
+        <span class="hljs-attr">hmr</span>: { host }, <span class="hljs-comment">// [tl! add]</span>
+        <span class="hljs-attr">https</span>: { <span class="hljs-comment">// [tl! add]</span>
+            <span class="hljs-attr">key</span>: fs.<span class="hljs-title function_">readFileSync</span>(<span class="hljs-string">`/path/to/<span class="hljs-subst">${host}</span>.key`</span>), <span class="hljs-comment">// [tl! add]</span>
+            <span class="hljs-attr">cert</span>: fs.<span class="hljs-title function_">readFileSync</span>(<span class="hljs-string">`/path/to/<span class="hljs-subst">${host}</span>.crt`</span>), <span class="hljs-comment">// [tl! add]</span>
+        }, <span class="hljs-comment">// [tl! add]</span>
+    }, <span class="hljs-comment">// [tl! add]</span>
 });
 </code></pre>
 <p>If you are unable to generate a trusted certificate for your system, you may install and configure the <a href="https://github.com/vitejs/vite-plugin-basic-ssl"><code>@vitejs/plugin-basic-ssl</code> plugin</a>. When using untrusted certificates, you will need to accept the certificate warning for Vite&#39;s development server in your browser by following the &quot;Local&quot; link in your console when running the <code>npm run dev</code> command.</p>

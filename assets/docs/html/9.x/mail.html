@@ -840,6 +840,7 @@ This is the panel content.
     <span class="hljs-variable">$mailable</span>-&gt;<span class="hljs-title function_ invoke__">assertHasCc</span>(<span class="hljs-string">&#x27;abigail@example.com&#x27;</span>);
     <span class="hljs-variable">$mailable</span>-&gt;<span class="hljs-title function_ invoke__">assertHasBcc</span>(<span class="hljs-string">&#x27;victoria@example.com&#x27;</span>);
     <span class="hljs-variable">$mailable</span>-&gt;<span class="hljs-title function_ invoke__">assertHasReplyTo</span>(<span class="hljs-string">&#x27;tyler@example.com&#x27;</span>);
+    <span class="hljs-variable">$mailable</span>-&gt;<span class="hljs-title function_ invoke__">assertHasSubject</span>(<span class="hljs-string">&#x27;Invoice Paid&#x27;</span>);
     <span class="hljs-variable">$mailable</span>-&gt;<span class="hljs-title function_ invoke__">assertHasTag</span>(<span class="hljs-string">&#x27;example-tag&#x27;</span>);
     <span class="hljs-variable">$mailable</span>-&gt;<span class="hljs-title function_ invoke__">assertHasMetadata</span>(<span class="hljs-string">&#x27;key&#x27;</span>, <span class="hljs-string">&#x27;value&#x27;</span>);
 
@@ -853,8 +854,8 @@ This is the panel content.
     <span class="hljs-variable">$mailable</span>-&gt;<span class="hljs-title function_ invoke__">assertHasAttachment</span>(<span class="hljs-string">&#x27;/path/to/file&#x27;</span>);
     <span class="hljs-variable">$mailable</span>-&gt;<span class="hljs-title function_ invoke__">assertHasAttachment</span>(<span class="hljs-title class_">Attachment</span>::<span class="hljs-title function_ invoke__">fromPath</span>(<span class="hljs-string">&#x27;/path/to/file&#x27;</span>));
     <span class="hljs-variable">$mailable</span>-&gt;<span class="hljs-title function_ invoke__">assertHasAttachedData</span>(<span class="hljs-variable">$pdfData</span>, <span class="hljs-string">&#x27;name.pdf&#x27;</span>, [<span class="hljs-string">&#x27;mime&#x27;</span> =&gt; <span class="hljs-string">&#x27;application/pdf&#x27;</span>]);
-    <span class="hljs-variable">$mailable</span>-&gt;<span class="hljs-title function_ invoke__">assertHasAttachementFromStorage</span>(<span class="hljs-string">&#x27;/path/to/file&#x27;</span>, <span class="hljs-string">&#x27;name.pdf&#x27;</span>, [<span class="hljs-string">&#x27;mime&#x27;</span> =&gt; <span class="hljs-string">&#x27;application/pdf&#x27;</span>]);
-    <span class="hljs-variable">$mailable</span>-&gt;<span class="hljs-title function_ invoke__">assertHasAttachementFromStorageDisk</span>(<span class="hljs-string">&#x27;s3&#x27;</span>, <span class="hljs-string">&#x27;/path/to/file&#x27;</span>, <span class="hljs-string">&#x27;name.pdf&#x27;</span>, [<span class="hljs-string">&#x27;mime&#x27;</span> =&gt; <span class="hljs-string">&#x27;application/pdf&#x27;</span>]);
+    <span class="hljs-variable">$mailable</span>-&gt;<span class="hljs-title function_ invoke__">assertHasAttachmentFromStorage</span>(<span class="hljs-string">&#x27;/path/to/file&#x27;</span>, <span class="hljs-string">&#x27;name.pdf&#x27;</span>, [<span class="hljs-string">&#x27;mime&#x27;</span> =&gt; <span class="hljs-string">&#x27;application/pdf&#x27;</span>]);
+    <span class="hljs-variable">$mailable</span>-&gt;<span class="hljs-title function_ invoke__">assertHasAttachmentFromStorageDisk</span>(<span class="hljs-string">&#x27;s3&#x27;</span>, <span class="hljs-string">&#x27;/path/to/file&#x27;</span>, <span class="hljs-string">&#x27;name.pdf&#x27;</span>, [<span class="hljs-string">&#x27;mime&#x27;</span> =&gt; <span class="hljs-string">&#x27;application/pdf&#x27;</span>]);
 }
 </code></pre>
 <p><a name="testing-mailable-sending"></a></p>

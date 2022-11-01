@@ -123,6 +123,8 @@
 <pre><code><span class="hljs-variable">$users</span>-&gt;<span class="hljs-title function_ invoke__">load</span>([<span class="hljs-string">&#x27;comments&#x27;</span>, <span class="hljs-string">&#x27;posts&#x27;</span>]);
 
 <span class="hljs-variable">$users</span>-&gt;<span class="hljs-title function_ invoke__">load</span>(<span class="hljs-string">&#x27;comments.author&#x27;</span>);
+
+<span class="hljs-variable">$users</span>-&gt;<span class="hljs-title function_ invoke__">load</span>([<span class="hljs-string">&#x27;comments&#x27;</span>, <span class="hljs-string">&#x27;posts&#x27;</span> =&gt; fn (<span class="hljs-variable">$query</span>) =&gt; <span class="hljs-variable">$query</span>-&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;active&#x27;</span>, <span class="hljs-number">1</span>)]);
 </code></pre>
 <p><a name="method-loadMissing"></a></p>
 <h4 id="loadmissingrelations-collection-method"><code>loadMissing($relations)</code> {.collection-method}</h4>
@@ -130,6 +132,8 @@
 <pre><code><span class="hljs-variable">$users</span>-&gt;<span class="hljs-title function_ invoke__">loadMissing</span>([<span class="hljs-string">&#x27;comments&#x27;</span>, <span class="hljs-string">&#x27;posts&#x27;</span>]);
 
 <span class="hljs-variable">$users</span>-&gt;<span class="hljs-title function_ invoke__">loadMissing</span>(<span class="hljs-string">&#x27;comments.author&#x27;</span>);
+
+<span class="hljs-variable">$users</span>-&gt;<span class="hljs-title function_ invoke__">loadMissing</span>([<span class="hljs-string">&#x27;comments&#x27;</span>, <span class="hljs-string">&#x27;posts&#x27;</span> =&gt; fn (<span class="hljs-variable">$query</span>) =&gt; <span class="hljs-variable">$query</span>-&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;active&#x27;</span>, <span class="hljs-number">1</span>)]);
 </code></pre>
 <p><a name="method-modelKeys"></a></p>
 <h4 id="modelkeys-collection-method"><code>modelKeys()</code> {.collection-method}</h4>

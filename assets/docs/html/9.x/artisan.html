@@ -8,6 +8,7 @@
 <li><a href="#generating-commands">Generating Commands</a></li>
 <li><a href="#command-structure">Command Structure</a></li>
 <li><a href="#closure-commands">Closure Commands</a></li>
+<li><a href="#isolatable-commands">Isolatable Commands</a></li>
 </ul>
 </li>
 <li><a href="#defining-input-expectations">Defining Input Expectations</a><ul>
@@ -167,6 +168,44 @@
 <pre><code><span class="hljs-title class_">Artisan</span>::<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;mail:send {user}&#x27;</span>, function (<span class="hljs-variable">$user</span>) {
     <span class="hljs-comment">// ...</span>
 })-&gt;<span class="hljs-title function_ invoke__">purpose</span>(<span class="hljs-string">&#x27;Send a marketing email to a user&#x27;</span>);
+</code></pre>
+<p><a name="isolatable-commands"></a></p>
+<h3 id="isolatable-commands">Isolatable Commands</h3>
+<blockquote>
+<p><strong>Warning</strong>
+To utilize this feature, your application must be using the <code>memcached</code>, <code>redis</code>, <code>dynamodb</code>, <code>database</code>, <code>file</code>, or <code>array</code> cache driver as your application&#39;s default cache driver. In addition, all servers must be communicating with the same central cache server.</p>
+</blockquote>
+<p>Sometimes you may wish to ensure that only one instance of a command can run at a time. To accomplish this, you may implement the <code>Illuminate\Contracts\Console\Isolatable</code> interface on your command class:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Console</span>\<span class="hljs-title class_">Commands</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Console</span>\<span class="hljs-title">Command</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Contracts</span>\<span class="hljs-title">Console</span>\<span class="hljs-title">Isolatable</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SendEmails</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Command</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Isolatable</span>
+</span>{
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p>When a command is marked as <code>Isolatable</code>, Laravel will automatically add an <code>--isolated</code> option to the command. When the command is invoked with that option, Laravel will ensure that no other instances of that command are already running. Laravel accomplishes this by attempting to acquire an atomic lock using your application&#39;s default cache driver. If other instances of the command are running, the command will not execute; however, the command will still exit with a successful exit status code:</p>
+<pre><code class="language-shell">php artisan mail:send 1 --isolated
+</code></pre>
+<p>If you would like to specify the exit status code that the command should return if it is not able to execute, you may provide the desired status code via the <code>isolated</code> option:</p>
+<pre><code class="language-shell">php artisan mail:send 1 --isolated=12
+</code></pre>
+<p><a name="lock-expiration-time"></a></p>
+<h4 id="lock-expiration-time">Lock Expiration Time</h4>
+<p>By default, isolation locks expire after the command is finished. Or, if the command is interrupted and unable to finish, the lock will expire after one hour. However, you may adjust the lock expiration time by defining a <code>isolationLockExpiresAt</code> method on your command:</p>
+<pre><code class="language-php"><span class="hljs-comment">/**
+ * Determine when an isolation lock expires for the command.
+ *
+ * <span class="hljs-doctag">@return</span> \DateTimeInterface|\DateInterval
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isolationLockExpiresAt</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">now</span>()-&gt;<span class="hljs-title function_ invoke__">addMinutes</span>(<span class="hljs-number">5</span>);
+}
 </code></pre>
 <p><a name="defining-input-expectations"></a></p>
 <h2 id="defining-input-expectations">Defining Input Expectations</h2>

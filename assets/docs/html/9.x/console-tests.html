@@ -43,7 +43,7 @@
     <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">line</span>(<span class="hljs-string">&#x27;Your name is &#x27;</span>.<span class="hljs-variable">$name</span>.<span class="hljs-string">&#x27; and you prefer &#x27;</span>.<span class="hljs-variable">$language</span>.<span class="hljs-string">&#x27;.&#x27;</span>);
 });
 </code></pre>
-<p>You may test this command with the following test which utilizes the <code>expectsQuestion</code>, <code>expectsOutput</code>, <code>doesntExpectOutput</code>, and <code>assertExitCode</code> methods:</p>
+<p>You may test this command with the following test which utilizes the <code>expectsQuestion</code>, <code>expectsOutput</code>, <code>doesntExpectOutput</code>, <code>expectsOutputToContain</code>, <code>doesntExpectOutputToContain</code>, and <code>assertExitCode</code> methods:</p>
 <pre><code><span class="hljs-comment">/**
  * Test a console command.
  *
@@ -56,6 +56,8 @@
          -&gt;<span class="hljs-title function_ invoke__">expectsQuestion</span>(<span class="hljs-string">&#x27;Which language do you prefer?&#x27;</span>, <span class="hljs-string">&#x27;PHP&#x27;</span>)
          -&gt;<span class="hljs-title function_ invoke__">expectsOutput</span>(<span class="hljs-string">&#x27;Your name is Taylor Otwell and you prefer PHP.&#x27;</span>)
          -&gt;<span class="hljs-title function_ invoke__">doesntExpectOutput</span>(<span class="hljs-string">&#x27;Your name is Taylor Otwell and you prefer Ruby.&#x27;</span>)
+         -&gt;<span class="hljs-title function_ invoke__">expectsOutputToContain</span>(<span class="hljs-string">&#x27;Taylor Otwell&#x27;</span>)
+         -&gt;<span class="hljs-title function_ invoke__">doesntExpectOutputToContain</span>(<span class="hljs-string">&#x27;you prefer Ruby&#x27;</span>)
          -&gt;<span class="hljs-title function_ invoke__">assertExitCode</span>(<span class="hljs-number">0</span>);
 }
 </code></pre>
