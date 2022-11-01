@@ -237,6 +237,7 @@ DB::<span class="hljs-title function_ invoke__">insert</span>(<span class="hljs-
 <span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Connection</span>;
 <span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">DB</span>;
 <span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">ServiceProvider</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Events</span>\<span class="hljs-title">QueryExecuted</span>;
 
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AppServiceProvider</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">ServiceProvider</span>
 </span>{
@@ -257,7 +258,7 @@ DB::<span class="hljs-title function_ invoke__">insert</span>(<span class="hljs-
      */</span>
     <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>)
     </span>{
-        DB::<span class="hljs-title function_ invoke__">whenQueryingForLongerThan</span>(<span class="hljs-number">500</span>, function (Connection <span class="hljs-variable">$connection</span>) {
+        DB::<span class="hljs-title function_ invoke__">whenQueryingForLongerThan</span>(<span class="hljs-number">500</span>, function (Connection <span class="hljs-variable">$connection</span>, QueryExecuted <span class="hljs-variable">$event</span>) {
             <span class="hljs-comment">// Notify development team...</span>
         });
     }

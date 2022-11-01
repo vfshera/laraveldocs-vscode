@@ -995,7 +995,7 @@
 <p>By default, any existing values are overwritten. If you wish to only set a value if it doesn&#39;t exist, you may pass <code>false</code> as the fourth argument to the function:</p>
 <pre><code><span class="hljs-variable">$data</span> = [<span class="hljs-string">&#x27;products&#x27;</span> =&gt; [<span class="hljs-string">&#x27;desk&#x27;</span> =&gt; [<span class="hljs-string">&#x27;price&#x27;</span> =&gt; <span class="hljs-number">100</span>]]];
 
-<span class="hljs-title function_ invoke__">data_set</span>(<span class="hljs-variable">$data</span>, <span class="hljs-string">&#x27;products.desk.price&#x27;</span>, <span class="hljs-number">200</span>, <span class="hljs-variable">$overwrite</span> = <span class="hljs-literal">false</span>);
+<span class="hljs-title function_ invoke__">data_set</span>(<span class="hljs-variable">$data</span>, <span class="hljs-string">&#x27;products.desk.price&#x27;</span>, <span class="hljs-number">200</span>, <span class="hljs-attr">overwrite</span>: <span class="hljs-literal">false</span>);
 
 <span class="hljs-comment">// [&#x27;products&#x27; =&gt; [&#x27;desk&#x27; =&gt; [&#x27;price&#x27; =&gt; 100]]]</span>
 </code></pre>

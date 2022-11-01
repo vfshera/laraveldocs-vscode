@@ -1317,7 +1317,7 @@
 </code></pre>
 <p><a name="method-merge"></a></p>
 <h4 id="merge-collection-method"><code>merge()</code> {.collection-method}</h4>
-<p>The <code>merge</code> method merges the given array or collection with the original collection. If a string key in the given items matches a string key in the original collection, the given items&#39;s value will overwrite the value in the original collection:</p>
+<p>The <code>merge</code> method merges the given array or collection with the original collection. If a string key in the given items matches a string key in the original collection, the given item&#39;s value will overwrite the value in the original collection:</p>
 <pre><code><span class="hljs-variable">$collection</span> = <span class="hljs-title function_ invoke__">collect</span>([<span class="hljs-string">&#x27;product_id&#x27;</span> =&gt; <span class="hljs-number">1</span>, <span class="hljs-string">&#x27;price&#x27;</span> =&gt; <span class="hljs-number">100</span>]);
 
 <span class="hljs-variable">$merged</span> = <span class="hljs-variable">$collection</span>-&gt;<span class="hljs-title function_ invoke__">merge</span>([<span class="hljs-string">&#x27;price&#x27;</span> =&gt; <span class="hljs-number">200</span>, <span class="hljs-string">&#x27;discount&#x27;</span> =&gt; <span class="hljs-literal">false</span>]);
@@ -1326,7 +1326,7 @@
 
 <span class="hljs-comment">// [&#x27;product_id&#x27; =&gt; 1, &#x27;price&#x27; =&gt; 200, &#x27;discount&#x27; =&gt; false]</span>
 </code></pre>
-<p>If the given items&#39;s keys are numeric, the values will be appended to the end of the collection:</p>
+<p>If the given item&#39;s keys are numeric, the values will be appended to the end of the collection:</p>
 <pre><code><span class="hljs-variable">$collection</span> = <span class="hljs-title function_ invoke__">collect</span>([<span class="hljs-string">&#x27;Desk&#x27;</span>, <span class="hljs-string">&#x27;Chair&#x27;</span>]);
 
 <span class="hljs-variable">$merged</span> = <span class="hljs-variable">$collection</span>-&gt;<span class="hljs-title function_ invoke__">merge</span>([<span class="hljs-string">&#x27;Bookcase&#x27;</span>, <span class="hljs-string">&#x27;Door&#x27;</span>]);
