@@ -123,14 +123,20 @@ You may configure as many disks as you like and may even have multiple disks tha
 </code></pre>
 <p><a name="scoped-and-read-only-filesystems"></a></p>
 <h3 id="scoped--read-only-filesystems">Scoped &amp; Read-Only Filesystems</h3>
-<p>You may create a path scoped instance of any existing filesystem disk by defining a disk that utilizes the <code>scoped</code> driver. Scoped disks allow you to define a filesystem where all paths are automatically prefixed with a given path prefix. For example, you may create a disk which scopes your existing <code>s3</code> disk to a specific path prefix, and then every file operation using your scoped disk will utilize the specified prefix:</p>
+<p>Scoped disks allow you to define a filesystem where all paths are automatically prefixed with a given path prefix. Before creating a scoped filesystem disk, you will need to install an additional Flysystem package via the Composer package manager:</p>
+<pre><code class="language-shell">composer require league/flysystem-path-prefixing &quot;^3.0&quot;
+</code></pre>
+<p>You may create a path scoped instance of any existing filesystem disk by defining a disk that utilizes the <code>scoped</code> driver. For example, you may create a disk which scopes your existing <code>s3</code> disk to a specific path prefix, and then every file operation using your scoped disk will utilize the specified prefix:</p>
 <pre><code class="language-php"><span class="hljs-string">&#x27;s3-videos&#x27;</span> =&gt; [
     <span class="hljs-string">&#x27;driver&#x27;</span> =&gt; <span class="hljs-string">&#x27;scoped&#x27;</span>,
     <span class="hljs-string">&#x27;disk&#x27;</span> =&gt; <span class="hljs-string">&#x27;s3&#x27;</span>,
     <span class="hljs-string">&#x27;prefix&#x27;</span> =&gt; <span class="hljs-string">&#x27;path/to/videos&#x27;</span>,
 ],
 </code></pre>
-<p>If you would like to specify that any filesystem disk should be &quot;read-only&quot;, you may include the <code>read-only</code> configuration option in the disk&#39;s configuration array:</p>
+<p>&quot;Read-only&quot; disks allow you to create filesystem disks that do not allow write operations. Before using the <code>read-only</code> configuration option, you will need to install an additional Flysystem package via the Composer package manager:</p>
+<pre><code class="language-shell">composer require league/flysystem-read-only &quot;^3.0&quot;
+</code></pre>
+<p>Next, you may include the <code>read-only</code> configuration option in one or more of your disk&#39;s configuration arrays:</p>
 <pre><code class="language-php"><span class="hljs-string">&#x27;s3-videos&#x27;</span> =&gt; [
     <span class="hljs-string">&#x27;driver&#x27;</span> =&gt; <span class="hljs-string">&#x27;s3&#x27;</span>,
     <span class="hljs-comment">// ...</span>

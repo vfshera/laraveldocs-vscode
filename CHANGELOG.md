@@ -1,5 +1,9 @@
 # Change Log
 
+## v1.6.1 - 2022-11-18
+
+- docs update
+
 ## v1.6.0 - 2022-11-01
 
 - docs update

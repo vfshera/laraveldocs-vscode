@@ -114,7 +114,7 @@ sail php script.php
 <p>You may install the application&#39;s dependencies by navigating to the application&#39;s directory and executing the following command. This command uses a small Docker container containing PHP and Composer to install the application&#39;s dependencies:</p>
 <pre><code class="language-shell">docker run --rm \
     -u &quot;$(id -u):$(id -g)&quot; \
-    -v $(pwd):/var/www/html \
+    -v &quot;$(pwd):/var/www/html&quot; \
     -w /var/www/html \
     laravelsail/php81-composer:latest \
     composer install --ignore-platform-reqs

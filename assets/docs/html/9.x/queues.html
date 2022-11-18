@@ -1326,6 +1326,9 @@ php artisan migrate
 <blockquote>
 <p><strong>Note</strong><br>To keep the <code>queue:work</code> process running permanently in the background, you should use a process monitor such as <a href="#supervisor-configuration">Supervisor</a> to ensure that the queue worker does not stop running.</p>
 </blockquote>
+<p>You may include the <code>-v</code> flag when invoking the <code>queue:work</code> command if you would like the processed job IDs to be included in the command&#39;s output:</p>
+<pre><code class="language-shell">php artisan queue:work -v
+</code></pre>
 <p>Remember, queue workers are long-lived processes and store the booted application state in memory. As a result, they will not notice changes in your code base after they have been started. So, during your deployment process, be sure to <a href="#queue-workers-and-deployment">restart your queue workers</a>. In addition, remember that any static state created or modified by your application will not be automatically reset between jobs.</p>
 <p>Alternatively, you may run the <code>queue:listen</code> command. When using the <code>queue:listen</code> command, you don&#39;t have to manually restart the worker when you want to reload your updated code or reset the application state; however, this command is significantly less efficient than the <code>queue:work</code> command:</p>
 <pre><code class="language-shell">php artisan queue:listen

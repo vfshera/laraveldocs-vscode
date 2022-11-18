@@ -226,7 +226,7 @@ php artisan make:model Member --pivot
     <span class="hljs-keyword">return</span> [<span class="hljs-string">&#x27;id&#x27;</span>, <span class="hljs-string">&#x27;discount_code&#x27;</span>];
 }
 </code></pre>
-<p>If you wish, you may choose to utilize &quot;ULIDs&quot; instead of UUIDs. ULIDs are similar to UUIDs; however, they are only 26 characters in length. Like ordered UUIDs, ULIDs are lexicographically sortable for efficient database indexing. To utilize ULIDs, you should use the <code>Illuminate\Database\Eloquent\Concerns\HasUlids</code> trait on your model:</p>
+<p>If you wish, you may choose to utilize &quot;ULIDs&quot; instead of UUIDs. ULIDs are similar to UUIDs; however, they are only 26 characters in length. Like ordered UUIDs, ULIDs are lexicographically sortable for efficient database indexing. To utilize ULIDs, you should use the <code>Illuminate\Database\Eloquent\Concerns\HasUlids</code> trait on your model. You should also ensure that the model has a <a href="/docs/%7B%7Bversion%7D%7D/migrations#column-method-ulid">ULID equivalent primary key column</a>:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Concerns</span>\<span class="hljs-title">HasUlids</span>;
 <span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Model</span>;
 

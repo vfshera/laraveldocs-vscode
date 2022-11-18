@@ -16,7 +16,8 @@
 <p>While you are welcome to use these starter kits, they are not required. You are free to build your own application from the ground up by simply installing a fresh copy of Laravel. Either way, we know you will build something great!</p>
 <p><a name="laravel-breeze"></a></p>
 <h2 id="laravel-breeze">Laravel Breeze</h2>
-<p><a href="https://github.com/laravel/breeze">Laravel Breeze</a> is a minimal, simple implementation of all of Laravel&#39;s <a href="/docs/%7B%7Bversion%7D%7D/authentication">authentication features</a>, including login, registration, password reset, email verification, and password confirmation. Laravel Breeze&#39;s default view layer is made up of simple <a href="/docs/%7B%7Bversion%7D%7D/blade">Blade templates</a> styled with <a href="https://tailwindcss.com">Tailwind CSS</a>. Or, Breeze can scaffold your application using Vue or React and <a href="https://inertiajs.com">Inertia</a>.</p>
+<p><a href="https://github.com/laravel/breeze">Laravel Breeze</a> is a minimal, simple implementation of all of Laravel&#39;s <a href="/docs/%7B%7Bversion%7D%7D/authentication">authentication features</a>, including login, registration, password reset, email verification, and password confirmation. In addition, Breeze includes a simple &quot;profile&quot; page where the user may update their name, email address, and password.</p>
+<p>Laravel Breeze&#39;s default view layer is made up of simple <a href="/docs/%7B%7Bversion%7D%7D/blade">Blade templates</a> styled with <a href="https://tailwindcss.com">Tailwind CSS</a>. Or, Breeze can scaffold your application using Vue or React and <a href="https://inertiajs.com">Inertia</a>.</p>
 <p>Breeze provides a wonderful starting point for beginning a fresh Laravel application and is also a great choice for projects that plan to take their Blade templates to the next level with <a href="https://laravel-livewire.com">Laravel Livewire</a>.</p>
 <img src="https://laravel.com/img/docs/breeze-register.png">
 
@@ -39,6 +40,11 @@ npm install
 npm run dev
 </code></pre>
 <p>Next, you may navigate to your application&#39;s <code>/login</code> or <code>/register</code> URLs in your web browser. All of Breeze&#39;s routes are defined within the <code>routes/auth.php</code> file.</p>
+<p><a name="dark-mode"></a></p>
+<h4 id="dark-mode">Dark Mode</h4>
+<p>If you would like Breeze to include &quot;dark mode&quot; support when scaffolding your application&#39;s frontend, simply provide the <code>--dark</code> directive when executing the <code>breeze:install</code> command:</p>
+<pre><code class="language-shell">php artisan breeze:install --dark
+</code></pre>
 <blockquote>
 <p><strong>Note</strong><br>To learn more about compiling your application&#39;s CSS and JavaScript, check out Laravel&#39;s <a href="/docs/%7B%7Bversion%7D%7D/vite#running-vite">Vite documentation</a>.</p>
 </blockquote>

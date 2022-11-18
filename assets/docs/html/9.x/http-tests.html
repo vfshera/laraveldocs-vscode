@@ -590,6 +590,7 @@
 <a href="#assert-plain-cookie">assertPlainCookie</a>
 <a href="#assert-redirect">assertRedirect</a>
 <a href="#assert-redirect-contains">assertRedirectContains</a>
+<a href="#assert-redirect-to-route">assertRedirectToRoute</a>
 <a href="#assert-redirect-to-signed-route">assertRedirectToSignedRoute</a>
 <a href="#assert-see">assertSee</a>
 <a href="#assert-see-in-order">assertSeeInOrder</a>
@@ -850,6 +851,11 @@
 <h4 id="assertredirectcontains">assertRedirectContains</h4>
 <p>Assert whether the response is redirecting to a URI that contains the given string:</p>
 <pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertRedirectContains</span>(<span class="hljs-variable">$string</span>);
+</code></pre>
+<p><a name="assert-redirect-to-route"></a></p>
+<h4 id="assertredirecttoroute">assertRedirectToRoute</h4>
+<p>Assert that the response is a redirect to the given <a href="/docs/%7B%7Bversion%7D%7D/routing#named-routes">named route</a>:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertRedirectToRoute</span>(<span class="hljs-variable">$name</span> = <span class="hljs-literal">null</span>, <span class="hljs-variable">$parameters</span> = []);
 </code></pre>
 <p><a name="assert-redirect-to-signed-route"></a></p>
 <h4 id="assertredirecttosignedroute">assertRedirectToSignedRoute</h4>
