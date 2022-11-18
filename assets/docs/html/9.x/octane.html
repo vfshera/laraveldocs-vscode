@@ -351,6 +351,7 @@ server {
 <p>Concurrent tasks processed by Octane utilize Swoole&#39;s &quot;task workers&quot;, and execute within an entirely different process than the incoming request. The amount of workers available to process concurrent tasks is determined by the <code>--task-workers</code> directive on the <code>octane:start</code> command:</p>
 <pre><code class="language-shell">php artisan octane:start --workers=4 --task-workers=6
 </code></pre>
+<p>When invoking the <code>concurrently</code> method, you should not provide more than 1024 tasks due to limitations imposed by Swoole&#39;s task system.</p>
 <p><a name="ticks-and-intervals"></a></p>
 <h2 id="ticks--intervals">Ticks &amp; Intervals</h2>
 <blockquote>

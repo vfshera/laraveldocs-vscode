@@ -722,7 +722,7 @@ cardButton.<span class="hljs-title function_">addEventListener</span>(<span clas
     Please confirm your payment.
 <span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>
 </code></pre>
-<p>If you would like the subscription to still be considered active when it&#39;s in a <code>past_due</code> state, you may use the <code>keepPastDueSubscriptionsActive</code> method provided by Cashier. Typically, this method should be called in the <code>register</code> method of your <code>App\Providers\AppServiceProvider</code>:</p>
+<p>If you would like the subscription to still be considered active when it&#39;s in a <code>past_due</code> or <code>incomplete</code> state, you may use the <code>keepPastDueSubscriptionsActive</code> and <code>keepIncompleteSubscriptionsActive</code> methods provided by Cashier. Typically, these methods should be called in the <code>register</code> method of your <code>App\Providers\AppServiceProvider</code>:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Cashier</span>\<span class="hljs-title">Cashier</span>;
 
 <span class="hljs-comment">/**
@@ -733,6 +733,7 @@ cardButton.<span class="hljs-title function_">addEventListener</span>(<span clas
 <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">register</span>(<span class="hljs-params"></span>)
 </span>{
     <span class="hljs-title class_">Cashier</span>::<span class="hljs-title function_ invoke__">keepPastDueSubscriptionsActive</span>();
+    <span class="hljs-title class_">Cashier</span>::<span class="hljs-title function_ invoke__">keepIncompleteSubscriptionsActive</span>();
 }
 </code></pre>
 <blockquote>

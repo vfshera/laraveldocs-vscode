@@ -51,6 +51,7 @@
 <li><a href="#stacks">Stacks</a></li>
 <li><a href="#service-injection">Service Injection</a></li>
 <li><a href="#rendering-inline-blade-templates">Rendering Inline Blade Templates</a></li>
+<li><a href="#rendering-blade-fragments">Rendering Blade Fragments</a></li>
 <li><a href="#extending-blade">Extending Blade</a><ul>
 <li><a href="#custom-echo-handlers">Custom Echo Handlers</a></li>
 <li><a href="#custom-if-statements">Custom If Statements</a></li>
@@ -1290,6 +1291,20 @@ Hello, @</span><span class="hljs-template-variable">{{</span><span class="langua
     [<span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Julian Bashir&#x27;</span>],
     <span class="hljs-attr">deleteCachedView</span>: <span class="hljs-literal">true</span>
 );
+</code></pre>
+<p><a name="rendering-blade-fragments"></a></p>
+<h2 id="rendering-blade-fragments">Rendering Blade Fragments</h2>
+<p>When using frontend frameworks such as <a href="https://turbo.hotwired.dev/">Turbo</a> and <a href="https://htmx.org/">htmx</a>, you may occasionally need to only return a portion of a Blade template within your HTTP response. Blade &quot;fragments&quot; allow you to do just that. To get started, place a portion of your Blade template within <code>@fragment</code> and <code>@endfragment</code> directives:</p>
+<pre><code class="language-blade"><span class="hljs-template-tag">@fragment</span><span class="language-xml">(&#x27;user-list&#x27;)
+    <span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span>
+        </span><span class="hljs-template-tag">@foreach</span><span class="language-xml"> ($users as $user)
+            <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span></span><span class="hljs-template-variable">{{</span><span class="language-php"> <span class="hljs-variable">$user</span>-&gt;name </span><span class="hljs-template-variable">}}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
+        </span><span class="hljs-template-tag">@endforeach</span><span class="language-xml">
+    <span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span>
+</span><span class="hljs-template-tag">@endfragment</span>
+</code></pre>
+<p>Then, when rendering the view that utilizes this template, you may invoke the <code>fragment</code> method to specify that only the specified fragment should be included in the outgoing HTTP response:</p>
+<pre><code class="language-php"><span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;dashboard&#x27;</span>, [<span class="hljs-string">&#x27;users&#x27;</span> =&gt; <span class="hljs-variable">$users</span>])-&gt;<span class="hljs-title function_ invoke__">fragment</span>(<span class="hljs-string">&#x27;user-list&#x27;</span>);
 </code></pre>
 <p><a name="extending-blade"></a></p>
 <h2 id="extending-blade">Extending Blade</h2>

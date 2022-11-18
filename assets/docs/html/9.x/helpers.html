@@ -4,6 +4,7 @@
 <li><a href="#available-methods">Available Methods</a></li>
 <li><a href="#other-utilities">Other Utilities</a><ul>
 <li><a href="#benchmarking">Benchmarking</a></li>
+<li><a href="#lottery">Lottery</a></li>
 </ul>
 </li>
 </ul>
@@ -3347,4 +3348,39 @@
 <p>By default, the given callbacks will be executed once (one iteration), and their duration will be displayed in the browser / console.</p>
 <p>To invoke a callback more than once, you may specify the number of iterations that the callback should be invoked as the second argument to the method. When executing a callback more than once, the <code>Benchmark</code> class will return the average amount of milliseconds it took to execute the callback across all iterations:</p>
 <pre><code><span class="hljs-title class_">Benchmark</span>::<span class="hljs-title function_ invoke__">dd</span>(fn () =&gt; <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">count</span>(), iterations: <span class="hljs-number">10</span>); <span class="hljs-comment">// 0.5 ms</span>
+</code></pre>
+<p><a name="lottery"></a></p>
+<h3 id="lottery">Lottery</h3>
+<p>Laravel&#39;s lottery class may be used to execute callbacks based on a set of given odds. This can be particularly useful when you only want to execute code for a percentage of your incoming requests:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Lottery</span>;
+
+<span class="hljs-title class_">Lottery</span>::<span class="hljs-title function_ invoke__">odds</span>(<span class="hljs-number">1</span>, <span class="hljs-number">20</span>)
+    -&gt;<span class="hljs-title function_ invoke__">winner</span>(fn () =&gt; <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">won</span>())
+    -&gt;<span class="hljs-title function_ invoke__">loser</span>(fn () =&gt; <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">lost</span>())
+    -&gt;<span class="hljs-title function_ invoke__">choose</span>();
+</code></pre>
+<p>You may combine Laravel&#39;s lottery class with other Laravel features. For example, you may wish to only report a small percentage of slow queries to your exception handler. And, since the lottery class is callable, we may pass an instance of the class into any method that accepts callables:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Carbon</span>\<span class="hljs-title">CarbonInterval</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">DB</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Lottery</span>;
+
+DB::<span class="hljs-title function_ invoke__">whenQueryingForLongerThan</span>(
+    <span class="hljs-title class_">CarbonInterval</span>::<span class="hljs-title function_ invoke__">seconds</span>(<span class="hljs-number">2</span>),
+    <span class="hljs-title class_">Lottery</span>::<span class="hljs-title function_ invoke__">odds</span>(<span class="hljs-number">1</span>, <span class="hljs-number">100</span>)-&gt;<span class="hljs-title function_ invoke__">winner</span>(fn () =&gt; <span class="hljs-title function_ invoke__">report</span>(<span class="hljs-string">&#x27;Querying &gt; 2 seconds.&#x27;</span>)),
+);
+</code></pre>
+<p><a name="testing-lotteries"></a></p>
+<h4 id="testing-lotteries">Testing Lotteries</h4>
+<p>Laravel provides some simple methods to allow you to easily test your application&#39;s lottery invocations:</p>
+<pre><code><span class="hljs-comment">// Lottery will always win...</span>
+<span class="hljs-title class_">Lottery</span>::<span class="hljs-title function_ invoke__">alwaysWin</span>();
+
+<span class="hljs-comment">// Lottery will always lose...</span>
+<span class="hljs-title class_">Lottery</span>::<span class="hljs-title function_ invoke__">alwaysLose</span>();
+
+<span class="hljs-comment">// Lottery will win then lose, and finally return to normal behavior...</span>
+<span class="hljs-title class_">Lottery</span>::<span class="hljs-title function_ invoke__">fix</span>([<span class="hljs-literal">true</span>, <span class="hljs-literal">false</span>]);
+
+<span class="hljs-comment">// Lottery will return to normal behavior...</span>
+<span class="hljs-title class_">Lottery</span>::<span class="hljs-title function_ invoke__">determineResultsNormally</span>();
 </code></pre>

@@ -1,13 +1,12 @@
 import * as fs from "fs";
 import hljs from "highlight.js/lib/common";
 import hljsBlade from "highlightjs-blade";
-hljs.registerLanguage("blade", hljsBlade);
 import * as path from "path";
-
 import { marked } from "marked";
 import { getDocContents } from "./Utils";
 import { HTML_DOCS, MD_DOCS } from "./constants";
 
+hljs.registerLanguage("blade", hljsBlade);
 export default class Generator {
   static baseDir = path.join(__dirname, "..");
 

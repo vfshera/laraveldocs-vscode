@@ -716,6 +716,7 @@
 <a href="#rule-json">JSON</a>
 <a href="#rule-lt">Less Than</a>
 <a href="#rule-lte">Less Than Or Equal</a>
+<a href="#rule-lowercase">Lowercase</a>
 <a href="#rule-mac">MAC Address</a>
 <a href="#rule-max">Max</a>
 <a href="#rule-max-digits">Max Digits</a>
@@ -750,6 +751,7 @@
 <a href="#rule-string">String</a>
 <a href="#rule-timezone">Timezone</a>
 <a href="#rule-unique">Unique (Database)</a>
+<a href="#rule-uppercase">Uppercase</a>
 <a href="#rule-url">URL</a>
 <a href="#rule-uuid">UUID</a></p>
 </div>
@@ -1062,6 +1064,9 @@
 <p><a name="rule-lte"></a></p>
 <h4 id="ltefield">lte:<em>field</em></h4>
 <p>The field under validation must be less than or equal to the given <em>field</em>. The two fields must be of the same type. Strings, numerics, arrays, and files are evaluated using the same conventions as the <a href="#rule-size"><code>size</code></a> rule.</p>
+<p><a name="rule-lowercase"></a></p>
+<h4 id="lowercasefield">lowercase:<em>field</em></h4>
+<p>The field under validation must be lowercase.</p>
 <p><a name="rule-mac"></a></p>
 <h4 id="mac_address">mac_address</h4>
 <p>The field under validation must be a MAC address.</p>
@@ -1279,6 +1284,9 @@
 <p>You may specify additional query conditions by customizing the query using the <code>where</code> method. For example, let&#39;s add a query condition that scopes the query to only search records that have an <code>account_id</code> column value of <code>1</code>:</p>
 <pre><code><span class="hljs-string">&#x27;email&#x27;</span> =&gt; <span class="hljs-title class_">Rule</span>::<span class="hljs-title function_ invoke__">unique</span>(<span class="hljs-string">&#x27;users&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">where</span>(fn (<span class="hljs-variable">$query</span>) =&gt; <span class="hljs-variable">$query</span>-&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;account_id&#x27;</span>, <span class="hljs-number">1</span>))
 </code></pre>
+<p><a name="rule-uppercase"></a></p>
+<h4 id="uppercasefield">uppercase:<em>field</em></h4>
+<p>The field under validation must be uppercase.</p>
 <p><a name="rule-url"></a></p>
 <h4 id="url">url</h4>
 <p>The field under validation must be a valid URL.</p>
