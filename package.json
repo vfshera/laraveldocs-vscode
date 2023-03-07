@@ -9,10 +9,10 @@
   },
   "license": "GPL-3.0",
   "version": "1.6.1",
-  "homepage": "https://github.com/franklinshera/laraveldocs-vscode",
-  "bugs": "https://github.com/franklinshera/laraveldocs-vscode/issues",
+  "homepage": "https://github.com/vfshera/laraveldocs-vscode",
+  "bugs": "https://github.com/vfshera/laraveldocs-vscode/issues",
   "repository": {
-    "url": "https://github.com/franklinshera/laraveldocs-vscode",
+    "url": "https://github.com/vfshera/laraveldocs-vscode",
     "type": "git"
   },
   "keywords": [
