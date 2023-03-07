@@ -56,6 +56,11 @@
 <p>Finally, you may start Sail. To continue learning how to use Sail, please continue reading the remainder of this documentation:</p>
 <pre><code class="language-shell">./vendor/bin/sail up
 </code></pre>
+<p><a name="adding-additional-services"></a></p>
+<h4 id="adding-additional-services">Adding Additional Services</h4>
+<p>If you would like to add an additional service to your existing Sail installation, you may run the <code>sail:add</code> Artisan command:</p>
+<pre><code class="language-shell">php artisan sail:add
+</code></pre>
 <p><a name="using-devcontainers"></a></p>
 <h4 id="using-devcontainers">Using Devcontainers</h4>
 <p>If you would like to develop within a <a href="https://code.visualstudio.com/docs/remote/containers">Devcontainer</a>, you may provide the <code>--devcontainer</code> option to the <code>sail:install</code> command. The <code>--devcontainer</code> option will instruct the <code>sail:install</code> command to publish a default <code>.devcontainer/devcontainer.json </code> file to the root of your application:</p>
@@ -116,10 +121,10 @@ sail php script.php
     -u &quot;$(id -u):$(id -g)&quot; \
     -v &quot;$(pwd):/var/www/html&quot; \
     -w /var/www/html \
-    laravelsail/php81-composer:latest \
+    laravelsail/php82-composer:latest \
     composer install --ignore-platform-reqs
 </code></pre>
-<p>When using the <code>laravelsail/phpXX-composer</code> image, you should use the same version of PHP that you plan to use for your application (<code>74</code>, <code>80</code>, or <code>81</code>).</p>
+<p>When using the <code>laravelsail/phpXX-composer</code> image, you should use the same version of PHP that you plan to use for your application (<code>74</code>, <code>80</code>, <code>81</code>, or <code>82</code>).</p>
 <p><a name="executing-artisan-commands"></a></p>
 <h3 id="executing-artisan-commands">Executing Artisan Commands</h3>
 <p>Laravel Artisan commands may be executed using the <code>artisan</code> command:</p>
@@ -142,7 +147,7 @@ sail npm run dev
 <p>As you may have noticed, your application&#39;s <code>docker-compose.yml</code> file contains an entry for a MySQL container. This container uses a <a href="https://docs.docker.com/storage/volumes/">Docker volume</a> so that the data stored in your database is persisted even when stopping and restarting your containers.</p>
 <p>In addition, the first time the MySQL container starts, it will create two databases for you. The first database is named using the value of your <code>DB_DATABASE</code> environment variable and is for your local development. The second is a dedicated testing database named <code>testing</code> and will ensure that your tests do not interfere with your development data.</p>
 <p>Once you have started your containers, you may connect to the MySQL instance within your application by setting your <code>DB_HOST</code> environment variable within your application&#39;s <code>.env</code> file to <code>mysql</code>.</p>
-<p>To connect to your application&#39;s MySQL database from your local machine, you may use a graphical database management application such as <a href="https://tableplus.com">TablePlus</a>. By default, the MySQL database is accessible at <code>localhost</code> port 3306.</p>
+<p>To connect to your application&#39;s MySQL database from your local machine, you may use a graphical database management application such as <a href="https://tableplus.com">TablePlus</a>. By default, the MySQL database is accessible at <code>localhost</code> port 3306 and the access credentials correspond to the values of your <code>DB_USERNAME</code> and <code>DB_PASSWORD</code> environment variables. Or, you may connect as the <code>root</code> user, which also utilizes the value of your <code>DB_PASSWORD</code> environment variable as its password.</p>
 <p><a name="redis"></a></p>
 <h3 id="redis">Redis</h3>
 <p>Your application&#39;s <code>docker-compose.yml</code> file also contains an entry for a <a href="https://redis.io">Redis</a> container. This container uses a <a href="https://docs.docker.com/storage/volumes/">Docker volume</a> so that the data stored in your Redis data is persisted even when stopping and restarting your containers. Once you have started your containers, you may connect to the Redis instance within your application by setting your <code>REDIS_HOST</code> environment variable within your application&#39;s <code>.env</code> file to <code>redis</code>.</p>
@@ -214,12 +219,12 @@ sail test --group orders
 </code></pre>
 <p><a name="previewing-emails"></a></p>
 <h2 id="previewing-emails">Previewing Emails</h2>
-<p>Laravel Sail&#39;s default <code>docker-compose.yml</code> file contains a service entry for <a href="https://github.com/mailhog/MailHog">MailHog</a>. MailHog intercepts emails sent by your application during local development and provides a convenient web interface so that you can preview your email messages in your browser. When using Sail, MailHog&#39;s default host is <code>mailhog</code> and is available via port 1025:</p>
-<pre><code class="language-ini"><span class="hljs-attr">MAIL_HOST</span>=mailhog
+<p>Laravel Sail&#39;s default <code>docker-compose.yml</code> file contains a service entry for <a href="https://github.com/axllent/mailpit">Mailpit</a>. Mailpit intercepts emails sent by your application during local development and provides a convenient web interface so that you can preview your email messages in your browser. When using Sail, Mailpit&#39;s default host is <code>mailpit</code> and is available via port 1025:</p>
+<pre><code class="language-ini"><span class="hljs-attr">MAIL_HOST</span>=mailpit
 <span class="hljs-attr">MAIL_PORT</span>=<span class="hljs-number">1025</span>
 <span class="hljs-attr">MAIL_ENCRYPTION</span>=null
 </code></pre>
-<p>When Sail is running, you may access the MailHog web interface at: <a href="http://localhost:8025">http://localhost:8025</a></p>
+<p>When Sail is running, you may access the Mailpit web interface at: <a href="http://localhost:8025">http://localhost:8025</a></p>
 <p><a name="sail-container-cli"></a></p>
 <h2 id="container-cli">Container CLI</h2>
 <p>Sometimes you may wish to start a Bash session within your application&#39;s container. You may use the <code>shell</code> command to connect to your application&#39;s container, allowing you to inspect its files and installed services as well execute arbitrary shell commands within the container:</p>
@@ -232,8 +237,11 @@ sail root-shell
 </code></pre>
 <p><a name="sail-php-versions"></a></p>
 <h2 id="php-versions">PHP Versions</h2>
-<p>Sail currently supports serving your application via PHP 8.1, PHP 8.0, or PHP 7.4. The default PHP version used by Sail is currently PHP 8.1. To change the PHP version that is used to serve your application, you should update the <code>build</code> definition of the <code>laravel.test</code> container in your application&#39;s <code>docker-compose.yml</code> file:</p>
-<pre><code class="language-yaml"><span class="hljs-comment"># PHP 8.1</span>
+<p>Sail currently supports serving your application via PHP 8.2, 8.1, PHP 8.0, or PHP 7.4. The default PHP version used by Sail is currently PHP 8.2. To change the PHP version that is used to serve your application, you should update the <code>build</code> definition of the <code>laravel.test</code> container in your application&#39;s <code>docker-compose.yml</code> file:</p>
+<pre><code class="language-yaml"><span class="hljs-comment"># PHP 8.2</span>
+<span class="hljs-attr">context:</span> <span class="hljs-string">./vendor/laravel/sail/runtimes/8.2</span>
+
+<span class="hljs-comment"># PHP 8.1</span>
 <span class="hljs-attr">context:</span> <span class="hljs-string">./vendor/laravel/sail/runtimes/8.1</span>
 
 <span class="hljs-comment"># PHP 8.0</span>
@@ -252,7 +260,7 @@ sail up
 </code></pre>
 <p><a name="sail-node-versions"></a></p>
 <h2 id="node-versions">Node Versions</h2>
-<p>Sail installs Node 16 by default. To change the Node version that is installed when building your images, you may update the <code>build.args</code> definition of the <code>laravel.test</code> service in your application&#39;s <code>docker-compose.yml</code> file:</p>
+<p>Sail installs Node 18 by default. To change the Node version that is installed when building your images, you may update the <code>build.args</code> definition of the <code>laravel.test</code> service in your application&#39;s <code>docker-compose.yml</code> file:</p>
 <pre><code class="language-yaml"><span class="hljs-attr">build:</span>
     <span class="hljs-attr">args:</span>
         <span class="hljs-attr">WWWGROUP:</span> <span class="hljs-string">&#x27;${WWWGROUP}&#x27;</span>

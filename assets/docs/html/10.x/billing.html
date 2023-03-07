@@ -1,0 +1,1737 @@
+<h1 id="laravel-cashier-stripe">Laravel Cashier (Stripe)</h1>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#upgrading-cashier">Upgrading Cashier</a></li>
+<li><a href="#installation">Installation</a><ul>
+<li><a href="#database-migrations">Database Migrations</a></li>
+</ul>
+</li>
+<li><a href="#configuration">Configuration</a><ul>
+<li><a href="#billable-model">Billable Model</a></li>
+<li><a href="#api-keys">API Keys</a></li>
+<li><a href="#currency-configuration">Currency Configuration</a></li>
+<li><a href="#tax-configuration">Tax Configuration</a></li>
+<li><a href="#logging">Logging</a></li>
+<li><a href="#using-custom-models">Using Custom Models</a></li>
+</ul>
+</li>
+<li><a href="#customers">Customers</a><ul>
+<li><a href="#retrieving-customers">Retrieving Customers</a></li>
+<li><a href="#creating-customers">Creating Customers</a></li>
+<li><a href="#updating-customers">Updating Customers</a></li>
+<li><a href="#balances">Balances</a></li>
+<li><a href="#tax-ids">Tax IDs</a></li>
+<li><a href="#syncing-customer-data-with-stripe">Syncing Customer Data With Stripe</a></li>
+<li><a href="#billing-portal">Billing Portal</a></li>
+</ul>
+</li>
+<li><a href="#payment-methods">Payment Methods</a><ul>
+<li><a href="#storing-payment-methods">Storing Payment Methods</a></li>
+<li><a href="#retrieving-payment-methods">Retrieving Payment Methods</a></li>
+<li><a href="#check-for-a-payment-method">Determining If A User Has A Payment Method</a></li>
+<li><a href="#updating-the-default-payment-method">Updating The Default Payment Method</a></li>
+<li><a href="#adding-payment-methods">Adding Payment Methods</a></li>
+<li><a href="#deleting-payment-methods">Deleting Payment Methods</a></li>
+</ul>
+</li>
+<li><a href="#subscriptions">Subscriptions</a><ul>
+<li><a href="#creating-subscriptions">Creating Subscriptions</a></li>
+<li><a href="#checking-subscription-status">Checking Subscription Status</a></li>
+<li><a href="#changing-prices">Changing Prices</a></li>
+<li><a href="#subscription-quantity">Subscription Quantity</a></li>
+<li><a href="#subscriptions-with-multiple-products">Subscriptions With Multiple Products</a></li>
+<li><a href="#multiple-subscriptions">Multiple Subscriptions</a></li>
+<li><a href="#metered-billing">Metered Billing</a></li>
+<li><a href="#subscription-taxes">Subscription Taxes</a></li>
+<li><a href="#subscription-anchor-date">Subscription Anchor Date</a></li>
+<li><a href="#cancelling-subscriptions">Canceling Subscriptions</a></li>
+<li><a href="#resuming-subscriptions">Resuming Subscriptions</a></li>
+</ul>
+</li>
+<li><a href="#subscription-trials">Subscription Trials</a><ul>
+<li><a href="#with-payment-method-up-front">With Payment Method Up Front</a></li>
+<li><a href="#without-payment-method-up-front">Without Payment Method Up Front</a></li>
+<li><a href="#extending-trials">Extending Trials</a></li>
+</ul>
+</li>
+<li><a href="#handling-stripe-webhooks">Handling Stripe Webhooks</a><ul>
+<li><a href="#defining-webhook-event-handlers">Defining Webhook Event Handlers</a></li>
+<li><a href="#verifying-webhook-signatures">Verifying Webhook Signatures</a></li>
+</ul>
+</li>
+<li><a href="#single-charges">Single Charges</a><ul>
+<li><a href="#simple-charge">Simple Charge</a></li>
+<li><a href="#charge-with-invoice">Charge With Invoice</a></li>
+<li><a href="#creating-payment-intents">Creating Payment Intents</a></li>
+<li><a href="#refunding-charges">Refunding Charges</a></li>
+</ul>
+</li>
+<li><a href="#checkout">Checkout</a><ul>
+<li><a href="#product-checkouts">Product Checkouts</a></li>
+<li><a href="#single-charge-checkouts">Single Charge Checkouts</a></li>
+<li><a href="#subscription-checkouts">Subscription Checkouts</a></li>
+<li><a href="#collecting-tax-ids">Collecting Tax IDs</a></li>
+<li><a href="#guest-checkouts">Guest Checkouts</a></li>
+</ul>
+</li>
+<li><a href="#invoices">Invoices</a><ul>
+<li><a href="#retrieving-invoices">Retrieving Invoices</a></li>
+<li><a href="#upcoming-invoices">Upcoming Invoices</a></li>
+<li><a href="#previewing-subscription-invoices">Previewing Subscription Invoices</a></li>
+<li><a href="#generating-invoice-pdfs">Generating Invoice PDFs</a></li>
+</ul>
+</li>
+<li><a href="#handling-failed-payments">Handling Failed Payments</a></li>
+<li><a href="#strong-customer-authentication">Strong Customer Authentication (SCA)</a><ul>
+<li><a href="#payments-requiring-additional-confirmation">Payments Requiring Additional Confirmation</a></li>
+<li><a href="#off-session-payment-notifications">Off-session Payment Notifications</a></li>
+</ul>
+</li>
+<li><a href="#stripe-sdk">Stripe SDK</a></li>
+<li><a href="#testing">Testing</a></li>
+</ul>
+<p><a name="introduction"></a></p>
+<h2 id="introduction">Introduction</h2>
+<p><a href="https://github.com/laravel/cashier-stripe">Laravel Cashier Stripe</a> provides an expressive, fluent interface to <a href="https://stripe.com">Stripe&#39;s</a> subscription billing services. It handles almost all of the boilerplate subscription billing code you are dreading writing. In addition to basic subscription management, Cashier can handle coupons, swapping subscription, subscription &quot;quantities&quot;, cancellation grace periods, and even generate invoice PDFs.</p>
+<p><a name="upgrading-cashier"></a></p>
+<h2 id="upgrading-cashier">Upgrading Cashier</h2>
+<p>When upgrading to a new version of Cashier, it&#39;s important that you carefully review <a href="https://github.com/laravel/cashier-stripe/blob/master/UPGRADE.md">the upgrade guide</a>.</p>
+<blockquote>
+<p><strong>Warning</strong><br>To prevent breaking changes, Cashier uses a fixed Stripe API version. Cashier 14 utilizes Stripe API version <code>2022-11-15</code>. The Stripe API version will be updated on minor releases in order to make use of new Stripe features and improvements.</p>
+</blockquote>
+<p><a name="installation"></a></p>
+<h2 id="installation">Installation</h2>
+<p>First, install the Cashier package for Stripe using the Composer package manager:</p>
+<pre><code class="language-shell">composer require laravel/cashier
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>To ensure Cashier properly handles all Stripe events, remember to <a href="#handling-stripe-webhooks">set up Cashier&#39;s webhook handling</a>.</p>
+</blockquote>
+<p><a name="database-migrations"></a></p>
+<h3 id="database-migrations">Database Migrations</h3>
+<p>Cashier&#39;s service provider registers its own database migration directory, so remember to migrate your database after installing the package. The Cashier migrations will add several columns to your <code>users</code> table as well as create a new <code>subscriptions</code> table to hold all of your customer&#39;s subscriptions:</p>
+<pre><code class="language-shell">php artisan migrate
+</code></pre>
+<p>If you need to overwrite the migrations that ship with Cashier, you can publish them using the <code>vendor:publish</code> Artisan command:</p>
+<pre><code class="language-shell">php artisan vendor:publish --tag=&quot;cashier-migrations&quot;
+</code></pre>
+<p>If you would like to prevent Cashier&#39;s migrations from running entirely, you may use the <code>ignoreMigrations</code> method provided by Cashier. Typically, this method should be called in the <code>register</code> method of your <code>AppServiceProvider</code>:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Cashier</span>\<span class="hljs-title">Cashier</span>;
+
+<span class="hljs-comment">/**
+ * Register any application services.
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">register</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+</span>{
+    <span class="hljs-title class_">Cashier</span>::<span class="hljs-title function_ invoke__">ignoreMigrations</span>();
+}
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>Stripe recommends that any column used for storing Stripe identifiers should be case-sensitive. Therefore, you should ensure the column collation for the <code>stripe_id</code> column is set to <code>utf8_bin</code> when using MySQL. More information regarding this can be found in the <a href="https://stripe.com/docs/upgrades#what-changes-does-stripe-consider-to-be-backwards-compatible">Stripe documentation</a>.</p>
+</blockquote>
+<p><a name="configuration"></a></p>
+<h2 id="configuration">Configuration</h2>
+<p><a name="billable-model"></a></p>
+<h3 id="billable-model">Billable Model</h3>
+<p>Before using Cashier, add the <code>Billable</code> trait to your billable model definition. Typically, this will be the <code>App\Models\User</code> model. This trait provides various methods to allow you to perform common billing tasks, such as creating subscriptions, applying coupons, and updating payment method information:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Cashier</span>\<span class="hljs-title">Billable</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Authenticatable</span>
+</span>{
+    <span class="hljs-keyword">use</span> <span class="hljs-title">Billable</span>;
+}
+</code></pre>
+<p>Cashier assumes your billable model will be the <code>App\Models\User</code> class that ships with Laravel. If you wish to change this you may specify a different model via the <code>useCustomerModel</code> method. This method should typically be called in the <code>boot</code> method of your <code>AppServiceProvider</code> class:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Cashier</span>\<span class="hljs-title">User</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Cashier</span>\<span class="hljs-title">Cashier</span>;
+
+<span class="hljs-comment">/**
+ * Bootstrap any application services.
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+</span>{
+    <span class="hljs-title class_">Cashier</span>::<span class="hljs-title function_ invoke__">useCustomerModel</span>(<span class="hljs-title class_">User</span>::<span class="hljs-variable language_">class</span>);
+}
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>If you&#39;re using a model other than Laravel&#39;s supplied <code>App\Models\User</code> model, you&#39;ll need to publish and alter the <a href="#installation">Cashier migrations</a> provided to match your alternative model&#39;s table name.</p>
+</blockquote>
+<p><a name="api-keys"></a></p>
+<h3 id="api-keys">API Keys</h3>
+<p>Next, you should configure your Stripe API keys in your application&#39;s <code>.env</code> file. You can retrieve your Stripe API keys from the Stripe control panel:</p>
+<pre><code class="language-ini"><span class="hljs-attr">STRIPE_KEY</span>=your-stripe-key
+<span class="hljs-attr">STRIPE_SECRET</span>=your-stripe-secret
+<span class="hljs-attr">STRIPE_WEBHOOK_SECRET</span>=your-stripe-webhook-secret
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>You should ensure that the <code>STRIPE_WEBHOOK_SECRET</code> environment variable is defined in your application&#39;s <code>.env</code> file, as this variable is used to ensure that incoming webhooks are actually from Stripe.</p>
+</blockquote>
+<p><a name="currency-configuration"></a></p>
+<h3 id="currency-configuration">Currency Configuration</h3>
+<p>The default Cashier currency is United States Dollars (USD). You can change the default currency by setting the <code>CASHIER_CURRENCY</code> environment variable within your application&#39;s <code>.env</code> file:</p>
+<pre><code class="language-ini"><span class="hljs-attr">CASHIER_CURRENCY</span>=eur
+</code></pre>
+<p>In addition to configuring Cashier&#39;s currency, you may also specify a locale to be used when formatting money values for display on invoices. Internally, Cashier utilizes <a href="https://www.php.net/manual/en/class.numberformatter.php">PHP&#39;s <code>NumberFormatter</code> class</a> to set the currency locale:</p>
+<pre><code class="language-ini"><span class="hljs-attr">CASHIER_CURRENCY_LOCALE</span>=nl_BE
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>In order to use locales other than <code>en</code>, ensure the <code>ext-intl</code> PHP extension is installed and configured on your server.</p>
+</blockquote>
+<p><a name="tax-configuration"></a></p>
+<h3 id="tax-configuration">Tax Configuration</h3>
+<p>Thanks to <a href="https://stripe.com/tax">Stripe Tax</a>, it&#39;s possible to automatically calculate taxes for all invoices generated by Stripe. You can enable automatic tax calculation by invoking the <code>calculateTaxes</code> method in the <code>boot</code> method of your application&#39;s <code>App\Providers\AppServiceProvider</code> class:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Cashier</span>\<span class="hljs-title">Cashier</span>;
+
+<span class="hljs-comment">/**
+ * Bootstrap any application services.
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+</span>{
+    <span class="hljs-title class_">Cashier</span>::<span class="hljs-title function_ invoke__">calculateTaxes</span>();
+}
+</code></pre>
+<p>Once tax calculation has been enabled, any new subscriptions and any one-off invoices that are generated will receive automatic tax calculation.</p>
+<p>For this feature to work properly, your customer&#39;s billing details, such as the customer&#39;s name, address, and tax ID, need to be synced to Stripe. You may use the <a href="#syncing-customer-data-with-stripe">customer data synchronization</a> and <a href="#tax-ids">Tax ID</a> methods offered by Cashier to accomplish this.</p>
+<blockquote>
+<p><strong>Warning</strong><br>No tax is calculated for <a href="#single-charges">single charges</a> or <a href="#single-charge-checkouts">single charge checkouts</a>.</p>
+</blockquote>
+<p><a name="logging"></a></p>
+<h3 id="logging">Logging</h3>
+<p>Cashier allows you to specify the log channel to be used when logging fatal Stripe errors. You may specify the log channel by defining the <code>CASHIER_LOGGER</code> environment variable within your application&#39;s <code>.env</code> file:</p>
+<pre><code class="language-ini"><span class="hljs-attr">CASHIER_LOGGER</span>=stack
+</code></pre>
+<p>Exceptions that are generated by API calls to Stripe will be logged through your application&#39;s default log channel.</p>
+<p><a name="using-custom-models"></a></p>
+<h3 id="using-custom-models">Using Custom Models</h3>
+<p>You are free to extend the models used internally by Cashier by defining your own model and extending the corresponding Cashier model:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Cashier</span>\<span class="hljs-title">Subscription</span> <span class="hljs-keyword">as</span> <span class="hljs-title">CashierSubscription</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Subscription</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">CashierSubscription</span>
+</span>{
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p>After defining your model, you may instruct Cashier to use your custom model via the <code>Laravel\Cashier\Cashier</code> class. Typically, you should inform Cashier about your custom models in the <code>boot</code> method of your application&#39;s <code>App\Providers\AppServiceProvider</code> class:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Cashier</span>\<span class="hljs-title">Subscription</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Cashier</span>\<span class="hljs-title">SubscriptionItem</span>;
+
+<span class="hljs-comment">/**
+ * Bootstrap any application services.
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+</span>{
+    <span class="hljs-title class_">Cashier</span>::<span class="hljs-title function_ invoke__">useSubscriptionModel</span>(<span class="hljs-title class_">Subscription</span>::<span class="hljs-variable language_">class</span>);
+    <span class="hljs-title class_">Cashier</span>::<span class="hljs-title function_ invoke__">useSubscriptionItemModel</span>(<span class="hljs-title class_">SubscriptionItem</span>::<span class="hljs-variable language_">class</span>);
+}
+</code></pre>
+<p><a name="customers"></a></p>
+<h2 id="customers">Customers</h2>
+<p><a name="retrieving-customers"></a></p>
+<h3 id="retrieving-customers">Retrieving Customers</h3>
+<p>You can retrieve a customer by their Stripe ID using the <code>Cashier::findBillable</code> method. This method will return an instance of the billable model:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Cashier</span>\<span class="hljs-title">Cashier</span>;
+
+<span class="hljs-variable">$user</span> = <span class="hljs-title class_">Cashier</span>::<span class="hljs-title function_ invoke__">findBillable</span>(<span class="hljs-variable">$stripeId</span>);
+</code></pre>
+<p><a name="creating-customers"></a></p>
+<h3 id="creating-customers">Creating Customers</h3>
+<p>Occasionally, you may wish to create a Stripe customer without beginning a subscription. You may accomplish this using the <code>createAsStripeCustomer</code> method:</p>
+<pre><code><span class="hljs-variable">$stripeCustomer</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">createAsStripeCustomer</span>();
+</code></pre>
+<p>Once the customer has been created in Stripe, you may begin a subscription at a later date. You may provide an optional <code>$options</code> array to pass in any additional <a href="https://stripe.com/docs/api/customers/create">customer creation parameters that are supported by the Stripe API</a>:</p>
+<pre><code><span class="hljs-variable">$stripeCustomer</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">createAsStripeCustomer</span>(<span class="hljs-variable">$options</span>);
+</code></pre>
+<p>You may use the <code>asStripeCustomer</code> method if you want to return the Stripe customer object for a billable model:</p>
+<pre><code><span class="hljs-variable">$stripeCustomer</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">asStripeCustomer</span>();
+</code></pre>
+<p>The <code>createOrGetStripeCustomer</code> method may be used if you would like to retrieve the Stripe customer object for a given billable model but are not sure whether the billable model is already a customer within Stripe. This method will create a new customer in Stripe if one does not already exist:</p>
+<pre><code><span class="hljs-variable">$stripeCustomer</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">createOrGetStripeCustomer</span>();
+</code></pre>
+<p><a name="updating-customers"></a></p>
+<h3 id="updating-customers">Updating Customers</h3>
+<p>Occasionally, you may wish to update the Stripe customer directly with additional information. You may accomplish this using the <code>updateStripeCustomer</code> method. This method accepts an array of <a href="https://stripe.com/docs/api/customers/update">customer update options supported by the Stripe API</a>:</p>
+<pre><code><span class="hljs-variable">$stripeCustomer</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">updateStripeCustomer</span>(<span class="hljs-variable">$options</span>);
+</code></pre>
+<p><a name="balances"></a></p>
+<h3 id="balances">Balances</h3>
+<p>Stripe allows you to credit or debit a customer&#39;s &quot;balance&quot;. Later, this balance will be credited or debited on new invoices. To check the customer&#39;s total balance you may use the <code>balance</code> method that is available on your billable model. The <code>balance</code> method will return a formatted string representation of the balance in the customer&#39;s currency:</p>
+<pre><code><span class="hljs-variable">$balance</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">balance</span>();
+</code></pre>
+<p>To credit a customer&#39;s balance, you may provide a value to the <code>creditBalance</code> method. If you wish, you may also provide a description:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">creditBalance</span>(<span class="hljs-number">500</span>, <span class="hljs-string">&#x27;Premium customer top-up.&#x27;</span>);
+</code></pre>
+<p>Providing a value to the <code>debitBalance</code> method will debit the customer&#39;s balance:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">debitBalance</span>(<span class="hljs-number">300</span>, <span class="hljs-string">&#x27;Bad usage penalty.&#x27;</span>);
+</code></pre>
+<p>The <code>applyBalance</code> method will create new customer balance transactions for the customer. You may retrieve these transaction records using the <code>balanceTransactions</code> method, which may be useful in order to provide a log of credits and debits for the customer to review:</p>
+<pre><code><span class="hljs-comment">// Retrieve all transactions...</span>
+<span class="hljs-variable">$transactions</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">balanceTransactions</span>();
+
+<span class="hljs-keyword">foreach</span> (<span class="hljs-variable">$transactions</span> <span class="hljs-keyword">as</span> <span class="hljs-variable">$transaction</span>) {
+    <span class="hljs-comment">// Transaction amount...</span>
+    <span class="hljs-variable">$amount</span> = <span class="hljs-variable">$transaction</span>-&gt;<span class="hljs-title function_ invoke__">amount</span>(); <span class="hljs-comment">// $2.31</span>
+
+    <span class="hljs-comment">// Retrieve the related invoice when available...</span>
+    <span class="hljs-variable">$invoice</span> = <span class="hljs-variable">$transaction</span>-&gt;<span class="hljs-title function_ invoke__">invoice</span>();
+}
+</code></pre>
+<p><a name="tax-ids"></a></p>
+<h3 id="tax-ids">Tax IDs</h3>
+<p>Cashier offers an easy way to manage a customer&#39;s tax IDs. For example, the <code>taxIds</code> method may be used to retrieve all of the <a href="https://stripe.com/docs/api/customer_tax_ids/object">tax IDs</a> that are assigned to a customer as a collection:</p>
+<pre><code><span class="hljs-variable">$taxIds</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">taxIds</span>();
+</code></pre>
+<p>You can also retrieve a specific tax ID for a customer by its identifier:</p>
+<pre><code><span class="hljs-variable">$taxId</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">findTaxId</span>(<span class="hljs-string">&#x27;txi_belgium&#x27;</span>);
+</code></pre>
+<p>You may create a new Tax ID by providing a valid <a href="https://stripe.com/docs/api/customer_tax_ids/object#tax_id_object-type">type</a> and value to the <code>createTaxId</code> method:</p>
+<pre><code><span class="hljs-variable">$taxId</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">createTaxId</span>(<span class="hljs-string">&#x27;eu_vat&#x27;</span>, <span class="hljs-string">&#x27;BE0123456789&#x27;</span>);
+</code></pre>
+<p>The <code>createTaxId</code> method will immediately add the VAT ID to the customer&#39;s account. <a href="https://stripe.com/docs/invoicing/customer/tax-ids#validation">Verification of VAT IDs is also done by Stripe</a>; however, this is an asynchronous process. You can be notified of verification updates by subscribing to the <code>customer.tax_id.updated</code> webhook event and inspecting <a href="https://stripe.com/docs/api/customer_tax_ids/object#tax_id_object-verification">the VAT IDs <code>verification</code> parameter</a>. For more information on handling webhooks, please consult the <a href="#handling-stripe-webhooks">documentation on defining webhook handlers</a>.</p>
+<p>You may delete a tax ID using the <code>deleteTaxId</code> method:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">deleteTaxId</span>(<span class="hljs-string">&#x27;txi_belgium&#x27;</span>);
+</code></pre>
+<p><a name="syncing-customer-data-with-stripe"></a></p>
+<h3 id="syncing-customer-data-with-stripe">Syncing Customer Data With Stripe</h3>
+<p>Typically, when your application&#39;s users update their name, email address, or other information that is also stored by Stripe, you should inform Stripe of the updates. By doing so, Stripe&#39;s copy of the information will be in sync with your application&#39;s.</p>
+<p>To automate this, you may define an event listener on your billable model that reacts to the model&#39;s <code>updated</code> event. Then, within your event listener, you may invoke the <code>syncStripeCustomerDetails</code> method on the model:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-keyword">function</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Events</span>\<span class="hljs-title">queueable</span>;
+
+<span class="hljs-comment">/**
+ * The &quot;booted&quot; method of the model.
+ */</span>
+<span class="hljs-keyword">protected</span> <span class="hljs-built_in">static</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">booted</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+</span>{
+    <span class="hljs-built_in">static</span>::<span class="hljs-title function_ invoke__">updated</span>(<span class="hljs-title function_ invoke__">queueable</span>(function (User <span class="hljs-variable">$customer</span>) {
+        <span class="hljs-keyword">if</span> (<span class="hljs-variable">$customer</span>-&gt;<span class="hljs-title function_ invoke__">hasStripeId</span>()) {
+            <span class="hljs-variable">$customer</span>-&gt;<span class="hljs-title function_ invoke__">syncStripeCustomerDetails</span>();
+        }
+    }));
+}
+</code></pre>
+<p>Now, every time your customer model is updated, its information will be synced with Stripe. For convenience, Cashier will automatically sync your customer&#39;s information with Stripe on the initial creation of the customer.</p>
+<p>You may customize the columns used for syncing customer information to Stripe by overriding a variety of methods provided by Cashier. For example, you may override the <code>stripeName</code> method to customize the attribute that should be considered the customer&#39;s &quot;name&quot; when Cashier syncs customer information to Stripe:</p>
+<pre><code><span class="hljs-comment">/**
+ * Get the customer name that should be synced to Stripe.
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">stripeName</span>(<span class="hljs-params"></span>): <span class="hljs-title">string</span>|<span class="hljs-title">null</span>
+</span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;company_name;
+}
+</code></pre>
+<p>Similarly, you may override the <code>stripeEmail</code>, <code>stripePhone</code>, <code>stripeAddress</code>, and <code>stripePreferredLocales</code> methods. These methods will sync information to their corresponding customer parameters when <a href="https://stripe.com/docs/api/customers/update">updating the Stripe customer object</a>. If you wish to take total control over the customer information sync process, you may override the <code>syncStripeCustomerDetails</code> method.</p>
+<p><a name="billing-portal"></a></p>
+<h3 id="billing-portal">Billing Portal</h3>
+<p>Stripe offers <a href="https://stripe.com/docs/billing/subscriptions/customer-portal">an easy way to set up a billing portal</a> so that your customer can manage their subscription, payment methods, and view their billing history. You can redirect your users to the billing portal by invoking the <code>redirectToBillingPortal</code> method on the billable model from a controller or route:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/billing-portal&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">redirectToBillingPortal</span>();
+});
+</code></pre>
+<p>By default, when the user is finished managing their subscription, they will be able to return to the <code>home</code> route of your application via a link within the Stripe billing portal. You may provide a custom URL that the user should return to by passing the URL as an argument to the <code>redirectToBillingPortal</code> method:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/billing-portal&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">redirectToBillingPortal</span>(<span class="hljs-title function_ invoke__">route</span>(<span class="hljs-string">&#x27;billing&#x27;</span>));
+});
+</code></pre>
+<p>If you would like to generate the URL to the billing portal without generating an HTTP redirect response, you may invoke the <code>billingPortalUrl</code> method:</p>
+<pre><code><span class="hljs-variable">$url</span> = <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">billingPortalUrl</span>(<span class="hljs-title function_ invoke__">route</span>(<span class="hljs-string">&#x27;billing&#x27;</span>));
+</code></pre>
+<p><a name="payment-methods"></a></p>
+<h2 id="payment-methods">Payment Methods</h2>
+<p><a name="storing-payment-methods"></a></p>
+<h3 id="storing-payment-methods">Storing Payment Methods</h3>
+<p>In order to create subscriptions or perform &quot;one-off&quot; charges with Stripe, you will need to store a payment method and retrieve its identifier from Stripe. The approach used to accomplish this differs based on whether you plan to use the payment method for subscriptions or single charges, so we will examine both below.</p>
+<p><a name="payment-methods-for-subscriptions"></a></p>
+<h4 id="payment-methods-for-subscriptions">Payment Methods For Subscriptions</h4>
+<p>When storing a customer&#39;s credit card information for future use by a subscription, the Stripe &quot;Setup Intents&quot; API must be used to securely gather the customer&#39;s payment method details. A &quot;Setup Intent&quot; indicates to Stripe the intention to charge a customer&#39;s payment method. Cashier&#39;s <code>Billable</code> trait includes the <code>createSetupIntent</code> method to easily create a new Setup Intent. You should invoke this method from the route or controller that will render the form which gathers your customer&#39;s payment method details:</p>
+<pre><code><span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;update-payment-method&#x27;</span>, [
+    <span class="hljs-string">&#x27;intent&#x27;</span> =&gt; <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">createSetupIntent</span>()
+]);
+</code></pre>
+<p>After you have created the Setup Intent and passed it to the view, you should attach its secret to the element that will gather the payment method. For example, consider this &quot;update payment method&quot; form:</p>
+<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;card-holder-name&quot;</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;text&quot;</span>&gt;</span>
+
+<span class="hljs-comment">&lt;!-- Stripe Elements Placeholder --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;card-element&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;card-button&quot;</span> <span class="hljs-attr">data-secret</span>=<span class="hljs-string">&quot;{{ $intent-&gt;client_secret }}&quot;</span>&gt;</span>
+    Update Payment Method
+<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+</code></pre>
+<p>Next, the Stripe.js library may be used to attach a <a href="https://stripe.com/docs/stripe-js">Stripe Element</a> to the form and securely gather the customer&#39;s payment details:</p>
+<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;https://js.stripe.com/v3/&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="language-javascript">
+    <span class="hljs-keyword">const</span> stripe = <span class="hljs-title class_">Stripe</span>(<span class="hljs-string">&#x27;stripe-public-key&#x27;</span>);
+
+    <span class="hljs-keyword">const</span> elements = stripe.<span class="hljs-title function_">elements</span>();
+    <span class="hljs-keyword">const</span> cardElement = elements.<span class="hljs-title function_">create</span>(<span class="hljs-string">&#x27;card&#x27;</span>);
+
+    cardElement.<span class="hljs-title function_">mount</span>(<span class="hljs-string">&#x27;#card-element&#x27;</span>);
+</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+</code></pre>
+<p>Next, the card can be verified and a secure &quot;payment method identifier&quot; can be retrieved from Stripe using <a href="https://stripe.com/docs/js/setup_intents/confirm_card_setup">Stripe&#39;s <code>confirmCardSetup</code> method</a>:</p>
+<pre><code class="language-js"><span class="hljs-keyword">const</span> cardHolderName = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">getElementById</span>(<span class="hljs-string">&#x27;card-holder-name&#x27;</span>);
+<span class="hljs-keyword">const</span> cardButton = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">getElementById</span>(<span class="hljs-string">&#x27;card-button&#x27;</span>);
+<span class="hljs-keyword">const</span> clientSecret = cardButton.<span class="hljs-property">dataset</span>.<span class="hljs-property">secret</span>;
+
+cardButton.<span class="hljs-title function_">addEventListener</span>(<span class="hljs-string">&#x27;click&#x27;</span>, <span class="hljs-keyword">async</span> (e) =&gt; {
+    <span class="hljs-keyword">const</span> { setupIntent, error } = <span class="hljs-keyword">await</span> stripe.<span class="hljs-title function_">confirmCardSetup</span>(
+        clientSecret, {
+            <span class="hljs-attr">payment_method</span>: {
+                <span class="hljs-attr">card</span>: cardElement,
+                <span class="hljs-attr">billing_details</span>: { <span class="hljs-attr">name</span>: cardHolderName.<span class="hljs-property">value</span> }
+            }
+        }
+    );
+
+    <span class="hljs-keyword">if</span> (error) {
+        <span class="hljs-comment">// Display &quot;error.message&quot; to the user...</span>
+    } <span class="hljs-keyword">else</span> {
+        <span class="hljs-comment">// The card has been verified successfully...</span>
+    }
+});
+</code></pre>
+<p>After the card has been verified by Stripe, you may pass the resulting <code>setupIntent.payment_method</code> identifier to your Laravel application, where it can be attached to the customer. The payment method can either be <a href="#adding-payment-methods">added as a new payment method</a> or <a href="#updating-the-default-payment-method">used to update the default payment method</a>. You can also immediately use the payment method identifier to <a href="#creating-subscriptions">create a new subscription</a>.</p>
+<blockquote>
+<p><strong>Note</strong><br>If you would like more information about Setup Intents and gathering customer payment details please <a href="https://stripe.com/docs/payments/save-and-reuse#php">review this overview provided by Stripe</a>.</p>
+</blockquote>
+<p><a name="payment-methods-for-single-charges"></a></p>
+<h4 id="payment-methods-for-single-charges">Payment Methods For Single Charges</h4>
+<p>Of course, when making a single charge against a customer&#39;s payment method, we will only need to use a payment method identifier once. Due to Stripe limitations, you may not use the stored default payment method of a customer for single charges. You must allow the customer to enter their payment method details using the Stripe.js library. For example, consider the following form:</p>
+<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;card-holder-name&quot;</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;text&quot;</span>&gt;</span>
+
+<span class="hljs-comment">&lt;!-- Stripe Elements Placeholder --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;card-element&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;card-button&quot;</span>&gt;</span>
+    Process Payment
+<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+</code></pre>
+<p>After defining such a form, the Stripe.js library may be used to attach a <a href="https://stripe.com/docs/stripe-js">Stripe Element</a> to the form and securely gather the customer&#39;s payment details:</p>
+<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;https://js.stripe.com/v3/&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="language-javascript">
+    <span class="hljs-keyword">const</span> stripe = <span class="hljs-title class_">Stripe</span>(<span class="hljs-string">&#x27;stripe-public-key&#x27;</span>);
+
+    <span class="hljs-keyword">const</span> elements = stripe.<span class="hljs-title function_">elements</span>();
+    <span class="hljs-keyword">const</span> cardElement = elements.<span class="hljs-title function_">create</span>(<span class="hljs-string">&#x27;card&#x27;</span>);
+
+    cardElement.<span class="hljs-title function_">mount</span>(<span class="hljs-string">&#x27;#card-element&#x27;</span>);
+</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+</code></pre>
+<p>Next, the card can be verified and a secure &quot;payment method identifier&quot; can be retrieved from Stripe using <a href="https://stripe.com/docs/stripe-js/reference#stripe-create-payment-method">Stripe&#39;s <code>createPaymentMethod</code> method</a>:</p>
+<pre><code class="language-js"><span class="hljs-keyword">const</span> cardHolderName = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">getElementById</span>(<span class="hljs-string">&#x27;card-holder-name&#x27;</span>);
+<span class="hljs-keyword">const</span> cardButton = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">getElementById</span>(<span class="hljs-string">&#x27;card-button&#x27;</span>);
+
+cardButton.<span class="hljs-title function_">addEventListener</span>(<span class="hljs-string">&#x27;click&#x27;</span>, <span class="hljs-keyword">async</span> (e) =&gt; {
+    <span class="hljs-keyword">const</span> { paymentMethod, error } = <span class="hljs-keyword">await</span> stripe.<span class="hljs-title function_">createPaymentMethod</span>(
+        <span class="hljs-string">&#x27;card&#x27;</span>, cardElement, {
+            <span class="hljs-attr">billing_details</span>: { <span class="hljs-attr">name</span>: cardHolderName.<span class="hljs-property">value</span> }
+        }
+    );
+
+    <span class="hljs-keyword">if</span> (error) {
+        <span class="hljs-comment">// Display &quot;error.message&quot; to the user...</span>
+    } <span class="hljs-keyword">else</span> {
+        <span class="hljs-comment">// The card has been verified successfully...</span>
+    }
+});
+</code></pre>
+<p>If the card is verified successfully, you may pass the <code>paymentMethod.id</code> to your Laravel application and process a <a href="#simple-charge">single charge</a>.</p>
+<p><a name="retrieving-payment-methods"></a></p>
+<h3 id="retrieving-payment-methods">Retrieving Payment Methods</h3>
+<p>The <code>paymentMethods</code> method on the billable model instance returns a collection of <code>Laravel\Cashier\PaymentMethod</code> instances:</p>
+<pre><code><span class="hljs-variable">$paymentMethods</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">paymentMethods</span>();
+</code></pre>
+<p>By default, this method will return payment methods of the <code>card</code> type. To retrieve payment methods of a different type, you may pass the <code>type</code> as an argument to the method:</p>
+<pre><code><span class="hljs-variable">$paymentMethods</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">paymentMethods</span>(<span class="hljs-string">&#x27;sepa_debit&#x27;</span>);
+</code></pre>
+<p>To retrieve the customer&#39;s default payment method, the <code>defaultPaymentMethod</code> method may be used:</p>
+<pre><code><span class="hljs-variable">$paymentMethod</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">defaultPaymentMethod</span>();
+</code></pre>
+<p>You can retrieve a specific payment method that is attached to the billable model using the <code>findPaymentMethod</code> method:</p>
+<pre><code><span class="hljs-variable">$paymentMethod</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">findPaymentMethod</span>(<span class="hljs-variable">$paymentMethodId</span>);
+</code></pre>
+<p><a name="check-for-a-payment-method"></a></p>
+<h3 id="determining-if-a-user-has-a-payment-method">Determining If A User Has A Payment Method</h3>
+<p>To determine if a billable model has a default payment method attached to their account, invoke the <code>hasDefaultPaymentMethod</code> method:</p>
+<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">hasDefaultPaymentMethod</span>()) {
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p>You may use the <code>hasPaymentMethod</code> method to determine if a billable model has at least one payment method attached to their account:</p>
+<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">hasPaymentMethod</span>()) {
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p>This method will determine if the billable model has payment methods of the <code>card</code> type. To determine if a payment method of another type exists for the model, you may pass the <code>type</code> as an argument to the method:</p>
+<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">hasPaymentMethod</span>(<span class="hljs-string">&#x27;sepa_debit&#x27;</span>)) {
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p><a name="updating-the-default-payment-method"></a></p>
+<h3 id="updating-the-default-payment-method">Updating The Default Payment Method</h3>
+<p>The <code>updateDefaultPaymentMethod</code> method may be used to update a customer&#39;s default payment method information. This method accepts a Stripe payment method identifier and will assign the new payment method as the default billing payment method:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">updateDefaultPaymentMethod</span>(<span class="hljs-variable">$paymentMethod</span>);
+</code></pre>
+<p>To sync your default payment method information with the customer&#39;s default payment method information in Stripe, you may use the <code>updateDefaultPaymentMethodFromStripe</code> method:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">updateDefaultPaymentMethodFromStripe</span>();
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>The default payment method on a customer can only be used for invoicing and creating new subscriptions. Due to limitations imposed by Stripe, it may not be used for single charges.</p>
+</blockquote>
+<p><a name="adding-payment-methods"></a></p>
+<h3 id="adding-payment-methods">Adding Payment Methods</h3>
+<p>To add a new payment method, you may call the <code>addPaymentMethod</code> method on the billable model, passing the payment method identifier:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">addPaymentMethod</span>(<span class="hljs-variable">$paymentMethod</span>);
+</code></pre>
+<blockquote>
+<p><strong>Note</strong><br>To learn how to retrieve payment method identifiers please review the <a href="#storing-payment-methods">payment method storage documentation</a>.</p>
+</blockquote>
+<p><a name="deleting-payment-methods"></a></p>
+<h3 id="deleting-payment-methods">Deleting Payment Methods</h3>
+<p>To delete a payment method, you may call the <code>delete</code> method on the <code>Laravel\Cashier\PaymentMethod</code> instance you wish to delete:</p>
+<pre><code><span class="hljs-variable">$paymentMethod</span>-&gt;<span class="hljs-title function_ invoke__">delete</span>();
+</code></pre>
+<p>The <code>deletePaymentMethod</code> method will delete a specific payment method from the billable model:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">deletePaymentMethod</span>(<span class="hljs-string">&#x27;pm_visa&#x27;</span>);
+</code></pre>
+<p>The <code>deletePaymentMethods</code> method will delete all of the payment method information for the billable model:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">deletePaymentMethods</span>();
+</code></pre>
+<p>By default, this method will delete payment methods of the <code>card</code> type. To delete payment methods of a different type you can pass the <code>type</code> as an argument to the method:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">deletePaymentMethods</span>(<span class="hljs-string">&#x27;sepa_debit&#x27;</span>);
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>If a user has an active subscription, your application should not allow them to delete their default payment method.</p>
+</blockquote>
+<p><a name="subscriptions"></a></p>
+<h2 id="subscriptions">Subscriptions</h2>
+<p>Subscriptions provide a way to set up recurring payments for your customers. Stripe subscriptions managed by Cashier provide support for multiple subscription prices, subscription quantities, trials, and more.</p>
+<p><a name="creating-subscriptions"></a></p>
+<h3 id="creating-subscriptions">Creating Subscriptions</h3>
+<p>To create a subscription, first retrieve an instance of your billable model, which typically will be an instance of <code>App\Models\User</code>. Once you have retrieved the model instance, you may use the <code>newSubscription</code> method to create the model&#39;s subscription:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">post</span>(<span class="hljs-string">&#x27;/user/subscribe&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">newSubscription</span>(
+        <span class="hljs-string">&#x27;default&#x27;</span>, <span class="hljs-string">&#x27;price_monthly&#x27;</span>
+    )-&gt;<span class="hljs-title function_ invoke__">create</span>(<span class="hljs-variable">$request</span>-&gt;paymentMethodId);
+
+    <span class="hljs-comment">// ...</span>
+});
+</code></pre>
+<p>The first argument passed to the <code>newSubscription</code> method should be the internal name of the subscription. If your application only offers a single subscription, you might call this <code>default</code> or <code>primary</code>. This subscription name is only for internal application usage and is not meant to be shown to users. In addition, it should not contain spaces and it should never be changed after creating the subscription. The second argument is the specific price the user is subscribing to. This value should correspond to the price&#39;s identifier in Stripe.</p>
+<p>The <code>create</code> method, which accepts <a href="#storing-payment-methods">a Stripe payment method identifier</a> or Stripe <code>PaymentMethod</code> object, will begin the subscription as well as update your database with the billable model&#39;s Stripe customer ID and other relevant billing information.</p>
+<blockquote>
+<p><strong>Warning</strong><br>Passing a payment method identifier directly to the <code>create</code> subscription method will also automatically add it to the user&#39;s stored payment methods.</p>
+</blockquote>
+<p><a name="collecting-recurring-payments-via-invoice-emails"></a></p>
+<h4 id="collecting-recurring-payments-via-invoice-emails">Collecting Recurring Payments Via Invoice Emails</h4>
+<p>Instead of collecting a customer&#39;s recurring payments automatically, you may instruct Stripe to email an invoice to the customer each time their recurring payment is due. Then, the customer may manually pay the invoice once they receive it. The customer does not need to provide a payment method up front when collecting recurring payments via invoices:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">newSubscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>, <span class="hljs-string">&#x27;price_monthly&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">createAndSendInvoice</span>();
+</code></pre>
+<p>The amount of time a customer has to pay their invoice before their subscription is cancelled is determined by the <code>days_until_due</code> option. By default, this is 30 days; however, you may provide a specific value for this option if you wish:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">newSubscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>, <span class="hljs-string">&#x27;price_monthly&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">createAndSendInvoice</span>([], [
+    <span class="hljs-string">&#x27;days_until_due&#x27;</span> =&gt; <span class="hljs-number">30</span>
+]);
+</code></pre>
+<p><a name="subscription-quantities"></a></p>
+<h4 id="quantities">Quantities</h4>
+<p>If you would like to set a specific <a href="https://stripe.com/docs/billing/subscriptions/quantities">quantity</a> for the price when creating the subscription, you should invoke the <code>quantity</code> method on the subscription builder before creating the subscription:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">newSubscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>, <span class="hljs-string">&#x27;price_monthly&#x27;</span>)
+     -&gt;<span class="hljs-title function_ invoke__">quantity</span>(<span class="hljs-number">5</span>)
+     -&gt;<span class="hljs-title function_ invoke__">create</span>(<span class="hljs-variable">$paymentMethod</span>);
+</code></pre>
+<p><a name="additional-details"></a></p>
+<h4 id="additional-details">Additional Details</h4>
+<p>If you would like to specify additional <a href="https://stripe.com/docs/api/customers/create">customer</a> or <a href="https://stripe.com/docs/api/subscriptions/create">subscription</a> options supported by Stripe, you may do so by passing them as the second and third arguments to the <code>create</code> method:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">newSubscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>, <span class="hljs-string">&#x27;price_monthly&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">create</span>(<span class="hljs-variable">$paymentMethod</span>, [
+    <span class="hljs-string">&#x27;email&#x27;</span> =&gt; <span class="hljs-variable">$email</span>,
+], [
+    <span class="hljs-string">&#x27;metadata&#x27;</span> =&gt; [<span class="hljs-string">&#x27;note&#x27;</span> =&gt; <span class="hljs-string">&#x27;Some extra information.&#x27;</span>],
+]);
+</code></pre>
+<p><a name="coupons"></a></p>
+<h4 id="coupons">Coupons</h4>
+<p>If you would like to apply a coupon when creating the subscription, you may use the <code>withCoupon</code> method:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">newSubscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>, <span class="hljs-string">&#x27;price_monthly&#x27;</span>)
+     -&gt;<span class="hljs-title function_ invoke__">withCoupon</span>(<span class="hljs-string">&#x27;code&#x27;</span>)
+     -&gt;<span class="hljs-title function_ invoke__">create</span>(<span class="hljs-variable">$paymentMethod</span>);
+</code></pre>
+<p>Or, if you would like to apply a <a href="https://stripe.com/docs/billing/subscriptions/discounts/codes">Stripe promotion code</a>, you may use the <code>withPromotionCode</code> method:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">newSubscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>, <span class="hljs-string">&#x27;price_monthly&#x27;</span>)
+     -&gt;<span class="hljs-title function_ invoke__">withPromotionCode</span>(<span class="hljs-string">&#x27;promo_code_id&#x27;</span>)
+     -&gt;<span class="hljs-title function_ invoke__">create</span>(<span class="hljs-variable">$paymentMethod</span>);
+</code></pre>
+<p>The given promotion code ID should be the Stripe API ID assigned to the promotion code and not the customer facing promotion code. If you need to find a promotion code ID based on a given customer facing promotion code, you may use the <code>findPromotionCode</code> method:</p>
+<pre><code><span class="hljs-comment">// Find a promotion code ID by its customer facing code...</span>
+<span class="hljs-variable">$promotionCode</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">findPromotionCode</span>(<span class="hljs-string">&#x27;SUMMERSALE&#x27;</span>);
+
+<span class="hljs-comment">// Find an active promotion code ID by its customer facing code...</span>
+<span class="hljs-variable">$promotionCode</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">findActivePromotionCode</span>(<span class="hljs-string">&#x27;SUMMERSALE&#x27;</span>);
+</code></pre>
+<p>In the example above, the returned <code>$promotionCode</code> object is an instance of <code>Laravel\Cashier\PromotionCode</code>. This class decorates an underlying <code>Stripe\PromotionCode</code> object. You can retrieve the coupon related to the promotion code by invoking the <code>coupon</code> method:</p>
+<pre><code><span class="hljs-variable">$coupon</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">findPromotionCode</span>(<span class="hljs-string">&#x27;SUMMERSALE&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">coupon</span>();
+</code></pre>
+<p>The coupon instance allows you to determine the discount amount and whether the coupon represents a fixed discount or percentage based discount:</p>
+<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$coupon</span>-&gt;<span class="hljs-title function_ invoke__">isPercentage</span>()) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$coupon</span>-&gt;<span class="hljs-title function_ invoke__">percentOff</span>().<span class="hljs-string">&#x27;%&#x27;</span>; <span class="hljs-comment">// 21.5%</span>
+} <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$coupon</span>-&gt;<span class="hljs-title function_ invoke__">amountOff</span>(); <span class="hljs-comment">// $5.99</span>
+}
+</code></pre>
+<p>You can also retrieve the discounts that are currently applied to a customer or subscription:</p>
+<pre><code><span class="hljs-variable">$discount</span> = <span class="hljs-variable">$billable</span>-&gt;<span class="hljs-title function_ invoke__">discount</span>();
+
+<span class="hljs-variable">$discount</span> = <span class="hljs-variable">$subscription</span>-&gt;<span class="hljs-title function_ invoke__">discount</span>();
+</code></pre>
+<p>The returned <code>Laravel\Cashier\Discount</code> instances decorate an underlying <code>Stripe\Discount</code> object instance. You may retrieve the coupon related to this discount by invoking the <code>coupon</code> method:</p>
+<pre><code><span class="hljs-variable">$coupon</span> = <span class="hljs-variable">$subscription</span>-&gt;<span class="hljs-title function_ invoke__">discount</span>()-&gt;<span class="hljs-title function_ invoke__">coupon</span>();
+</code></pre>
+<p>If you would like to apply a new coupon or promotion code to a customer or subscription, you may do so via the <code>applyCoupon</code> or <code>applyPromotionCode</code> methods:</p>
+<pre><code><span class="hljs-variable">$billable</span>-&gt;<span class="hljs-title function_ invoke__">applyCoupon</span>(<span class="hljs-string">&#x27;coupon_id&#x27;</span>);
+<span class="hljs-variable">$billable</span>-&gt;<span class="hljs-title function_ invoke__">applyPromotionCode</span>(<span class="hljs-string">&#x27;promotion_code_id&#x27;</span>);
+
+<span class="hljs-variable">$subscription</span>-&gt;<span class="hljs-title function_ invoke__">applyCoupon</span>(<span class="hljs-string">&#x27;coupon_id&#x27;</span>);
+<span class="hljs-variable">$subscription</span>-&gt;<span class="hljs-title function_ invoke__">applyPromotionCode</span>(<span class="hljs-string">&#x27;promotion_code_id&#x27;</span>);
+</code></pre>
+<p>Remember, you should use the Stripe API ID assigned to the promotion code and not the customer facing promotion code. Only one coupon or promotion code can be applied to a customer or subscription at a given time.</p>
+<p>For more info on this subject, please consult the Stripe documentation regarding <a href="https://stripe.com/docs/billing/subscriptions/coupons">coupons</a> and <a href="https://stripe.com/docs/billing/subscriptions/coupons/codes">promotion codes</a>.</p>
+<p><a name="adding-subscriptions"></a></p>
+<h4 id="adding-subscriptions">Adding Subscriptions</h4>
+<p>If you would like to add a subscription to a customer who already has a default payment method you may invoke the <code>add</code> method on the subscription builder:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+
+<span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">newSubscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>, <span class="hljs-string">&#x27;price_monthly&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">add</span>();
+</code></pre>
+<p><a name="creating-subscriptions-from-the-stripe-dashboard"></a></p>
+<h4 id="creating-subscriptions-from-the-stripe-dashboard">Creating Subscriptions From The Stripe Dashboard</h4>
+<p>You may also create subscriptions from the Stripe dashboard itself. When doing so, Cashier will sync newly added subscriptions and assign them a name of <code>default</code>. To customize the subscription name that is assigned to dashboard created subscriptions, <a href="#defining-webhook-event-handlers">extend the <code>WebhookController</code></a> and overwrite the <code>newSubscriptionName</code> method.</p>
+<p>In addition, you may only create one type of subscription via the Stripe dashboard. If your application offers multiple subscriptions that use different names, only one type of subscription may be added through the Stripe dashboard.</p>
+<p>Finally, you should always make sure to only add one active subscription per type of subscription offered by your application. If a customer has two <code>default</code> subscriptions, only the most recently added subscription will be used by Cashier even though both would be synced with your application&#39;s database.</p>
+<p><a name="checking-subscription-status"></a></p>
+<h3 id="checking-subscription-status">Checking Subscription Status</h3>
+<p>Once a customer is subscribed to your application, you may easily check their subscription status using a variety of convenient methods. First, the <code>subscribed</code> method returns <code>true</code> if the customer has an active subscription, even if the subscription is currently within its trial period. The <code>subscribed</code> method accepts the name of the subscription as its first argument:</p>
+<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscribed</span>(<span class="hljs-string">&#x27;default&#x27;</span>)) {
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p>The <code>subscribed</code> method also makes a great candidate for a <a href="/docs/%7B%7Bversion%7D%7D/middleware">route middleware</a>, allowing you to filter access to routes and controllers based on the user&#39;s subscription status:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Http</span>\<span class="hljs-title class_">Middleware</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Closure</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Symfony</span>\<span class="hljs-title">Component</span>\<span class="hljs-title">HttpFoundation</span>\<span class="hljs-title">Response</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">EnsureUserIsSubscribed</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Handle an incoming request.
+     *
+     * <span class="hljs-doctag">@param</span>  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">handle</span>(<span class="hljs-params">Request <span class="hljs-variable">$request</span>, <span class="hljs-built_in">Closure</span> <span class="hljs-variable">$next</span></span>): <span class="hljs-title">Response</span>
+    </span>{
+        <span class="hljs-keyword">if</span> (<span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>() &amp;&amp; ! <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">subscribed</span>(<span class="hljs-string">&#x27;default&#x27;</span>)) {
+            <span class="hljs-comment">// This user is not a paying customer...</span>
+            <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">redirect</span>(<span class="hljs-string">&#x27;billing&#x27;</span>);
+        }
+
+        <span class="hljs-keyword">return</span> <span class="hljs-variable">$next</span>(<span class="hljs-variable">$request</span>);
+    }
+}
+</code></pre>
+<p>If you would like to determine if a user is still within their trial period, you may use the <code>onTrial</code> method. This method can be useful for determining if you should display a warning to the user that they are still on their trial period:</p>
+<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">onTrial</span>()) {
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p>The <code>subscribedToProduct</code> method may be used to determine if the user is subscribed to a given product based on a given Stripe product&#39;s identifier. In Stripe, products are collections of prices. In this example, we will determine if the user&#39;s <code>default</code> subscription is actively subscribed to the application&#39;s &quot;premium&quot; product. The given Stripe product identifier should correspond to one of your product&#39;s identifiers in the Stripe dashboard:</p>
+<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscribedToProduct</span>(<span class="hljs-string">&#x27;prod_premium&#x27;</span>, <span class="hljs-string">&#x27;default&#x27;</span>)) {
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p>By passing an array to the <code>subscribedToProduct</code> method, you may determine if the user&#39;s <code>default</code> subscription is actively subscribed to the application&#39;s &quot;basic&quot; or &quot;premium&quot; product:</p>
+<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscribedToProduct</span>([<span class="hljs-string">&#x27;prod_basic&#x27;</span>, <span class="hljs-string">&#x27;prod_premium&#x27;</span>], <span class="hljs-string">&#x27;default&#x27;</span>)) {
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p>The <code>subscribedToPrice</code> method may be used to determine if a customer&#39;s subscription corresponds to a given price ID:</p>
+<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscribedToPrice</span>(<span class="hljs-string">&#x27;price_basic_monthly&#x27;</span>, <span class="hljs-string">&#x27;default&#x27;</span>)) {
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p>The <code>recurring</code> method may be used to determine if the user is currently subscribed and is no longer within their trial period:</p>
+<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">recurring</span>()) {
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>If a user has two subscriptions with the same name, the most recent subscription will always be returned by the <code>subscription</code> method. For example, a user might have two subscription records named <code>default</code>; however, one of the subscriptions may be an old, expired subscription, while the other is the current, active subscription. The most recent subscription will always be returned while older subscriptions are kept in the database for historical review.</p>
+</blockquote>
+<p><a name="cancelled-subscription-status"></a></p>
+<h4 id="canceled-subscription-status">Canceled Subscription Status</h4>
+<p>To determine if the user was once an active subscriber but has canceled their subscription, you may use the <code>canceled</code> method:</p>
+<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">canceled</span>()) {
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p>You may also determine if a user has canceled their subscription but are still on their &quot;grace period&quot; until the subscription fully expires. For example, if a user cancels a subscription on March 5th that was originally scheduled to expire on March 10th, the user is on their &quot;grace period&quot; until March 10th. Note that the <code>subscribed</code> method still returns <code>true</code> during this time:</p>
+<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">onGracePeriod</span>()) {
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p>To determine if the user has canceled their subscription and is no longer within their &quot;grace period&quot;, you may use the <code>ended</code> method:</p>
+<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">ended</span>()) {
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p><a name="incomplete-and-past-due-status"></a></p>
+<h4 id="incomplete-and-past-due-status">Incomplete and Past Due Status</h4>
+<p>If a subscription requires a secondary payment action after creation the subscription will be marked as <code>incomplete</code>. Subscription statuses are stored in the <code>stripe_status</code> column of Cashier&#39;s <code>subscriptions</code> database table.</p>
+<p>Similarly, if a secondary payment action is required when swapping prices the subscription will be marked as <code>past_due</code>. When your subscription is in either of these states it will not be active until the customer has confirmed their payment. Determining if a subscription has an incomplete payment may be accomplished using the <code>hasIncompletePayment</code> method on the billable model or a subscription instance:</p>
+<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">hasIncompletePayment</span>(<span class="hljs-string">&#x27;default&#x27;</span>)) {
+    <span class="hljs-comment">// ...</span>
+}
+
+<span class="hljs-keyword">if</span> (<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">hasIncompletePayment</span>()) {
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p>When a subscription has an incomplete payment, you should direct the user to Cashier&#39;s payment confirmation page, passing the <code>latestPayment</code> identifier. You may use the <code>latestPayment</code> method available on subscription instance to retrieve this identifier:</p>
+<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;{{ route(&#x27;cashier.payment&#x27;, $subscription-&gt;latestPayment()-&gt;id) }}&quot;</span>&gt;</span>
+    Please confirm your payment.
+<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>
+</code></pre>
+<p>If you would like the subscription to still be considered active when it&#39;s in a <code>past_due</code> or <code>incomplete</code> state, you may use the <code>keepPastDueSubscriptionsActive</code> and <code>keepIncompleteSubscriptionsActive</code> methods provided by Cashier. Typically, these methods should be called in the <code>register</code> method of your <code>App\Providers\AppServiceProvider</code>:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Cashier</span>\<span class="hljs-title">Cashier</span>;
+
+<span class="hljs-comment">/**
+ * Register any application services.
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">register</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+</span>{
+    <span class="hljs-title class_">Cashier</span>::<span class="hljs-title function_ invoke__">keepPastDueSubscriptionsActive</span>();
+    <span class="hljs-title class_">Cashier</span>::<span class="hljs-title function_ invoke__">keepIncompleteSubscriptionsActive</span>();
+}
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>When a subscription is in an <code>incomplete</code> state it cannot be changed until the payment is confirmed. Therefore, the <code>swap</code> and <code>updateQuantity</code> methods will throw an exception when the subscription is in an <code>incomplete</code> state.</p>
+</blockquote>
+<p><a name="subscription-scopes"></a></p>
+<h4 id="subscription-scopes">Subscription Scopes</h4>
+<p>Most subscription states are also available as query scopes so that you may easily query your database for subscriptions that are in a given state:</p>
+<pre><code><span class="hljs-comment">// Get all active subscriptions...</span>
+<span class="hljs-variable">$subscriptions</span> = <span class="hljs-title class_">Subscription</span>::<span class="hljs-title function_ invoke__">query</span>()-&gt;<span class="hljs-title function_ invoke__">active</span>()-&gt;<span class="hljs-title function_ invoke__">get</span>();
+
+<span class="hljs-comment">// Get all of the canceled subscriptions for a user...</span>
+<span class="hljs-variable">$subscriptions</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscriptions</span>()-&gt;<span class="hljs-title function_ invoke__">canceled</span>()-&gt;<span class="hljs-title function_ invoke__">get</span>();
+</code></pre>
+<p>A complete list of available scopes is available below:</p>
+<pre><code><span class="hljs-title class_">Subscription</span>::<span class="hljs-title function_ invoke__">query</span>()-&gt;<span class="hljs-title function_ invoke__">active</span>();
+<span class="hljs-title class_">Subscription</span>::<span class="hljs-title function_ invoke__">query</span>()-&gt;<span class="hljs-title function_ invoke__">canceled</span>();
+<span class="hljs-title class_">Subscription</span>::<span class="hljs-title function_ invoke__">query</span>()-&gt;<span class="hljs-title function_ invoke__">ended</span>();
+<span class="hljs-title class_">Subscription</span>::<span class="hljs-title function_ invoke__">query</span>()-&gt;<span class="hljs-title function_ invoke__">incomplete</span>();
+<span class="hljs-title class_">Subscription</span>::<span class="hljs-title function_ invoke__">query</span>()-&gt;<span class="hljs-title function_ invoke__">notCanceled</span>();
+<span class="hljs-title class_">Subscription</span>::<span class="hljs-title function_ invoke__">query</span>()-&gt;<span class="hljs-title function_ invoke__">notOnGracePeriod</span>();
+<span class="hljs-title class_">Subscription</span>::<span class="hljs-title function_ invoke__">query</span>()-&gt;<span class="hljs-title function_ invoke__">notOnTrial</span>();
+<span class="hljs-title class_">Subscription</span>::<span class="hljs-title function_ invoke__">query</span>()-&gt;<span class="hljs-title function_ invoke__">onGracePeriod</span>();
+<span class="hljs-title class_">Subscription</span>::<span class="hljs-title function_ invoke__">query</span>()-&gt;<span class="hljs-title function_ invoke__">onTrial</span>();
+<span class="hljs-title class_">Subscription</span>::<span class="hljs-title function_ invoke__">query</span>()-&gt;<span class="hljs-title function_ invoke__">pastDue</span>();
+<span class="hljs-title class_">Subscription</span>::<span class="hljs-title function_ invoke__">query</span>()-&gt;<span class="hljs-title function_ invoke__">recurring</span>();
+</code></pre>
+<p><a name="changing-prices"></a></p>
+<h3 id="changing-prices">Changing Prices</h3>
+<p>After a customer is subscribed to your application, they may occasionally want to change to a new subscription price. To swap a customer to a new price, pass the Stripe price&#39;s identifier to the <code>swap</code> method. When swapping prices, it is assumed that the user would like to re-activate their subscription if it was previously canceled. The given price identifier should correspond to a Stripe price identifier available in the Stripe dashboard:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+
+<span class="hljs-variable">$user</span> = <span class="hljs-title class_">App\Models\User</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">swap</span>(<span class="hljs-string">&#x27;price_yearly&#x27;</span>);
+</code></pre>
+<p>If the customer is on trial, the trial period will be maintained. Additionally, if a &quot;quantity&quot; exists for the subscription, that quantity will also be maintained.</p>
+<p>If you would like to swap prices and cancel any trial period the customer is currently on, you may invoke the <code>skipTrial</code> method:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)
+        -&gt;<span class="hljs-title function_ invoke__">skipTrial</span>()
+        -&gt;<span class="hljs-title function_ invoke__">swap</span>(<span class="hljs-string">&#x27;price_yearly&#x27;</span>);
+</code></pre>
+<p>If you would like to swap prices and immediately invoice the customer instead of waiting for their next billing cycle, you may use the <code>swapAndInvoice</code> method:</p>
+<pre><code><span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">swapAndInvoice</span>(<span class="hljs-string">&#x27;price_yearly&#x27;</span>);
+</code></pre>
+<p><a name="prorations"></a></p>
+<h4 id="prorations">Prorations</h4>
+<p>By default, Stripe prorates charges when swapping between prices. The <code>noProrate</code> method may be used to update the subscription&#39;s price without prorating the charges:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">noProrate</span>()-&gt;<span class="hljs-title function_ invoke__">swap</span>(<span class="hljs-string">&#x27;price_yearly&#x27;</span>);
+</code></pre>
+<p>For more information on subscription proration, consult the <a href="https://stripe.com/docs/billing/subscriptions/prorations">Stripe documentation</a>.</p>
+<blockquote>
+<p><strong>Warning</strong><br>Executing the <code>noProrate</code> method before the <code>swapAndInvoice</code> method will have no effect on proration. An invoice will always be issued.</p>
+</blockquote>
+<p><a name="subscription-quantity"></a></p>
+<h3 id="subscription-quantity">Subscription Quantity</h3>
+<p>Sometimes subscriptions are affected by &quot;quantity&quot;. For example, a project management application might charge $10 per month per project. You may use the <code>incrementQuantity</code> and <code>decrementQuantity</code> methods to easily increment or decrement your subscription quantity:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+
+<span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">incrementQuantity</span>();
+
+<span class="hljs-comment">// Add five to the subscription&#x27;s current quantity...</span>
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">incrementQuantity</span>(<span class="hljs-number">5</span>);
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">decrementQuantity</span>();
+
+<span class="hljs-comment">// Subtract five from the subscription&#x27;s current quantity...</span>
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">decrementQuantity</span>(<span class="hljs-number">5</span>);
+</code></pre>
+<p>Alternatively, you may set a specific quantity using the <code>updateQuantity</code> method:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">updateQuantity</span>(<span class="hljs-number">10</span>);
+</code></pre>
+<p>The <code>noProrate</code> method may be used to update the subscription&#39;s quantity without prorating the charges:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">noProrate</span>()-&gt;<span class="hljs-title function_ invoke__">updateQuantity</span>(<span class="hljs-number">10</span>);
+</code></pre>
+<p>For more information on subscription quantities, consult the <a href="https://stripe.com/docs/subscriptions/quantities">Stripe documentation</a>.</p>
+<p><a name="quantities-for-subscription-with-multiple-products"></a></p>
+<h4 id="quantities-for-subscriptions-with-multiple-products">Quantities For Subscriptions With Multiple Products</h4>
+<p>If your subscription is a <a href="#subscriptions-with-multiple-products">subscription with multiple products</a>, you should pass the ID of the price whose quantity you wish to increment or decrement as the second argument to the increment / decrement methods:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">incrementQuantity</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&#x27;price_chat&#x27;</span>);
+</code></pre>
+<p><a name="subscriptions-with-multiple-products"></a></p>
+<h3 id="subscriptions-with-multiple-products">Subscriptions With Multiple Products</h3>
+<p><a href="https://stripe.com/docs/billing/subscriptions/multiple-products">Subscription with multiple products</a> allow you to assign multiple billing products to a single subscription. For example, imagine you are building a customer service &quot;helpdesk&quot; application that has a base subscription price of $10 per month but offers a live chat add-on product for an additional $15 per month. Information for subscriptions with multiple products is stored in Cashier&#39;s <code>subscription_items</code> database table.</p>
+<p>You may specify multiple products for a given subscription by passing an array of prices as the second argument to the <code>newSubscription</code> method:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">post</span>(<span class="hljs-string">&#x27;/user/subscribe&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">newSubscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>, [
+        <span class="hljs-string">&#x27;price_monthly&#x27;</span>,
+        <span class="hljs-string">&#x27;price_chat&#x27;</span>,
+    ])-&gt;<span class="hljs-title function_ invoke__">create</span>(<span class="hljs-variable">$request</span>-&gt;paymentMethodId);
+
+    <span class="hljs-comment">// ...</span>
+});
+</code></pre>
+<p>In the example above, the customer will have two prices attached to their <code>default</code> subscription. Both prices will be charged on their respective billing intervals. If necessary, you may use the <code>quantity</code> method to indicate a specific quantity for each price:</p>
+<pre><code><span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">newSubscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>, [<span class="hljs-string">&#x27;price_monthly&#x27;</span>, <span class="hljs-string">&#x27;price_chat&#x27;</span>])
+    -&gt;<span class="hljs-title function_ invoke__">quantity</span>(<span class="hljs-number">5</span>, <span class="hljs-string">&#x27;price_chat&#x27;</span>)
+    -&gt;<span class="hljs-title function_ invoke__">create</span>(<span class="hljs-variable">$paymentMethod</span>);
+</code></pre>
+<p>If you would like to add another price to an existing subscription, you may invoke the subscription&#39;s <code>addPrice</code> method:</p>
+<pre><code><span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">addPrice</span>(<span class="hljs-string">&#x27;price_chat&#x27;</span>);
+</code></pre>
+<p>The example above will add the new price and the customer will be billed for it on their next billing cycle. If you would like to bill the customer immediately you may use the <code>addPriceAndInvoice</code> method:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">addPriceAndInvoice</span>(<span class="hljs-string">&#x27;price_chat&#x27;</span>);
+</code></pre>
+<p>If you would like to add a price with a specific quantity, you can pass the quantity as the second argument of the <code>addPrice</code> or <code>addPriceAndInvoice</code> methods:</p>
+<pre><code><span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">addPrice</span>(<span class="hljs-string">&#x27;price_chat&#x27;</span>, <span class="hljs-number">5</span>);
+</code></pre>
+<p>You may remove prices from subscriptions using the <code>removePrice</code> method:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">removePrice</span>(<span class="hljs-string">&#x27;price_chat&#x27;</span>);
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>You may not remove the last price on a subscription. Instead, you should simply cancel the subscription.</p>
+</blockquote>
+<p><a name="swapping-prices"></a></p>
+<h4 id="swapping-prices">Swapping Prices</h4>
+<p>You may also change the prices attached to a subscription with multiple products. For example, imagine a customer has a <code>price_basic</code> subscription with a <code>price_chat</code> add-on product and you want to upgrade the customer from the <code>price_basic</code> to the <code>price_pro</code> price:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+
+<span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">swap</span>([<span class="hljs-string">&#x27;price_pro&#x27;</span>, <span class="hljs-string">&#x27;price_chat&#x27;</span>]);
+</code></pre>
+<p>When executing the example above, the underlying subscription item with the <code>price_basic</code> is deleted and the one with the <code>price_chat</code> is preserved. Additionally, a new subscription item for the <code>price_pro</code> is created.</p>
+<p>You can also specify subscription item options by passing an array of key / value pairs to the <code>swap</code> method. For example, you may need to specify the subscription price quantities:</p>
+<pre><code><span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">swap</span>([
+    <span class="hljs-string">&#x27;price_pro&#x27;</span> =&gt; [<span class="hljs-string">&#x27;quantity&#x27;</span> =&gt; <span class="hljs-number">5</span>],
+    <span class="hljs-string">&#x27;price_chat&#x27;</span>
+]);
+</code></pre>
+<p>If you want to swap a single price on a subscription, you may do so using the <code>swap</code> method on the subscription item itself. This approach is particularly useful if you would like to preserve all of the existing metadata on the subscription&#39;s other prices:</p>
+<pre><code><span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)
+        -&gt;<span class="hljs-title function_ invoke__">findItemOrFail</span>(<span class="hljs-string">&#x27;price_basic&#x27;</span>)
+        -&gt;<span class="hljs-title function_ invoke__">swap</span>(<span class="hljs-string">&#x27;price_pro&#x27;</span>);
+</code></pre>
+<p><a name="proration"></a></p>
+<h4 id="proration">Proration</h4>
+<p>By default, Stripe will prorate charges when adding or removing prices from a subscription with multiple products. If you would like to make a price adjustment without proration, you should chain the <code>noProrate</code> method onto your price operation:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">noProrate</span>()-&gt;<span class="hljs-title function_ invoke__">removePrice</span>(<span class="hljs-string">&#x27;price_chat&#x27;</span>);
+</code></pre>
+<p><a name="swapping-quantities"></a></p>
+<h4 id="quantities-1">Quantities</h4>
+<p>If you would like to update quantities on individual subscription prices, you may do so using the <a href="#subscription-quantity">existing quantity methods</a> by passing the name of the price as an additional argument to the method:</p>
+<pre><code><span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">incrementQuantity</span>(<span class="hljs-number">5</span>, <span class="hljs-string">&#x27;price_chat&#x27;</span>);
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">decrementQuantity</span>(<span class="hljs-number">3</span>, <span class="hljs-string">&#x27;price_chat&#x27;</span>);
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">updateQuantity</span>(<span class="hljs-number">10</span>, <span class="hljs-string">&#x27;price_chat&#x27;</span>);
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>When a subscription has multiple prices the <code>stripe_price</code> and <code>quantity</code> attributes on the <code>Subscription</code> model will be <code>null</code>. To access the individual price attributes, you should use the <code>items</code> relationship available on the <code>Subscription</code> model.</p>
+</blockquote>
+<p><a name="subscription-items"></a></p>
+<h4 id="subscription-items">Subscription Items</h4>
+<p>When a subscription has multiple prices, it will have multiple subscription &quot;items&quot; stored in your database&#39;s <code>subscription_items</code> table. You may access these via the <code>items</code> relationship on the subscription:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+
+<span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-variable">$subscriptionItem</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;items-&gt;<span class="hljs-title function_ invoke__">first</span>();
+
+<span class="hljs-comment">// Retrieve the Stripe price and quantity for a specific item...</span>
+<span class="hljs-variable">$stripePrice</span> = <span class="hljs-variable">$subscriptionItem</span>-&gt;stripe_price;
+<span class="hljs-variable">$quantity</span> = <span class="hljs-variable">$subscriptionItem</span>-&gt;quantity;
+</code></pre>
+<p>You can also retrieve a specific price using the <code>findItemOrFail</code> method:</p>
+<pre><code><span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-variable">$subscriptionItem</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">findItemOrFail</span>(<span class="hljs-string">&#x27;price_chat&#x27;</span>);
+</code></pre>
+<p><a name="multiple-subscriptions"></a></p>
+<h3 id="multiple-subscriptions">Multiple Subscriptions</h3>
+<p>Stripe allows your customers to have multiple subscriptions simultaneously. For example, you may run a gym that offers a swimming subscription and a weight-lifting subscription, and each subscription may have different pricing. Of course, customers should be able to subscribe to either or both plans.</p>
+<p>When your application creates subscriptions, you may provide the name of the subscription to the <code>newSubscription</code> method. The name may be any string that represents the type of subscription the user is initiating:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">post</span>(<span class="hljs-string">&#x27;/swimming/subscribe&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">newSubscription</span>(<span class="hljs-string">&#x27;swimming&#x27;</span>)
+        -&gt;<span class="hljs-title function_ invoke__">price</span>(<span class="hljs-string">&#x27;price_swimming_monthly&#x27;</span>)
+        -&gt;<span class="hljs-title function_ invoke__">create</span>(<span class="hljs-variable">$request</span>-&gt;paymentMethodId);
+
+    <span class="hljs-comment">// ...</span>
+});
+</code></pre>
+<p>In this example, we initiated a monthly swimming subscription for the customer. However, they may want to swap to a yearly subscription at a later time. When adjusting the customer&#39;s subscription, we can simply swap the price on the <code>swimming</code> subscription:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;swimming&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">swap</span>(<span class="hljs-string">&#x27;price_swimming_yearly&#x27;</span>);
+</code></pre>
+<p>Of course, you may also cancel the subscription entirely:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;swimming&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">cancel</span>();
+</code></pre>
+<p><a name="metered-billing"></a></p>
+<h3 id="metered-billing">Metered Billing</h3>
+<p><a href="https://stripe.com/docs/billing/subscriptions/metered-billing">Metered billing</a> allows you to charge customers based on their product usage during a billing cycle. For example, you may charge customers based on the number of text messages or emails they send per month.</p>
+<p>To start using metered billing, you will first need to create a new product in your Stripe dashboard with a metered price. Then, use the <code>meteredPrice</code> to add the metered price ID to a customer subscription:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">post</span>(<span class="hljs-string">&#x27;/user/subscribe&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">newSubscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)
+        -&gt;<span class="hljs-title function_ invoke__">meteredPrice</span>(<span class="hljs-string">&#x27;price_metered&#x27;</span>)
+        -&gt;<span class="hljs-title function_ invoke__">create</span>(<span class="hljs-variable">$request</span>-&gt;paymentMethodId);
+
+    <span class="hljs-comment">// ...</span>
+});
+</code></pre>
+<p>You may also start a metered subscription via <a href="#checkout">Stripe Checkout</a>:</p>
+<pre><code><span class="hljs-variable">$checkout</span> = <span class="hljs-title class_">Auth</span>::<span class="hljs-title function_ invoke__">user</span>()
+        -&gt;<span class="hljs-title function_ invoke__">newSubscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>, [])
+        -&gt;<span class="hljs-title function_ invoke__">meteredPrice</span>(<span class="hljs-string">&#x27;price_metered&#x27;</span>)
+        -&gt;<span class="hljs-title function_ invoke__">checkout</span>();
+
+<span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;your-checkout-view&#x27;</span>, [
+    <span class="hljs-string">&#x27;checkout&#x27;</span> =&gt; <span class="hljs-variable">$checkout</span>,
+]);
+</code></pre>
+<p><a name="reporting-usage"></a></p>
+<h4 id="reporting-usage">Reporting Usage</h4>
+<p>As your customer uses your application, you will report their usage to Stripe so that they can be billed accurately. To increment the usage of a metered subscription, you may use the <code>reportUsage</code> method:</p>
+<pre><code><span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">reportUsage</span>();
+</code></pre>
+<p>By default, a &quot;usage quantity&quot; of 1 is added to the billing period. Alternatively, you may pass a specific amount of &quot;usage&quot; to add to the customer&#39;s usage for the billing period:</p>
+<pre><code><span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">reportUsage</span>(<span class="hljs-number">15</span>);
+</code></pre>
+<p>If your application offers multiple prices on a single subscription, you will need to use the <code>reportUsageFor</code> method to specify the metered price you want to report usage for:</p>
+<pre><code><span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">reportUsageFor</span>(<span class="hljs-string">&#x27;price_metered&#x27;</span>, <span class="hljs-number">15</span>);
+</code></pre>
+<p>Sometimes, you may need to update usage which you have previously reported. To accomplish this, you may pass a timestamp or a <code>DateTimeInterface</code> instance as the second parameter to <code>reportUsage</code>. When doing so, Stripe will update the usage that was reported at that given time. You can continue to update previous usage records as the given date and time is still within the current billing period:</p>
+<pre><code><span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">reportUsage</span>(<span class="hljs-number">5</span>, <span class="hljs-variable">$timestamp</span>);
+</code></pre>
+<p><a name="retrieving-usage-records"></a></p>
+<h4 id="retrieving-usage-records">Retrieving Usage Records</h4>
+<p>To retrieve a customer&#39;s past usage, you may use a subscription instance&#39;s <code>usageRecords</code> method:</p>
+<pre><code><span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-variable">$usageRecords</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">usageRecords</span>();
+</code></pre>
+<p>If your application offers multiple prices on a single subscription, you may use the <code>usageRecordsFor</code> method to specify the metered price that you wish to retrieve usage records for:</p>
+<pre><code><span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-variable">$usageRecords</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">usageRecordsFor</span>(<span class="hljs-string">&#x27;price_metered&#x27;</span>);
+</code></pre>
+<p>The <code>usageRecords</code> and <code>usageRecordsFor</code> methods return a Collection instance containing an associative array of usage records. You may iterate over this array to display a customer&#39;s total usage:</p>
+<pre><code>@<span class="hljs-keyword">foreach</span> (<span class="hljs-variable">$usageRecords</span> <span class="hljs-keyword">as</span> <span class="hljs-variable">$usageRecord</span>)
+    - Period Starting: {{ <span class="hljs-variable">$usageRecord</span>[<span class="hljs-string">&#x27;period&#x27;</span>][<span class="hljs-string">&#x27;start&#x27;</span>] }}
+    - Period Ending: {{ <span class="hljs-variable">$usageRecord</span>[<span class="hljs-string">&#x27;period&#x27;</span>][<span class="hljs-string">&#x27;end&#x27;</span>] }}
+    - Total Usage: {{ <span class="hljs-variable">$usageRecord</span>[<span class="hljs-string">&#x27;total_usage&#x27;</span>] }}
+@<span class="hljs-keyword">endforeach</span>
+</code></pre>
+<p>For a full reference of all usage data returned and how to use Stripe&#39;s cursor based pagination, please consult <a href="https://stripe.com/docs/api/usage_records/subscription_item_summary_list">the official Stripe API documentation</a>.</p>
+<p><a name="subscription-taxes"></a></p>
+<h3 id="subscription-taxes">Subscription Taxes</h3>
+<blockquote>
+<p><strong>Warning</strong><br>Instead of calculating Tax Rates manually, you can <a href="#tax-configuration">automatically calculate taxes using Stripe Tax</a></p>
+</blockquote>
+<p>To specify the tax rates a user pays on a subscription, you should implement the <code>taxRates</code> method on your billable model and return an array containing the Stripe tax rate IDs. You can define these tax rates in <a href="https://dashboard.stripe.com/test/tax-rates">your Stripe dashboard</a>:</p>
+<pre><code><span class="hljs-comment">/**
+ * The tax rates that should apply to the customer&#x27;s subscriptions.
+ *
+ * <span class="hljs-doctag">@return</span> array&lt;int, string&gt;
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">taxRates</span>(<span class="hljs-params"></span>): <span class="hljs-title">array</span>
+</span>{
+    <span class="hljs-keyword">return</span> [<span class="hljs-string">&#x27;txr_id&#x27;</span>];
+}
+</code></pre>
+<p>The <code>taxRates</code> method enables you to apply a tax rate on a customer-by-customer basis, which may be helpful for a user base that spans multiple countries and tax rates.</p>
+<p>If you&#39;re offering subscriptions with multiple products, you may define different tax rates for each price by implementing a <code>priceTaxRates</code> method on your billable model:</p>
+<pre><code><span class="hljs-comment">/**
+ * The tax rates that should apply to the customer&#x27;s subscriptions.
+ *
+ * <span class="hljs-doctag">@return</span> array&lt;string, array&lt;int, string&gt;&gt;
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">priceTaxRates</span>(<span class="hljs-params"></span>): <span class="hljs-title">array</span>
+</span>{
+    <span class="hljs-keyword">return</span> [
+        <span class="hljs-string">&#x27;price_monthly&#x27;</span> =&gt; [<span class="hljs-string">&#x27;txr_id&#x27;</span>],
+    ];
+}
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>The <code>taxRates</code> method only applies to subscription charges. If you use Cashier to make &quot;one-off&quot; charges, you will need to manually specify the tax rate at that time.</p>
+</blockquote>
+<p><a name="syncing-tax-rates"></a></p>
+<h4 id="syncing-tax-rates">Syncing Tax Rates</h4>
+<p>When changing the hard-coded tax rate IDs returned by the <code>taxRates</code> method, the tax settings on any existing subscriptions for the user will remain the same. If you wish to update the tax value for existing subscriptions with the new <code>taxRates</code> values, you should call the <code>syncTaxRates</code> method on the user&#39;s subscription instance:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">syncTaxRates</span>();
+</code></pre>
+<p>This will also sync any item tax rates for a subscription with multiple products. If your application is offering subscriptions with multiple products, you should ensure that your billable model implements the <code>priceTaxRates</code> method <a href="#subscription-taxes">discussed above</a>.</p>
+<p><a name="tax-exemption"></a></p>
+<h4 id="tax-exemption">Tax Exemption</h4>
+<p>Cashier also offers the <code>isNotTaxExempt</code>, <code>isTaxExempt</code>, and <code>reverseChargeApplies</code> methods to determine if the customer is tax exempt. These methods will call the Stripe API to determine a customer&#39;s tax exemption status:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+
+<span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">isTaxExempt</span>();
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">isNotTaxExempt</span>();
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">reverseChargeApplies</span>();
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>These methods are also available on any <code>Laravel\Cashier\Invoice</code> object. However, when invoked on an <code>Invoice</code> object, the methods will determine the exemption status at the time the invoice was created.</p>
+</blockquote>
+<p><a name="subscription-anchor-date"></a></p>
+<h3 id="subscription-anchor-date">Subscription Anchor Date</h3>
+<p>By default, the billing cycle anchor is the date the subscription was created or, if a trial period is used, the date that the trial ends. If you would like to modify the billing anchor date, you may use the <code>anchorBillingCycleOn</code> method:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">post</span>(<span class="hljs-string">&#x27;/user/subscribe&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-variable">$anchor</span> = <span class="hljs-title class_">Carbon</span>::<span class="hljs-title function_ invoke__">parse</span>(<span class="hljs-string">&#x27;first day of next month&#x27;</span>);
+
+    <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">newSubscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>, <span class="hljs-string">&#x27;price_monthly&#x27;</span>)
+                -&gt;<span class="hljs-title function_ invoke__">anchorBillingCycleOn</span>(<span class="hljs-variable">$anchor</span>-&gt;<span class="hljs-title function_ invoke__">startOfDay</span>())
+                -&gt;<span class="hljs-title function_ invoke__">create</span>(<span class="hljs-variable">$request</span>-&gt;paymentMethodId);
+
+    <span class="hljs-comment">// ...</span>
+});
+</code></pre>
+<p>For more information on managing subscription billing cycles, consult the <a href="https://stripe.com/docs/billing/subscriptions/billing-cycle">Stripe billing cycle documentation</a></p>
+<p><a name="cancelling-subscriptions"></a></p>
+<h3 id="cancelling-subscriptions">Cancelling Subscriptions</h3>
+<p>To cancel a subscription, call the <code>cancel</code> method on the user&#39;s subscription:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">cancel</span>();
+</code></pre>
+<p>When a subscription is canceled, Cashier will automatically set the <code>ends_at</code> column in your <code>subscriptions</code> database table. This column is used to know when the <code>subscribed</code> method should begin returning <code>false</code>.</p>
+<p>For example, if a customer cancels a subscription on March 1st, but the subscription was not scheduled to end until March 5th, the <code>subscribed</code> method will continue to return <code>true</code> until March 5th. This is done because a user is typically allowed to continue using an application until the end of their billing cycle.</p>
+<p>You may determine if a user has canceled their subscription but are still on their &quot;grace period&quot; using the <code>onGracePeriod</code> method:</p>
+<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">onGracePeriod</span>()) {
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p>If you wish to cancel a subscription immediately, call the <code>cancelNow</code> method on the user&#39;s subscription:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">cancelNow</span>();
+</code></pre>
+<p>If you wish to cancel a subscription immediately and invoice any remaining un-invoiced metered usage or new / pending proration invoice items, call the <code>cancelNowAndInvoice</code> method on the user&#39;s subscription:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">cancelNowAndInvoice</span>();
+</code></pre>
+<p>You may also choose to cancel the subscription at a specific moment in time:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">cancelAt</span>(
+    <span class="hljs-title function_ invoke__">now</span>()-&gt;<span class="hljs-title function_ invoke__">addDays</span>(<span class="hljs-number">10</span>)
+);
+</code></pre>
+<p><a name="resuming-subscriptions"></a></p>
+<h3 id="resuming-subscriptions">Resuming Subscriptions</h3>
+<p>If a customer has canceled their subscription and you wish to resume it, you may invoke the <code>resume</code> method on the subscription. The customer must still be within their &quot;grace period&quot; in order to resume a subscription:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">resume</span>();
+</code></pre>
+<p>If the customer cancels a subscription and then resumes that subscription before the subscription has fully expired the customer will not be billed immediately. Instead, their subscription will be re-activated and they will be billed on the original billing cycle.</p>
+<p><a name="subscription-trials"></a></p>
+<h2 id="subscription-trials">Subscription Trials</h2>
+<p><a name="with-payment-method-up-front"></a></p>
+<h3 id="with-payment-method-up-front">With Payment Method Up Front</h3>
+<p>If you would like to offer trial periods to your customers while still collecting payment method information up front, you should use the <code>trialDays</code> method when creating your subscriptions:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">post</span>(<span class="hljs-string">&#x27;/user/subscribe&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">newSubscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>, <span class="hljs-string">&#x27;price_monthly&#x27;</span>)
+                -&gt;<span class="hljs-title function_ invoke__">trialDays</span>(<span class="hljs-number">10</span>)
+                -&gt;<span class="hljs-title function_ invoke__">create</span>(<span class="hljs-variable">$request</span>-&gt;paymentMethodId);
+
+    <span class="hljs-comment">// ...</span>
+});
+</code></pre>
+<p>This method will set the trial period ending date on the subscription record within the database and instruct Stripe to not begin billing the customer until after this date. When using the <code>trialDays</code> method, Cashier will overwrite any default trial period configured for the price in Stripe.</p>
+<blockquote>
+<p><strong>Warning</strong><br>If the customer&#39;s subscription is not canceled before the trial ending date they will be charged as soon as the trial expires, so you should be sure to notify your users of their trial ending date.</p>
+</blockquote>
+<p>The <code>trialUntil</code> method allows you to provide a <code>DateTime</code> instance that specifies when the trial period should end:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Carbon</span>\<span class="hljs-title">Carbon</span>;
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">newSubscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>, <span class="hljs-string">&#x27;price_monthly&#x27;</span>)
+            -&gt;<span class="hljs-title function_ invoke__">trialUntil</span>(<span class="hljs-title class_">Carbon</span>::<span class="hljs-title function_ invoke__">now</span>()-&gt;<span class="hljs-title function_ invoke__">addDays</span>(<span class="hljs-number">10</span>))
+            -&gt;<span class="hljs-title function_ invoke__">create</span>(<span class="hljs-variable">$paymentMethod</span>);
+</code></pre>
+<p>You may determine if a user is within their trial period using either the <code>onTrial</code> method of the user instance or the <code>onTrial</code> method of the subscription instance. The two examples below are equivalent:</p>
+<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">onTrial</span>(<span class="hljs-string">&#x27;default&#x27;</span>)) {
+    <span class="hljs-comment">// ...</span>
+}
+
+<span class="hljs-keyword">if</span> (<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">onTrial</span>()) {
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p>You may use the <code>endTrial</code> method to immediately end a subscription trial:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">endTrial</span>();
+</code></pre>
+<p>To determine if an existing trial has expired, you may use the <code>hasExpiredTrial</code> methods:</p>
+<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">hasExpiredTrial</span>(<span class="hljs-string">&#x27;default&#x27;</span>)) {
+    <span class="hljs-comment">// ...</span>
+}
+
+<span class="hljs-keyword">if</span> (<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">hasExpiredTrial</span>()) {
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p><a name="defining-trial-days-in-stripe-cashier"></a></p>
+<h4 id="defining-trial-days-in-stripe--cashier">Defining Trial Days In Stripe / Cashier</h4>
+<p>You may choose to define how many trial days your price&#39;s receive in the Stripe dashboard or always pass them explicitly using Cashier. If you choose to define your price&#39;s trial days in Stripe you should be aware that new subscriptions, including new subscriptions for a customer that had a subscription in the past, will always receive a trial period unless you explicitly call the <code>skipTrial()</code> method.</p>
+<p><a name="without-payment-method-up-front"></a></p>
+<h3 id="without-payment-method-up-front">Without Payment Method Up Front</h3>
+<p>If you would like to offer trial periods without collecting the user&#39;s payment method information up front, you may set the <code>trial_ends_at</code> column on the user record to your desired trial ending date. This is typically done during user registration:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+
+<span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">create</span>([
+    // ...
+    <span class="hljs-string">&#x27;trial_ends_at&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">now</span>()-&gt;<span class="hljs-title function_ invoke__">addDays</span>(<span class="hljs-number">10</span>),
+]);
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>Be sure to add a <a href="/docs/%7B%7Bversion%7D%7D/eloquent-mutators#date-casting">date cast</a> for the <code>trial_ends_at</code> attribute within your billable model&#39;s class definition.</p>
+</blockquote>
+<p>Cashier refers to this type of trial as a &quot;generic trial&quot;, since it is not attached to any existing subscription. The <code>onTrial</code> method on the billable model instance will return <code>true</code> if the current date is not past the value of <code>trial_ends_at</code>:</p>
+<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">onTrial</span>()) {
+    <span class="hljs-comment">// User is within their trial period...</span>
+}
+</code></pre>
+<p>Once you are ready to create an actual subscription for the user, you may use the <code>newSubscription</code> method as usual:</p>
+<pre><code><span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">newSubscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>, <span class="hljs-string">&#x27;price_monthly&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">create</span>(<span class="hljs-variable">$paymentMethod</span>);
+</code></pre>
+<p>To retrieve the user&#39;s trial ending date, you may use the <code>trialEndsAt</code> method. This method will return a Carbon date instance if a user is on a trial or <code>null</code> if they aren&#39;t. You may also pass an optional subscription name parameter if you would like to get the trial ending date for a specific subscription other than the default one:</p>
+<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">onTrial</span>()) {
+    <span class="hljs-variable">$trialEndsAt</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">trialEndsAt</span>(<span class="hljs-string">&#x27;main&#x27;</span>);
+}
+</code></pre>
+<p>You may also use the <code>onGenericTrial</code> method if you wish to know specifically that the user is within their &quot;generic&quot; trial period and has not yet created an actual subscription:</p>
+<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">onGenericTrial</span>()) {
+    <span class="hljs-comment">// User is within their &quot;generic&quot; trial period...</span>
+}
+</code></pre>
+<p><a name="extending-trials"></a></p>
+<h3 id="extending-trials">Extending Trials</h3>
+<p>The <code>extendTrial</code> method allows you to extend the trial period of a subscription after the subscription has been created. If the trial has already expired and the customer is already being billed for the subscription, you can still offer them an extended trial. The time spent within the trial period will be deducted from the customer&#39;s next invoice:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+
+<span class="hljs-variable">$subscription</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">1</span>)-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>);
+
+<span class="hljs-comment">// End the trial 7 days from now...</span>
+<span class="hljs-variable">$subscription</span>-&gt;<span class="hljs-title function_ invoke__">extendTrial</span>(
+    <span class="hljs-title function_ invoke__">now</span>()-&gt;<span class="hljs-title function_ invoke__">addDays</span>(<span class="hljs-number">7</span>)
+);
+
+<span class="hljs-comment">// Add an additional 5 days to the trial...</span>
+<span class="hljs-variable">$subscription</span>-&gt;<span class="hljs-title function_ invoke__">extendTrial</span>(
+    <span class="hljs-variable">$subscription</span>-&gt;trial_ends_at-&gt;<span class="hljs-title function_ invoke__">addDays</span>(<span class="hljs-number">5</span>)
+);
+</code></pre>
+<p><a name="handling-stripe-webhooks"></a></p>
+<h2 id="handling-stripe-webhooks">Handling Stripe Webhooks</h2>
+<blockquote>
+<p><strong>Note</strong><br>You may use <a href="https://stripe.com/docs/stripe-cli">the Stripe CLI</a> to help test webhooks during local development.</p>
+</blockquote>
+<p>Stripe can notify your application of a variety of events via webhooks. By default, a route that points to Cashier&#39;s webhook controller is automatically registered by the Cashier service provider. This controller will handle all incoming webhook requests.</p>
+<p>By default, the Cashier webhook controller will automatically handle cancelling subscriptions that have too many failed charges (as defined by your Stripe settings), customer updates, customer deletions, subscription updates, and payment method changes; however, as we&#39;ll soon discover, you can extend this controller to handle any Stripe webhook event you like.</p>
+<p>To ensure your application can handle Stripe webhooks, be sure to configure the webhook URL in the Stripe control panel. By default, Cashier&#39;s webhook controller responds to the <code>/stripe/webhook</code> URL path. The full list of all webhooks you should enable in the Stripe control panel are:</p>
+<ul>
+<li><code>customer.subscription.created</code></li>
+<li><code>customer.subscription.updated</code></li>
+<li><code>customer.subscription.deleted</code></li>
+<li><code>customer.updated</code></li>
+<li><code>customer.deleted</code></li>
+<li><code>invoice.payment_succeeded</code></li>
+<li><code>invoice.payment_action_required</code></li>
+</ul>
+<p>For convenience, Cashier includes a <code>cashier:webhook</code> Artisan command. This command will create a webhook in Stripe that listens to all of the events required by Cashier:</p>
+<pre><code class="language-shell">php artisan cashier:webhook
+</code></pre>
+<p>By default, the created webhook will point to the URL defined by the <code>APP_URL</code> environment variable and the <code>cashier.webhook</code> route that is included with Cashier. You may provide the <code>--url</code> option when invoking the command if you would like to use a different URL:</p>
+<pre><code class="language-shell">php artisan cashier:webhook --url &quot;https://example.com/stripe/webhook&quot;
+</code></pre>
+<p>The webhook that is created will use the Stripe API version that your version of Cashier is compatible with. If you would like to use a different Stripe version, you may provide the <code>--api-version</code> option:</p>
+<pre><code class="language-shell">php artisan cashier:webhook --api-version=&quot;2019-12-03&quot;
+</code></pre>
+<p>After creation, the webhook will be immediately active. If you wish to create the webhook but have it disabled until you&#39;re ready, you may provide the <code>--disabled</code> option when invoking the command:</p>
+<pre><code class="language-shell">php artisan cashier:webhook --disabled
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>Make sure you protect incoming Stripe webhook requests with Cashier&#39;s included <a href="#verifying-webhook-signatures">webhook signature verification</a> middleware.</p>
+</blockquote>
+<p><a name="webhooks-csrf-protection"></a></p>
+<h4 id="webhooks--csrf-protection">Webhooks &amp; CSRF Protection</h4>
+<p>Since Stripe webhooks need to bypass Laravel&#39;s <a href="/docs/%7B%7Bversion%7D%7D/csrf">CSRF protection</a>, be sure to list the URI as an exception in your application&#39;s <code>App\Http\Middleware\VerifyCsrfToken</code> middleware or list the route outside of the <code>web</code> middleware group:</p>
+<pre><code><span class="hljs-keyword">protected</span> <span class="hljs-variable">$except</span> = [
+    <span class="hljs-string">&#x27;stripe/*&#x27;</span>,
+];
+</code></pre>
+<p><a name="defining-webhook-event-handlers"></a></p>
+<h3 id="defining-webhook-event-handlers">Defining Webhook Event Handlers</h3>
+<p>Cashier automatically handles subscription cancellations for failed charges and other common Stripe webhook events. However, if you have additional webhook events you would like to handle, you may do so by listening to the following events that are dispatched by Cashier:</p>
+<ul>
+<li><code>Laravel\Cashier\Events\WebhookReceived</code></li>
+<li><code>Laravel\Cashier\Events\WebhookHandled</code></li>
+</ul>
+<p>Both events contain the full payload of the Stripe webhook. For example, if you wish to handle the <code>invoice.payment_succeeded</code> webhook, you may register a <a href="/docs/%7B%7Bversion%7D%7D/events#defining-listeners">listener</a> that will handle the event:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Listeners</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Cashier</span>\<span class="hljs-title">Events</span>\<span class="hljs-title">WebhookReceived</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">StripeEventListener</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Handle received Stripe webhooks.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">handle</span>(<span class="hljs-params">WebhookReceived <span class="hljs-variable">$event</span></span>): <span class="hljs-title">void</span>
+    </span>{
+        <span class="hljs-keyword">if</span> (<span class="hljs-variable">$event</span>-&gt;payload[<span class="hljs-string">&#x27;type&#x27;</span>] === <span class="hljs-string">&#x27;invoice.payment_succeeded&#x27;</span>) {
+            <span class="hljs-comment">// Handle the incoming event...</span>
+        }
+    }
+}
+</code></pre>
+<p>Once your listener has been defined, you may register it within your application&#39;s <code>EventServiceProvider</code>:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Providers</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Listeners</span>\<span class="hljs-title">StripeEventListener</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Foundation</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Providers</span>\<span class="hljs-title">EventServiceProvider</span> <span class="hljs-keyword">as</span> <span class="hljs-title">ServiceProvider</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Cashier</span>\<span class="hljs-title">Events</span>\<span class="hljs-title">WebhookReceived</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">EventServiceProvider</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">ServiceProvider</span>
+</span>{
+    <span class="hljs-keyword">protected</span> <span class="hljs-variable">$listen</span> = [
+        <span class="hljs-title class_">WebhookReceived</span>::<span class="hljs-variable language_">class</span> =&gt; [
+            <span class="hljs-title class_">StripeEventListener</span>::<span class="hljs-variable language_">class</span>,
+        ],
+    ];
+}
+</code></pre>
+<p><a name="verifying-webhook-signatures"></a></p>
+<h3 id="verifying-webhook-signatures">Verifying Webhook Signatures</h3>
+<p>To secure your webhooks, you may use <a href="https://stripe.com/docs/webhooks/signatures">Stripe&#39;s webhook signatures</a>. For convenience, Cashier automatically includes a middleware which validates that the incoming Stripe webhook request is valid.</p>
+<p>To enable webhook verification, ensure that the <code>STRIPE_WEBHOOK_SECRET</code> environment variable is set in your application&#39;s <code>.env</code> file. The webhook <code>secret</code> may be retrieved from your Stripe account dashboard.</p>
+<p><a name="single-charges"></a></p>
+<h2 id="single-charges">Single Charges</h2>
+<p><a name="simple-charge"></a></p>
+<h3 id="simple-charge">Simple Charge</h3>
+<p>If you would like to make a one-time charge against a customer, you may use the <code>charge</code> method on a billable model instance. You will need to <a href="#payment-methods-for-single-charges">provide a payment method identifier</a> as the second argument to the <code>charge</code> method:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">post</span>(<span class="hljs-string">&#x27;/purchase&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-variable">$stripeCharge</span> = <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">charge</span>(
+        <span class="hljs-number">100</span>, <span class="hljs-variable">$request</span>-&gt;paymentMethodId
+    );
+
+    <span class="hljs-comment">// ...</span>
+});
+</code></pre>
+<p>The <code>charge</code> method accepts an array as its third argument, allowing you to pass any options you wish to the underlying Stripe charge creation. More information regarding the options available to you when creating charges may be found in the <a href="https://stripe.com/docs/api/charges/create">Stripe documentation</a>:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">charge</span>(<span class="hljs-number">100</span>, <span class="hljs-variable">$paymentMethod</span>, [
+    <span class="hljs-string">&#x27;custom_option&#x27;</span> =&gt; <span class="hljs-variable">$value</span>,
+]);
+</code></pre>
+<p>You may also use the <code>charge</code> method without an underlying customer or user. To accomplish this, invoke the <code>charge</code> method on a new instance of your application&#39;s billable model:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+
+<span class="hljs-variable">$stripeCharge</span> = (<span class="hljs-keyword">new</span> <span class="hljs-title class_">User</span>)-&gt;<span class="hljs-title function_ invoke__">charge</span>(<span class="hljs-number">100</span>, <span class="hljs-variable">$paymentMethod</span>);
+</code></pre>
+<p>The <code>charge</code> method will throw an exception if the charge fails. If the charge is successful, an instance of <code>Laravel\Cashier\Payment</code> will be returned from the method:</p>
+<pre><code><span class="hljs-keyword">try</span> {
+    <span class="hljs-variable">$payment</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">charge</span>(<span class="hljs-number">100</span>, <span class="hljs-variable">$paymentMethod</span>);
+} <span class="hljs-keyword">catch</span> (<span class="hljs-built_in">Exception</span> <span class="hljs-variable">$e</span>) {
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>The <code>charge</code> method accepts the payment amount in the lowest denominator of the currency used by your application. For example, if customers are paying in United States Dollars, amounts should be specified in pennies.</p>
+</blockquote>
+<p><a name="charge-with-invoice"></a></p>
+<h3 id="charge-with-invoice">Charge With Invoice</h3>
+<p>Sometimes you may need to make a one-time charge and offer a PDF receipt to your customer. The <code>invoicePrice</code> method lets you do just that. For example, let&#39;s invoice a customer for five new shirts:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">invoicePrice</span>(<span class="hljs-string">&#x27;price_tshirt&#x27;</span>, <span class="hljs-number">5</span>);
+</code></pre>
+<p>The invoice will be immediately charged against the user&#39;s default payment method. The <code>invoicePrice</code> method also accepts an array as its third argument. This array contains the billing options for the invoice item. The fourth argument accepted by the method is also an array which should contain the billing options for the invoice itself:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">invoicePrice</span>(<span class="hljs-string">&#x27;price_tshirt&#x27;</span>, <span class="hljs-number">5</span>, [
+    <span class="hljs-string">&#x27;discounts&#x27;</span> =&gt; [
+        [<span class="hljs-string">&#x27;coupon&#x27;</span> =&gt; <span class="hljs-string">&#x27;SUMMER21SALE&#x27;</span>]
+    ],
+], [
+    <span class="hljs-string">&#x27;default_tax_rates&#x27;</span> =&gt; [<span class="hljs-string">&#x27;txr_id&#x27;</span>],
+]);
+</code></pre>
+<p>Similarly to <code>invoicePrice</code>, you may use the <code>tabPrice</code> method to create a one-time charge for multiple items (up to 250 items per invoice) by adding them to the customer&#39;s &quot;tab&quot; and then invoicing the customer. For example, we may invoice a customer for five shirts and two mugs:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">tabPrice</span>(<span class="hljs-string">&#x27;price_tshirt&#x27;</span>, <span class="hljs-number">5</span>);
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">tabPrice</span>(<span class="hljs-string">&#x27;price_mug&#x27;</span>, <span class="hljs-number">2</span>);
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">invoice</span>();
+</code></pre>
+<p>Alternatively, you may use the <code>invoiceFor</code> method to make a &quot;one-off&quot; charge against the customer&#39;s default payment method:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">invoiceFor</span>(<span class="hljs-string">&#x27;One Time Fee&#x27;</span>, <span class="hljs-number">500</span>);
+</code></pre>
+<p>Although the <code>invoiceFor</code> method is available for you to use, it is recommended that you use the <code>invoicePrice</code> and <code>tabPrice</code> methods with pre-defined prices. By doing so, you will have access to better analytics and data within your Stripe dashboard regarding your sales on a per-product basis.</p>
+<blockquote>
+<p><strong>Warning</strong><br>The <code>invoice</code>, <code>invoicePrice</code>, and <code>invoiceFor</code> methods will create a Stripe invoice which will retry failed billing attempts. If you do not want invoices to retry failed charges, you will need to close them using the Stripe API after the first failed charge.</p>
+</blockquote>
+<p><a name="creating-payment-intents"></a></p>
+<h3 id="creating-payment-intents">Creating Payment Intents</h3>
+<p>You can create a new Stripe payment intent by invoking the <code>pay</code> method on a billable model instance. Calling this method will create a payment intent that is wrapped in a <code>Laravel\Cashier\Payment</code> instance:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">post</span>(<span class="hljs-string">&#x27;/pay&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-variable">$payment</span> = <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">pay</span>(
+        <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;amount&#x27;</span>)
+    );
+
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$payment</span>-&gt;client_secret;
+});
+</code></pre>
+<p>After creating the payment intent, you can return the client secret to your application&#39;s frontend so that the user can complete the payment in their browser. To read more about building entire payment flows using Stripe payment intents, please consult the <a href="https://stripe.com/docs/payments/accept-a-payment?platform=web">Stripe documentation</a>.</p>
+<p>When using the <code>pay</code> method, the default payment methods that are enabled within your Stripe dashboard will be available to the customer. Alternatively, if you only want to allow for some specific payment methods to be used, you may use the <code>payWith</code> method:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">post</span>(<span class="hljs-string">&#x27;/pay&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-variable">$payment</span> = <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">payWith</span>(
+        <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;amount&#x27;</span>), [<span class="hljs-string">&#x27;card&#x27;</span>, <span class="hljs-string">&#x27;bancontact&#x27;</span>]
+    );
+
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$payment</span>-&gt;client_secret;
+});
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>The <code>pay</code> and <code>payWith</code> methods accept the payment amount in the lowest denominator of the currency used by your application. For example, if customers are paying in United States Dollars, amounts should be specified in pennies.</p>
+</blockquote>
+<p><a name="refunding-charges"></a></p>
+<h3 id="refunding-charges">Refunding Charges</h3>
+<p>If you need to refund a Stripe charge, you may use the <code>refund</code> method. This method accepts the Stripe <a href="#payment-methods-for-single-charges">payment intent ID</a> as its first argument:</p>
+<pre><code><span class="hljs-variable">$payment</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">charge</span>(<span class="hljs-number">100</span>, <span class="hljs-variable">$paymentMethodId</span>);
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">refund</span>(<span class="hljs-variable">$payment</span>-&gt;id);
+</code></pre>
+<p><a name="invoices"></a></p>
+<h2 id="invoices">Invoices</h2>
+<p><a name="retrieving-invoices"></a></p>
+<h3 id="retrieving-invoices">Retrieving Invoices</h3>
+<p>You may easily retrieve an array of a billable model&#39;s invoices using the <code>invoices</code> method. The <code>invoices</code> method returns a collection of <code>Laravel\Cashier\Invoice</code> instances:</p>
+<pre><code><span class="hljs-variable">$invoices</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">invoices</span>();
+</code></pre>
+<p>If you would like to include pending invoices in the results, you may use the <code>invoicesIncludingPending</code> method:</p>
+<pre><code><span class="hljs-variable">$invoices</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">invoicesIncludingPending</span>();
+</code></pre>
+<p>You may use the <code>findInvoice</code> method to retrieve a specific invoice by its ID:</p>
+<pre><code><span class="hljs-variable">$invoice</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">findInvoice</span>(<span class="hljs-variable">$invoiceId</span>);
+</code></pre>
+<p><a name="displaying-invoice-information"></a></p>
+<h4 id="displaying-invoice-information">Displaying Invoice Information</h4>
+<p>When listing the invoices for the customer, you may use the invoice&#39;s methods to display the relevant invoice information. For example, you may wish to list every invoice in a table, allowing the user to easily download any of them:</p>
+<pre><code>&lt;table&gt;
+    @<span class="hljs-keyword">foreach</span> (<span class="hljs-variable">$invoices</span> <span class="hljs-keyword">as</span> <span class="hljs-variable">$invoice</span>)
+        &lt;tr&gt;
+            &lt;td&gt;{{ <span class="hljs-variable">$invoice</span>-&gt;<span class="hljs-title function_ invoke__">date</span>()-&gt;<span class="hljs-title function_ invoke__">toFormattedDateString</span>() }}&lt;/td&gt;
+            &lt;td&gt;{{ <span class="hljs-variable">$invoice</span>-&gt;<span class="hljs-title function_ invoke__">total</span>() }}&lt;/td&gt;
+            &lt;td&gt;&lt;a href=<span class="hljs-string">&quot;/user/invoice/{{ <span class="hljs-subst">$invoice</span>-&gt;id }}&quot;</span>&gt;Download&lt;/a&gt;&lt;/td&gt;
+        &lt;/tr&gt;
+    @<span class="hljs-keyword">endforeach</span>
+&lt;/table&gt;
+</code></pre>
+<p><a name="upcoming-invoices"></a></p>
+<h3 id="upcoming-invoices">Upcoming Invoices</h3>
+<p>To retrieve the upcoming invoice for a customer, you may use the <code>upcomingInvoice</code> method:</p>
+<pre><code><span class="hljs-variable">$invoice</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">upcomingInvoice</span>();
+</code></pre>
+<p>Similarly, if the customer has multiple subscriptions, you can also retrieve the upcoming invoice for a specific subscription:</p>
+<pre><code><span class="hljs-variable">$invoice</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">upcomingInvoice</span>();
+</code></pre>
+<p><a name="previewing-subscription-invoices"></a></p>
+<h3 id="previewing-subscription-invoices">Previewing Subscription Invoices</h3>
+<p>Using the <code>previewInvoice</code> method, you can preview an invoice before making price changes. This will allow you to determine what your customer&#39;s invoice will look like when a given price change is made:</p>
+<pre><code><span class="hljs-variable">$invoice</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">previewInvoice</span>(<span class="hljs-string">&#x27;price_yearly&#x27;</span>);
+</code></pre>
+<p>You may pass an array of prices to the <code>previewInvoice</code> method in order to preview invoices with multiple new prices:</p>
+<pre><code><span class="hljs-variable">$invoice</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">previewInvoice</span>([<span class="hljs-string">&#x27;price_yearly&#x27;</span>, <span class="hljs-string">&#x27;price_metered&#x27;</span>]);
+</code></pre>
+<p><a name="generating-invoice-pdfs"></a></p>
+<h3 id="generating-invoice-pdfs">Generating Invoice PDFs</h3>
+<p>Before generating invoice PDFs, you should use Composer to install the Dompdf library, which is the default invoice renderer for Cashier:</p>
+<pre><code class="language-php">composer <span class="hljs-keyword">require</span> dompdf/dompdf
+</code></pre>
+<p>From within a route or controller, you may use the <code>downloadInvoice</code> method to generate a PDF download of a given invoice. This method will automatically generate the proper HTTP response needed to download the invoice:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/user/invoice/{invoice}&#x27;</span>, function (Request <span class="hljs-variable">$request</span>, <span class="hljs-keyword">string</span> <span class="hljs-variable">$invoiceId</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">downloadInvoice</span>(<span class="hljs-variable">$invoiceId</span>);
+});
+</code></pre>
+<p>By default, all data on the invoice is derived from the customer and invoice data stored in Stripe. The filename is based on your <code>app.name</code> config value. However, you can customize some of this data by providing an array as the second argument to the <code>downloadInvoice</code> method. This array allows you to customize information such as your company and product details:</p>
+<pre><code><span class="hljs-keyword">return</span> <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">downloadInvoice</span>(<span class="hljs-variable">$invoiceId</span>, [
+    <span class="hljs-string">&#x27;vendor&#x27;</span> =&gt; <span class="hljs-string">&#x27;Your Company&#x27;</span>,
+    <span class="hljs-string">&#x27;product&#x27;</span> =&gt; <span class="hljs-string">&#x27;Your Product&#x27;</span>,
+    <span class="hljs-string">&#x27;street&#x27;</span> =&gt; <span class="hljs-string">&#x27;Main Str. 1&#x27;</span>,
+    <span class="hljs-string">&#x27;location&#x27;</span> =&gt; <span class="hljs-string">&#x27;2000 Antwerp, Belgium&#x27;</span>,
+    <span class="hljs-string">&#x27;phone&#x27;</span> =&gt; <span class="hljs-string">&#x27;+32 499 00 00 00&#x27;</span>,
+    <span class="hljs-string">&#x27;email&#x27;</span> =&gt; <span class="hljs-string">&#x27;info@example.com&#x27;</span>,
+    <span class="hljs-string">&#x27;url&#x27;</span> =&gt; <span class="hljs-string">&#x27;https://example.com&#x27;</span>,
+    <span class="hljs-string">&#x27;vendorVat&#x27;</span> =&gt; <span class="hljs-string">&#x27;BE123456789&#x27;</span>,
+]);
+</code></pre>
+<p>The <code>downloadInvoice</code> method also allows for a custom filename via its third argument. This filename will automatically be suffixed with <code>.pdf</code>:</p>
+<pre><code><span class="hljs-keyword">return</span> <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">downloadInvoice</span>(<span class="hljs-variable">$invoiceId</span>, [], <span class="hljs-string">&#x27;my-invoice&#x27;</span>);
+</code></pre>
+<p><a name="custom-invoice-render"></a></p>
+<h4 id="custom-invoice-renderer">Custom Invoice Renderer</h4>
+<p>Cashier also makes it possible to use a custom invoice renderer. By default, Cashier uses the <code>DompdfInvoiceRenderer</code> implementation, which utilizes the <a href="https://github.com/dompdf/dompdf">dompdf</a> PHP library to generate Cashier&#39;s invoices. However, you may use any renderer you wish by implementing the <code>Laravel\Cashier\Contracts\InvoiceRenderer</code> interface. For example, you may wish to render an invoice PDF using an API call to a third-party PDF rendering service:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Http</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Cashier</span>\<span class="hljs-title">Contracts</span>\<span class="hljs-title">InvoiceRenderer</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Cashier</span>\<span class="hljs-title">Invoice</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ApiInvoiceRenderer</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">InvoiceRenderer</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Render the given invoice and return the raw PDF bytes.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">render</span>(<span class="hljs-params">Invoice <span class="hljs-variable">$invoice</span>, <span class="hljs-keyword">array</span> <span class="hljs-variable">$data</span> = [], <span class="hljs-keyword">array</span> <span class="hljs-variable">$options</span> = []</span>): <span class="hljs-title">string</span>
+    </span>{
+        <span class="hljs-variable">$html</span> = <span class="hljs-variable">$invoice</span>-&gt;<span class="hljs-title function_ invoke__">view</span>(<span class="hljs-variable">$data</span>)-&gt;<span class="hljs-title function_ invoke__">render</span>();
+
+        <span class="hljs-keyword">return</span> <span class="hljs-title class_">Http</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;https://example.com/html-to-pdf&#x27;</span>, [<span class="hljs-string">&#x27;html&#x27;</span> =&gt; <span class="hljs-variable">$html</span>])-&gt;<span class="hljs-title function_ invoke__">get</span>()-&gt;<span class="hljs-title function_ invoke__">body</span>();
+    }
+}
+</code></pre>
+<p>Once you have implemented the invoice renderer contract, you should update the <code>cashier.invoices.renderer</code> configuration value in your application&#39;s <code>config/cashier.php</code> configuration file. This configuration value should be set to the class name of your custom renderer implementation.</p>
+<p><a name="checkout"></a></p>
+<h2 id="checkout">Checkout</h2>
+<p>Cashier Stripe also provides support for <a href="https://stripe.com/payments/checkout">Stripe Checkout</a>. Stripe Checkout takes the pain out of implementing custom pages to accept payments by providing a pre-built, hosted payment page.</p>
+<p>The following documentation contains information on how to get started using Stripe Checkout with Cashier. To learn more about Stripe Checkout, you should also consider reviewing <a href="https://stripe.com/docs/payments/checkout">Stripe&#39;s own documentation on Checkout</a>.</p>
+<p><a name="product-checkouts"></a></p>
+<h3 id="product-checkouts">Product Checkouts</h3>
+<p>You may perform a checkout for an existing product that has been created within your Stripe dashboard using the <code>checkout</code> method on a billable model. The <code>checkout</code> method will initiate a new Stripe Checkout session. By default, you&#39;re required to pass a Stripe Price ID:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/product-checkout&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">checkout</span>(<span class="hljs-string">&#x27;price_tshirt&#x27;</span>);
+});
+</code></pre>
+<p>If needed, you may also specify a product quantity:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/product-checkout&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">checkout</span>([<span class="hljs-string">&#x27;price_tshirt&#x27;</span> =&gt; <span class="hljs-number">15</span>]);
+});
+</code></pre>
+<p>When a customer visits this route they will be redirected to Stripe&#39;s Checkout page. By default, when a user successfully completes or cancels a purchase they will be redirected to your <code>home</code> route location, but you may specify custom callback URLs using the <code>success_url</code> and <code>cancel_url</code> options:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/product-checkout&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">checkout</span>([<span class="hljs-string">&#x27;price_tshirt&#x27;</span> =&gt; <span class="hljs-number">1</span>], [
+        <span class="hljs-string">&#x27;success_url&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">route</span>(<span class="hljs-string">&#x27;your-success-route&#x27;</span>),
+        <span class="hljs-string">&#x27;cancel_url&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">route</span>(<span class="hljs-string">&#x27;your-cancel-route&#x27;</span>),
+    ]);
+});
+</code></pre>
+<p>When defining your <code>success_url</code> checkout option, you may instruct Stripe to add the checkout session ID as a query string parameter when invoking your URL. To do so, add the literal string <code>{CHECKOUT_SESSION_ID}</code> to your <code>success_url</code> query string. Stripe will replace this placeholder with the actual checkout session ID:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Stripe</span>\<span class="hljs-title">Checkout</span>\<span class="hljs-title">Session</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Stripe</span>\<span class="hljs-title">Customer</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/product-checkout&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">checkout</span>([<span class="hljs-string">&#x27;price_tshirt&#x27;</span> =&gt; <span class="hljs-number">1</span>], [
+        <span class="hljs-string">&#x27;success_url&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">route</span>(<span class="hljs-string">&#x27;checkout-success&#x27;</span>).<span class="hljs-string">&#x27;?session_id={CHECKOUT_SESSION_ID}&#x27;</span>,
+        <span class="hljs-string">&#x27;cancel_url&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">route</span>(<span class="hljs-string">&#x27;checkout-cancel&#x27;</span>),
+    ]);
+});
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/checkout-success&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-variable">$checkoutSession</span> = <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">stripe</span>()-&gt;checkout-&gt;sessions-&gt;<span class="hljs-title function_ invoke__">retrieve</span>(<span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;session_id&#x27;</span>));
+
+    <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;checkout.success&#x27;</span>, [<span class="hljs-string">&#x27;checkoutSession&#x27;</span> =&gt; <span class="hljs-variable">$checkoutSession</span>]);
+})-&gt;<span class="hljs-title function_ invoke__">name</span>(<span class="hljs-string">&#x27;checkout-success&#x27;</span>);
+</code></pre>
+<p><a name="checkout-promotion-codes"></a></p>
+<h4 id="promotion-codes">Promotion Codes</h4>
+<p>By default, Stripe Checkout does not allow <a href="https://stripe.com/docs/billing/subscriptions/discounts/codes">user redeemable promotion codes</a>. Luckily, there&#39;s an easy way to enable these for your Checkout page. To do so, you may invoke the <code>allowPromotionCodes</code> method:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/product-checkout&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()
+        -&gt;<span class="hljs-title function_ invoke__">allowPromotionCodes</span>()
+        -&gt;<span class="hljs-title function_ invoke__">checkout</span>(<span class="hljs-string">&#x27;price_tshirt&#x27;</span>);
+});
+</code></pre>
+<p><a name="single-charge-checkouts"></a></p>
+<h3 id="single-charge-checkouts">Single Charge Checkouts</h3>
+<p>You can also perform a simple charge for an ad-hoc product that has not been created in your Stripe dashboard. To do so you may use the <code>checkoutCharge</code> method on a billable model and pass it a chargeable amount, a product name, and an optional quantity. When a customer visits this route they will be redirected to Stripe&#39;s Checkout page:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/charge-checkout&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">checkoutCharge</span>(<span class="hljs-number">1200</span>, <span class="hljs-string">&#x27;T-Shirt&#x27;</span>, <span class="hljs-number">5</span>);
+});
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>When using the <code>checkoutCharge</code> method, Stripe will always create a new product and price in your Stripe dashboard. Therefore, we recommend that you create the products up front in your Stripe dashboard and use the <code>checkout</code> method instead.</p>
+</blockquote>
+<p><a name="subscription-checkouts"></a></p>
+<h3 id="subscription-checkouts">Subscription Checkouts</h3>
+<blockquote>
+<p><strong>Warning</strong><br>Using Stripe Checkout for subscriptions requires you to enable the <code>customer.subscription.created</code> webhook in your Stripe dashboard. This webhook will create the subscription record in your database and store all of the relevant subscription items.</p>
+</blockquote>
+<p>You may also use Stripe Checkout to initiate subscriptions. After defining your subscription with Cashier&#39;s subscription builder methods, you may call the <code>checkout </code>method. When a customer visits this route they will be redirected to Stripe&#39;s Checkout page:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/subscription-checkout&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()
+        -&gt;<span class="hljs-title function_ invoke__">newSubscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>, <span class="hljs-string">&#x27;price_monthly&#x27;</span>)
+        -&gt;<span class="hljs-title function_ invoke__">checkout</span>();
+});
+</code></pre>
+<p>Just as with product checkouts, you may customize the success and cancellation URLs:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/subscription-checkout&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()
+        -&gt;<span class="hljs-title function_ invoke__">newSubscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>, <span class="hljs-string">&#x27;price_monthly&#x27;</span>)
+        -&gt;<span class="hljs-title function_ invoke__">checkout</span>([
+            <span class="hljs-string">&#x27;success_url&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">route</span>(<span class="hljs-string">&#x27;your-success-route&#x27;</span>),
+            <span class="hljs-string">&#x27;cancel_url&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">route</span>(<span class="hljs-string">&#x27;your-cancel-route&#x27;</span>),
+        ]);
+});
+</code></pre>
+<p>Of course, you can also enable promotion codes for subscription checkouts:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/subscription-checkout&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()
+        -&gt;<span class="hljs-title function_ invoke__">newSubscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>, <span class="hljs-string">&#x27;price_monthly&#x27;</span>)
+        -&gt;<span class="hljs-title function_ invoke__">allowPromotionCodes</span>()
+        -&gt;<span class="hljs-title function_ invoke__">checkout</span>();
+});
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>Unfortunately Stripe Checkout does not support all subscription billing options when starting subscriptions. Using the <code>anchorBillingCycleOn</code> method on the subscription builder, setting proration behavior, or setting payment behavior will not have any effect during Stripe Checkout sessions. Please consult <a href="https://stripe.com/docs/api/checkout/sessions/create">the Stripe Checkout Session API documentation</a> to review which parameters are available.</p>
+</blockquote>
+<p><a name="stripe-checkout-trial-periods"></a></p>
+<h4 id="stripe-checkout--trial-periods">Stripe Checkout &amp; Trial Periods</h4>
+<p>Of course, you can define a trial period when building a subscription that will be completed using Stripe Checkout:</p>
+<pre><code><span class="hljs-variable">$checkout</span> = <span class="hljs-title class_">Auth</span>::<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">newSubscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>, <span class="hljs-string">&#x27;price_monthly&#x27;</span>)
+    -&gt;<span class="hljs-title function_ invoke__">trialDays</span>(<span class="hljs-number">3</span>)
+    -&gt;<span class="hljs-title function_ invoke__">checkout</span>();
+</code></pre>
+<p>However, the trial period must be at least 48 hours, which is the minimum amount of trial time supported by Stripe Checkout.</p>
+<p><a name="stripe-checkout-subscriptions-and-webhooks"></a></p>
+<h4 id="subscriptions--webhooks">Subscriptions &amp; Webhooks</h4>
+<p>Remember, Stripe and Cashier update subscription statuses via webhooks, so there&#39;s a possibility a subscription might not yet be active when the customer returns to the application after entering their payment information. To handle this scenario, you may wish to display a message informing the user that their payment or subscription is pending.</p>
+<p><a name="collecting-tax-ids"></a></p>
+<h3 id="collecting-tax-ids">Collecting Tax IDs</h3>
+<p>Checkout also supports collecting a customer&#39;s Tax ID. To enable this on a checkout session, invoke the <code>collectTaxIds</code> method when creating the session:</p>
+<pre><code><span class="hljs-variable">$checkout</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">collectTaxIds</span>()-&gt;<span class="hljs-title function_ invoke__">checkout</span>(<span class="hljs-string">&#x27;price_tshirt&#x27;</span>);
+</code></pre>
+<p>When this method is invoked, a new checkbox will be available to the customer that allows them to indicate if they&#39;re purchasing as a company. If so, they will have the opportunity to provide their Tax ID number.</p>
+<blockquote>
+<p><strong>Warning</strong><br>If you have already configured <a href="#tax-configuration">automatic tax collection</a> in your application&#39;s service provider then this feature will be enabled automatically and there is no need to invoke the <code>collectTaxIds</code> method.</p>
+</blockquote>
+<p><a name="guest-checkouts"></a></p>
+<h3 id="guest-checkouts">Guest Checkouts</h3>
+<p>Using the <code>Checkout::guest</code> method, you may initiate checkout sessions for guests of your application that do not have an &quot;account&quot;:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Cashier</span>\<span class="hljs-title">Checkout</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/product-checkout&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-title class_">Checkout</span>::<span class="hljs-title function_ invoke__">guest</span>()-&gt;<span class="hljs-title function_ invoke__">create</span>(<span class="hljs-string">&#x27;price_tshirt&#x27;</span>, [
+        <span class="hljs-string">&#x27;success_url&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">route</span>(<span class="hljs-string">&#x27;your-success-route&#x27;</span>),
+        <span class="hljs-string">&#x27;cancel_url&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">route</span>(<span class="hljs-string">&#x27;your-cancel-route&#x27;</span>),
+    ]);
+});
+</code></pre>
+<p>Similarly to when creating checkout sessions for existing users, you may utilize additional methods available on the <code>Laravel\Cashier\CheckoutBuilder</code> instance to customize the guest checkout session:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Cashier</span>\<span class="hljs-title">Checkout</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/product-checkout&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-title class_">Checkout</span>::<span class="hljs-title function_ invoke__">guest</span>()
+        -&gt;<span class="hljs-title function_ invoke__">withPromotionCode</span>(<span class="hljs-string">&#x27;promo-code&#x27;</span>)
+        -&gt;<span class="hljs-title function_ invoke__">create</span>(<span class="hljs-string">&#x27;price_tshirt&#x27;</span>, [
+            <span class="hljs-string">&#x27;success_url&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">route</span>(<span class="hljs-string">&#x27;your-success-route&#x27;</span>),
+            <span class="hljs-string">&#x27;cancel_url&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">route</span>(<span class="hljs-string">&#x27;your-cancel-route&#x27;</span>),
+        ]);
+});
+</code></pre>
+<p>After a guest checkout has been completed, Stripe can dispatch a <code>checkout.session.completed</code> webhook event, so make sure to <a href="https://dashboard.stripe.com/webhooks">configure your Stripe webhook</a> to actually send this event to your application. Once the webhook has been enabled within the Stripe dashboard, you may <a href="#handling-stripe-webhooks">handle the webhook with Cashier</a>. The object contained in the webhook payload will be a <a href="https://stripe.com/docs/api/checkout/sessions/object"><code>checkout</code> object</a> that you may inspect in order to fulfill your customer&#39;s order.</p>
+<p><a name="handling-failed-payments"></a></p>
+<h2 id="handling-failed-payments">Handling Failed Payments</h2>
+<p>Sometimes, payments for subscriptions or single charges can fail. When this happens, Cashier will throw an <code>Laravel\Cashier\Exceptions\IncompletePayment</code> exception that informs you that this happened. After catching this exception, you have two options on how to proceed.</p>
+<p>First, you could redirect your customer to the dedicated payment confirmation page which is included with Cashier. This page already has an associated named route that is registered via Cashier&#39;s service provider. So, you may catch the <code>IncompletePayment</code> exception and redirect the user to the payment confirmation page:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Cashier</span>\<span class="hljs-title">Exceptions</span>\<span class="hljs-title">IncompletePayment</span>;
+
+<span class="hljs-keyword">try</span> {
+    <span class="hljs-variable">$subscription</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">newSubscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>, <span class="hljs-string">&#x27;price_monthly&#x27;</span>)
+                            -&gt;<span class="hljs-title function_ invoke__">create</span>(<span class="hljs-variable">$paymentMethod</span>);
+} <span class="hljs-keyword">catch</span> (IncompletePayment <span class="hljs-variable">$exception</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">redirect</span>()-&gt;<span class="hljs-title function_ invoke__">route</span>(
+        <span class="hljs-string">&#x27;cashier.payment&#x27;</span>,
+        [<span class="hljs-variable">$exception</span>-&gt;payment-&gt;id, <span class="hljs-string">&#x27;redirect&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">route</span>(<span class="hljs-string">&#x27;home&#x27;</span>)]
+    );
+}
+</code></pre>
+<p>On the payment confirmation page, the customer will be prompted to enter their credit card information again and perform any additional actions required by Stripe, such as &quot;3D Secure&quot; confirmation. After confirming their payment, the user will be redirected to the URL provided by the <code>redirect</code> parameter specified above. Upon redirection, <code>message</code> (string) and <code>success</code> (integer) query string variables will be added to the URL. The payment page currently supports the following payment method types:</p>
+<div class="content-list" markdown="1">
+
+<ul>
+<li>Credit Cards</li>
+<li>Alipay</li>
+<li>Bancontact</li>
+<li>BECS Direct Debit</li>
+<li>EPS</li>
+<li>Giropay</li>
+<li>iDEAL</li>
+<li>SEPA Direct Debit</li>
+</ul>
+</div>
+
+<p>Alternatively, you could allow Stripe to handle the payment confirmation for you. In this case, instead of redirecting to the payment confirmation page, you may <a href="https://dashboard.stripe.com/account/billing/automatic">setup Stripe&#39;s automatic billing emails</a> in your Stripe dashboard. However, if an <code>IncompletePayment</code> exception is caught, you should still inform the user they will receive an email with further payment confirmation instructions.</p>
+<p>Payment exceptions may be thrown for the following methods: <code>charge</code>, <code>invoiceFor</code>, and <code>invoice</code> on models using the <code>Billable</code> trait. When interacting with subscriptions, the <code>create</code> method on the <code>SubscriptionBuilder</code>, and the <code>incrementAndInvoice</code> and <code>swapAndInvoice</code> methods on the <code>Subscription</code> and <code>SubscriptionItem</code> models may throw incomplete payment exceptions.</p>
+<p>Determining if an existing subscription has an incomplete payment may be accomplished using the <code>hasIncompletePayment</code> method on the billable model or a subscription instance:</p>
+<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">hasIncompletePayment</span>(<span class="hljs-string">&#x27;default&#x27;</span>)) {
+    <span class="hljs-comment">// ...</span>
+}
+
+<span class="hljs-keyword">if</span> (<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">hasIncompletePayment</span>()) {
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p>You can derive the specific status of an incomplete payment by inspecting the <code>payment</code> property on the exception instance:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Cashier</span>\<span class="hljs-title">Exceptions</span>\<span class="hljs-title">IncompletePayment</span>;
+
+<span class="hljs-keyword">try</span> {
+    <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">charge</span>(<span class="hljs-number">1000</span>, <span class="hljs-string">&#x27;pm_card_threeDSecure2Required&#x27;</span>);
+} <span class="hljs-keyword">catch</span> (IncompletePayment <span class="hljs-variable">$exception</span>) {
+    <span class="hljs-comment">// Get the payment intent status...</span>
+    <span class="hljs-variable">$exception</span>-&gt;payment-&gt;status;
+
+    <span class="hljs-comment">// Check specific conditions...</span>
+    <span class="hljs-keyword">if</span> (<span class="hljs-variable">$exception</span>-&gt;payment-&gt;<span class="hljs-title function_ invoke__">requiresPaymentMethod</span>()) {
+        <span class="hljs-comment">// ...</span>
+    } <span class="hljs-keyword">elseif</span> (<span class="hljs-variable">$exception</span>-&gt;payment-&gt;<span class="hljs-title function_ invoke__">requiresConfirmation</span>()) {
+        <span class="hljs-comment">// ...</span>
+    }
+}
+</code></pre>
+<p><a name="strong-customer-authentication"></a></p>
+<h2 id="strong-customer-authentication">Strong Customer Authentication</h2>
+<p>If your business or one of your customers is based in Europe you will need to abide by the EU&#39;s Strong Customer Authentication (SCA) regulations. These regulations were imposed in September 2019 by the European Union to prevent payment fraud. Luckily, Stripe and Cashier are prepared for building SCA compliant applications.</p>
+<blockquote>
+<p><strong>Warning</strong><br>Before getting started, review <a href="https://stripe.com/guides/strong-customer-authentication">Stripe&#39;s guide on PSD2 and SCA</a> as well as their <a href="https://stripe.com/docs/strong-customer-authentication">documentation on the new SCA APIs</a>.</p>
+</blockquote>
+<p><a name="payments-requiring-additional-confirmation"></a></p>
+<h3 id="payments-requiring-additional-confirmation">Payments Requiring Additional Confirmation</h3>
+<p>SCA regulations often require extra verification in order to confirm and process a payment. When this happens, Cashier will throw a <code>Laravel\Cashier\Exceptions\IncompletePayment</code> exception that informs you that extra verification is needed. More information on how to handle these exceptions be found can be found in the documentation on <a href="#handling-failed-payments">handling failed payments</a>.</p>
+<p>Payment confirmation screens presented by Stripe or Cashier may be tailored to a specific bank or card issuer&#39;s payment flow and can include additional card confirmation, a temporary small charge, separate device authentication, or other forms of verification.</p>
+<p><a name="incomplete-and-past-due-state"></a></p>
+<h4 id="incomplete-and-past-due-state">Incomplete and Past Due State</h4>
+<p>When a payment needs additional confirmation, the subscription will remain in an <code>incomplete</code> or <code>past_due</code> state as indicated by its <code>stripe_status</code> database column. Cashier will automatically activate the customer&#39;s subscription as soon as payment confirmation is complete and your application is notified by Stripe via webhook of its completion.</p>
+<p>For more information on <code>incomplete</code> and <code>past_due</code> states, please refer to <a href="#incomplete-and-past-due-status">our additional documentation on these states</a>.</p>
+<p><a name="off-session-payment-notifications"></a></p>
+<h3 id="off-session-payment-notifications">Off-Session Payment Notifications</h3>
+<p>Since SCA regulations require customers to occasionally verify their payment details even while their subscription is active, Cashier can send a notification to the customer when off-session payment confirmation is required. For example, this may occur when a subscription is renewing. Cashier&#39;s payment notification can be enabled by setting the <code>CASHIER_PAYMENT_NOTIFICATION</code> environment variable to a notification class. By default, this notification is disabled. Of course, Cashier includes a notification class you may use for this purpose, but you are free to provide your own notification class if desired:</p>
+<pre><code class="language-ini"><span class="hljs-attr">CASHIER_PAYMENT_NOTIFICATION</span>=Laravel\Cashier\Notifications\ConfirmPayment
+</code></pre>
+<p>To ensure that off-session payment confirmation notifications are delivered, verify that <a href="#handling-stripe-webhooks">Stripe webhooks are configured</a> for your application and the <code>invoice.payment_action_required</code> webhook is enabled in your Stripe dashboard. In addition, your <code>Billable</code> model should also use Laravel&#39;s <code>Illuminate\Notifications\Notifiable</code> trait.</p>
+<blockquote>
+<p><strong>Warning</strong><br>Notifications will be sent even when customers are manually making a payment that requires additional confirmation. Unfortunately, there is no way for Stripe to know that the payment was done manually or &quot;off-session&quot;. But, a customer will simply see a &quot;Payment Successful&quot; message if they visit the payment page after already confirming their payment. The customer will not be allowed to accidentally confirm the same payment twice and incur an accidental second charge.</p>
+</blockquote>
+<p><a name="stripe-sdk"></a></p>
+<h2 id="stripe-sdk">Stripe SDK</h2>
+<p>Many of Cashier&#39;s objects are wrappers around Stripe SDK objects. If you would like to interact with the Stripe objects directly, you may conveniently retrieve them using the <code>asStripe</code> method:</p>
+<pre><code><span class="hljs-variable">$stripeSubscription</span> = <span class="hljs-variable">$subscription</span>-&gt;<span class="hljs-title function_ invoke__">asStripeSubscription</span>();
+
+<span class="hljs-variable">$stripeSubscription</span>-&gt;application_fee_percent = <span class="hljs-number">5</span>;
+
+<span class="hljs-variable">$stripeSubscription</span>-&gt;<span class="hljs-title function_ invoke__">save</span>();
+</code></pre>
+<p>You may also use the <code>updateStripeSubscription</code> method to update a Stripe subscription directly:</p>
+<pre><code><span class="hljs-variable">$subscription</span>-&gt;<span class="hljs-title function_ invoke__">updateStripeSubscription</span>([<span class="hljs-string">&#x27;application_fee_percent&#x27;</span> =&gt; <span class="hljs-number">5</span>]);
+</code></pre>
+<p>You may invoke the <code>stripe</code> method on the <code>Cashier</code> class if you would like to use the <code>Stripe\StripeClient</code> client directly. For example, you could use this method to access the <code>StripeClient</code> instance and retrieve a list of prices from your Stripe account:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Cashier</span>\<span class="hljs-title">Cashier</span>;
+
+<span class="hljs-variable">$prices</span> = <span class="hljs-title class_">Cashier</span>::<span class="hljs-title function_ invoke__">stripe</span>()-&gt;prices-&gt;<span class="hljs-title function_ invoke__">all</span>();
+</code></pre>
+<p><a name="testing"></a></p>
+<h2 id="testing">Testing</h2>
+<p>When testing an application that uses Cashier, you may mock the actual HTTP requests to the Stripe API; however, this requires you to partially re-implement Cashier&#39;s own behavior. Therefore, we recommend allowing your tests to hit the actual Stripe API. While this is slower, it provides more confidence that your application is working as expected and any slow tests may be placed within their own PHPUnit testing group.</p>
+<p>When testing, remember that Cashier itself already has a great test suite, so you should only focus on testing the subscription and payment flow of your own application and not every underlying Cashier behavior.</p>
+<p>To get started, add the <strong>testing</strong> version of your Stripe secret to your <code>phpunit.xml</code> file:</p>
+<pre><code>&lt;env name=<span class="hljs-string">&quot;STRIPE_SECRET&quot;</span> value=<span class="hljs-string">&quot;sk_test_&lt;your-key&gt;&quot;</span>/&gt;
+</code></pre>
+<p>Now, whenever you interact with Cashier while testing, it will send actual API requests to your Stripe testing environment. For convenience, you should pre-fill your Stripe testing account with subscriptions / prices that you may use during testing.</p>
+<blockquote>
+<p><strong>Note</strong><br>In order to test a variety of billing scenarios, such as credit card denials and failures, you may use the vast range of <a href="https://stripe.com/docs/testing">testing card numbers and tokens</a> provided by Stripe.</p>
+</blockquote>

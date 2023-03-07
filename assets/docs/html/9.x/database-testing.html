@@ -40,7 +40,7 @@
 }
 </code></pre>
 <p>The <code>Illuminate\Foundation\Testing\RefreshDatabase</code> trait does not migrate your database if your schema is up to date. Instead, it will only execute the test within a database transaction. Therefore, any records added to the database by test cases that do not use this trait may still exist in the database.</p>
-<p>If you would like to totally reset the database using migrations, you may use the <code>Illuminate\Foundation\Testing\DatabaseMigrations</code> trait instead. However, the <code>DatabaseMigrations</code> trait is significantly slower than the <code>RefreshDatabase</code> trait.</p>
+<p>If you would like to totally reset the database, you may use the <code>Illuminate\Foundation\Testing\DatabaseMigrations</code> or <code>Illuminate\Foundation\Testing\DatabaseTruncation</code> traits instead. However, both of these options are significantly slower than the <code>RefreshDatabase</code> trait.</p>
 <p><a name="model-factories"></a></p>
 <h2 id="model-factories">Model Factories</h2>
 <p>When testing, you may need to insert a few records into your database before executing your test. Instead of manually specifying the value of each column when you create this test data, Laravel allows you to define a set of default attributes for each of your <a href="/docs/%7B%7Bversion%7D%7D/eloquent">Eloquent models</a> using <a href="/docs/%7B%7Bversion%7D%7D/eloquent-factories">model factories</a>.</p>
@@ -175,4 +175,11 @@
 <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">delete</span>();
 
 <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">assertModelMissing</span>(<span class="hljs-variable">$user</span>);
+</code></pre>
+<p><a name="expects-database-query-count"></a></p>
+<h4 id="expectsdatabasequerycount">expectsDatabaseQueryCount</h4>
+<p>The <code>expectsDatabaseQueryCount</code> method may be invoked at the beginning of your test to specify the total number of database queries that you expect to be run during the test. If the actual number of executed queries does not exactly match this expectation, the test will fail:</p>
+<pre><code><span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">expectsDatabaseQueryCount</span>(<span class="hljs-number">5</span>);
+
+<span class="hljs-comment">// Test...</span>
 </code></pre>

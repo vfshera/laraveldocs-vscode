@@ -223,6 +223,15 @@
                 -&gt;<span class="hljs-title function_ invoke__">sequence</span>(fn (<span class="hljs-variable">$sequence</span>) =&gt; [<span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Name &#x27;</span>.<span class="hljs-variable">$sequence</span>-&gt;index])
                 -&gt;<span class="hljs-title function_ invoke__">create</span>();
 </code></pre>
+<p>For convenience, sequences may also be applied using the <code>sequence</code> method, which simply invokes the <code>state</code> method internally. The <code>sequence</code> method accepts a closure or arrays of sequenced attributes:</p>
+<pre><code><span class="hljs-variable">$users</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()
+                -&gt;<span class="hljs-title function_ invoke__">count</span>(<span class="hljs-number">2</span>)
+                -&gt;<span class="hljs-title function_ invoke__">sequence</span>(
+                    [<span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;First User&#x27;</span>],
+                    [<span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Second User&#x27;</span>],
+                )
+                -&gt;<span class="hljs-title function_ invoke__">create</span>();
+</code></pre>
 <p><a name="factory-relationships"></a></p>
 <h2 id="factory-relationships">Factory Relationships</h2>
 <p><a name="has-many-relationships"></a></p>

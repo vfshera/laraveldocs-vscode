@@ -40,6 +40,7 @@
 <li><a href="#changing-prices">Changing Prices</a></li>
 <li><a href="#subscription-quantity">Subscription Quantity</a></li>
 <li><a href="#subscriptions-with-multiple-products">Subscriptions With Multiple Products</a></li>
+<li><a href="#multiple-subscriptions">Multiple Subscriptions</a></li>
 <li><a href="#metered-billing">Metered Billing</a></li>
 <li><a href="#subscription-taxes">Subscription Taxes</a></li>
 <li><a href="#subscription-anchor-date">Subscription Anchor Date</a></li>
@@ -96,7 +97,7 @@
 <h2 id="upgrading-cashier">Upgrading Cashier</h2>
 <p>When upgrading to a new version of Cashier, it&#39;s important that you carefully review <a href="https://github.com/laravel/cashier-stripe/blob/master/UPGRADE.md">the upgrade guide</a>.</p>
 <blockquote>
-<p><strong>Warning</strong><br>To prevent breaking changes, Cashier uses a fixed Stripe API version. Cashier 14 utilizes Stripe API version <code>2022-08-01</code>. The Stripe API version will be updated on minor releases in order to make use of new Stripe features and improvements.</p>
+<p><strong>Warning</strong><br>To prevent breaking changes, Cashier uses a fixed Stripe API version. Cashier 14 utilizes Stripe API version <code>2022-11-15</code>. The Stripe API version will be updated on minor releases in order to make use of new Stripe features and improvements.</p>
 </blockquote>
 <p><a name="installation"></a></p>
 <h2 id="installation">Installation</h2>
@@ -198,7 +199,7 @@
 <p>Once tax calculation has been enabled, any new subscriptions and any one-off invoices that are generated will receive automatic tax calculation.</p>
 <p>For this feature to work properly, your customer&#39;s billing details, such as the customer&#39;s name, address, and tax ID, need to be synced to Stripe. You may use the <a href="#syncing-customer-data-with-stripe">customer data synchronization</a> and <a href="#tax-ids">Tax ID</a> methods offered by Cashier to accomplish this.</p>
 <blockquote>
-<p><strong>Warning</strong><br>Unfortunately, for now, no tax is calculated for <a href="#single-charges">single charges</a> or <a href="#single-charge-checkouts">single charge checkouts</a>. In addition, Stripe Tax is currently &quot;invite-only&quot; during its beta period. You can request access to Stripe Tax via the <a href="https://stripe.com/tax#request-access">Stripe Tax website</a>.</p>
+<p><strong>Warning</strong><br>No tax is calculated for <a href="#single-charges">single charges</a> or <a href="#single-charge-checkouts">single charge checkouts</a>.</p>
 </blockquote>
 <p><a name="logging"></a></p>
 <h3 id="logging">Logging</h3>
@@ -922,6 +923,26 @@ cardButton.<span class="hljs-title function_">addEventListener</span>(<span clas
 
 <span class="hljs-variable">$subscriptionItem</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;default&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">findItemOrFail</span>(<span class="hljs-string">&#x27;price_chat&#x27;</span>);
 </code></pre>
+<p><a name="multiple-subscriptions"></a></p>
+<h3 id="multiple-subscriptions">Multiple Subscriptions</h3>
+<p>Stripe allows your customers to have multiple subscriptions simultaneously. For example, you may run a gym that offers a swimming subscription and a weight-lifting subscription, and each subscription may have different pricing. Of course, customers should be able to subscribe to either or both plans.</p>
+<p>When your application creates subscriptions, you may provide the name of the subscription to the <code>newSubscription</code> method. The name may be any string that represents the type of subscription the user is initiating:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">post</span>(<span class="hljs-string">&#x27;/swimming/subscribe&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">newSubscription</span>(<span class="hljs-string">&#x27;swimming&#x27;</span>)
+        -&gt;<span class="hljs-title function_ invoke__">price</span>(<span class="hljs-string">&#x27;price_swimming_monthly&#x27;</span>)
+        -&gt;<span class="hljs-title function_ invoke__">create</span>(<span class="hljs-variable">$request</span>-&gt;paymentMethodId);
+
+    <span class="hljs-comment">// ...</span>
+});
+</code></pre>
+<p>In this example, we initiated a monthly swimming subscription for the customer. However, they may want to swap to a yearly subscription at a later time. When adjusting the customer&#39;s subscription, we can simply swap the price on the <code>swimming</code> subscription:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;swimming&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">swap</span>(<span class="hljs-string">&#x27;price_swimming_yearly&#x27;</span>);
+</code></pre>
+<p>Of course, you may also cancel the subscription entirely:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;swimming&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">cancel</span>();
+</code></pre>
 <p><a name="metered-billing"></a></p>
 <h3 id="metered-billing">Metered Billing</h3>
 <p><a href="https://stripe.com/docs/billing/subscriptions/metered-billing">Metered billing</a> allows you to charge customers based on their product usage during a billing cycle. For example, you may charge customers based on the number of text messages or emails they send per month.</p>
@@ -1147,7 +1168,7 @@ cardButton.<span class="hljs-title function_">addEventListener</span>(<span clas
 ]);
 </code></pre>
 <blockquote>
-<p><strong>Warning</strong><br>Be sure to add a <a href="/docs/%7B%7Bversion%7D%7D/eloquent-mutators##date-casting">date cast</a> for the <code>trial_ends_at</code> attribute within your billable model&#39;s class definition.</p>
+<p><strong>Warning</strong><br>Be sure to add a <a href="/docs/%7B%7Bversion%7D%7D/eloquent-mutators#date-casting">date cast</a> for the <code>trial_ends_at</code> attribute within your billable model&#39;s class definition.</p>
 </blockquote>
 <p>Cashier refers to this type of trial as a &quot;generic trial&quot;, since it is not attached to any existing subscription. The <code>onTrial</code> method on the billable model instance will return <code>true</code> if the current date is not past the value of <code>trial_ends_at</code>:</p>
 <pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">onTrial</span>()) {
@@ -1200,6 +1221,7 @@ cardButton.<span class="hljs-title function_">addEventListener</span>(<span clas
 <li><code>customer.subscription.deleted</code></li>
 <li><code>customer.updated</code></li>
 <li><code>customer.deleted</code></li>
+<li><code>invoice.payment_succeeded</code></li>
 <li><code>invoice.payment_action_required</code></li>
 </ul>
 <p>For convenience, Cashier includes a <code>cashier:webhook</code> Artisan command. This command will create a webhook in Stripe that listens to all of the events required by Cashier:</p>

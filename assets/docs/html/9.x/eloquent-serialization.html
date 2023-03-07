@@ -106,6 +106,11 @@
 <p>Likewise, if you would like to hide some attributes that are typically visible, you may use the <code>makeHidden</code> method.</p>
 <pre><code><span class="hljs-keyword">return</span> <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">makeHidden</span>(<span class="hljs-string">&#x27;attribute&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">toArray</span>();
 </code></pre>
+<p>If you wish to temporarily override all of the visible or hidden attributes, you may use the <code>setVisible</code> and <code>setHidden</code> methods respectively:</p>
+<pre><code><span class="hljs-keyword">return</span> <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">setVisible</span>([<span class="hljs-string">&#x27;id&#x27;</span>, <span class="hljs-string">&#x27;name&#x27;</span>])-&gt;<span class="hljs-title function_ invoke__">toArray</span>();
+
+<span class="hljs-keyword">return</span> <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">setHidden</span>([<span class="hljs-string">&#x27;email&#x27;</span>, <span class="hljs-string">&#x27;password&#x27;</span>, <span class="hljs-string">&#x27;remember_token&#x27;</span>])-&gt;<span class="hljs-title function_ invoke__">toArray</span>();
+</code></pre>
 <p><a name="appending-values-to-json"></a></p>
 <h2 id="appending-values-to-json">Appending Values To JSON</h2>
 <p>Occasionally, when converting models to arrays or JSON, you may wish to add attributes that do not have a corresponding column in your database. To do so, first define an <a href="/docs/%7B%7Bversion%7D%7D/eloquent-mutators">accessor</a> for the value:</p>

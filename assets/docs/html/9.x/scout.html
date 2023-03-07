@@ -155,6 +155,47 @@
     }
 }
 </code></pre>
+<p>Some search engines such as MeiliSearch will only perform filter operations (<code>&gt;</code>, <code>&lt;</code>, etc.) on data of the correct type. So, when using these search engines and customizing your searchable data, you should ensure that numeric values are cast to their correct type:</p>
+<pre><code><span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">toSearchableArray</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-keyword">return</span> [
+        <span class="hljs-string">&#x27;id&#x27;</span> =&gt; (<span class="hljs-keyword">int</span>) <span class="hljs-variable language_">$this</span>-&gt;id,
+        <span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-variable language_">$this</span>-&gt;name,
+        <span class="hljs-string">&#x27;price&#x27;</span> =&gt; (<span class="hljs-keyword">float</span>) <span class="hljs-variable language_">$this</span>-&gt;price,
+    ];
+}
+</code></pre>
+<p><a name="configuring-filterable-data-for-meilisearch"></a></p>
+<h4 id="configuring-filterable-data--index-settings-meilisearch">Configuring Filterable Data &amp; Index Settings (MeiliSearch)</h4>
+<p>Unlike Scout&#39;s other drivers, MeiliSearch requires you to pre-define index search settings such as filterable attributes, sortable attributes, and <a href="https://docs.meilisearch.com/reference/api/settings.html">other supported settings fields</a>.</p>
+<p>Filterable attributes are any attributes you plan to filter on when invoking Scout&#39;s <code>where</code> method, while sortable attributes are any attributes you plan to sort by when invoking Scout&#39;s <code>orderBy</code> method. To define your index settings, adjust the <code>index-settings</code> portion of your <code>meilisearch</code> configuration entry in your application&#39;s <code>scout</code> configuration file:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Flight</span>;
+
+<span class="hljs-string">&#x27;meilisearch&#x27;</span> =&gt; [
+    <span class="hljs-string">&#x27;host&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;MEILISEARCH_HOST&#x27;</span>, <span class="hljs-string">&#x27;http://localhost:7700&#x27;</span>),
+    <span class="hljs-string">&#x27;key&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;MEILISEARCH_KEY&#x27;</span>, <span class="hljs-literal">null</span>),
+    <span class="hljs-string">&#x27;index-settings&#x27;</span> =&gt; [
+        <span class="hljs-title class_">User</span>::<span class="hljs-variable language_">class</span> =&gt; [
+            <span class="hljs-string">&#x27;filterableAttributes&#x27;</span>=&gt; [<span class="hljs-string">&#x27;id&#x27;</span>, <span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;email&#x27;</span>],
+            <span class="hljs-string">&#x27;sortableAttributes&#x27;</span> =&gt; [<span class="hljs-string">&#x27;created_at&#x27;</span>],
+            <span class="hljs-comment">// Other settings fields...</span>
+        ],
+        <span class="hljs-title class_">Flight</span>::<span class="hljs-variable language_">class</span> =&gt; [
+            <span class="hljs-string">&#x27;filterableAttributes&#x27;</span>=&gt; [<span class="hljs-string">&#x27;id&#x27;</span>, <span class="hljs-string">&#x27;destination&#x27;</span>],
+            <span class="hljs-string">&#x27;sortableAttributes&#x27;</span> =&gt; [<span class="hljs-string">&#x27;updated_at&#x27;</span>],
+        ],
+    ],
+],
+</code></pre>
+<p>If the model underlying a given index is soft deletable and is included in the <code>index-settings</code> array, Scout will automatically include support for filtering on soft deleted models on that index. If you have no other filterable or sortable attributes to define for a soft deletable model index, you may simply add an empty entry to the <code>index-settings</code> array for that model:</p>
+<pre><code class="language-php"><span class="hljs-string">&#x27;index-settings&#x27;</span> =&gt; [
+    <span class="hljs-title class_">Flight</span>::<span class="hljs-variable language_">class</span> =&gt; []
+],
+</code></pre>
+<p>After configuring your application&#39;s index settings, you must invoke the <code>scout:sync-index-settings</code> Artisan command. This command will inform MeiliSearch of your currently configured index settings. For convenience, you may wish to make this command part of your deployment process:</p>
+<pre><code class="language-shell">php artisan scout:sync-index-settings
+</code></pre>
 <p><a name="configuring-the-model-id"></a></p>
 <h3 id="configuring-the-model-id">Configuring The Model ID</h3>
 <p>By default, Scout will use the primary key of the model as the model&#39;s unique ID / key that is stored in the search index. If you need to customize this behavior, you may override the <code>getScoutKey</code> and the <code>getScoutKeyName</code> methods on the model:</p>
@@ -423,6 +464,10 @@
 )-&gt;<span class="hljs-title function_ invoke__">get</span>();
 </code></pre>
 <p>Since a search index is not a relational database, more advanced &quot;where&quot; clauses are not currently supported.</p>
+<blockquote>
+<p><strong>Warning</strong>
+If your application is using MeiliSearch, you must configure your application&#39;s <a href="#configuring-filterable-data-for-meilisearch">filterable attributes</a> before utilizing Scout&#39;s &quot;where&quot; clauses.</p>
+</blockquote>
 <p><a name="pagination"></a></p>
 <h3 id="pagination">Pagination</h3>
 <p>In addition to retrieving a collection of models, you may paginate your search results using the <code>paginate</code> method. This method will return an <code>Illuminate\Pagination\LengthAwarePaginator</code> instance just as if you had <a href="/docs/%7B%7Bversion%7D%7D/pagination">paginated a traditional Eloquent query</a>:</p>

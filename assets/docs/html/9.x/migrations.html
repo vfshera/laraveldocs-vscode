@@ -21,6 +21,7 @@
 <li><a href="#available-column-types">Available Column Types</a></li>
 <li><a href="#column-modifiers">Column Modifiers</a></li>
 <li><a href="#modifying-columns">Modifying Columns</a></li>
+<li><a href="#renaming-columns">Renaming Columns</a></li>
 <li><a href="#dropping-columns">Dropping Columns</a></li>
 </ul>
 </li>
@@ -56,7 +57,7 @@
 php artisan schema:dump --prune
 </code></pre>
 <p>When you execute this command, Laravel will write a &quot;schema&quot; file to your application&#39;s <code>database/schema</code> directory. The schema file&#39;s name will correspond to the database connection. Now, when you attempt to migrate your database and no other migrations have been executed, Laravel will execute first the SQL statements of the schema file of the database connection you are using. After executing the schema file&#39;s statements, Laravel will execute any remaining migrations that were not part of the schema dump.</p>
-<p>If your application&#39;s tests use a different database connection than the one you typically use during local development, you should ensure you have a dumped a schema file using that database connection so that your tests are able to build your database. You may wish to do this after dumping the database connection you typically use during local development:</p>
+<p>If your application&#39;s tests use a different database connection than the one you typically use during local development, you should ensure you have dumped a schema file using that database connection so that your tests are able to build your database. You may wish to do this after dumping the database connection you typically use during local development:</p>
 <pre><code class="language-shell">php artisan schema:dump
 php artisan schema:dump --database=testing --prune
 </code></pre>
@@ -341,6 +342,7 @@ php artisan migrate:fresh --seed
 <a href="#column-method-multiPolygon">multiPolygon</a>
 <a href="#column-method-nullableMorphs">nullableMorphs</a>
 <a href="#column-method-nullableTimestamps">nullableTimestamps</a>
+<a href="#column-method-nullableUlidMorphs">nullableUlidMorphs</a>
 <a href="#column-method-nullableUuidMorphs">nullableUuidMorphs</a>
 <a href="#column-method-point">point</a>
 <a href="#column-method-polygon">polygon</a>
@@ -367,6 +369,7 @@ php artisan migrate:fresh --seed
 <a href="#column-method-unsignedMediumInteger">unsignedMediumInteger</a>
 <a href="#column-method-unsignedSmallInteger">unsignedSmallInteger</a>
 <a href="#column-method-unsignedTinyInteger">unsignedTinyInteger</a>
+<a href="#column-method-ulidMorphs">ulidMorphs</a>
 <a href="#column-method-uuidMorphs">uuidMorphs</a>
 <a href="#column-method-ulid">ulid</a>
 <a href="#column-method-uuid">uuid</a>
@@ -554,6 +557,11 @@ php artisan migrate:fresh --seed
 <p>The method is similar to the <a href="#column-method-morphs">morphs</a> method; however, the columns that are created will be &quot;nullable&quot;:</p>
 <pre><code><span class="hljs-variable">$table</span>-&gt;<span class="hljs-title function_ invoke__">nullableMorphs</span>(<span class="hljs-string">&#x27;taggable&#x27;</span>);
 </code></pre>
+<p><a name="column-method-nullableUlidMorphs"></a></p>
+<h4 id="nullableulidmorphs-collection-method"><code>nullableUlidMorphs()</code> {.collection-method}</h4>
+<p>The method is similar to the <a href="#column-method-ulidMorphs">ulidMorphs</a> method; however, the columns that are created will be &quot;nullable&quot;:</p>
+<pre><code><span class="hljs-variable">$table</span>-&gt;<span class="hljs-title function_ invoke__">nullableUlidMorphs</span>(<span class="hljs-string">&#x27;taggable&#x27;</span>);
+</code></pre>
 <p><a name="column-method-nullableUuidMorphs"></a></p>
 <h4 id="nullableuuidmorphs-collection-method"><code>nullableUuidMorphs()</code> {.collection-method}</h4>
 <p>The method is similar to the <a href="#column-method-uuidMorphs">uuidMorphs</a> method; however, the columns that are created will be &quot;nullable&quot;:</p>
@@ -683,6 +691,12 @@ php artisan migrate:fresh --seed
 <h4 id="unsignedtinyinteger-collection-method"><code>unsignedTinyInteger()</code> {.collection-method}</h4>
 <p>The <code>unsignedTinyInteger</code> method creates an <code>UNSIGNED TINYINT</code> equivalent column:</p>
 <pre><code><span class="hljs-variable">$table</span>-&gt;<span class="hljs-title function_ invoke__">unsignedTinyInteger</span>(<span class="hljs-string">&#x27;votes&#x27;</span>);
+</code></pre>
+<p><a name="column-method-ulidMorphs"></a></p>
+<h4 id="ulidmorphs-collection-method"><code>ulidMorphs()</code> {.collection-method}</h4>
+<p>The <code>ulidMorphs</code> method is a convenience method that adds a <code>{column}_id</code> <code>CHAR(26)</code> equivalent column and a <code>{column}_type</code> <code>VARCHAR</code> equivalent column.</p>
+<p>This method is intended to be used when defining the columns necessary for a polymorphic <a href="/docs/%7B%7Bversion%7D%7D/eloquent-relationships">Eloquent relationship</a> that use ULID identifiers. In the following example, <code>taggable_id</code> and <code>taggable_type</code> columns would be created:</p>
+<pre><code><span class="hljs-variable">$table</span>-&gt;<span class="hljs-title function_ invoke__">ulidMorphs</span>(<span class="hljs-string">&#x27;taggable&#x27;</span>);
 </code></pre>
 <p><a name="column-method-uuidMorphs"></a></p>
 <h4 id="uuidmorphs-collection-method"><code>uuidMorphs()</code> {.collection-method}</h4>
@@ -870,18 +884,27 @@ php artisan migrate:fresh --seed
 <p><strong>Warning</strong><br>The following column types can be modified: <code>bigInteger</code>, <code>binary</code>, <code>boolean</code>, <code>char</code>, <code>date</code>, <code>dateTime</code>, <code>dateTimeTz</code>, <code>decimal</code>, <code>double</code>, <code>integer</code>, <code>json</code>, <code>longText</code>, <code>mediumText</code>, <code>smallInteger</code>, <code>string</code>, <code>text</code>, <code>time</code>, <code>tinyText</code>, <code>unsignedBigInteger</code>, <code>unsignedInteger</code>, <code>unsignedSmallInteger</code>, and <code>uuid</code>.  To modify a <code>timestamp</code> column type a <a href="#prerequisites">Doctrine type must be registered</a>.</p>
 </blockquote>
 <p><a name="renaming-columns"></a></p>
-<h4 id="renaming-columns">Renaming Columns</h4>
-<p>To rename a column, you may use the <code>renameColumn</code> method provided by the schema builder blueprint. Before renaming a column, ensure that you have installed the <code>doctrine/dbal</code> library via the Composer package manager:</p>
+<h3 id="renaming-columns">Renaming Columns</h3>
+<p>To rename a column, you may use the <code>renameColumn</code> method provided by the schema builder:</p>
 <pre><code><span class="hljs-title class_">Schema</span>::<span class="hljs-title function_ invoke__">table</span>(<span class="hljs-string">&#x27;users&#x27;</span>, function (Blueprint <span class="hljs-variable">$table</span>) {
     <span class="hljs-variable">$table</span>-&gt;<span class="hljs-title function_ invoke__">renameColumn</span>(<span class="hljs-string">&#x27;from&#x27;</span>, <span class="hljs-string">&#x27;to&#x27;</span>);
 });
 </code></pre>
-<blockquote>
-<p><strong>Warning</strong><br>Renaming an <code>enum</code> column is not currently supported.</p>
-</blockquote>
+<p><a name="renaming-columns-on-legacy-databases"></a></p>
+<h4 id="renaming-columns-on-legacy-databases">Renaming Columns On Legacy Databases</h4>
+<p>If you are running a database installation older than one of the following releases, you should ensure that you have installed the <code>doctrine/dbal</code> library via the Composer package manager before renaming a column:</p>
+<div class="content-list" markdown="1">
+
+<ul>
+<li>MySQL &lt; <code>8.0.3</code></li>
+<li>MariaDB &lt; <code>10.5.2</code></li>
+<li>SQLite &lt; <code>3.25.0</code></li>
+</ul>
+</div>
+
 <p><a name="dropping-columns"></a></p>
 <h3 id="dropping-columns">Dropping Columns</h3>
-<p>To drop a column, you may use the <code>dropColumn</code> method on the schema builder blueprint. If your application is utilizing an SQLite database, you must install the <code>doctrine/dbal</code> package via the Composer package manager before the <code>dropColumn</code> method may be used:</p>
+<p>To drop a column, you may use the <code>dropColumn</code> method on the schema builder:</p>
 <pre><code><span class="hljs-title class_">Schema</span>::<span class="hljs-title function_ invoke__">table</span>(<span class="hljs-string">&#x27;users&#x27;</span>, function (Blueprint <span class="hljs-variable">$table</span>) {
     <span class="hljs-variable">$table</span>-&gt;<span class="hljs-title function_ invoke__">dropColumn</span>(<span class="hljs-string">&#x27;votes&#x27;</span>);
 });
@@ -891,9 +914,9 @@ php artisan migrate:fresh --seed
     <span class="hljs-variable">$table</span>-&gt;<span class="hljs-title function_ invoke__">dropColumn</span>([<span class="hljs-string">&#x27;votes&#x27;</span>, <span class="hljs-string">&#x27;avatar&#x27;</span>, <span class="hljs-string">&#x27;location&#x27;</span>]);
 });
 </code></pre>
-<blockquote>
-<p><strong>Warning</strong><br>Dropping or modifying multiple columns within a single migration while using an SQLite database is not supported.</p>
-</blockquote>
+<p><a name="dropping-columns-on-legacy-databases"></a></p>
+<h4 id="dropping-columns-on-legacy-databases">Dropping Columns On Legacy Databases</h4>
+<p>If you are running a version of SQLite prior to <code>3.35.0</code>, you must install the <code>doctrine/dbal</code> package via the Composer package manager before the <code>dropColumn</code> method may be used. Dropping or modifying multiple columns within a single migration while using this package is not supported.</p>
 <p><a name="available-command-aliases"></a></p>
 <h4 id="available-command-aliases">Available Command Aliases</h4>
 <p>Laravel provides several convenient methods related to dropping common types of columns. Each of these methods is described in the table below:</p>
@@ -1010,6 +1033,9 @@ php artisan migrate:fresh --seed
 <p>To rename an index, you may use the <code>renameIndex</code> method provided by the schema builder blueprint. This method accepts the current index name as its first argument and the desired name as its second argument:</p>
 <pre><code><span class="hljs-variable">$table</span>-&gt;<span class="hljs-title function_ invoke__">renameIndex</span>(<span class="hljs-string">&#x27;from&#x27;</span>, <span class="hljs-string">&#x27;to&#x27;</span>)
 </code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>If your application is utilizing an SQLite database, you must install the <code>doctrine/dbal</code> package via the Composer package manager before the <code>renameIndex</code> method may be used.</p>
+</blockquote>
 <p><a name="dropping-indexes"></a></p>
 <h3 id="dropping-indexes">Dropping Indexes</h3>
 <p>To drop an index, you must specify the index&#39;s name. By default, Laravel automatically assigns an index name based on the table name, the name of the indexed column, and the index type. Here are some examples:</p>
@@ -1122,6 +1148,10 @@ php artisan migrate:fresh --seed
 <pre><code><span class="hljs-title class_">Schema</span>::<span class="hljs-title function_ invoke__">enableForeignKeyConstraints</span>();
 
 <span class="hljs-title class_">Schema</span>::<span class="hljs-title function_ invoke__">disableForeignKeyConstraints</span>();
+
+<span class="hljs-title class_">Schema</span>::<span class="hljs-title function_ invoke__">withoutForeignKeyConstraints</span>(function () {
+    <span class="hljs-comment">// Constraints disabled within this closure...</span>
+});
 </code></pre>
 <blockquote>
 <p><strong>Warning</strong><br>SQLite disables foreign key constraints by default. When using SQLite, make sure to <a href="/docs/%7B%7Bversion%7D%7D/database#configuration">enable foreign key support</a> in your database configuration before attempting to create them in your migrations. In addition, SQLite only supports foreign keys upon creation of the table and <a href="https://www.sqlite.org/omitted.html">not when tables are altered</a>.</p>

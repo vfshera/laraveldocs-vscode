@@ -233,7 +233,7 @@
     <span class="hljs-string">&#x27;email&#x27;</span> =&gt; <span class="hljs-variable">$email</span>, 
     <span class="hljs-string">&#x27;password&#x27;</span> =&gt; <span class="hljs-variable">$password</span>, 
     fn (<span class="hljs-variable">$query</span>) =&gt; <span class="hljs-variable">$query</span>-&gt;<span class="hljs-title function_ invoke__">has</span>(<span class="hljs-string">&#x27;activeSubscription&#x27;</span>),
-]) {
+])) {
     <span class="hljs-comment">// Authentication was successful...</span>
 }
 </code></pre>
@@ -505,6 +505,11 @@ RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
         <span class="hljs-string">&#x27;driver&#x27;</span> =&gt; <span class="hljs-string">&#x27;custom-token&#x27;</span>,
     ],
 ],
+</code></pre>
+<p>Finally, you may reference the guard when assigning the authentication middleware to a route:</p>
+<pre><code><span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">middleware</span>(<span class="hljs-string">&#x27;auth:api&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">group</span>(function () {
+    <span class="hljs-comment">// ...</span>
+}
 </code></pre>
 <p><a name="adding-custom-user-providers"></a></p>
 <h2 id="adding-custom-user-providers">Adding Custom User Providers</h2>

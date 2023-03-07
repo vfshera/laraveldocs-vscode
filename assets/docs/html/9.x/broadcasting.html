@@ -64,7 +64,7 @@
 <p>The core concepts behind broadcasting are simple: clients connect to named channels on the frontend, while your Laravel application broadcasts events to these channels on the backend. These events can contain any additional data you wish to make available to the frontend.</p>
 <p><a name="supported-drivers"></a></p>
 <h4 id="supported-drivers">Supported Drivers</h4>
-<p>By default, Laravel includes two server-side broadcasting drivers for you to choose from: <a href="https://pusher.com/channels">Pusher Channels</a> and <a href="https://ably.io">Ably</a>. However, community driven packages such as <a href="https://beyondco.de/docs/laravel-websockets/getting-started/introduction">laravel-websockets</a> and <a href="https://docs.soketi.app/">soketi</a> provide additional broadcasting drivers that do not require commercial broadcasting providers.</p>
+<p>By default, Laravel includes two server-side broadcasting drivers for you to choose from: <a href="https://pusher.com/channels">Pusher Channels</a> and <a href="https://ably.com">Ably</a>. However, community driven packages such as <a href="https://beyondco.de/docs/laravel-websockets/getting-started/introduction">laravel-websockets</a> and <a href="https://docs.soketi.app/">soketi</a> provide additional broadcasting drivers that do not require commercial broadcasting providers.</p>
 <blockquote>
 <p><strong>Note</strong><br>Before diving into event broadcasting, make sure you have read Laravel&#39;s documentation on <a href="/docs/%7B%7Bversion%7D%7D/events">events and listeners</a>.</p>
 </blockquote>
@@ -102,7 +102,7 @@
 <p>The <a href="https://github.com/beyondcode/laravel-websockets">laravel-websockets</a> and <a href="https://docs.soketi.app/">soketi</a> packages provide Pusher compatible WebSocket servers for Laravel. These packages allow you to leverage the full power of Laravel broadcasting without a commercial WebSocket provider. For more information on installing and using these packages, please consult our documentation on <a href="#open-source-alternatives">open source alternatives</a>.</p>
 <p><a name="ably"></a></p>
 <h3 id="ably">Ably</h3>
-<p>If you plan to broadcast your events using <a href="https://ably.io">Ably</a>, you should install the Ably PHP SDK using the Composer package manager:</p>
+<p>If you plan to broadcast your events using <a href="https://ably.com">Ably</a>, you should install the Ably PHP SDK using the Composer package manager:</p>
 <pre><code class="language-shell">composer require ably/ably-php
 </code></pre>
 <p>Next, you should configure your Ably credentials in the <code>config/broadcasting.php</code> configuration file. An example Ably configuration is already included in this file, allowing you to quickly specify your key. Typically, this value should be set via the <code>ABLY_KEY</code> <a href="/docs/%7B%7Bversion%7D%7D/configuration#environment-configuration">environment variable</a>:</p>
@@ -193,7 +193,7 @@
 </blockquote>
 <p><a name="concept-overview"></a></p>
 <h2 id="concept-overview">Concept Overview</h2>
-<p>Laravel&#39;s event broadcasting allows you to broadcast your server-side Laravel events to your client-side JavaScript application using a driver-based approach to WebSockets. Currently, Laravel ships with <a href="https://pusher.com/channels">Pusher Channels</a> and <a href="https://ably.io">Ably</a> drivers. The events may be easily consumed on the client-side using the <a href="#client-side-installation">Laravel Echo</a> JavaScript package.</p>
+<p>Laravel&#39;s event broadcasting allows you to broadcast your server-side Laravel events to your client-side JavaScript application using a driver-based approach to WebSockets. Currently, Laravel ships with <a href="https://pusher.com/channels">Pusher Channels</a> and <a href="https://ably.com">Ably</a> drivers. The events may be easily consumed on the client-side using the <a href="#client-side-installation">Laravel Echo</a> JavaScript package.</p>
 <p>Events are broadcast over &quot;channels&quot;, which may be specified as public or private. Any visitor to your application may subscribe to a public channel without any authentication or authorization; however, in order to subscribe to a private channel, a user must be authenticated and authorized to listen on that channel.</p>
 <blockquote>
 <p><strong>Note</strong><br>If you would like to explore open source alternatives to Pusher, check out the <a href="#open-source-alternatives">open source alternatives</a>.</p>

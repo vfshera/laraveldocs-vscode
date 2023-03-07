@@ -1,6 +1,9 @@
 <h1 id="views">Views</h1>
 <ul>
-<li><a href="#introduction">Introduction</a></li>
+<li><a href="#introduction">Introduction</a><ul>
+<li><a href="#writing-views-in-react-or-vue">Writing Views In React / Vue</a></li>
+</ul>
+</li>
 <li><a href="#creating-and-rendering-views">Creating &amp; Rendering Views</a><ul>
 <li><a href="#nested-view-directories">Nested View Directories</a></li>
 <li><a href="#creating-the-first-available-view">Creating The First Available View</a></li>
@@ -19,7 +22,8 @@
 </ul>
 <p><a name="introduction"></a></p>
 <h2 id="introduction">Introduction</h2>
-<p>Of course, it&#39;s not practical to return entire HTML documents strings directly from your routes and controllers. Thankfully, views provide a convenient way to place all of our HTML in separate files. Views separate your controller / application logic from your presentation logic and are stored in the <code>resources/views</code> directory. A simple view might look something like this:</p>
+<p>Of course, it&#39;s not practical to return entire HTML documents strings directly from your routes and controllers. Thankfully, views provide a convenient way to place all of our HTML in separate files.</p>
+<p>Views separate your controller / application logic from your presentation logic and are stored in the <code>resources/views</code> directory. When using Laravel, view templates are usually written using the <a href="/docs/%7B%7Bversion%7D%7D/blade">Blade templating language</a>. A simple view might look something like this:</p>
 <pre><code class="language-blade"><span class="language-xml"><span class="hljs-comment">&lt;!-- View stored in resources/views/greeting.blade.php --&gt;</span>
 
 <span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
@@ -36,6 +40,10 @@
 <blockquote>
 <p><strong>Note</strong><br>Looking for more information on how to write Blade templates? Check out the full <a href="/docs/%7B%7Bversion%7D%7D/blade">Blade documentation</a> to get started.</p>
 </blockquote>
+<p><a name="writing-views-in-react-or-vue"></a></p>
+<h3 id="writing-views-in-react--vue">Writing Views In React / Vue</h3>
+<p>Instead of writing their frontend templates in PHP via Blade, many developers have begun to prefer to write their templates using React or Vue. Laravel makes this painless thanks to <a href="https://inertiajs.com/">Inertia</a>, a library that makes it a cinch to tie your React / Vue frontend to your Laravel backend without the typical complexities of building an SPA.</p>
+<p>Our Breeze and Jetstream <a href="/docs/%7B%7Bversion%7D%7D/starter-kits">starter kits</a> give you a great starting point for your next Laravel application powered by Inertia. In addition, the <a href="https://bootcamp.laravel.com">Laravel Bootcamp</a> provides a full demonstration of building a Laravel application powered by Inertia, including examples in Vue and React.</p>
 <p><a name="creating-and-rendering-views"></a></p>
 <h2 id="creating--rendering-views">Creating &amp; Rendering Views</h2>
 <p>You may create a view by placing a file with the <code>.blade.php</code> extension in your application&#39;s <code>resources/views</code> directory. The <code>.blade.php</code> extension informs the framework that the file contains a <a href="/docs/%7B%7Bversion%7D%7D/blade">Blade template</a>. Blade templates contain HTML as well as Blade directives that allow you to easily echo values, create &quot;if&quot; statements, iterate over data, and more.</p>

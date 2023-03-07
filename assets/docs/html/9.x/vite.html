@@ -34,7 +34,10 @@
 <li><a href="#arbitrary-attributes">Arbitrary Attributes</a></li>
 </ul>
 </li>
-<li><a href="#advanced-customization">Advanced Customization</a></li>
+<li><a href="#advanced-customization">Advanced Customization</a><ul>
+<li><a href="#correcting-dev-server-urls">Correcting Dev Server URLs</a></li>
+</ul>
+</li>
 </ul>
 <p><a name="introduction"></a></p>
 <h2 id="introduction">Introduction</h2>
@@ -202,7 +205,10 @@ npm run build
 </code></pre>
 <p><a name="vue"></a></p>
 <h3 id="vue">Vue</h3>
-<p>There are a few additional options you will need to include in the <code>vite.config.js</code> configuration file when using the Vue plugin with the Laravel plugin:</p>
+<p>If you would like to build your front-end using the <a href="https://vuejs.org/">Vue</a> framework, then you will also need to install the <code>@vitejs/plugin-vue</code> plugin:</p>
+<pre><code class="language-sh">npm install --save-dev @vitejs/plugin-vue
+</code></pre>
+<p>You may then include the plugin in your <code>vite.config.js</code> configuration file. There are a few additional options you will need when using the Vue plugin with Laravel:</p>
 <pre><code class="language-js"><span class="hljs-keyword">import</span> { defineConfig } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;vite&#x27;</span>;
 <span class="hljs-keyword">import</span> laravel <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;laravel-vite-plugin&#x27;</span>;
 <span class="hljs-keyword">import</span> vue <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@vitejs/plugin-vue&#x27;</span>;
@@ -236,7 +242,23 @@ npm run build
 </blockquote>
 <p><a name="react"></a></p>
 <h3 id="react">React</h3>
-<p>When using Vite with React, you will need to ensure that any files containing JSX have a <code>.jsx</code> or <code>.tsx</code> extension, remembering to update your entry point, if required, as <a href="#configuring-vite">shown above</a>. You will also need to include the additional <code>@viteReactRefresh</code> Blade directive alongside your existing <code>@vite</code> directive.</p>
+<p>If you would like to build your front-end using the <a href="https://reactjs.org/">React</a> framework, then you will also need to install the <code>@vitejs/plugin-react</code> plugin:</p>
+<pre><code class="language-sh">npm install --save-dev @vitejs/plugin-react
+</code></pre>
+<p>You may then include the plugin in your <code>vite.config.js</code> configuration file:</p>
+<pre><code class="language-js"><span class="hljs-keyword">import</span> { defineConfig } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;vite&#x27;</span>;
+<span class="hljs-keyword">import</span> laravel <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;laravel-vite-plugin&#x27;</span>;
+<span class="hljs-keyword">import</span> react <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@vitejs/plugin-react&#x27;</span>;
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-title function_">defineConfig</span>({
+    <span class="hljs-attr">plugins</span>: [
+        <span class="hljs-title function_">laravel</span>([<span class="hljs-string">&#x27;resources/js/app.jsx&#x27;</span>]),
+        <span class="hljs-title function_">react</span>(),
+    ],
+});
+</code></pre>
+<p>You will need to ensure that any files containing JSX have a <code>.jsx</code> or <code>.tsx</code> extension, remembering to update your entry point, if required, as <a href="#configuring-vite">shown above</a>.</p>
+<p>You will also need to include the additional <code>@viteReactRefresh</code> Blade directive alongside your existing <code>@vite</code> directive.</p>
 <pre><code class="language-blade"><span class="hljs-template-tag">@viteReactRefresh</span><span class="language-xml">
 </span><span class="hljs-template-tag">@vite</span><span class="language-xml">(&#x27;resources/js/app.jsx&#x27;)</span>
 </code></pre>
@@ -248,13 +270,13 @@ npm run build
 <h3 id="inertia">Inertia</h3>
 <p>The Laravel Vite plugin provides a convenient <code>resolvePageComponent</code> function to help you resolve your Inertia page components. Below is an example of the helper in use with Vue 3; however, you may also utilize the function in other frameworks such as React:</p>
 <pre><code class="language-js"><span class="hljs-keyword">import</span> { createApp, h } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;vue&#x27;</span>;
-<span class="hljs-keyword">import</span> { createInertiaApp } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@inertiajs/inertia-vue3&#x27;</span>;
+<span class="hljs-keyword">import</span> { createInertiaApp } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@inertiajs/vue3&#x27;</span>;
 <span class="hljs-keyword">import</span> { resolvePageComponent } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;laravel-vite-plugin/inertia-helpers&#x27;</span>;
 
 <span class="hljs-title function_">createInertiaApp</span>({
   <span class="hljs-attr">resolve</span>: <span class="hljs-function">(<span class="hljs-params">name</span>) =&gt;</span> <span class="hljs-title function_">resolvePageComponent</span>(<span class="hljs-string">`./Pages/<span class="hljs-subst">${name}</span>.vue`</span>, <span class="hljs-keyword">import</span>.<span class="hljs-property">meta</span>.<span class="hljs-title function_">glob</span>(<span class="hljs-string">&#x27;./Pages/**/*.vue&#x27;</span>)),
   <span class="hljs-title function_">setup</span>(<span class="hljs-params">{ el, App, props, plugin }</span>) {
-    <span class="hljs-title function_">createApp</span>({ <span class="hljs-attr">render</span>: <span class="hljs-function">() =&gt;</span> <span class="hljs-title function_">h</span>(<span class="hljs-title class_">App</span>, props) })
+    <span class="hljs-keyword">return</span> <span class="hljs-title function_">createApp</span>({ <span class="hljs-attr">render</span>: <span class="hljs-function">() =&gt;</span> <span class="hljs-title function_">h</span>(<span class="hljs-title class_">App</span>, props) })
       .<span class="hljs-title function_">use</span>(plugin)
       .<span class="hljs-title function_">mount</span>(el)
   },
@@ -265,7 +287,7 @@ npm run build
 </blockquote>
 <p><a name="url-processing"></a></p>
 <h3 id="url-processing">URL Processing</h3>
-<p>When using Vite and referencing assets in your application&#39;s HTML, CSS, or JS, there are a couple of things to consider. First, if you reference assets with an absolute path, Vite will not include the asset in the build; therefore, you should ensure that the asset is available in your public directory.</p>
+<p>When using Vite and referencing assets in your application&#39;s HTML, CSS, or JS, there are a couple of caveats to consider. First, if you reference assets with an absolute path, Vite will not include the asset in the build; therefore, you should ensure that the asset is available in your public directory.</p>
 <p>When referencing relative asset paths, you should remember that the paths are relative to the file where they are referenced. Any assets referenced via a relative path will be re-written, versioned, and bundled by Vite.</p>
 <p>Consider the following project structure:</p>
 <pre><code class="language-nothing"><span class="hljs-keyword">public</span>/
@@ -363,7 +385,7 @@ resources/
 </code></pre>
 <p><a name="blade-aliases"></a></p>
 <h3 id="aliases-1">Aliases</h3>
-<p>It is common in JavaScript applications to <a href="#aliases">create aliases</a> to regularly referenced directories. But, you may also create aliases to use in Blade by using the <code>macro</code> method on the <code>Illuminate\Support\Vite</code> class. Typically, &quot;macros&quot; should be defined within the <code>boot</code> method of a <a href="/docs/%7B%7Bversion%7D%7D/providers">service provider</a>:</p>
+<p>It is common in JavaScript applications to <a href="#aliases">create aliases</a> to regularly referenced directories. But, you may also create aliases to use in Blade by using the <code>macro</code> method on the <code>Illuminate\Support\Facades\Vite</code> class. Typically, &quot;macros&quot; should be defined within the <code>boot</code> method of a <a href="/docs/%7B%7Bversion%7D%7D/providers">service provider</a>:</p>
 <pre><code><span class="hljs-comment">/**
  * Bootstrap any application services.
  *
@@ -498,8 +520,8 @@ node bootstrap/ssr/ssr.mjs
 </code></pre>
 <p><a name="subresource-integrity-sri"></a></p>
 <h3 id="subresource-integrity-sri">Subresource Integrity (SRI)</h3>
-<p>If your Vite manifest includes <code>integrity</code> hashes for your assets, Laravel will automatically add the <code>integrity</code> attribute on any script and style tags it generates in order to enforce <a href="https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity">Subresource Integrity</a>. By default, Vite does not include the <code>integrity</code> hash in its manifest, but you may enable it by installing the <a href="https://www.npmjs.com/package/vite-plugin-manifest-sri"><code>vite-plugin-manifest-uri</code></a> NPM plugin:</p>
-<pre><code class="language-shell">npm install -D vite-plugin-manifest-sri
+<p>If your Vite manifest includes <code>integrity</code> hashes for your assets, Laravel will automatically add the <code>integrity</code> attribute on any script and style tags it generates in order to enforce <a href="https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity">Subresource Integrity</a>. By default, Vite does not include the <code>integrity</code> hash in its manifest, but you may enable it by installing the <a href="https://www.npmjs.com/package/vite-plugin-manifest-sri"><code>vite-plugin-manifest-sri</code></a> NPM plugin:</p>
+<pre><code class="language-shell">npm install --save-dev vite-plugin-manifest-sri
 </code></pre>
 <p>You may then enable this plugin in your <code>vite.config.js</code> file:</p>
 <pre><code class="language-js"><span class="hljs-keyword">import</span> { defineConfig } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;vite&#x27;</span>;
@@ -562,6 +584,7 @@ node bootstrap/ssr/ssr.mjs
     </span><span class="hljs-template-variable">{{</span><span class="language-php">
         <span class="hljs-title class_">Vite</span>::<span class="hljs-title function_ invoke__">useHotFile</span>(<span class="hljs-title function_ invoke__">storage_path</span>(<span class="hljs-string">&#x27;vite.hot&#x27;</span>)) <span class="hljs-comment">// Customize the &quot;hot&quot; file...</span>
             -&gt;<span class="hljs-title function_ invoke__">useBuildDirectory</span>(<span class="hljs-string">&#x27;bundle&#x27;</span>) <span class="hljs-comment">// Customize the build directory...</span>
+            -&gt;<span class="hljs-title function_ invoke__">useManifestFilename</span>(<span class="hljs-string">&#x27;assets.json&#x27;</span>) <span class="hljs-comment">// Customize the manifest filename...</span>
             -&gt;<span class="hljs-title function_ invoke__">withEntryPoints</span>([<span class="hljs-string">&#x27;resources/js/app.js&#x27;</span>]) <span class="hljs-comment">// Specify the entry points...</span>
     </span><span class="hljs-template-variable">}}</span><span class="language-xml">
 <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span></span>
@@ -578,5 +601,34 @@ node bootstrap/ssr/ssr.mjs
             <span class="hljs-attr">input</span>: [<span class="hljs-string">&#x27;resources/js/app.js&#x27;</span>], <span class="hljs-comment">// Specify the entry points...</span>
         }),
     ],
+    <span class="hljs-attr">build</span>: {
+      <span class="hljs-attr">manifest</span>: <span class="hljs-string">&#x27;assets.json&#x27;</span>, <span class="hljs-comment">// Customize the manifest filename...</span>
+    },
 });
+</code></pre>
+<p><a name="correcting-dev-server-urls"></a></p>
+<h3 id="correcting-dev-server-urls">Correcting Dev Server URLs</h3>
+<p>Some plugins within the Vite ecosystem assume that URLs which begin with a forward-slash will always point to the Vite dev server. However, due to the nature of the Laravel integration, this is not the case.</p>
+<p>For example, the <code>vite-imagetools</code> plugin outputs URLs like the following while Vite is serving your assets:</p>
+<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;/@imagetools/f0b2f404b13f052c604e632f2fb60381bf61a520&quot;</span>&gt;</span>
+</code></pre>
+<p>The <code>vite-imagetools</code> plugin is expecting that the output URL will be intercepted by Vite and the plugin may then handle all URLs that start with <code>/@imagetools</code>. If you are using plugins that are expecting this behaviour, you will need to manually correct the URLs. You can do this in your <code>vite.config.js</code> file by using the <code>transformOnServe</code> option. </p>
+<p>In this particular example, we will append the dev server URL to all occurrences of <code>/@imagetools</code> within the generated code:</p>
+<pre><code class="language-js"><span class="hljs-keyword">import</span> { defineConfig } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;vite&#x27;</span>;
+<span class="hljs-keyword">import</span> laravel <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;laravel-vite-plugin&#x27;</span>;
+<span class="hljs-keyword">import</span> { imagetools } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;vite-imagetools&#x27;</span>;
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-title function_">defineConfig</span>({
+    <span class="hljs-attr">plugins</span>: [
+        <span class="hljs-title function_">laravel</span>({
+            <span class="hljs-comment">// ...</span>
+            <span class="hljs-attr">transformOnServe</span>: <span class="hljs-function">(<span class="hljs-params">code, devServerUrl</span>) =&gt;</span> code.<span class="hljs-title function_">replaceAll</span>(<span class="hljs-string">&#x27;/@imagetools&#x27;</span>, devServerUrl+<span class="hljs-string">&#x27;/@imagetools&#x27;</span>),
+        }),
+        <span class="hljs-title function_">imagetools</span>(),
+    ],
+});
+</code></pre>
+<p>Now, while Vite is serving Assets, it will output URLs that point to the Vite dev server:</p>
+<pre><code class="language-html">- <span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;/@imagetools/f0b2f404b13f052c604e632f2fb60381bf61a520&quot;</span>&gt;</span><span class="hljs-comment">&lt;!-- [tl! remove] --&gt;</span>
++ <span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;http://[::1]:5173/@imagetools/f0b2f404b13f052c604e632f2fb60381bf61a520&quot;</span>&gt;</span><span class="hljs-comment">&lt;!-- [tl! add] --&gt;</span>
 </code></pre>

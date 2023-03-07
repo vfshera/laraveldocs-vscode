@@ -29,6 +29,9 @@
 
 <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">redirect</span>()-&gt;<span class="hljs-title function_ invoke__">route</span>(<span class="hljs-string">&#x27;profile&#x27;</span>, [<span class="hljs-string">&#x27;id&#x27;</span> =&gt; <span class="hljs-number">1</span>]);
 </code></pre>
+<p>For convenience, Laravel also offers the global <code>to_route</code> function:</p>
+<pre><code><span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">to_route</span>(<span class="hljs-string">&#x27;profile&#x27;</span>, [<span class="hljs-string">&#x27;id&#x27;</span> =&gt; <span class="hljs-number">1</span>]);
+</code></pre>
 <p><a name="populating-parameters-via-eloquent-models"></a></p>
 <h4 id="populating-parameters-via-eloquent-models">Populating Parameters Via Eloquent Models</h4>
 <p>If you are redirecting to a route with an &quot;ID&quot; parameter that is being populated from an Eloquent model, you may pass the model itself. The ID will be extracted automatically:</p>

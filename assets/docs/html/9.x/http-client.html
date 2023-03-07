@@ -37,21 +37,47 @@
 </code></pre>
 <p>The <code>get</code> method returns an instance of <code>Illuminate\Http\Client\Response</code>, which provides a variety of methods that may be used to inspect the response:</p>
 <pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">body</span>() : <span class="hljs-keyword">string</span>;
-<span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">json</span>(<span class="hljs-variable">$key</span> = <span class="hljs-literal">null</span>) : <span class="hljs-keyword">array</span>|<span class="hljs-keyword">mixed</span>;
+<span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">json</span>(<span class="hljs-variable">$key</span> = <span class="hljs-literal">null</span>, <span class="hljs-variable">$default</span> = <span class="hljs-literal">null</span>) : <span class="hljs-keyword">array</span>|<span class="hljs-keyword">mixed</span>;
 <span class="hljs-variable">$response</span>-&gt;<span class="hljs-keyword">object</span>() : <span class="hljs-keyword">object</span>;
 <span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">collect</span>(<span class="hljs-variable">$key</span> = <span class="hljs-literal">null</span>) : Illuminate\Support\Collection;
 <span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">status</span>() : <span class="hljs-keyword">int</span>;
-<span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">ok</span>() : <span class="hljs-keyword">bool</span>;
 <span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">successful</span>() : <span class="hljs-keyword">bool</span>;
 <span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">redirect</span>(): <span class="hljs-keyword">bool</span>;
 <span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">failed</span>() : <span class="hljs-keyword">bool</span>;
-<span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">serverError</span>() : <span class="hljs-keyword">bool</span>;
 <span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">clientError</span>() : <span class="hljs-keyword">bool</span>;
 <span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">header</span>(<span class="hljs-variable">$header</span>) : <span class="hljs-keyword">string</span>;
 <span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">headers</span>() : <span class="hljs-keyword">array</span>;
 </code></pre>
 <p>The <code>Illuminate\Http\Client\Response</code> object also implements the PHP <code>ArrayAccess</code> interface, allowing you to access JSON response data directly on the response:</p>
 <pre><code><span class="hljs-keyword">return</span> <span class="hljs-title class_">Http</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;http://example.com/users/1&#x27;</span>)[<span class="hljs-string">&#x27;name&#x27;</span>];
+</code></pre>
+<p>In addition to the response methods listed above, the following methods may be used to determine if the response has a given status code:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">ok</span>() : <span class="hljs-keyword">bool</span>;                  <span class="hljs-comment">// 200 OK</span>
+<span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">created</span>() : <span class="hljs-keyword">bool</span>;             <span class="hljs-comment">// 201 Created</span>
+<span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">accepted</span>() : <span class="hljs-keyword">bool</span>;            <span class="hljs-comment">// 202 Accepted</span>
+<span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">noContent</span>() : <span class="hljs-keyword">bool</span>;           <span class="hljs-comment">// 204 No Content</span>
+<span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">movedPermanently</span>() : <span class="hljs-keyword">bool</span>;    <span class="hljs-comment">// 301 Moved Permanently</span>
+<span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">found</span>() : <span class="hljs-keyword">bool</span>;               <span class="hljs-comment">// 302 Found</span>
+<span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">badRequest</span>() : <span class="hljs-keyword">bool</span>;          <span class="hljs-comment">// 400 Bad Request</span>
+<span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">unauthorized</span>() : <span class="hljs-keyword">bool</span>;        <span class="hljs-comment">// 401 Unauthorized</span>
+<span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">paymentRequired</span>() : <span class="hljs-keyword">bool</span>;     <span class="hljs-comment">// 402 Payment Required</span>
+<span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">forbidden</span>() : <span class="hljs-keyword">bool</span>;           <span class="hljs-comment">// 403 Forbidden</span>
+<span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">notFound</span>() : <span class="hljs-keyword">bool</span>;            <span class="hljs-comment">// 404 Not Found</span>
+<span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">requestTimeout</span>() : <span class="hljs-keyword">bool</span>;      <span class="hljs-comment">// 408 Request Timeout</span>
+<span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">conflict</span>() : <span class="hljs-keyword">bool</span>;            <span class="hljs-comment">// 409 Conflict</span>
+<span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">unprocessableEntity</span>() : <span class="hljs-keyword">bool</span>; <span class="hljs-comment">// 422 Unprocessable Entity</span>
+<span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">tooManyRequests</span>() : <span class="hljs-keyword">bool</span>;     <span class="hljs-comment">// 429 Too Many Requests</span>
+<span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">serverError</span>() : <span class="hljs-keyword">bool</span>;         <span class="hljs-comment">// 500 Internal Server Error</span>
+</code></pre>
+<p><a name="uri-templates"></a></p>
+<h4 id="uri-templates">URI Templates</h4>
+<p>The HTTP client also allows you to construct request URLs using the <a href="https://www.rfc-editor.org/rfc/rfc6570">URI template specification</a>. To define the URL parameters that can be expanded by your URI template, you may use the <code>withUrlParameters</code> method:</p>
+<pre><code class="language-php"><span class="hljs-title class_">Http</span>::<span class="hljs-title function_ invoke__">withUrlParameters</span>([
+    <span class="hljs-string">&#x27;endpoint&#x27;</span> =&gt; <span class="hljs-string">&#x27;https://laravel.com&#x27;</span>,
+    <span class="hljs-string">&#x27;page&#x27;</span> =&gt; <span class="hljs-string">&#x27;docs&#x27;</span>,
+    <span class="hljs-string">&#x27;version&#x27;</span> =&gt; <span class="hljs-string">&#x27;9.x&#x27;</span>,
+    <span class="hljs-string">&#x27;topic&#x27;</span> =&gt; <span class="hljs-string">&#x27;validation&#x27;</span>,
+])-&gt;<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;{+endpoint}/{page}/{version}/{topic}&#x27;</span>);
 </code></pre>
 <p><a name="dumping-requests"></a></p>
 <h4 id="dumping-requests">Dumping Requests</h4>
@@ -200,8 +226,20 @@
 <span class="hljs-comment">// Throw an exception if an error occurred and the given condition is true...</span>
 <span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">throwIf</span>(<span class="hljs-variable">$condition</span>);
 
+<span class="hljs-comment">// Throw an exception if an error occurred and the given closure resolves to true...</span>
+<span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">throwIf</span>(fn (<span class="hljs-variable">$response</span>) =&gt; <span class="hljs-literal">true</span>);
+
 <span class="hljs-comment">// Throw an exception if an error occurred and the given condition is false...</span>
 <span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">throwUnless</span>(<span class="hljs-variable">$condition</span>);
+
+<span class="hljs-comment">// Throw an exception if an error occurred and the given closure resolves to false...</span>
+<span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">throwUnless</span>(fn (<span class="hljs-variable">$response</span>) =&gt; <span class="hljs-literal">false</span>);
+
+<span class="hljs-comment">// Throw an exception if the response has a specific status code...</span>
+<span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">throwIfStatus</span>(<span class="hljs-number">403</span>);
+
+<span class="hljs-comment">// Throw an exception unless the response has a specific status code...</span>
+<span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">throwUnlessStatus</span>(<span class="hljs-number">200</span>);
 
 <span class="hljs-keyword">return</span> <span class="hljs-variable">$response</span>[<span class="hljs-string">&#x27;user&#x27;</span>][<span class="hljs-string">&#x27;id&#x27;</span>];
 </code></pre>
@@ -223,7 +261,7 @@
 
 <span class="hljs-variable">$response</span> = <span class="hljs-title class_">Http</span>::<span class="hljs-title function_ invoke__">withMiddleware</span>(
     <span class="hljs-title class_">Middleware</span>::<span class="hljs-title function_ invoke__">mapRequest</span>(function (RequestInterface <span class="hljs-variable">$request</span>) {
-        <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">withHeader</span>(<span class="hljs-string">&#x27;X-Example&#x27;</span>, <span class="hljs-string">&#x27;Value&#x27;</span>);
+        <span class="hljs-variable">$request</span> = <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">withHeader</span>(<span class="hljs-string">&#x27;X-Example&#x27;</span>, <span class="hljs-string">&#x27;Value&#x27;</span>);
         
         <span class="hljs-keyword">return</span> <span class="hljs-variable">$request</span>;
     })

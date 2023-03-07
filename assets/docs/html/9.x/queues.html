@@ -99,7 +99,7 @@ php artisan migrate
 <h4 id="redis">Redis</h4>
 <p>In order to use the <code>redis</code> queue driver, you should configure a Redis database connection in your <code>config/database.php</code> configuration file.</p>
 <p><strong>Redis Cluster</strong></p>
-<p>If your Redis queue connection uses a Redis Cluster, your queue names must contain a <a href="https://redis.io/topics/cluster-spec#keys-hash-tags">key hash tag</a>. This is required in order to ensure all of the Redis keys for a given queue are placed into the same hash slot:</p>
+<p>If your Redis queue connection uses a Redis Cluster, your queue names must contain a <a href="https://redis.io/docs/reference/cluster-spec/#hash-tags">key hash tag</a>. This is required in order to ensure all of the Redis keys for a given queue are placed into the same hash slot:</p>
 <pre><code><span class="hljs-string">&#x27;redis&#x27;</span> =&gt; [
     <span class="hljs-string">&#x27;driver&#x27;</span> =&gt; <span class="hljs-string">&#x27;redis&#x27;</span>,
     <span class="hljs-string">&#x27;connection&#x27;</span> =&gt; <span class="hljs-string">&#x27;default&#x27;</span>,
@@ -770,6 +770,9 @@ The <code>WithoutOverlapping</code> middleware requires a cache driver that supp
     <span class="hljs-comment">// A job within the chain has failed...</span>
 })-&gt;<span class="hljs-title function_ invoke__">dispatch</span>();
 </code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>Since chain callbacks are serialized and executed at a later time by the Laravel queue, you should not use the <code>$this</code> variable within chain callbacks.</p>
+</blockquote>
 <p><a name="customizing-the-queue-and-connection"></a></p>
 <h3 id="customizing-the-queue--connection">Customizing The Queue &amp; Connection</h3>
 <p><a name="dispatching-to-a-particular-queue"></a></p>
@@ -894,10 +897,10 @@ The <code>WithoutOverlapping</code> middleware requires a cache driver that supp
 <p><a name="max-attempts"></a></p>
 <h4 id="max-attempts">Max Attempts</h4>
 <p>If one of your queued jobs is encountering an error, you likely do not want it to keep retrying indefinitely. Therefore, Laravel provides various ways to specify how many times or for how long a job may be attempted.</p>
-<p>One approach to specifying the maximum number of times a job may be attempted is via the <code>--tries</code> switch on the Artisan command line. This will apply to all jobs processed by the worker unless the job being processed specifies a more specific number of times it may be attempted:</p>
+<p>One approach to specifying the maximum number of times a job may be attempted is via the <code>--tries</code> switch on the Artisan command line. This will apply to all jobs processed by the worker unless the job being processed specifies the number of times it may be attempted:</p>
 <pre><code class="language-shell">php artisan queue:work --tries=3
 </code></pre>
-<p>If a job exceeds its maximum number of attempts, it will be considered a &quot;failed&quot; job. For more information on handling failed jobs, consult the <a href="#dealing-with-failed-jobs">failed job documentation</a>.</p>
+<p>If a job exceeds its maximum number of attempts, it will be considered a &quot;failed&quot; job. For more information on handling failed jobs, consult the <a href="#dealing-with-failed-jobs">failed job documentation</a>. If <code>--tries=0</code> is provided to the <code>queue:work</code> command, the job will retried indefinitely.</p>
 <p>You may take a more granular approach by defining the maximum number of times a job may be attempted on the job class itself. If the maximum number of attempts is specified on the job, it will take precedence over the <code>--tries</code> value provided on the command line:</p>
 <pre><code><span class="hljs-meta">&lt;?php</span>
 
@@ -1043,8 +1046,10 @@ The <code>WithoutOverlapping</code> middleware requires a cache driver that supp
     <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">fail</span>();
 }
 </code></pre>
-<p>If you would like to mark your job as failed because of an exception that you have caught, you may pass the exception to the <code>fail</code> method:</p>
+<p>If you would like to mark your job as failed because of an exception that you have caught, you may pass the exception to the <code>fail</code> method. Or, for convenience, you may pass a string error message which will be converted to an exception for you:</p>
 <pre><code><span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">fail</span>(<span class="hljs-variable">$exception</span>);
+
+<span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">fail</span>(<span class="hljs-string">&#x27;Something went wrong.&#x27;</span>);
 </code></pre>
 <blockquote>
 <p><strong>Note</strong><br>For more information on failed jobs, check out the <a href="#dealing-with-failed-jobs">documentation on dealing with job failures</a>.</p>
@@ -1255,19 +1260,17 @@ php artisan migrate
     }
 }
 </code></pre>
-<p>As you may have noticed in previous examples, batched jobs should typically check to see if the batch has been cancelled at the beginning of their <code>handle</code> method:</p>
-<pre><code><span class="hljs-comment">/**
- * Execute the job.
- *
- * <span class="hljs-doctag">@return</span> void
- */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">handle</span>(<span class="hljs-params"></span>)
-</span>{
-    <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">batch</span>()-&gt;<span class="hljs-title function_ invoke__">cancelled</span>()) {
-        <span class="hljs-keyword">return</span>;
-    }
+<p>As you may have noticed in the previous examples, batched jobs should typically determine if their corresponding batch has been cancelled before continuing execution. However, for convenience, you may assign the <code>SkipIfBatchCancelled</code> <a href="#job-middleware">middleware</a> to the job instead. As its name indicates, this middleware will instruct Laravel to not process the job if its corresponding batch has been cancelled:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Queue</span>\<span class="hljs-title">Middleware</span>\<span class="hljs-title">SkipIfBatchCancelled</span>;
 
-    <span class="hljs-comment">// Continue processing...</span>
+<span class="hljs-comment">/**
+ * Get the middleware the job should pass through.
+ *
+ * <span class="hljs-doctag">@return</span> array
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">middleware</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-keyword">return</span> [<span class="hljs-keyword">new</span> <span class="hljs-title class_">SkipIfBatchCancelled</span>];
 }
 </code></pre>
 <p><a name="batch-failures"></a></p>
@@ -1298,6 +1301,9 @@ php artisan migrate
 <p>Sometimes, your <code>jobs_batches</code> table may accumulate batch records for batches that never completed successfully, such as batches where a job failed and that job was never retried successfully. You may instruct the <code>queue:prune-batches</code> command to prune these unfinished batch records using the <code>unfinished</code> option:</p>
 <pre><code><span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;queue:prune-batches --hours=48 --unfinished=72&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">daily</span>();
 </code></pre>
+<p>Likewise, your <code>jobs_batches</code> table may also accumulate batch records for cancelled batches. You may instruct the <code>queue:prune-batches</code> command to prune these cancelled batch records using the <code>cancelled</code> option:</p>
+<pre><code><span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;queue:prune-batches --hours=48 --cancelled=72&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">daily</span>();
+</code></pre>
 <p><a name="queueing-closures"></a></p>
 <h2 id="queueing-closures">Queueing Closures</h2>
 <p>Instead of dispatching a job class to the queue, you may also dispatch a closure. This is great for quick, simple tasks that need to be executed outside of the current request cycle. When dispatching closures to the queue, the closure&#39;s code content is cryptographically signed so that it can not be modified in transit:</p>
@@ -1316,6 +1322,9 @@ php artisan migrate
     <span class="hljs-comment">// This job has failed...</span>
 });
 </code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>Since <code>catch</code> callbacks are serialized and executed at a later time by the Laravel queue, you should not use the <code>$this</code> variable within <code>catch</code> callbacks.</p>
+</blockquote>
 <p><a name="running-the-queue-worker"></a></p>
 <h2 id="running-the-queue-worker">Running The Queue Worker</h2>
 <p><a name="the-queue-work-command"></a></p>
@@ -1365,7 +1374,7 @@ php artisan queue:work --max-time=3600
 </code></pre>
 <p><a name="worker-sleep-duration"></a></p>
 <h4 id="worker-sleep-duration">Worker Sleep Duration</h4>
-<p>When jobs are available on the queue, the worker will keep processing jobs with no delay in between them. However, the <code>sleep</code> option determines how many seconds the worker will &quot;sleep&quot; if there are no new jobs available. While sleeping, the worker will not process any new jobs - the jobs will be processed after the worker wakes up again.</p>
+<p>When jobs are available on the queue, the worker will keep processing jobs with no delay in between jobs. However, the <code>sleep</code> option determines how many seconds the worker will &quot;sleep&quot; if there are no jobs available. Of course, while sleeping, the worker will not process any new jobs:</p>
 <pre><code class="language-shell">php artisan queue:work --sleep=3
 </code></pre>
 <p><a name="resource-considerations"></a></p>

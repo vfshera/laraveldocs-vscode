@@ -141,6 +141,25 @@
 <pre><code><span class="hljs-string">&#x27;welcome&#x27;</span> =&gt; <span class="hljs-string">&#x27;Welcome, :NAME&#x27;</span>, <span class="hljs-comment">// Welcome, DAYLE</span>
 <span class="hljs-string">&#x27;goodbye&#x27;</span> =&gt; <span class="hljs-string">&#x27;Goodbye, :Name&#x27;</span>, <span class="hljs-comment">// Goodbye, Dayle</span>
 </code></pre>
+<p><a name="object-replacement-formatting"></a></p>
+<h4 id="object-replacement-formatting">Object Replacement Formatting</h4>
+<p>If you attempt to provide an object as a translation placeholder, the object&#39;s <code>__toString</code> method will be invoked. The <a href="https://www.php.net/manual/en/language.oop5.magic.php#object.tostring"><code>__toString</code></a> method is one of PHP&#39;s built-in &quot;magic methods&quot;. However, sometimes you may not have control over the <code>__toString</code> method of a given class, such as when the class that you are interacting with belongs to a third-party library.</p>
+<p>In these cases, Laravel allows you to register a custom formatting handler for that particular type of object. To accomplish this, you should invoke the translator&#39;s <code>stringable</code> method. The <code>stringable</code> method accepts a closure, which should type-hint the type of object that it is responsible for formatting. Typically, the <code>stringable</code> method should be invoked within the <code>boot</code> method of your application&#39;s <code>AppServiceProvider</code> class:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Lang</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Money</span>\<span class="hljs-title">Money</span>;
+
+<span class="hljs-comment">/**
+ * Bootstrap any application services.
+ *
+ * <span class="hljs-doctag">@return</span> void
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-title class_">Lang</span>::<span class="hljs-title function_ invoke__">stringable</span>(function (Money <span class="hljs-variable">$money</span>) {
+        <span class="hljs-keyword">return</span> <span class="hljs-variable">$money</span>-&gt;<span class="hljs-title function_ invoke__">formatTo</span>(<span class="hljs-string">&#x27;en_GB&#x27;</span>);
+    });
+}
+</code></pre>
 <p><a name="pluralization"></a></p>
 <h3 id="pluralization">Pluralization</h3>
 <p>Pluralization is a complex problem, as different languages have a variety of complex rules for pluralization; however, Laravel can help you translate strings differently based on pluralization rules that you define. Using a <code>|</code> character, you may distinguish singular and plural forms of a string:</p>

@@ -1,0 +1,181 @@
+<h1 id="database-testing">Database Testing</h1>
+<ul>
+<li><a href="#introduction">Introduction</a><ul>
+<li><a href="#resetting-the-database-after-each-test">Resetting The Database After Each Test</a></li>
+</ul>
+</li>
+<li><a href="#model-factories">Model Factories</a></li>
+<li><a href="#running-seeders">Running Seeders</a></li>
+<li><a href="#available-assertions">Available Assertions</a></li>
+</ul>
+<p><a name="introduction"></a></p>
+<h2 id="introduction">Introduction</h2>
+<p>Laravel provides a variety of helpful tools and assertions to make it easier to test your database driven applications. In addition, Laravel model factories and seeders make it painless to create test database records using your application&#39;s Eloquent models and relationships. We&#39;ll discuss all of these powerful features in the following documentation.</p>
+<p><a name="resetting-the-database-after-each-test"></a></p>
+<h3 id="resetting-the-database-after-each-test">Resetting The Database After Each Test</h3>
+<p>Before proceeding much further, let&#39;s discuss how to reset your database after each of your tests so that data from a previous test does not interfere with subsequent tests. Laravel&#39;s included <code>Illuminate\Foundation\Testing\RefreshDatabase</code> trait will take care of this for you. Simply use the trait on your test class:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">Tests</span>\<span class="hljs-title class_">Feature</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Foundation</span>\<span class="hljs-title">Testing</span>\<span class="hljs-title">RefreshDatabase</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Foundation</span>\<span class="hljs-title">Testing</span>\<span class="hljs-title">WithoutMiddleware</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Tests</span>\<span class="hljs-title">TestCase</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ExampleTest</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">TestCase</span>
+</span>{
+    <span class="hljs-keyword">use</span> <span class="hljs-title">RefreshDatabase</span>;
+
+    <span class="hljs-comment">/**
+     * A basic functional test example.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test_basic_example</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+    </span>{
+        <span class="hljs-variable">$response</span> = <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/&#x27;</span>);
+
+        <span class="hljs-comment">// ...</span>
+    }
+}
+</code></pre>
+<p>The <code>Illuminate\Foundation\Testing\RefreshDatabase</code> trait does not migrate your database if your schema is up to date. Instead, it will only execute the test within a database transaction. Therefore, any records added to the database by test cases that do not use this trait may still exist in the database.</p>
+<p>If you would like to totally reset the database, you may use the <code>Illuminate\Foundation\Testing\DatabaseMigrations</code> or <code>Illuminate\Foundation\Testing\DatabaseTruncation</code> traits instead. However, both of these options are significantly slower than the <code>RefreshDatabase</code> trait.</p>
+<p><a name="model-factories"></a></p>
+<h2 id="model-factories">Model Factories</h2>
+<p>When testing, you may need to insert a few records into your database before executing your test. Instead of manually specifying the value of each column when you create this test data, Laravel allows you to define a set of default attributes for each of your <a href="/docs/%7B%7Bversion%7D%7D/eloquent">Eloquent models</a> using <a href="/docs/%7B%7Bversion%7D%7D/eloquent-factories">model factories</a>.</p>
+<p>To learn more about creating and utilizing model factories to create models, please consult the complete <a href="/docs/%7B%7Bversion%7D%7D/eloquent-factories">model factory documentation</a>. Once you have defined a model factory, you may utilize the factory within your test to create models:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test_models_can_be_instantiated</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+</span>{
+    <span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()-&gt;<span class="hljs-title function_ invoke__">create</span>();
+
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p><a name="running-seeders"></a></p>
+<h2 id="running-seeders">Running Seeders</h2>
+<p>If you would like to use <a href="/docs/%7B%7Bversion%7D%7D/seeding">database seeders</a> to populate your database during a feature test, you may invoke the <code>seed</code> method. By default, the <code>seed</code> method will execute the <code>DatabaseSeeder</code>, which should execute all of your other seeders. Alternatively, you pass a specific seeder class name to the <code>seed</code> method:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">Tests</span>\<span class="hljs-title class_">Feature</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Database</span>\<span class="hljs-title">Seeders</span>\<span class="hljs-title">OrderStatusSeeder</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Database</span>\<span class="hljs-title">Seeders</span>\<span class="hljs-title">TransactionStatusSeeder</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Foundation</span>\<span class="hljs-title">Testing</span>\<span class="hljs-title">RefreshDatabase</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Foundation</span>\<span class="hljs-title">Testing</span>\<span class="hljs-title">WithoutMiddleware</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Tests</span>\<span class="hljs-title">TestCase</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ExampleTest</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">TestCase</span>
+</span>{
+    <span class="hljs-keyword">use</span> <span class="hljs-title">RefreshDatabase</span>;
+
+    <span class="hljs-comment">/**
+     * Test creating a new order.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test_orders_can_be_created</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+    </span>{
+        <span class="hljs-comment">// Run the DatabaseSeeder...</span>
+        <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">seed</span>();
+
+        <span class="hljs-comment">// Run a specific seeder...</span>
+        <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">seed</span>(<span class="hljs-title class_">OrderStatusSeeder</span>::<span class="hljs-variable language_">class</span>);
+
+        <span class="hljs-comment">// ...</span>
+
+        <span class="hljs-comment">// Run an array of specific seeders...</span>
+        <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">seed</span>([
+            <span class="hljs-title class_">OrderStatusSeeder</span>::<span class="hljs-variable language_">class</span>,
+            <span class="hljs-title class_">TransactionStatusSeeder</span>::<span class="hljs-variable language_">class</span>,
+            // ...
+        ]);
+    }
+}
+</code></pre>
+<p>Alternatively, you may instruct Laravel to automatically seed the database before each test that uses the <code>RefreshDatabase</code> trait. You may accomplish this by defining a <code>$seed</code> property on your base test class:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">Tests</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Foundation</span>\<span class="hljs-title">Testing</span>\<span class="hljs-title">TestCase</span> <span class="hljs-keyword">as</span> <span class="hljs-title">BaseTestCase</span>;
+
+<span class="hljs-keyword">abstract</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TestCase</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">BaseTestCase</span>
+</span>{
+    <span class="hljs-keyword">use</span> <span class="hljs-title">CreatesApplication</span>;
+
+    <span class="hljs-comment">/**
+     * Indicates whether the default seeder should run before each test.
+     *
+     * <span class="hljs-doctag">@var</span> bool
+     */</span>
+    <span class="hljs-keyword">protected</span> <span class="hljs-variable">$seed</span> = <span class="hljs-literal">true</span>;
+}
+</code></pre>
+<p>When the <code>$seed</code> property is <code>true</code>, the test will run the <code>Database\Seeders\DatabaseSeeder</code> class before each test that uses the <code>RefreshDatabase</code> trait. However, you may specify a specific seeder that should be executed by defining a <code>$seeder</code> property on your test class:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Database</span>\<span class="hljs-title">Seeders</span>\<span class="hljs-title">OrderStatusSeeder</span>;
+
+<span class="hljs-comment">/**
+ * Run a specific seeder before each test.
+ *
+ * <span class="hljs-doctag">@var</span> string
+ */</span>
+<span class="hljs-keyword">protected</span> <span class="hljs-variable">$seeder</span> = <span class="hljs-title class_">OrderStatusSeeder</span>::<span class="hljs-variable language_">class</span>;
+</code></pre>
+<p><a name="available-assertions"></a></p>
+<h2 id="available-assertions">Available Assertions</h2>
+<p>Laravel provides several database assertions for your <a href="https://phpunit.de/">PHPUnit</a> feature tests. We&#39;ll discuss each of these assertions below.</p>
+<p><a name="assert-database-count"></a></p>
+<h4 id="assertdatabasecount">assertDatabaseCount</h4>
+<p>Assert that a table in the database contains the given number of records:</p>
+<pre><code><span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">assertDatabaseCount</span>(<span class="hljs-string">&#x27;users&#x27;</span>, <span class="hljs-number">5</span>);
+</code></pre>
+<p><a name="assert-database-has"></a></p>
+<h4 id="assertdatabasehas">assertDatabaseHas</h4>
+<p>Assert that a table in the database contains records matching the given key / value query constraints:</p>
+<pre><code><span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">assertDatabaseHas</span>(<span class="hljs-string">&#x27;users&#x27;</span>, [
+    <span class="hljs-string">&#x27;email&#x27;</span> =&gt; <span class="hljs-string">&#x27;sally@example.com&#x27;</span>,
+]);
+</code></pre>
+<p><a name="assert-database-missing"></a></p>
+<h4 id="assertdatabasemissing">assertDatabaseMissing</h4>
+<p>Assert that a table in the database does not contain records matching the given key / value query constraints:</p>
+<pre><code><span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">assertDatabaseMissing</span>(<span class="hljs-string">&#x27;users&#x27;</span>, [
+    <span class="hljs-string">&#x27;email&#x27;</span> =&gt; <span class="hljs-string">&#x27;sally@example.com&#x27;</span>,
+]);
+</code></pre>
+<p><a name="assert-deleted"></a></p>
+<h4 id="assertsoftdeleted">assertSoftDeleted</h4>
+<p>The <code>assertSoftDeleted</code> method may be used to assert a given Eloquent model has been &quot;soft deleted&quot;:</p>
+<pre><code><span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">assertSoftDeleted</span>(<span class="hljs-variable">$user</span>);
+</code></pre>
+<p><a name="assert-not-deleted"></a></p>
+<h4 id="assertnotsoftdeleted">assertNotSoftDeleted</h4>
+<p>The <code>assertNotSoftDeleted</code> method may be used to assert a given Eloquent model hasn&#39;t been &quot;soft deleted&quot;:</p>
+<pre><code><span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">assertNotSoftDeleted</span>(<span class="hljs-variable">$user</span>);
+</code></pre>
+<p><a name="assert-model-exists"></a></p>
+<h4 id="assertmodelexists">assertModelExists</h4>
+<p>Assert that a given model exists in the database:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+
+<span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()-&gt;<span class="hljs-title function_ invoke__">create</span>();
+
+<span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">assertModelExists</span>(<span class="hljs-variable">$user</span>);
+</code></pre>
+<p><a name="assert-model-missing"></a></p>
+<h4 id="assertmodelmissing">assertModelMissing</h4>
+<p>Assert that a given model does not exist in the database:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+
+<span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()-&gt;<span class="hljs-title function_ invoke__">create</span>();
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">delete</span>();
+
+<span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">assertModelMissing</span>(<span class="hljs-variable">$user</span>);
+</code></pre>
+<p><a name="expects-database-query-count"></a></p>
+<h4 id="expectsdatabasequerycount">expectsDatabaseQueryCount</h4>
+<p>The <code>expectsDatabaseQueryCount</code> method may be invoked at the beginning of your test to specify the total number of database queries that you expect to be run during the test. If the actual number of executed queries does not exactly match this expectation, the test will fail:</p>
+<pre><code><span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">expectsDatabaseQueryCount</span>(<span class="hljs-number">5</span>);
+
+<span class="hljs-comment">// Test...</span>
+</code></pre>

@@ -417,7 +417,7 @@ DB::<span class="hljs-title function_ invoke__">table</span>(<span class="hljs-s
 </code></pre>
 <p><a name="json-where-clauses"></a></p>
 <h3 id="json-where-clauses">JSON Where Clauses</h3>
-<p>Laravel also supports querying JSON column types on databases that provide support for JSON column types. Currently, this includes MySQL 5.7+, PostgreSQL, SQL Server 2016, and SQLite 3.9.0 (with the <a href="https://www.sqlite.org/json1.html">JSON1 extension</a>). To query a JSON column, use the <code>-&gt;</code> operator:</p>
+<p>Laravel also supports querying JSON column types on databases that provide support for JSON column types. Currently, this includes MySQL 5.7+, PostgreSQL, SQL Server 2016, and SQLite 3.39.0 (with the <a href="https://www.sqlite.org/json1.html">JSON1 extension</a>). To query a JSON column, use the <code>-&gt;</code> operator:</p>
 <pre><code><span class="hljs-variable">$users</span> = DB::<span class="hljs-title function_ invoke__">table</span>(<span class="hljs-string">&#x27;users&#x27;</span>)
                 -&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;preferences-&gt;dining-&gt;meal&#x27;</span>, <span class="hljs-string">&#x27;salad&#x27;</span>)
                 -&gt;<span class="hljs-title function_ invoke__">get</span>();
@@ -476,6 +476,20 @@ DB::<span class="hljs-title function_ invoke__">table</span>(<span class="hljs-s
 <pre><code><span class="hljs-variable">$users</span> = DB::<span class="hljs-title function_ invoke__">table</span>(<span class="hljs-string">&#x27;users&#x27;</span>)
                     -&gt;<span class="hljs-title function_ invoke__">whereNotIn</span>(<span class="hljs-string">&#x27;id&#x27;</span>, [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>])
                     -&gt;<span class="hljs-title function_ invoke__">get</span>();
+</code></pre>
+<p>You may also provide a query object as the <code>whereIn</code> method&#39;s second argument:</p>
+<pre><code><span class="hljs-variable">$activeUsers</span> = DB::<span class="hljs-title function_ invoke__">table</span>(<span class="hljs-string">&#x27;users&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">select</span>(<span class="hljs-string">&#x27;id&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;is_active&#x27;</span>, <span class="hljs-number">1</span>);
+
+<span class="hljs-variable">$users</span> = DB::<span class="hljs-title function_ invoke__">table</span>(<span class="hljs-string">&#x27;comments&#x27;</span>)
+                    -&gt;<span class="hljs-title function_ invoke__">whereIn</span>(<span class="hljs-string">&#x27;user_id&#x27;</span>, <span class="hljs-variable">$activeUsers</span>)
+                    -&gt;<span class="hljs-title function_ invoke__">get</span>();
+</code></pre>
+<p>The example above will produce the following SQL:</p>
+<pre><code class="language-sql"><span class="hljs-keyword">select</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">from</span> comments <span class="hljs-keyword">where</span> user_id <span class="hljs-keyword">in</span> (
+    <span class="hljs-keyword">select</span> id
+    <span class="hljs-keyword">from</span> users
+    <span class="hljs-keyword">where</span> is_active <span class="hljs-operator">=</span> <span class="hljs-number">1</span>
+)
 </code></pre>
 <blockquote>
 <p><strong>Warning</strong><br>If you are adding a large array of integer bindings to your query, the <code>whereIntegerInRaw</code> or <code>whereIntegerNotInRaw</code> methods may be used to greatly reduce your memory usage.</p>
@@ -794,8 +808,14 @@ DB::<span class="hljs-title function_ invoke__">table</span>(<span class="hljs-s
 
 DB::<span class="hljs-title function_ invoke__">table</span>(<span class="hljs-string">&#x27;users&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">decrement</span>(<span class="hljs-string">&#x27;votes&#x27;</span>, <span class="hljs-number">5</span>);
 </code></pre>
-<p>You may also specify additional columns to update during the operation:</p>
+<p>If needed, you may also specify additional columns to update during the increment or decrement operation:</p>
 <pre><code>DB::<span class="hljs-title function_ invoke__">table</span>(<span class="hljs-string">&#x27;users&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">increment</span>(<span class="hljs-string">&#x27;votes&#x27;</span>, <span class="hljs-number">1</span>, [<span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;John&#x27;</span>]);
+</code></pre>
+<p>In addition, you may increment or decrement multiple columns at once using the <code>incrementEach</code> and <code>decrementEach</code> methods:</p>
+<pre><code>DB::<span class="hljs-title function_ invoke__">table</span>(<span class="hljs-string">&#x27;users&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">incrementEach</span>([
+    <span class="hljs-string">&#x27;votes&#x27;</span> =&gt; <span class="hljs-number">5</span>,
+    <span class="hljs-string">&#x27;balance&#x27;</span> =&gt; <span class="hljs-number">100</span>,
+]);
 </code></pre>
 <p><a name="delete-statements"></a></p>
 <h2 id="delete-statements">Delete Statements</h2>

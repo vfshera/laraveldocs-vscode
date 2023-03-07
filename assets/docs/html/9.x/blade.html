@@ -1,6 +1,9 @@
 <h1 id="blade-templates">Blade Templates</h1>
 <ul>
-<li><a href="#introduction">Introduction</a></li>
+<li><a href="#introduction">Introduction</a><ul>
+<li><a href="#supercharging-blade-with-livewire">Supercharging Blade With Livewire</a></li>
+</ul>
+</li>
 <li><a href="#displaying-data">Displaying Data</a><ul>
 <li><a href="#html-entity-encoding">HTML Entity Encoding</a></li>
 <li><a href="#blade-and-javascript-frameworks">Blade &amp; JavaScript Frameworks</a></li>
@@ -34,7 +37,7 @@
 <li><a href="#anonymous-index-components">Anonymous Index Components</a></li>
 <li><a href="#data-properties-attributes">Data Properties / Attributes</a></li>
 <li><a href="#accessing-parent-data">Accessing Parent Data</a></li>
-<li><a href="#anonymous-component-namespaces">Anonymous Components Namespaces</a></li>
+<li><a href="#anonymous-component-paths">Anonymous Components Paths</a></li>
 </ul>
 </li>
 <li><a href="#building-layouts">Building Layouts</a><ul>
@@ -66,9 +69,9 @@
     <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;greeting&#x27;</span>, [<span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Finn&#x27;</span>]);
 });
 </code></pre>
-<blockquote>
-<p><strong>Note</strong><br>Want to take your Blade templates to the next level and build dynamic interfaces with ease? Check out <a href="https://laravel-livewire.com">Laravel Livewire</a>.</p>
-</blockquote>
+<p><a name="supercharging-blade-with-livewire"></a></p>
+<h3 id="supercharging-blade-with-livewire">Supercharging Blade With Livewire</h3>
+<p>Want to take your Blade templates to the next level and build dynamic interfaces with ease? Check out <a href="https://laravel-livewire.com">Laravel Livewire</a>. Livewire allows you to write Blade components that are augmented with dynamic functionality that would typically only be possible via frontend frameworks like React or Vue, providing a great approach to building modern, reactive frontends without the complexities, client-side rendering, or build steps of many JavaScript frameworks.</p>
 <p><a name="displaying-data"></a></p>
 <h2 id="displaying-data">Displaying Data</h2>
 <p>You may display data that is passed to your Blade views by wrapping the variable in curly braces. For example, given the following route:</p>
@@ -235,7 +238,7 @@ Hello, @</span><span class="hljs-template-variable">{{</span><span class="langua
     <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;clearfix&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
 </span><span class="hljs-template-tag">@endif</span>
 </code></pre>
-<p>You may use the <code>sectionMissing</code> directive to determine if a section does not have content:</p>
+<p>You may use the <code>@sectionMissing</code> directive to determine if a section does not have content:</p>
 <pre><code class="language-blade"><span class="hljs-template-tag">@sectionMissing</span><span class="language-xml">(&#x27;navigation&#x27;)
     <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;pull-right&quot;</span>&gt;</span>
         </span><span class="hljs-template-tag">@include</span><span class="language-xml">(&#x27;default-navigation&#x27;)
@@ -378,7 +381,7 @@ Hello, @</span><span class="hljs-template-variable">{{</span><span class="langua
 </tr>
 </tbody></table>
 <p><a name="conditional-classes"></a></p>
-<h3 id="conditional-classes">Conditional Classes</h3>
+<h3 id="conditional-classes--styles">Conditional Classes &amp; Styles</h3>
 <p>The <code>@class</code> directive conditionally compiles a CSS class string. The directive accepts an array of classes where the array key contains the class or classes you wish to add, while the value is a boolean expression. If the array element has a numeric key, it will always be included in the rendered class list:</p>
 <pre><code class="language-blade"><span class="hljs-template-tag">@php</span><span class="language-php">
     <span class="hljs-variable">$isActive</span> = <span class="hljs-literal">false</span>;
@@ -393,6 +396,18 @@ Hello, @</span><span class="hljs-template-variable">{{</span><span class="langua
 ])&gt;<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span>
 
 <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;p-4 text-gray-500 bg-red&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></span>
+</code></pre>
+<p>Likewise, the <code>@style</code> directive may be used to conditionally add inline CSS styles to an HTML element:</p>
+<pre><code class="language-blade"><span class="hljs-template-tag">@php</span><span class="language-php">
+    <span class="hljs-variable">$isActive</span> = <span class="hljs-literal">true</span>;
+</span><span class="hljs-template-tag">@endphp</span><span class="language-xml">
+
+<span class="hljs-tag">&lt;<span class="hljs-name">span</span> </span></span><span class="hljs-template-tag">@style</span><span class="language-xml"><span class="hljs-tag">([
+    &#x27;<span class="hljs-attr">background-color:</span> <span class="hljs-attr">red</span>&#x27;,
+    &#x27;<span class="hljs-attr">font-weight:</span> <span class="hljs-attr">bold</span>&#x27; =&gt;</span> $isActive,
+])&gt;<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;background-color: red; font-weight: bold;&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></span>
 </code></pre>
 <p><a name="additional-attributes"></a></p>
 <h3 id="additional-attributes">Additional Attributes</h3>
@@ -451,7 +466,7 @@ Hello, @</span><span class="hljs-template-variable">{{</span><span class="langua
 
 </span><span class="hljs-template-tag">@includeUnless</span><span class="language-xml">($boolean, &#x27;view.name&#x27;, [&#x27;status&#x27; =&gt; &#x27;complete&#x27;])</span>
 </code></pre>
-<p>To include the first view that exists from a given array of views, you may use the <code>includeFirst</code> directive:</p>
+<p>To include the first view that exists from a given array of views, you may use the <code>@includeFirst</code> directive:</p>
 <pre><code class="language-blade"><span class="hljs-template-tag">@includeFirst</span><span class="language-xml">([&#x27;custom.admin&#x27;, &#x27;admin&#x27;], [&#x27;status&#x27; =&gt; &#x27;complete&#x27;])</span>
 </code></pre>
 <blockquote>
@@ -1061,11 +1076,10 @@ Hello, @</span><span class="hljs-template-variable">{{</span><span class="langua
 <blockquote>
 <p><strong>Warning</strong><br>The <code>@aware</code> directive can not access parent data that is not explicitly passed to the parent component via HTML attributes. Default <code>@props</code> values that are not explicitly passed to the parent component can not be accessed by the <code>@aware</code> directive.</p>
 </blockquote>
-<p><a name="anonymous-component-namespaces"></a></p>
-<h3 id="anonymous-component-namespaces">Anonymous Component Namespaces</h3>
+<p><a name="anonymous-component-paths"></a></p>
+<h3 id="anonymous-component-paths">Anonymous Component Paths</h3>
 <p>As previously discussed, anonymous components are typically defined by placing a Blade template within your <code>resources/views/components</code> directory. However, you may occasionally want to register other anonymous component paths with Laravel in addition to the default path.</p>
-<p>For example, when building a vacation booking application, you may wish to place flight booking related anonymous components within a <code>resources/views/flights/bookings/components</code> directory. To inform Laravel of this anonymous component location, you may use the <code>anonymousComponentNamespace</code> method provided by the <code>Blade</code> facade.</p>
-<p>The <code>anonymousComponentNamespace</code> method accepts the &quot;path&quot; to the anonymous component location as its first argument and the &quot;namespace&quot; that components should be placed under as its second argument. As you will see in the example below, the &quot;namespace&quot; will be prefixed to the component&#39;s name when the component is rendered. Typically, this method should be called from the <code>boot</code> method of one of your application&#39;s <a href="/docs/%7B%7Bversion%7D%7D/providers">service providers</a>:</p>
+<p>The <code>anonymousComponentPath</code> method accepts the &quot;path&quot; to the anonymous component location as its first argument and an optional &quot;namespace&quot; that components should be placed under as its second argument. Typically, this method should be called from the <code>boot</code> method of one of your application&#39;s <a href="/docs/%7B%7Bversion%7D%7D/providers">service providers</a>:</p>
 <pre><code><span class="hljs-comment">/**
  * Bootstrap any application services.
  *
@@ -1073,11 +1087,17 @@ Hello, @</span><span class="hljs-template-variable">{{</span><span class="langua
  */</span>
 <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>)
 </span>{
-    <span class="hljs-title class_">Blade</span>::<span class="hljs-title function_ invoke__">anonymousComponentNamespace</span>(<span class="hljs-string">&#x27;flights.bookings.components&#x27;</span>, <span class="hljs-string">&#x27;flights&#x27;</span>);
+    <span class="hljs-title class_">Blade</span>::<span class="hljs-title function_ invoke__">anonymousComponentPath</span>(<span class="hljs-keyword">__DIR__</span>.<span class="hljs-string">&#x27;/../components&#x27;</span>);
 }
 </code></pre>
-<p>Given the example above, you may render a <code>panel</code> component that exists within the newly registered component directory like so:</p>
-<pre><code class="language-blade"><span class="language-xml">&lt;x-flights::panel :flight=&quot;$flight&quot; /&gt;</span>
+<p>When component paths are registered without a specified prefix as in the example above, they may be rendered in your Blade components without a corresponding prefix as well. For example, if a <code>panel.blade.php</code> component exists in the path registered above, it may be rendered like so:</p>
+<pre><code class="language-blade"><span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">x-panel</span> /&gt;</span></span>
+</code></pre>
+<p>Prefix &quot;namespaces&quot; may be provided as the second argument to the <code>anonymousComponentPath</code> method:</p>
+<pre><code><span class="hljs-title class_">Blade</span>::<span class="hljs-title function_ invoke__">anonymousComponentPath</span>(<span class="hljs-keyword">__DIR__</span>.<span class="hljs-string">&#x27;/../components&#x27;</span>, <span class="hljs-string">&#x27;dashboard&#x27;</span>);
+</code></pre>
+<p>When a prefix is provided, components within that &quot;namespace&quot; may be rendered by prefixing to the component&#39;s namespace to the component name when the component is rendered:</p>
+<pre><code class="language-blade"><span class="language-xml">&lt;x-dashboard::panel /&gt;</span>
 </code></pre>
 <p><a name="building-layouts"></a></p>
 <h2 id="building-layouts">Building Layouts</h2>
@@ -1305,6 +1325,20 @@ Hello, @</span><span class="hljs-template-variable">{{</span><span class="langua
 </code></pre>
 <p>Then, when rendering the view that utilizes this template, you may invoke the <code>fragment</code> method to specify that only the specified fragment should be included in the outgoing HTTP response:</p>
 <pre><code class="language-php"><span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;dashboard&#x27;</span>, [<span class="hljs-string">&#x27;users&#x27;</span> =&gt; <span class="hljs-variable">$users</span>])-&gt;<span class="hljs-title function_ invoke__">fragment</span>(<span class="hljs-string">&#x27;user-list&#x27;</span>);
+</code></pre>
+<p>The <code>fragmentIf</code> method allows you to conditionally return a fragment of a view based on a given condition. Otherwise, the entire view will be returned:</p>
+<pre><code class="language-php"><span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;dashboard&#x27;</span>, [<span class="hljs-string">&#x27;users&#x27;</span> =&gt; <span class="hljs-variable">$users</span>])
+    -&gt;<span class="hljs-title function_ invoke__">fragmentIf</span>(<span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">hasHeader</span>(<span class="hljs-string">&#x27;HX-Request&#x27;</span>), <span class="hljs-string">&#x27;user-list&#x27;</span>);
+</code></pre>
+<p>The <code>fragments</code> and <code>fragmentsIf</code> methods allow you to return multiple view fragments in the response. The fragments will be concatenated together:</p>
+<pre><code class="language-php"><span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;dashboard&#x27;</span>, [<span class="hljs-string">&#x27;users&#x27;</span> =&gt; <span class="hljs-variable">$users</span>])
+    -&gt;<span class="hljs-title function_ invoke__">fragments</span>([<span class="hljs-string">&#x27;user-list&#x27;</span>, <span class="hljs-string">&#x27;comment-list&#x27;</span>]);
+
+<span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;dashboard&#x27;</span>, [<span class="hljs-string">&#x27;users&#x27;</span> =&gt; <span class="hljs-variable">$users</span>])
+    -&gt;<span class="hljs-title function_ invoke__">fragmentsIf</span>(
+        <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">hasHeader</span>(<span class="hljs-string">&#x27;HX-Request&#x27;</span>),
+        [<span class="hljs-string">&#x27;user-list&#x27;</span>, <span class="hljs-string">&#x27;comment-list&#x27;</span>]
+    );
 </code></pre>
 <p><a name="extending-blade"></a></p>
 <h2 id="extending-blade">Extending Blade</h2>

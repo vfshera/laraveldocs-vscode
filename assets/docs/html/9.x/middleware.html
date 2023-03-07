@@ -158,7 +158,7 @@
 <p><a name="middleware-groups"></a></p>
 <h3 id="middleware-groups">Middleware Groups</h3>
 <p>Sometimes you may want to group several middleware under a single key to make them easier to assign to routes. You may accomplish this using the <code>$middlewareGroups</code> property of your HTTP kernel.</p>
-<p>Out of the box, Laravel comes with <code>web</code> and <code>api</code> middleware groups that contain common middleware you may want to apply to your web and API routes. Remember, these middleware groups are automatically applied by your application&#39;s <code>App\Providers\RouteServiceProvider</code> service provider to routes within your corresponding <code>web</code> and <code>api</code> route files:</p>
+<p>Laravel includes predefined <code>web</code> and <code>api</code> middleware groups that contain common middleware you may want to apply to your web and API routes. Remember, these middleware groups are automatically applied by your application&#39;s <code>App\Providers\RouteServiceProvider</code> service provider to routes within your corresponding <code>web</code> and <code>api</code> route files:</p>
 <pre><code><span class="hljs-comment">/**
  * The application&#x27;s route middleware groups.
  *

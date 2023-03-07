@@ -149,6 +149,14 @@ You may configure as many disks as you like and may even have multiple disks tha
 <p>Typically, after updating the disk&#39;s credentials to match the credentials of the service you are planning to use, you only need to update the value of the <code>endpoint</code> configuration option. This option&#39;s value is typically defined via the <code>AWS_ENDPOINT</code> environment variable:</p>
 <pre><code><span class="hljs-string">&#x27;endpoint&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;AWS_ENDPOINT&#x27;</span>, <span class="hljs-string">&#x27;https://minio:9000&#x27;</span>),
 </code></pre>
+<p><a name="minio"></a></p>
+<h4 id="minio">MinIO</h4>
+<p>In order for Laravel&#39;s Flysystem integration to generate proper URLs when using MinIO, you should define the <code>AWS_URL</code> environment variable so that it matches your application&#39;s local URL and includes the bucket name in the URL path:</p>
+<pre><code class="language-ini"><span class="hljs-attr">AWS_URL</span>=http://localhost:<span class="hljs-number">9000</span>/local
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>Generating temporary storage URLs via the <code>temporaryUrl</code> method is not supported when using MinIO.</p>
+</blockquote>
 <p><a name="obtaining-disk-instances"></a></p>
 <h2 id="obtaining-disk-instances">Obtaining Disk Instances</h2>
 <p>The <code>Storage</code> facade may be used to interact with any of your configured disks. For example, you may use the <code>put</code> method on the facade to store an avatar on the default disk. If you call methods on the <code>Storage</code> facade without first calling the <code>disk</code> method, the method will automatically be passed to the default disk:</p>
@@ -270,6 +278,9 @@ You may configure as many disks as you like and may even have multiple disks tha
 </code></pre>
 <p>The <code>lastModified</code> method returns the UNIX timestamp of the last time the file was modified:</p>
 <pre><code><span class="hljs-variable">$time</span> = <span class="hljs-title class_">Storage</span>::<span class="hljs-title function_ invoke__">lastModified</span>(<span class="hljs-string">&#x27;file.jpg&#x27;</span>);
+</code></pre>
+<p>The MIME type of a given file may be obtained via the <code>mimeType</code> method:</p>
+<pre><code><span class="hljs-variable">$mime</span> = <span class="hljs-title class_">Storage</span>::<span class="hljs-title function_ invoke__">mimeType</span>(<span class="hljs-string">&#x27;file.jpg&#x27;</span>)
 </code></pre>
 <p><a name="file-paths"></a></p>
 <h4 id="file-paths">File Paths</h4>

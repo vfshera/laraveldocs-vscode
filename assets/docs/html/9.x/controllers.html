@@ -15,6 +15,7 @@
 <li><a href="#restful-scoping-resource-routes">Scoping Resource Routes</a></li>
 <li><a href="#restful-localizing-resource-uris">Localizing Resource URIs</a></li>
 <li><a href="#restful-supplementing-resource-controllers">Supplementing Resource Controllers</a></li>
+<li><a href="#singleton-resource-controllers">Singleton Resource Controllers</a></li>
 </ul>
 </li>
 <li><a href="#dependency-injection-and-controllers">Dependency Injection &amp; Controllers</a></li>
@@ -394,6 +395,138 @@
 <blockquote>
 <p><strong>Note</strong><br>Remember to keep your controllers focused. If you find yourself routinely needing methods outside of the typical set of resource actions, consider splitting your controller into two, smaller controllers.</p>
 </blockquote>
+<p><a name="singleton-resource-controllers"></a></p>
+<h3 id="singleton-resource-controllers">Singleton Resource Controllers</h3>
+<p>Sometimes, your application will have resources that may only have a single instance. For example, a user&#39;s &quot;profile&quot; can be edited or updated, but a user may not have more than one &quot;profile&quot;. Likewise, an image may have a single &quot;thumbnail&quot;. These resources are called &quot;singleton resources&quot;, meaning one and only one instance of the resource may exist. In these scenarios, you may register a &quot;singleton&quot; resource controller:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Controllers</span>\<span class="hljs-title">ProfileController</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Route</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">singleton</span>(<span class="hljs-string">&#x27;profile&#x27;</span>, <span class="hljs-title class_">ProfileController</span>::<span class="hljs-variable language_">class</span>);
+</code></pre>
+<p>The singleton resource definition above will register the following routes. As you can see, &quot;creation&quot; routes are not registered for singleton resources, and the registered routes do not accept an identifier since only one instance of the resource may exist:</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>URI</th>
+<th>Action</th>
+<th>Route Name</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET</td>
+<td><code>/profile</code></td>
+<td>show</td>
+<td>profile.show</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/profile/edit</code></td>
+<td>edit</td>
+<td>profile.edit</td>
+</tr>
+<tr>
+<td>PUT/PATCH</td>
+<td><code>/profile</code></td>
+<td>update</td>
+<td>profile.update</td>
+</tr>
+</tbody></table>
+<p>Singleton resources may also be nested within a standard resource:</p>
+<pre><code class="language-php"><span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">singleton</span>(<span class="hljs-string">&#x27;photos.thumbnail&#x27;</span>, <span class="hljs-title class_">ThumbnailController</span>::<span class="hljs-variable language_">class</span>);
+</code></pre>
+<p>In this example, the <code>photos</code> resource would receive all of the <a href="#actions-handled-by-resource-controller">standard resource routes</a>; however, the <code>thumbnail</code> resource would be a singleton resource with the following routes:</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>URI</th>
+<th>Action</th>
+<th>Route Name</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET</td>
+<td><code>/photos/{photo}/thumbnail</code></td>
+<td>show</td>
+<td>photos.thumbnail.show</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/photos/{photo}/thumbnail/edit</code></td>
+<td>edit</td>
+<td>photos.thumbnail.edit</td>
+</tr>
+<tr>
+<td>PUT/PATCH</td>
+<td><code>/photos/{photo}/thumbnail</code></td>
+<td>update</td>
+<td>photos.thumbnail.update</td>
+</tr>
+</tbody></table>
+<p><a name="creatable-singleton-resources"></a></p>
+<h4 id="creatable-singleton-resources">Creatable Singleton Resources</h4>
+<p>Occasionally, you may want to define creation and storage routes for a singleton resource. To accomplish this, you may invoke the <code>creatable</code> method when registering the singleton resource route:</p>
+<pre><code class="language-php"><span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">singleton</span>(<span class="hljs-string">&#x27;photos.thumbnail&#x27;</span>, <span class="hljs-title class_">ThumbnailController</span>::<span class="hljs-variable language_">class</span>)-&gt;<span class="hljs-title function_ invoke__">creatable</span>();
+</code></pre>
+<p>In this example, the following routes will be registered. As you can see, a <code>DELETE</code> route will also be registered for creatable singleton resources:</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>URI</th>
+<th>Action</th>
+<th>Route Name</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET</td>
+<td><code>/photos/{photo}/thumbnail/create</code></td>
+<td>create</td>
+<td>photos.thumbnail.create</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/photos/{photo}/thumbnail</code></td>
+<td>store</td>
+<td>photos.thumbnail.store</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/photos/{photo}/thumbnail</code></td>
+<td>show</td>
+<td>photos.thumbnail.show</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/photos/{photo}/thumbnail/edit</code></td>
+<td>edit</td>
+<td>photos.thumbnail.edit</td>
+</tr>
+<tr>
+<td>PUT/PATCH</td>
+<td><code>/photos/{photo}/thumbnail</code></td>
+<td>update</td>
+<td>photos.thumbnail.update</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td><code>/photos/{photo}/thumbnail</code></td>
+<td>destroy</td>
+<td>photos.thumbnail.destroy</td>
+</tr>
+</tbody></table>
+<p>If you would like Laravel to register the <code>DELETE</code> route for a singleton resource but not register the creation or storage routes, you may utilize the <code>destroyable</code> method:</p>
+<pre><code class="language-php"><span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">singleton</span>(...)-&gt;<span class="hljs-title function_ invoke__">destroyable</span>();
+</code></pre>
+<p><a name="api-singleton-resources"></a></p>
+<h4 id="api-singleton-resources">API Singleton Resources</h4>
+<p>The <code>apiSingleton</code> method may be used to register a singleton resource that will be manipulated via an API, thus rendering the <code>create</code> and <code>edit</code> routes unnecessary:</p>
+<pre><code class="language-php"><span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">apiSingleton</span>(<span class="hljs-string">&#x27;profile&#x27;</span>, <span class="hljs-title class_">ProfileController</span>::<span class="hljs-variable language_">class</span>);
+</code></pre>
+<p>Of course, API singleton resources may also be <code>creatable</code>, which will register <code>store</code> and <code>destroy</code> routes for the resource:</p>
+<pre><code class="language-php"><span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">apiSingleton</span>(<span class="hljs-string">&#x27;photos.thumbnail&#x27;</span>, <span class="hljs-title class_">ProfileController</span>::<span class="hljs-variable language_">class</span>)-&gt;<span class="hljs-title function_ invoke__">creatable</span>();
+</code></pre>
 <p><a name="dependency-injection-and-controllers"></a></p>
 <h2 id="dependency-injection--controllers">Dependency Injection &amp; Controllers</h2>
 <p><a name="constructor-injection"></a></p>

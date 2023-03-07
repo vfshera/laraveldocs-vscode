@@ -170,6 +170,15 @@
     );
 }
 </code></pre>
+<p>If you would like, you may also specify a <code>replyTo</code> address:</p>
+<pre><code><span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Envelope</span>(
+    <span class="hljs-keyword">from</span>: <span class="hljs-keyword">new</span> <span class="hljs-title class_">Address</span>(<span class="hljs-string">&#x27;jeffrey@example.com&#x27;</span>, <span class="hljs-string">&#x27;Jeffrey Way&#x27;</span>),
+    replyTo: [
+        <span class="hljs-keyword">new</span> <span class="hljs-title class_">Address</span>(<span class="hljs-string">&#x27;taylor@example.com&#x27;</span>, <span class="hljs-string">&#x27;Taylor Otwell&#x27;</span>),
+    ],
+    subject: <span class="hljs-string">&#x27;Order Shipped&#x27;</span>,
+);
+</code></pre>
 <p><a name="using-a-global-from-address"></a></p>
 <h4 id="using-a-global-from-address">Using A Global <code>from</code> Address</h4>
 <p>However, if your application uses the same &quot;from&quot; address for all of its emails, it can become cumbersome to call the <code>from</code> method in each mailable class you generate. Instead, you may specify a global &quot;from&quot; address in your <code>config/mail.php</code> configuration file. This address will be used if no other &quot;from&quot; address is specified within the mailable class:</p>
@@ -791,7 +800,7 @@ This is the panel content.
 });
 </code></pre>
 <blockquote>
-<p><strong>Warning</strong><br><a href="#inline-attachments">Inline attachments</a> will not be rendered when a mailable is previewed in your browser. To preview these mailables, you should send them to an email testing application such as <a href="https://github.com/mailhog/MailHog">MailHog</a> or <a href="https://usehelo.com">HELO</a>.</p>
+<p><strong>Warning</strong><br><a href="#inline-attachments">Inline attachments</a> will not be rendered when a mailable is previewed in your browser. To preview these mailables, you should send them to an email testing application such as <a href="https://github.com/axllent/mailpit">Mailpit</a> or <a href="https://usehelo.com">HELO</a>.</p>
 </blockquote>
 <p><a name="localizing-mailables"></a></p>
 <h2 id="localizing-mailables">Localizing Mailables</h2>
@@ -868,9 +877,9 @@ This is the panel content.
 <h4 id="log-driver">Log Driver</h4>
 <p>Instead of sending your emails, the <code>log</code> mail driver will write all email messages to your log files for inspection. Typically, this driver would only be used during local development. For more information on configuring your application per environment, check out the <a href="/docs/%7B%7Bversion%7D%7D/configuration#environment-configuration">configuration documentation</a>.</p>
 <p><a name="mailtrap"></a></p>
-<h4 id="helo--mailtrap--mailhog">HELO / Mailtrap / MailHog</h4>
+<h4 id="helo--mailtrap--mailpit">HELO / Mailtrap / Mailpit</h4>
 <p>Alternatively, you may use a service like <a href="https://usehelo.com">HELO</a> or <a href="https://mailtrap.io">Mailtrap</a> and the <code>smtp</code> driver to send your email messages to a &quot;dummy&quot; mailbox where you may view them in a true email client. This approach has the benefit of allowing you to actually inspect the final emails in Mailtrap&#39;s message viewer.</p>
-<p>If you are using <a href="/docs/%7B%7Bversion%7D%7D/sail">Laravel Sail</a>, you may preview your messages using <a href="https://github.com/mailhog/MailHog">MailHog</a>. When Sail is running, you may access the MailHog interface at: <code>http://localhost:8025</code>.</p>
+<p>If you are using <a href="/docs/%7B%7Bversion%7D%7D/sail">Laravel Sail</a>, you may preview your messages using <a href="https://github.com/axllent/mailpit">Mailpit</a>. When Sail is running, you may access the Mailpit interface at: <code>http://localhost:8025</code>.</p>
 <p><a name="using-a-global-to-address"></a></p>
 <h4 id="using-a-global-to-address">Using A Global <code>to</code> Address</h4>
 <p>Finally, you may specify a global &quot;to&quot; address by invoking the <code>alwaysTo</code> method offered by the <code>Mail</code> facade. Typically, this method should be called from the <code>boot</code> method of one of your application&#39;s service providers:</p>
@@ -936,6 +945,8 @@ This is the panel content.
      */</span>
     <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">__construct</span>(<span class="hljs-params">ApiClient <span class="hljs-variable">$client</span></span>)
     </span>{
+        <span class="hljs-built_in">parent</span>::<span class="hljs-title function_ invoke__">__construct</span>();
+        
         <span class="hljs-variable language_">$this</span>-&gt;client = <span class="hljs-variable">$client</span>;
     }
 
@@ -980,7 +991,7 @@ This is the panel content.
 </span>{
     <span class="hljs-title class_">Mail</span>::<span class="hljs-title function_ invoke__">extend</span>(<span class="hljs-string">&#x27;mailchimp&#x27;</span>, function (<span class="hljs-keyword">array</span> <span class="hljs-variable">$config</span> = []) {
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">MailchimpTransport</span>(<span class="hljs-comment">/* ... */</span>);
-    })
+    });
 }
 </code></pre>
 <p>Once your custom transport has been defined and registered, you may create a mailer definition within your application&#39;s <code>config/mail.php</code> configuration file that utilizes the new transport:</p>
@@ -992,14 +1003,14 @@ This is the panel content.
 <p><a name="additional-symfony-transports"></a></p>
 <h3 id="additional-symfony-transports">Additional Symfony Transports</h3>
 <p>Laravel includes support for some existing Symfony maintained mail transports like Mailgun and Postmark. However, you may wish to extend Laravel with support for additional Symfony maintained transports. You can do so by requiring the necessary Symfony mailer via Composer and registering the transport with Laravel. For example, you may install and register the &quot;Sendinblue&quot; Symfony mailer:</p>
-<pre><code class="language-none">composer <span class="hljs-keyword">require</span> symfony/sendinblue-mailer
+<pre><code class="language-none">composer <span class="hljs-keyword">require</span> symfony/sendinblue-mailer symfony/http-client
 </code></pre>
 <p>Once the Sendinblue mailer package has been installed, you may add an entry for your Sendinblue API credentials to your application&#39;s <code>services</code> configuration file:</p>
 <pre><code><span class="hljs-string">&#x27;sendinblue&#x27;</span> =&gt; [
     <span class="hljs-string">&#x27;key&#x27;</span> =&gt; <span class="hljs-string">&#x27;your-api-key&#x27;</span>,
 ],
 </code></pre>
-<p>Finally, you may use the <code>Mail</code> facade&#39;s <code>extend</code> method to register the transport with Laravel. Typically, this should be done within the <code>boot</code> method of a service provider:</p>
+<p>Next, you may use the <code>Mail</code> facade&#39;s <code>extend</code> method to register the transport with Laravel. Typically, this should be done within the <code>boot</code> method of a service provider:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Mail</span>;
 <span class="hljs-keyword">use</span> <span class="hljs-title">Symfony</span>\<span class="hljs-title">Component</span>\<span class="hljs-title">Mailer</span>\<span class="hljs-title">Bridge</span>\<span class="hljs-title">Sendinblue</span>\<span class="hljs-title">Transport</span>\<span class="hljs-title">SendinblueTransportFactory</span>;
 <span class="hljs-keyword">use</span> <span class="hljs-title">Symfony</span>\<span class="hljs-title">Component</span>\<span class="hljs-title">Mailer</span>\<span class="hljs-title">Transport</span>\<span class="hljs-title">Dsn</span>;
@@ -1021,4 +1032,10 @@ This is the panel content.
         );
     });
 }
+</code></pre>
+<p>Once your transport has been registered, you may create a mailer definition within your application&#39;s config/mail.php configuration file that utilizes the new transport:</p>
+<pre><code><span class="hljs-string">&#x27;sendinblue&#x27;</span> =&gt; [
+    <span class="hljs-string">&#x27;transport&#x27;</span> =&gt; <span class="hljs-string">&#x27;sendinblue&#x27;</span>,
+    <span class="hljs-comment">// ...</span>
+],
 </code></pre>

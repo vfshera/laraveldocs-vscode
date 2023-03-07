@@ -34,6 +34,7 @@
 <li><a href="#changing-plans">Changing Plans</a></li>
 <li><a href="#subscription-quantity">Subscription Quantity</a></li>
 <li><a href="#subscription-modifiers">Subscription Modifiers</a></li>
+<li><a href="#multiple-subscriptions">Multiple Subscriptions</a></li>
 <li><a href="#pausing-subscriptions">Pausing Subscriptions</a></li>
 <li><a href="#cancelling-subscriptions">Cancelling Subscriptions</a></li>
 </ul>
@@ -64,7 +65,7 @@
 <p><a name="introduction"></a></p>
 <h2 id="introduction">Introduction</h2>
 <p><a href="https://github.com/laravel/cashier-paddle">Laravel Cashier Paddle</a> provides an expressive, fluent interface to <a href="https://paddle.com">Paddle&#39;s</a> subscription billing services. It handles almost all of the boilerplate subscription billing code you are dreading. In addition to basic subscription management, Cashier can handle: coupons, swapping subscription, subscription &quot;quantities&quot;, cancellation grace periods, and more.</p>
-<p>While working with Cashier we recommend you also review Paddle&#39;s <a href="https://developer.paddle.com/guides">user guides</a> and <a href="https://developer.paddle.com/api-reference/intro">API documentation</a>.</p>
+<p>While working with Cashier we recommend you also review Paddle&#39;s <a href="https://developer.paddle.com/guides">user guides</a> and <a href="https://developer.paddle.com/api-reference">API documentation</a>.</p>
 <p><a name="upgrading-cashier"></a></p>
 <h2 id="upgrading-cashier">Upgrading Cashier</h2>
 <p>When upgrading to a new version of Cashier, it&#39;s important that you carefully review <a href="https://github.com/laravel/cashier-paddle/blob/master/UPGRADE.md">the upgrade guide</a>.</p>
@@ -656,6 +657,26 @@
 <p>Modifiers may be deleted by invoking the <code>delete</code> method on a <code>Laravel\Paddle\Modifier</code> instance:</p>
 <pre><code><span class="hljs-variable">$modifier</span>-&gt;<span class="hljs-title function_ invoke__">delete</span>();
 </code></pre>
+<p><a name="multiple-subscriptions"></a></p>
+<h3 id="multiple-subscriptions">Multiple Subscriptions</h3>
+<p>Paddle allows your customers to have multiple subscriptions simultaneously. For example, you may run a gym that offers a swimming subscription and a weight-lifting subscription, and each subscription may have different pricing. Of course, customers should be able to subscribe to either or both plans.</p>
+<p>When your application creates subscriptions, you may provide the name of the subscription to the <code>newSubscription</code> method. The name may be any string that represents the type of subscription the user is initiating:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">post</span>(<span class="hljs-string">&#x27;/swimming/subscribe&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()
+        -&gt;<span class="hljs-title function_ invoke__">newSubscription</span>(<span class="hljs-string">&#x27;swimming&#x27;</span>, <span class="hljs-variable">$swimmingMonthly</span> = <span class="hljs-number">12345</span>)
+        -&gt;<span class="hljs-title function_ invoke__">create</span>(<span class="hljs-variable">$request</span>-&gt;paymentMethodId);
+
+    <span class="hljs-comment">// ...</span>
+});
+</code></pre>
+<p>In this example, we initiated a monthly swimming subscription for the customer. However, they may want to swap to a yearly subscription at a later time. When adjusting the customer&#39;s subscription, we can simply swap the price on the <code>swimming</code> subscription:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;swimming&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">swap</span>(<span class="hljs-variable">$swimmingYearly</span> = <span class="hljs-number">34567</span>);
+</code></pre>
+<p>Of course, you may also cancel the subscription entirely:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">subscription</span>(<span class="hljs-string">&#x27;swimming&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">cancel</span>();
+</code></pre>
 <p><a name="pausing-subscriptions"></a></p>
 <h3 id="pausing-subscriptions">Pausing Subscriptions</h3>
 <p>To pause a subscription, call the <code>pause</code> method on the user&#39;s subscription:</p>
@@ -980,25 +1001,45 @@
 <p><a name="handling-failed-payments"></a></p>
 <h2 id="handling-failed-payments">Handling Failed Payments</h2>
 <p>Subscription payments fail for various reasons, such as expired cards or a card having insufficient funds. When this happens, we recommend that you let Paddle handle payment failures for you. Specifically, you may <a href="https://vendors.paddle.com/subscription-settings">setup Paddle&#39;s automatic billing emails</a> in your Paddle dashboard.</p>
-<p>Alternatively, you can perform more precise customization by catching the <a href="https://developer.paddle.com/webhook-reference/subscription-alerts/subscription-payment-failed"><code>subscription_payment_failed</code></a> webhook and enabling the &quot;Subscription Payment Failed&quot; option in the Webhook settings of your Paddle dashboard:</p>
+<p>Alternatively, you can perform more precise customization by <a href="/docs/%7B%7Bversion%7D%7D/events">listening</a> for the <code>subscription_payment_failed</code> Paddle event via the <code>WebhookReceived</code> event dispatched by Cashier. You should also ensure the &quot;Subscription Payment Failed&quot; option is enabled in the Webhook settings of your Paddle dashboard:</p>
 <pre><code><span class="hljs-meta">&lt;?php</span>
 
-<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Http</span>\<span class="hljs-title class_">Controllers</span>;
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Listeners</span>;
 
-<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Paddle</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Controllers</span>\<span class="hljs-title">WebhookController</span> <span class="hljs-keyword">as</span> <span class="hljs-title">CashierController</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Paddle</span>\<span class="hljs-title">Events</span>\<span class="hljs-title">WebhookReceived</span>;
 
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">WebhookController</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">CashierController</span>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PaddleEventListener</span>
 </span>{
     <span class="hljs-comment">/**
-     * Handle subscription payment failed.
+     * Handle received Paddle webhooks.
      *
-     * <span class="hljs-doctag">@param</span>  array  $payload
+     * <span class="hljs-doctag">@param</span>  \Laravel\Paddle\Events\WebhookReceived  $event
      * <span class="hljs-doctag">@return</span> void
      */</span>
-    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">handleSubscriptionPaymentFailed</span>(<span class="hljs-params"><span class="hljs-variable">$payload</span></span>)
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">handle</span>(<span class="hljs-params">WebhookReceived <span class="hljs-variable">$event</span></span>)
     </span>{
-        <span class="hljs-comment">// Handle the failed subscription payment...</span>
+        <span class="hljs-keyword">if</span> (<span class="hljs-variable">$event</span>-&gt;payload[<span class="hljs-string">&#x27;alert_name&#x27;</span>] === <span class="hljs-string">&#x27;subscription_payment_failed&#x27;</span>) {
+            <span class="hljs-comment">// Handle the failed subscription payment...</span>
+        }
     }
+}
+</code></pre>
+<p>Once your listener has been defined, you should register it within your application&#39;s <code>EventServiceProvider</code>:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Providers</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Listeners</span>\<span class="hljs-title">PaddleEventListener</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Foundation</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Providers</span>\<span class="hljs-title">EventServiceProvider</span> <span class="hljs-keyword">as</span> <span class="hljs-title">ServiceProvider</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Paddle</span>\<span class="hljs-title">Events</span>\<span class="hljs-title">WebhookReceived</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">EventServiceProvider</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">ServiceProvider</span>
+</span>{
+    <span class="hljs-keyword">protected</span> <span class="hljs-variable">$listen</span> = [
+        <span class="hljs-title class_">WebhookReceived</span>::<span class="hljs-variable language_">class</span> =&gt; [
+            <span class="hljs-title class_">PaddleEventListener</span>::<span class="hljs-variable language_">class</span>,
+        ],
+    ];
 }
 </code></pre>
 <p><a name="testing"></a></p>

@@ -8,7 +8,7 @@
 </li>
 <li><a href="#getting-started">Getting Started</a><ul>
 <li><a href="#generating-tests">Generating Tests</a></li>
-<li><a href="#migrations">Database Migrations</a></li>
+<li><a href="#resetting-the-database-after-each-test">Resetting The Database After Each Test</a></li>
 <li><a href="#running-tests">Running Tests</a></li>
 <li><a href="#environment-handling">Environment Handling</a></li>
 </ul>
@@ -136,9 +136,12 @@ Dusk requires the <code>chromedriver</code> binaries to be executable. If you&#3
 <p>To generate a Dusk test, use the <code>dusk:make</code> Artisan command. The generated test will be placed in the <code>tests/Browser</code> directory:</p>
 <pre><code class="language-shell">php artisan dusk:make LoginTest
 </code></pre>
-<p><a name="migrations"></a></p>
-<h3 id="database-migrations">Database Migrations</h3>
-<p>Most of the tests you write will interact with pages that retrieve data from your application&#39;s database; however, your Dusk tests should never use the <code>RefreshDatabase </code>trait. The <code>RefreshDatabase</code> trait leverages database transactions which will not be applicable or available across HTTP requests. Instead, use the <code>DatabaseMigrations</code> trait, which re-migrates the database for each test:</p>
+<p><a name="resetting-the-database-after-each-test"></a></p>
+<h3 id="resetting-the-database-after-each-test">Resetting The Database After Each Test</h3>
+<p>Most of the tests you write will interact with pages that retrieve data from your application&#39;s database; however, your Dusk tests should never use the <code>RefreshDatabase</code> trait. The <code>RefreshDatabase</code> trait leverages database transactions which will not be applicable or available across HTTP requests. Instead, you have two options: the <code>DatabaseMigrations</code> trait and the <code>DatabaseTruncation</code> trait.</p>
+<p><a name="reset-migrations"></a></p>
+<h4 id="using-database-migrations">Using Database Migrations</h4>
+<p>The <code>DatabaseMigrations</code> trait will run your database migrations before each test. However, dropping and re-creating your database tables for each test is typically slower than truncating the tables:</p>
 <pre><code><span class="hljs-meta">&lt;?php</span>
 
 <span class="hljs-keyword">namespace</span> <span class="hljs-title class_">Tests</span>\<span class="hljs-title class_">Browser</span>;
@@ -157,6 +160,50 @@ Dusk requires the <code>chromedriver</code> binaries to be executable. If you&#3
 <p><strong>Warning</strong>
 SQLite in-memory databases may not be used when executing Dusk tests. Since the browser executes within its own process, it will not be able to access the in-memory databases of other processes.</p>
 </blockquote>
+<p><a name="reset-truncation"></a></p>
+<h4 id="using-database-truncation">Using Database Truncation</h4>
+<p>Before using the <code>DatabaseTruncation</code> trait, you must install the <code>doctrine/dbal</code> package using the Composer package manager:</p>
+<pre><code class="language-shell">composer require --dev doctrine/dbal
+</code></pre>
+<p>The <code>DatabaseTruncation</code> trait will migrate your database on the first test in order to ensure your database tables have been properly created. However, on subsequent tests, the database&#39;s tables will simply be truncated - providing a speed boost over re-running all of your database migrations:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">Tests</span>\<span class="hljs-title class_">Browser</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Foundation</span>\<span class="hljs-title">Testing</span>\<span class="hljs-title">DatabaseTruncation</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Dusk</span>\<span class="hljs-title">Chrome</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Tests</span>\<span class="hljs-title">DuskTestCase</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ExampleTest</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">DuskTestCase</span>
+</span>{
+    <span class="hljs-keyword">use</span> <span class="hljs-title">DatabaseTruncation</span>;
+}
+</code></pre>
+<p>By default, this trait will truncate all tables except the <code>migrations</code> table. If you would like to customize the tables that should be truncated, you may define a <code>$tablesToTruncate</code> property on your test class:</p>
+<pre><code><span class="hljs-comment">/**
+ * Indicates which tables should be truncated.
+ *
+ * <span class="hljs-doctag">@var</span> array
+ */</span>
+<span class="hljs-keyword">protected</span> <span class="hljs-variable">$tablesToTruncate</span> = [<span class="hljs-string">&#x27;users&#x27;</span>];
+</code></pre>
+<p>Alternatively, you may define an <code>$exceptTables</code> property on your test class to specify which tables should be excluded from truncation:</p>
+<pre><code><span class="hljs-comment">/**
+ * Indicates which tables should be excluded from truncation.
+ *
+ * <span class="hljs-doctag">@var</span> array
+ */</span>
+<span class="hljs-keyword">protected</span> <span class="hljs-variable">$exceptTables</span> = [<span class="hljs-string">&#x27;users&#x27;</span>];
+</code></pre>
+<p>To specify the database connections that should have their tables truncated, you may define a <code>$connectionsToTruncate</code> property on your test class:</p>
+<pre><code><span class="hljs-comment">/**
+ * Indicates which connections should have their tables truncated.
+ *
+ * <span class="hljs-doctag">@var</span> array
+ */</span>
+<span class="hljs-keyword">protected</span> <span class="hljs-variable">$connectionsToTruncate</span> = [<span class="hljs-string">&#x27;mysql&#x27;</span>];
+</code></pre>
 <p><a name="running-tests"></a></p>
 <h3 id="running-tests">Running Tests</h3>
 <p>To run your browser tests, execute the <code>dusk</code> Artisan command:</p>

@@ -47,7 +47,7 @@ New to Laravel? Check out the <a href="https://bootcamp.laravel.com">Laravel Boo
 <h2 id="your-first-laravel-project">Your First Laravel Project</h2>
 <p>Before creating your first Laravel project, you should ensure that your local machine has PHP and <a href="https://getcomposer.org">Composer</a> installed. If you are developing on macOS, PHP and Composer can be installed via <a href="https://brew.sh/">Homebrew</a>. In addition, we recommend <a href="https://nodejs.org">installing Node and NPM</a>.</p>
 <p>After you have installed PHP and Composer, you may create a new Laravel project via the Composer <code>create-project</code> command:</p>
-<pre><code class="language-nothing">composer create-project laravel/laravel example-app
+<pre><code class="language-nothing">composer create-project laravel/laravel:^<span class="hljs-number">9.0</span> example-app
 </code></pre>
 <p>Or, you may create new Laravel projects by globally installing the Laravel installer via Composer:</p>
 <pre><code class="language-nothing">composer <span class="hljs-keyword">global</span> <span class="hljs-keyword">require</span> laravel/installer
@@ -93,7 +93,7 @@ php artisan serve
 <blockquote>
 <p><strong>Note</strong><br>After installing and enabling WSL2, you should ensure that Docker Desktop is <a href="https://docs.docker.com/docker-for-windows/wsl/">configured to use the WSL2 backend</a>.</p>
 </blockquote>
-<p>Next, you are ready to create your first Laravel project. Launch <a href="https://www.microsoft.com/en-us/p/windows-terminal/9n0dx20hk701?rtc=1&amp;activetab=pivot:overviewtab">Windows Terminal</a> and begin a new terminal session for your WSL2 Linux operating system. Next, you can use a simple terminal command to create a new Laravel project. For example, to create a new Laravel application in a directory named &quot;example-app&quot;, you may run the following command in your terminal:</p>
+<p>Next, you are ready to create your first Laravel project. Launch <a href="https://www.microsoft.com/en-us/p/windows-terminal/9n0dx20hk701?rtc=1&activetab=pivot:overviewtab">Windows Terminal</a> and begin a new terminal session for your WSL2 Linux operating system. Next, you can use a simple terminal command to create a new Laravel project. For example, to create a new Laravel application in a directory named &quot;example-app&quot;, you may run the following command in your terminal:</p>
 <pre><code class="language-shell">curl -s https://laravel.build/example-app | bash
 </code></pre>
 <p>Of course, you can change &quot;example-app&quot; in this URL to anything you like - just make sure the application name only contains alpha-numeric characters, dashes, and underscores. The Laravel application&#39;s directory will be created within the directory you execute the command from.</p>
@@ -128,10 +128,10 @@ php artisan serve
 </blockquote>
 <p><a name="choosing-your-sail-services"></a></p>
 <h3 id="choosing-your-sail-services">Choosing Your Sail Services</h3>
-<p>When creating a new Laravel application via Sail, you may use the <code>with</code> query string variable to choose which services should be configured in your new application&#39;s <code>docker-compose.yml</code> file. Available services include <code>mysql</code>, <code>pgsql</code>, <code>mariadb</code>, <code>redis</code>, <code>memcached</code>, <code>meilisearch</code>, <code>minio</code>, <code>selenium</code>, and <code>mailhog</code>:</p>
+<p>When creating a new Laravel application via Sail, you may use the <code>with</code> query string variable to choose which services should be configured in your new application&#39;s <code>docker-compose.yml</code> file. Available services include <code>mysql</code>, <code>pgsql</code>, <code>mariadb</code>, <code>redis</code>, <code>memcached</code>, <code>meilisearch</code>, <code>minio</code>, <code>selenium</code>, and <code>mailpit</code>:</p>
 <pre><code class="language-shell">curl -s &quot;https://laravel.build/example-app?with=mysql,redis&quot; | bash
 </code></pre>
-<p>If you do not specify which services you would like configured, a default stack of <code>mysql</code>, <code>redis</code>, <code>meilisearch</code>, <code>mailhog</code>, and <code>selenium</code> will be configured.</p>
+<p>If you do not specify which services you would like configured, a default stack of <code>mysql</code>, <code>redis</code>, <code>meilisearch</code>, <code>mailpit</code>, and <code>selenium</code> will be configured.</p>
 <p>You may instruct Sail to install a default <a href="/docs/%7B%7Bversion%7D%7D/sail#using-devcontainers">Devcontainer</a> by adding the <code>devcontainer</code> parameter to the URL:</p>
 <pre><code class="language-shell">curl -s &quot;https://laravel.build/example-app?with=mysql,redis&amp;devcontainer&quot; | bash
 </code></pre>

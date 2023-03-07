@@ -106,13 +106,13 @@ valet use php
 </blockquote>
 <p><a name="database"></a></p>
 <h4 id="database">Database</h4>
-<p>If your application needs a database, check out <a href="https://dbngin.com">DBngin</a>. DBngin provides a free, all-in-one database management tool that includes MySQL, PostgreSQL, and Redis. After DBngin has been installed, you can connect to your database at <code>127.0.0.1</code> using the <code>root</code> username and an empty string for the password.</p>
+<p>If your application needs a database, check out <a href="https://dbngin.com">DBngin</a>, which provides a free, all-in-one database management tool that includes MySQL, PostgreSQL, and Redis. After DBngin has been installed, you can connect to your database at <code>127.0.0.1</code> using the <code>root</code> username and an empty string for the password.</p>
 <p><a name="resetting-your-installation"></a></p>
 <h4 id="resetting-your-installation">Resetting Your Installation</h4>
-<p>If you are having trouble getting your Valet installation to run properly, executing the <code>composer global update</code> command followed by <code>valet install</code> will reset your installation and can solve a variety of problems. In rare cases, it may be necessary to &quot;hard reset&quot; Valet by executing <code>valet uninstall --force</code> followed by <code>valet install</code>.</p>
+<p>If you are having trouble getting your Valet installation to run properly, executing the <code>composer global require laravel/valet</code> command followed by <code>valet install</code> will reset your installation and can solve a variety of problems. In rare cases, it may be necessary to &quot;hard reset&quot; Valet by executing <code>valet uninstall --force</code> followed by <code>valet install</code>.</p>
 <p><a name="upgrading-valet"></a></p>
 <h3 id="upgrading-valet">Upgrading Valet</h3>
-<p>You may update your Valet installation by executing the <code>composer global update</code> command in your terminal. After upgrading, it is good practice to run the <code>valet install</code> command so Valet can make additional upgrades to your configuration files if necessary.</p>
+<p>You may update your Valet installation by executing the <code>composer global require laravel/valet</code> command in your terminal. After upgrading, it is good practice to run the <code>valet install</code> command so Valet can make additional upgrades to your configuration files if necessary.</p>
 <p><a name="serving-sites"></a></p>
 <h2 id="serving-sites">Serving Sites</h2>
 <p>Once Valet is installed, you&#39;re ready to start serving your Laravel applications. Valet provides two commands to help you serve your applications: <code>park</code> and <code>link</code>.</p>
@@ -308,7 +308,9 @@ valet proxy elasticsearch http://127.0.0.1:9200 --secure
 <p><a name="local-drivers"></a></p>
 <h3 id="local-drivers">Local Drivers</h3>
 <p>If you would like to define a custom Valet driver for a single application, create a <code>LocalValetDriver.php</code> file in the application&#39;s root directory. Your custom driver may extend the base <code>ValetDriver</code> class or extend an existing application specific driver such as the <code>LaravelValetDriver</code>:</p>
-<pre><code><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LocalValetDriver</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">LaravelValetDriver</span>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Valet</span>\<span class="hljs-title">Drivers</span>\<span class="hljs-title">LaravelValetDriver</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LocalValetDriver</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">LaravelValetDriver</span>
 </span>{
     <span class="hljs-comment">/**
      * Determine if the driver serves the request.

@@ -334,14 +334,20 @@ composer require nyholm/psr7
     <span class="hljs-comment">// The &quot;name&quot; value is not filled...</span>
 });
 </code></pre>
-<p>To determine if a given key is absent from the request, you may use the <code>missing</code> method:</p>
+<p>To determine if a given key is absent from the request, you may use the <code>missing</code> and <code>whenMissing</code> methods:</p>
 <pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">missing</span>(<span class="hljs-string">&#x27;name&#x27;</span>)) {
     <span class="hljs-comment">//</span>
 }
+
+<span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">whenMissing</span>(<span class="hljs-string">&#x27;name&#x27;</span>, function (<span class="hljs-variable">$input</span>) {
+    <span class="hljs-comment">// The &quot;name&quot; value is missing...</span>
+}, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+    <span class="hljs-comment">// The &quot;name&quot; value is present...</span>
+});
 </code></pre>
 <p><a name="merging-additional-input"></a></p>
 <h3 id="merging-additional-input">Merging Additional Input</h3>
-<p>Sometimes you may need to manually merge additional input into the request&#39;s existing input data. To accomplish this, you may use the <code>merge</code> method:</p>
+<p>Sometimes you may need to manually merge additional input into the request&#39;s existing input data. To accomplish this, you may use the <code>merge</code> method. If a given input key already exists on the request, it will be overwritten by the data provided to the <code>merge</code> method:</p>
 <pre><code><span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">merge</span>([<span class="hljs-string">&#x27;votes&#x27;</span> =&gt; <span class="hljs-number">0</span>]);
 </code></pre>
 <p>The <code>mergeIfMissing</code> method may be used to merge input into the request if the corresponding keys do not already exist within the request&#39;s input data:</p>

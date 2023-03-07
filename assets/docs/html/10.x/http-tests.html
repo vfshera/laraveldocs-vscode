@@ -1,0 +1,1082 @@
+<h1 id="http-tests">HTTP Tests</h1>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#making-requests">Making Requests</a><ul>
+<li><a href="#customizing-request-headers">Customizing Request Headers</a></li>
+<li><a href="#cookies">Cookies</a></li>
+<li><a href="#session-and-authentication">Session / Authentication</a></li>
+<li><a href="#debugging-responses">Debugging Responses</a></li>
+<li><a href="#exception-handling">Exception Handling</a></li>
+</ul>
+</li>
+<li><a href="#testing-json-apis">Testing JSON APIs</a><ul>
+<li><a href="#fluent-json-testing">Fluent JSON Testing</a></li>
+</ul>
+</li>
+<li><a href="#testing-file-uploads">Testing File Uploads</a></li>
+<li><a href="#testing-views">Testing Views</a><ul>
+<li><a href="#rendering-blade-and-components">Rendering Blade &amp; Components</a></li>
+</ul>
+</li>
+<li><a href="#available-assertions">Available Assertions</a><ul>
+<li><a href="#response-assertions">Response Assertions</a></li>
+<li><a href="#authentication-assertions">Authentication Assertions</a></li>
+<li><a href="#validation-assertions">Validation Assertions</a></li>
+</ul>
+</li>
+</ul>
+<p><a name="introduction"></a></p>
+<h2 id="introduction">Introduction</h2>
+<p>Laravel provides a very fluent API for making HTTP requests to your application and examining the responses. For example, take a look at the feature test defined below:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">Tests</span>\<span class="hljs-title class_">Feature</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Foundation</span>\<span class="hljs-title">Testing</span>\<span class="hljs-title">RefreshDatabase</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Foundation</span>\<span class="hljs-title">Testing</span>\<span class="hljs-title">WithoutMiddleware</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Tests</span>\<span class="hljs-title">TestCase</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ExampleTest</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">TestCase</span>
+</span>{
+    <span class="hljs-comment">/**
+     * A basic test example.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test_a_basic_request</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+    </span>{
+        <span class="hljs-variable">$response</span> = <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/&#x27;</span>);
+
+        <span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertStatus</span>(<span class="hljs-number">200</span>);
+    }
+}
+</code></pre>
+<p>The <code>get</code> method makes a <code>GET</code> request into the application, while the <code>assertStatus</code> method asserts that the returned response should have the given HTTP status code. In addition to this simple assertion, Laravel also contains a variety of assertions for inspecting the response headers, content, JSON structure, and more.</p>
+<p><a name="making-requests"></a></p>
+<h2 id="making-requests">Making Requests</h2>
+<p>To make a request to your application, you may invoke the <code>get</code>, <code>post</code>, <code>put</code>, <code>patch</code>, or <code>delete</code> methods within your test. These methods do not actually issue a &quot;real&quot; HTTP request to your application. Instead, the entire network request is simulated internally.</p>
+<p>Instead of returning an <code>Illuminate\Http\Response</code> instance, test request methods return an instance of <code>Illuminate\Testing\TestResponse</code>, which provides a <a href="#available-assertions">variety of helpful assertions</a> that allow you to inspect your application&#39;s responses:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">Tests</span>\<span class="hljs-title class_">Feature</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Foundation</span>\<span class="hljs-title">Testing</span>\<span class="hljs-title">RefreshDatabase</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Foundation</span>\<span class="hljs-title">Testing</span>\<span class="hljs-title">WithoutMiddleware</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Tests</span>\<span class="hljs-title">TestCase</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ExampleTest</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">TestCase</span>
+</span>{
+    <span class="hljs-comment">/**
+     * A basic test example.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test_a_basic_request</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+    </span>{
+        <span class="hljs-variable">$response</span> = <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/&#x27;</span>);
+
+        <span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertStatus</span>(<span class="hljs-number">200</span>);
+    }
+}
+</code></pre>
+<p>In general, each of your tests should only make one request to your application. Unexpected behavior may occur if multiple requests are executed within a single test method.</p>
+<blockquote>
+<p><strong>Note</strong><br>For convenience, the CSRF middleware is automatically disabled when running tests.</p>
+</blockquote>
+<p><a name="customizing-request-headers"></a></p>
+<h3 id="customizing-request-headers">Customizing Request Headers</h3>
+<p>You may use the <code>withHeaders</code> method to customize the request&#39;s headers before it is sent to the application. This method allows you to add any custom headers you would like to the request:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">Tests</span>\<span class="hljs-title class_">Feature</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Tests</span>\<span class="hljs-title">TestCase</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ExampleTest</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">TestCase</span>
+</span>{
+    <span class="hljs-comment">/**
+     * A basic functional test example.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test_interacting_with_headers</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+    </span>{
+        <span class="hljs-variable">$response</span> = <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">withHeaders</span>([
+            <span class="hljs-string">&#x27;X-Header&#x27;</span> =&gt; <span class="hljs-string">&#x27;Value&#x27;</span>,
+        ])-&gt;<span class="hljs-title function_ invoke__">post</span>(<span class="hljs-string">&#x27;/user&#x27;</span>, [<span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Sally&#x27;</span>]);
+
+        <span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertStatus</span>(<span class="hljs-number">201</span>);
+    }
+}
+</code></pre>
+<p><a name="cookies"></a></p>
+<h3 id="cookies">Cookies</h3>
+<p>You may use the <code>withCookie</code> or <code>withCookies</code> methods to set cookie values before making a request. The <code>withCookie</code> method accepts a cookie name and value as its two arguments, while the <code>withCookies</code> method accepts an array of name / value pairs:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">Tests</span>\<span class="hljs-title class_">Feature</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Tests</span>\<span class="hljs-title">TestCase</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ExampleTest</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">TestCase</span>
+</span>{
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test_interacting_with_cookies</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+    </span>{
+        <span class="hljs-variable">$response</span> = <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">withCookie</span>(<span class="hljs-string">&#x27;color&#x27;</span>, <span class="hljs-string">&#x27;blue&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/&#x27;</span>);
+
+        <span class="hljs-variable">$response</span> = <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">withCookies</span>([
+            <span class="hljs-string">&#x27;color&#x27;</span> =&gt; <span class="hljs-string">&#x27;blue&#x27;</span>,
+            <span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Taylor&#x27;</span>,
+        ])-&gt;<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/&#x27;</span>);
+    }
+}
+</code></pre>
+<p><a name="session-and-authentication"></a></p>
+<h3 id="session--authentication">Session / Authentication</h3>
+<p>Laravel provides several helpers for interacting with the session during HTTP testing. First, you may set the session data to a given array using the <code>withSession</code> method. This is useful for loading the session with data before issuing a request to your application:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">Tests</span>\<span class="hljs-title class_">Feature</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Tests</span>\<span class="hljs-title">TestCase</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ExampleTest</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">TestCase</span>
+</span>{
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test_interacting_with_the_session</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+    </span>{
+        <span class="hljs-variable">$response</span> = <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">withSession</span>([<span class="hljs-string">&#x27;banned&#x27;</span> =&gt; <span class="hljs-literal">false</span>])-&gt;<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/&#x27;</span>);
+    }
+}
+</code></pre>
+<p>Laravel&#39;s session is typically used to maintain state for the currently authenticated user. Therefore, the <code>actingAs</code> helper method provides a simple way to authenticate a given user as the current user. For example, we may use a <a href="/docs/%7B%7Bversion%7D%7D/eloquent-factories">model factory</a> to generate and authenticate a user:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">Tests</span>\<span class="hljs-title class_">Feature</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Tests</span>\<span class="hljs-title">TestCase</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ExampleTest</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">TestCase</span>
+</span>{
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test_an_action_that_requires_authentication</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+    </span>{
+        <span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">factory</span>()-&gt;<span class="hljs-title function_ invoke__">create</span>();
+
+        <span class="hljs-variable">$response</span> = <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">actingAs</span>(<span class="hljs-variable">$user</span>)
+                         -&gt;<span class="hljs-title function_ invoke__">withSession</span>([<span class="hljs-string">&#x27;banned&#x27;</span> =&gt; <span class="hljs-literal">false</span>])
+                         -&gt;<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/&#x27;</span>);
+    }
+}
+</code></pre>
+<p>You may also specify which guard should be used to authenticate the given user by passing the guard name as the second argument to the <code>actingAs</code> method. The guard that is provided to the <code>actingAs</code> method will also become the default guard for the duration of the test:</p>
+<pre><code><span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">actingAs</span>(<span class="hljs-variable">$user</span>, <span class="hljs-string">&#x27;web&#x27;</span>)
+</code></pre>
+<p><a name="debugging-responses"></a></p>
+<h3 id="debugging-responses">Debugging Responses</h3>
+<p>After making a test request to your application, the <code>dump</code>, <code>dumpHeaders</code>, and <code>dumpSession</code> methods may be used to examine and debug the response contents:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">Tests</span>\<span class="hljs-title class_">Feature</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Tests</span>\<span class="hljs-title">TestCase</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ExampleTest</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">TestCase</span>
+</span>{
+    <span class="hljs-comment">/**
+     * A basic test example.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test_basic_test</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+    </span>{
+        <span class="hljs-variable">$response</span> = <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/&#x27;</span>);
+
+        <span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">dumpHeaders</span>();
+
+        <span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">dumpSession</span>();
+
+        <span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">dump</span>();
+    }
+}
+</code></pre>
+<p>Alternatively, you may use the <code>dd</code>, <code>ddHeaders</code>, and <code>ddSession</code> methods to dump information about the response and then stop execution:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">Tests</span>\<span class="hljs-title class_">Feature</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Tests</span>\<span class="hljs-title">TestCase</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ExampleTest</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">TestCase</span>
+</span>{
+    <span class="hljs-comment">/**
+     * A basic test example.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test_basic_test</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+    </span>{
+        <span class="hljs-variable">$response</span> = <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/&#x27;</span>);
+
+        <span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">ddHeaders</span>();
+
+        <span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">ddSession</span>();
+
+        <span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">dd</span>();
+    }
+}
+</code></pre>
+<p><a name="exception-handling"></a></p>
+<h3 id="exception-handling">Exception Handling</h3>
+<p>Sometimes you may want to test that your application is throwing a specific exception. To ensure that the exception does not get caught by Laravel&#39;s exception handler and returned as an HTTP response, you may invoke the <code>withoutExceptionHandling</code> method before making your request:</p>
+<pre><code><span class="hljs-variable">$response</span> = <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">withoutExceptionHandling</span>()-&gt;<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/&#x27;</span>);
+</code></pre>
+<p>In addition, if you would like to ensure that your application is not utilizing features that have been deprecated by the PHP language or the libraries your application is using, you may invoke the <code>withoutDeprecationHandling</code> method before making your request. When deprecation handling is disabled, deprecation warnings will be converted to exceptions, thus causing your test to fail:</p>
+<pre><code><span class="hljs-variable">$response</span> = <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">withoutDeprecationHandling</span>()-&gt;<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/&#x27;</span>);
+</code></pre>
+<p><a name="testing-json-apis"></a></p>
+<h2 id="testing-json-apis">Testing JSON APIs</h2>
+<p>Laravel also provides several helpers for testing JSON APIs and their responses. For example, the <code>json</code>, <code>getJson</code>, <code>postJson</code>, <code>putJson</code>, <code>patchJson</code>, <code>deleteJson</code>, and <code>optionsJson</code> methods may be used to issue JSON requests with various HTTP verbs. You may also easily pass data and headers to these methods. To get started, let&#39;s write a test to make a <code>POST</code> request to <code>/api/user</code> and assert that the expected JSON data was returned:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">Tests</span>\<span class="hljs-title class_">Feature</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Tests</span>\<span class="hljs-title">TestCase</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ExampleTest</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">TestCase</span>
+</span>{
+    <span class="hljs-comment">/**
+     * A basic functional test example.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test_making_an_api_request</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+    </span>{
+        <span class="hljs-variable">$response</span> = <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">postJson</span>(<span class="hljs-string">&#x27;/api/user&#x27;</span>, [<span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Sally&#x27;</span>]);
+
+        <span class="hljs-variable">$response</span>
+            -&gt;<span class="hljs-title function_ invoke__">assertStatus</span>(<span class="hljs-number">201</span>)
+            -&gt;<span class="hljs-title function_ invoke__">assertJson</span>([
+                <span class="hljs-string">&#x27;created&#x27;</span> =&gt; <span class="hljs-literal">true</span>,
+            ]);
+    }
+}
+</code></pre>
+<p>In addition, JSON response data may be accessed as array variables on the response, making it convenient for you to inspect the individual values returned within a JSON response:</p>
+<pre><code><span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">assertTrue</span>(<span class="hljs-variable">$response</span>[<span class="hljs-string">&#x27;created&#x27;</span>]);
+</code></pre>
+<blockquote>
+<p><strong>Note</strong><br>The <code>assertJson</code> method converts the response to an array and utilizes <code>PHPUnit::assertArraySubset</code> to verify that the given array exists within the JSON response returned by the application. So, if there are other properties in the JSON response, this test will still pass as long as the given fragment is present.</p>
+</blockquote>
+<p><a name="verifying-exact-match"></a></p>
+<h4 id="asserting-exact-json-matches">Asserting Exact JSON Matches</h4>
+<p>As previously mentioned, the <code>assertJson</code> method may be used to assert that a fragment of JSON exists within the JSON response. If you would like to verify that a given array <strong>exactly matches</strong> the JSON returned by your application, you should use the <code>assertExactJson</code> method:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">Tests</span>\<span class="hljs-title class_">Feature</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Tests</span>\<span class="hljs-title">TestCase</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ExampleTest</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">TestCase</span>
+</span>{
+    <span class="hljs-comment">/**
+     * A basic functional test example.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test_asserting_an_exact_json_match</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+    </span>{
+        <span class="hljs-variable">$response</span> = <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">postJson</span>(<span class="hljs-string">&#x27;/user&#x27;</span>, [<span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Sally&#x27;</span>]);
+
+        <span class="hljs-variable">$response</span>
+            -&gt;<span class="hljs-title function_ invoke__">assertStatus</span>(<span class="hljs-number">201</span>)
+            -&gt;<span class="hljs-title function_ invoke__">assertExactJson</span>([
+                <span class="hljs-string">&#x27;created&#x27;</span> =&gt; <span class="hljs-literal">true</span>,
+            ]);
+    }
+}
+</code></pre>
+<p><a name="verifying-json-paths"></a></p>
+<h4 id="asserting-on-json-paths">Asserting On JSON Paths</h4>
+<p>If you would like to verify that the JSON response contains the given data at a specified path, you should use the <code>assertJsonPath</code> method:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">Tests</span>\<span class="hljs-title class_">Feature</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Tests</span>\<span class="hljs-title">TestCase</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ExampleTest</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">TestCase</span>
+</span>{
+    <span class="hljs-comment">/**
+     * A basic functional test example.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test_asserting_a_json_paths_value</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+    </span>{
+        <span class="hljs-variable">$response</span> = <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">postJson</span>(<span class="hljs-string">&#x27;/user&#x27;</span>, [<span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Sally&#x27;</span>]);
+
+        <span class="hljs-variable">$response</span>
+            -&gt;<span class="hljs-title function_ invoke__">assertStatus</span>(<span class="hljs-number">201</span>)
+            -&gt;<span class="hljs-title function_ invoke__">assertJsonPath</span>(<span class="hljs-string">&#x27;team.owner.name&#x27;</span>, <span class="hljs-string">&#x27;Darian&#x27;</span>);
+    }
+}
+</code></pre>
+<p>The <code>assertJsonPath</code> method also accepts a closure, which may be used to dynamically determine if the assertion should pass:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJsonPath</span>(<span class="hljs-string">&#x27;team.owner.name&#x27;</span>, fn (<span class="hljs-keyword">string</span> <span class="hljs-variable">$name</span>) =&gt; <span class="hljs-title function_ invoke__">strlen</span>(<span class="hljs-variable">$name</span>) &gt;= <span class="hljs-number">3</span>);
+</code></pre>
+<p><a name="fluent-json-testing"></a></p>
+<h3 id="fluent-json-testing">Fluent JSON Testing</h3>
+<p>Laravel also offers a beautiful way to fluently test your application&#39;s JSON responses. To get started, pass a closure to the <code>assertJson</code> method. This closure will be invoked with an instance of <code>Illuminate\Testing\Fluent\AssertableJson</code> which can be used to make assertions against the JSON that was returned by your application. The <code>where</code> method may be used to make assertions against a particular attribute of the JSON, while the <code>missing</code> method may be used to assert that a particular attribute is missing from the JSON:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Testing</span>\<span class="hljs-title">Fluent</span>\<span class="hljs-title">AssertableJson</span>;
+
+<span class="hljs-comment">/**
+ * A basic functional test example.
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test_fluent_json</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+</span>{
+    <span class="hljs-variable">$response</span> = <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">getJson</span>(<span class="hljs-string">&#x27;/users/1&#x27;</span>);
+
+    <span class="hljs-variable">$response</span>
+        -&gt;<span class="hljs-title function_ invoke__">assertJson</span>(fn (AssertableJson <span class="hljs-variable">$json</span>) =&gt;
+            <span class="hljs-variable">$json</span>-&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;id&#x27;</span>, <span class="hljs-number">1</span>)
+                 -&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;Victoria Faith&#x27;</span>)
+                 -&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;email&#x27;</span>, fn (<span class="hljs-keyword">string</span> <span class="hljs-variable">$email</span>) =&gt; <span class="hljs-title function_ invoke__">str</span>(<span class="hljs-variable">$email</span>)-&gt;<span class="hljs-title function_ invoke__">is</span>(<span class="hljs-string">&#x27;victoria@gmail.com&#x27;</span>))
+                 -&gt;<span class="hljs-title function_ invoke__">whereNot</span>(<span class="hljs-string">&#x27;status&#x27;</span>, <span class="hljs-string">&#x27;pending&#x27;</span>)
+                 -&gt;<span class="hljs-title function_ invoke__">missing</span>(<span class="hljs-string">&#x27;password&#x27;</span>)
+                 -&gt;<span class="hljs-title function_ invoke__">etc</span>()
+        );
+}
+</code></pre>
+<h4 id="understanding-the-etc-method">Understanding The <code>etc</code> Method</h4>
+<p>In the example above, you may have noticed we invoked the <code>etc</code> method at the end of our assertion chain. This method informs Laravel that there may be other attributes present on the JSON object. If the <code>etc</code> method is not used, the test will fail if other attributes that you did not make assertions against exist on the JSON object.</p>
+<p>The intention behind this behavior is to protect you from unintentionally exposing sensitive information in your JSON responses by forcing you to either explicitly make an assertion against the attribute or explicitly allow additional attributes via the <code>etc</code> method.</p>
+<p>However, you should be aware that not including the <code>etc</code> method in your assertion chain does not ensure that additional attributes are not being added to arrays that are nested within your JSON object. The <code>etc</code> method only ensures that no additional attributes exist at the nesting level in which the <code>etc</code> method is invoked.</p>
+<p><a name="asserting-json-attribute-presence-and-absence"></a></p>
+<h4 id="asserting-attribute-presence--absence">Asserting Attribute Presence / Absence</h4>
+<p>To assert that an attribute is present or absent, you may use the <code>has</code> and <code>missing</code> methods:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJson</span>(fn (AssertableJson <span class="hljs-variable">$json</span>) =&gt;
+    <span class="hljs-variable">$json</span>-&gt;<span class="hljs-title function_ invoke__">has</span>(<span class="hljs-string">&#x27;data&#x27;</span>)
+         -&gt;<span class="hljs-title function_ invoke__">missing</span>(<span class="hljs-string">&#x27;message&#x27;</span>)
+);
+</code></pre>
+<p>In addition, the <code>hasAll</code> and <code>missingAll</code> methods allow asserting the presence or absence of multiple attributes simultaneously:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJson</span>(fn (AssertableJson <span class="hljs-variable">$json</span>) =&gt;
+    <span class="hljs-variable">$json</span>-&gt;<span class="hljs-title function_ invoke__">hasAll</span>([<span class="hljs-string">&#x27;status&#x27;</span>, <span class="hljs-string">&#x27;data&#x27;</span>])
+         -&gt;<span class="hljs-title function_ invoke__">missingAll</span>([<span class="hljs-string">&#x27;message&#x27;</span>, <span class="hljs-string">&#x27;code&#x27;</span>])
+);
+</code></pre>
+<p>You may use the <code>hasAny</code> method to determine if at least one of a given list of attributes is present:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJson</span>(fn (AssertableJson <span class="hljs-variable">$json</span>) =&gt;
+    <span class="hljs-variable">$json</span>-&gt;<span class="hljs-title function_ invoke__">has</span>(<span class="hljs-string">&#x27;status&#x27;</span>)
+         -&gt;<span class="hljs-title function_ invoke__">hasAny</span>(<span class="hljs-string">&#x27;data&#x27;</span>, <span class="hljs-string">&#x27;message&#x27;</span>, <span class="hljs-string">&#x27;code&#x27;</span>)
+);
+</code></pre>
+<p><a name="asserting-against-json-collections"></a></p>
+<h4 id="asserting-against-json-collections">Asserting Against JSON Collections</h4>
+<p>Often, your route will return a JSON response that contains multiple items, such as multiple users:</p>
+<pre><code><span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/users&#x27;</span>, function () {
+    <span class="hljs-keyword">return</span> <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">all</span>();
+});
+</code></pre>
+<p>In these situations, we may use the fluent JSON object&#39;s <code>has</code> method to make assertions against the users included in the response. For example, let&#39;s assert that the JSON response contains three users. Next, we&#39;ll make some assertions about the first user in the collection using the <code>first</code> method. The <code>first</code> method accepts a closure which receives another assertable JSON string that we can use to make assertions about the first object in the JSON collection:</p>
+<pre><code><span class="hljs-variable">$response</span>
+    -&gt;<span class="hljs-title function_ invoke__">assertJson</span>(fn (AssertableJson <span class="hljs-variable">$json</span>) =&gt;
+        <span class="hljs-variable">$json</span>-&gt;<span class="hljs-title function_ invoke__">has</span>(<span class="hljs-number">3</span>)
+             -&gt;<span class="hljs-title function_ invoke__">first</span>(fn (AssertableJson <span class="hljs-variable">$json</span>) =&gt;
+                <span class="hljs-variable">$json</span>-&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;id&#x27;</span>, <span class="hljs-number">1</span>)
+                     -&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;Victoria Faith&#x27;</span>)
+                     -&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;email&#x27;</span>, fn (<span class="hljs-keyword">string</span> <span class="hljs-variable">$email</span>) =&gt; <span class="hljs-title function_ invoke__">str</span>(<span class="hljs-variable">$email</span>)-&gt;<span class="hljs-title function_ invoke__">is</span>(<span class="hljs-string">&#x27;victoria@gmail.com&#x27;</span>))
+                     -&gt;<span class="hljs-title function_ invoke__">missing</span>(<span class="hljs-string">&#x27;password&#x27;</span>)
+                     -&gt;<span class="hljs-title function_ invoke__">etc</span>()
+             )
+    );
+</code></pre>
+<p><a name="scoping-json-collection-assertions"></a></p>
+<h4 id="scoping-json-collection-assertions">Scoping JSON Collection Assertions</h4>
+<p>Sometimes, your application&#39;s routes will return JSON collections that are assigned named keys:</p>
+<pre><code><span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/users&#x27;</span>, function () {
+    <span class="hljs-keyword">return</span> [
+        <span class="hljs-string">&#x27;meta&#x27;</span> =&gt; [...],
+        <span class="hljs-string">&#x27;users&#x27;</span> =&gt; <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">all</span>(),
+    ];
+})
+</code></pre>
+<p>When testing these routes, you may use the <code>has</code> method to assert against the number of items in the collection. In addition, you may use the <code>has</code> method to scope a chain of assertions:</p>
+<pre><code><span class="hljs-variable">$response</span>
+    -&gt;<span class="hljs-title function_ invoke__">assertJson</span>(fn (AssertableJson <span class="hljs-variable">$json</span>) =&gt;
+        <span class="hljs-variable">$json</span>-&gt;<span class="hljs-title function_ invoke__">has</span>(<span class="hljs-string">&#x27;meta&#x27;</span>)
+             -&gt;<span class="hljs-title function_ invoke__">has</span>(<span class="hljs-string">&#x27;users&#x27;</span>, <span class="hljs-number">3</span>)
+             -&gt;<span class="hljs-title function_ invoke__">has</span>(<span class="hljs-string">&#x27;users.0&#x27;</span>, fn (AssertableJson <span class="hljs-variable">$json</span>) =&gt;
+                <span class="hljs-variable">$json</span>-&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;id&#x27;</span>, <span class="hljs-number">1</span>)
+                     -&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;Victoria Faith&#x27;</span>)
+                     -&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;email&#x27;</span>, fn (<span class="hljs-keyword">string</span> <span class="hljs-variable">$email</span>) =&gt; <span class="hljs-title function_ invoke__">str</span>(<span class="hljs-variable">$email</span>)-&gt;<span class="hljs-title function_ invoke__">is</span>(<span class="hljs-string">&#x27;victoria@gmail.com&#x27;</span>))
+                     -&gt;<span class="hljs-title function_ invoke__">missing</span>(<span class="hljs-string">&#x27;password&#x27;</span>)
+                     -&gt;<span class="hljs-title function_ invoke__">etc</span>()
+             )
+    );
+</code></pre>
+<p>However, instead of making two separate calls to the <code>has</code> method to assert against the <code>users</code> collection, you may make a single call which provides a closure as its third parameter. When doing so, the closure will automatically be invoked and scoped to the first item in the collection:</p>
+<pre><code><span class="hljs-variable">$response</span>
+    -&gt;<span class="hljs-title function_ invoke__">assertJson</span>(fn (AssertableJson <span class="hljs-variable">$json</span>) =&gt;
+        <span class="hljs-variable">$json</span>-&gt;<span class="hljs-title function_ invoke__">has</span>(<span class="hljs-string">&#x27;meta&#x27;</span>)
+             -&gt;<span class="hljs-title function_ invoke__">has</span>(<span class="hljs-string">&#x27;users&#x27;</span>, <span class="hljs-number">3</span>, fn (AssertableJson <span class="hljs-variable">$json</span>) =&gt;
+                <span class="hljs-variable">$json</span>-&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;id&#x27;</span>, <span class="hljs-number">1</span>)
+                     -&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;Victoria Faith&#x27;</span>)
+                     -&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;email&#x27;</span>, fn (<span class="hljs-keyword">string</span> <span class="hljs-variable">$email</span>) =&gt; <span class="hljs-title function_ invoke__">str</span>(<span class="hljs-variable">$email</span>)-&gt;<span class="hljs-title function_ invoke__">is</span>(<span class="hljs-string">&#x27;victoria@gmail.com&#x27;</span>))
+                     -&gt;<span class="hljs-title function_ invoke__">missing</span>(<span class="hljs-string">&#x27;password&#x27;</span>)
+                     -&gt;<span class="hljs-title function_ invoke__">etc</span>()
+             )
+    );
+</code></pre>
+<p><a name="asserting-json-types"></a></p>
+<h4 id="asserting-json-types">Asserting JSON Types</h4>
+<p>You may only want to assert that the properties in the JSON response are of a certain type. The <code>Illuminate\Testing\Fluent\AssertableJson</code> class provides the <code>whereType</code> and <code>whereAllType</code> methods for doing just that:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJson</span>(fn (AssertableJson <span class="hljs-variable">$json</span>) =&gt;
+    <span class="hljs-variable">$json</span>-&gt;<span class="hljs-title function_ invoke__">whereType</span>(<span class="hljs-string">&#x27;id&#x27;</span>, <span class="hljs-string">&#x27;integer&#x27;</span>)
+         -&gt;<span class="hljs-title function_ invoke__">whereAllType</span>([
+            <span class="hljs-string">&#x27;users.0.name&#x27;</span> =&gt; <span class="hljs-string">&#x27;string&#x27;</span>,
+            <span class="hljs-string">&#x27;meta&#x27;</span> =&gt; <span class="hljs-string">&#x27;array&#x27;</span>
+        ])
+);
+</code></pre>
+<p>You may specify multiple types using the <code>|</code> character, or passing an array of types as the second parameter to the <code>whereType</code> method. The assertion will be successful if the response value is any of the listed types:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJson</span>(fn (AssertableJson <span class="hljs-variable">$json</span>) =&gt;
+    <span class="hljs-variable">$json</span>-&gt;<span class="hljs-title function_ invoke__">whereType</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;string|null&#x27;</span>)
+         -&gt;<span class="hljs-title function_ invoke__">whereType</span>(<span class="hljs-string">&#x27;id&#x27;</span>, [<span class="hljs-string">&#x27;string&#x27;</span>, <span class="hljs-string">&#x27;integer&#x27;</span>])
+);
+</code></pre>
+<p>The <code>whereType</code> and <code>whereAllType</code> methods recognize the following types: <code>string</code>, <code>integer</code>, <code>double</code>, <code>boolean</code>, <code>array</code>, and <code>null</code>.</p>
+<p><a name="testing-file-uploads"></a></p>
+<h2 id="testing-file-uploads">Testing File Uploads</h2>
+<p>The <code>Illuminate\Http\UploadedFile</code> class provides a <code>fake</code> method which may be used to generate dummy files or images for testing. This, combined with the <code>Storage</code> facade&#39;s <code>fake</code> method, greatly simplifies the testing of file uploads. For example, you may combine these two features to easily test an avatar upload form:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">Tests</span>\<span class="hljs-title class_">Feature</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Foundation</span>\<span class="hljs-title">Testing</span>\<span class="hljs-title">RefreshDatabase</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Foundation</span>\<span class="hljs-title">Testing</span>\<span class="hljs-title">WithoutMiddleware</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">UploadedFile</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Storage</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Tests</span>\<span class="hljs-title">TestCase</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ExampleTest</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">TestCase</span>
+</span>{
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test_avatars_can_be_uploaded</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+    </span>{
+        <span class="hljs-title class_">Storage</span>::<span class="hljs-title function_ invoke__">fake</span>(<span class="hljs-string">&#x27;avatars&#x27;</span>);
+
+        <span class="hljs-variable">$file</span> = <span class="hljs-title class_">UploadedFile</span>::<span class="hljs-title function_ invoke__">fake</span>()-&gt;<span class="hljs-title function_ invoke__">image</span>(<span class="hljs-string">&#x27;avatar.jpg&#x27;</span>);
+
+        <span class="hljs-variable">$response</span> = <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">post</span>(<span class="hljs-string">&#x27;/avatar&#x27;</span>, [
+            <span class="hljs-string">&#x27;avatar&#x27;</span> =&gt; <span class="hljs-variable">$file</span>,
+        ]);
+
+        <span class="hljs-title class_">Storage</span>::<span class="hljs-title function_ invoke__">disk</span>(<span class="hljs-string">&#x27;avatars&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">assertExists</span>(<span class="hljs-variable">$file</span>-&gt;<span class="hljs-title function_ invoke__">hashName</span>());
+    }
+}
+</code></pre>
+<p>If you would like to assert that a given file does not exist, you may use the <code>assertMissing</code> method provided by the <code>Storage</code> facade:</p>
+<pre><code><span class="hljs-title class_">Storage</span>::<span class="hljs-title function_ invoke__">fake</span>(<span class="hljs-string">&#x27;avatars&#x27;</span>);
+
+<span class="hljs-comment">// ...</span>
+
+<span class="hljs-title class_">Storage</span>::<span class="hljs-title function_ invoke__">disk</span>(<span class="hljs-string">&#x27;avatars&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">assertMissing</span>(<span class="hljs-string">&#x27;missing.jpg&#x27;</span>);
+</code></pre>
+<p><a name="fake-file-customization"></a></p>
+<h4 id="fake-file-customization">Fake File Customization</h4>
+<p>When creating files using the <code>fake</code> method provided by the <code>UploadedFile</code> class, you may specify the width, height, and size of the image (in kilobytes) in order to better test your application&#39;s validation rules:</p>
+<pre><code><span class="hljs-title class_">UploadedFile</span>::<span class="hljs-title function_ invoke__">fake</span>()-&gt;<span class="hljs-title function_ invoke__">image</span>(<span class="hljs-string">&#x27;avatar.jpg&#x27;</span>, <span class="hljs-variable">$width</span>, <span class="hljs-variable">$height</span>)-&gt;<span class="hljs-title function_ invoke__">size</span>(<span class="hljs-number">100</span>);
+</code></pre>
+<p>In addition to creating images, you may create files of any other type using the <code>create</code> method:</p>
+<pre><code><span class="hljs-title class_">UploadedFile</span>::<span class="hljs-title function_ invoke__">fake</span>()-&gt;<span class="hljs-title function_ invoke__">create</span>(<span class="hljs-string">&#x27;document.pdf&#x27;</span>, <span class="hljs-variable">$sizeInKilobytes</span>);
+</code></pre>
+<p>If needed, you may pass a <code>$mimeType</code> argument to the method to explicitly define the MIME type that should be returned by the file:</p>
+<pre><code><span class="hljs-title class_">UploadedFile</span>::<span class="hljs-title function_ invoke__">fake</span>()-&gt;<span class="hljs-title function_ invoke__">create</span>(
+    <span class="hljs-string">&#x27;document.pdf&#x27;</span>, <span class="hljs-variable">$sizeInKilobytes</span>, <span class="hljs-string">&#x27;application/pdf&#x27;</span>
+);
+</code></pre>
+<p><a name="testing-views"></a></p>
+<h2 id="testing-views">Testing Views</h2>
+<p>Laravel also allows you to render a view without making a simulated HTTP request to the application. To accomplish this, you may call the <code>view</code> method within your test. The <code>view</code> method accepts the view name and an optional array of data. The method returns an instance of <code>Illuminate\Testing\TestView</code>, which offers several methods to conveniently make assertions about the view&#39;s contents:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">Tests</span>\<span class="hljs-title class_">Feature</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Tests</span>\<span class="hljs-title">TestCase</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ExampleTest</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">TestCase</span>
+</span>{
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test_a_welcome_view_can_be_rendered</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+    </span>{
+        <span class="hljs-variable">$view</span> = <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;welcome&#x27;</span>, [<span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Taylor&#x27;</span>]);
+
+        <span class="hljs-variable">$view</span>-&gt;<span class="hljs-title function_ invoke__">assertSee</span>(<span class="hljs-string">&#x27;Taylor&#x27;</span>);
+    }
+}
+</code></pre>
+<p>The <code>TestView</code> class provides the following assertion methods: <code>assertSee</code>, <code>assertSeeInOrder</code>, <code>assertSeeText</code>, <code>assertSeeTextInOrder</code>, <code>assertDontSee</code>, and <code>assertDontSeeText</code>.</p>
+<p>If needed, you may get the raw, rendered view contents by casting the <code>TestView</code> instance to a string:</p>
+<pre><code><span class="hljs-variable">$contents</span> = (<span class="hljs-keyword">string</span>) <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;welcome&#x27;</span>);
+</code></pre>
+<p><a name="sharing-errors"></a></p>
+<h4 id="sharing-errors">Sharing Errors</h4>
+<p>Some views may depend on errors shared in the <a href="/docs/%7B%7Bversion%7D%7D/validation#quick-displaying-the-validation-errors">global error bag provided by Laravel</a>. To hydrate the error bag with error messages, you may use the <code>withViewErrors</code> method:</p>
+<pre><code><span class="hljs-variable">$view</span> = <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">withViewErrors</span>([
+    <span class="hljs-string">&#x27;name&#x27;</span> =&gt; [<span class="hljs-string">&#x27;Please provide a valid name.&#x27;</span>]
+])-&gt;<span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;form&#x27;</span>);
+
+<span class="hljs-variable">$view</span>-&gt;<span class="hljs-title function_ invoke__">assertSee</span>(<span class="hljs-string">&#x27;Please provide a valid name.&#x27;</span>);
+</code></pre>
+<p><a name="rendering-blade-and-components"></a></p>
+<h3 id="rendering-blade--components">Rendering Blade &amp; Components</h3>
+<p>If necessary, you may use the <code>blade</code> method to evaluate and render a raw <a href="/docs/%7B%7Bversion%7D%7D/blade">Blade</a> string. Like the <code>view</code> method, the <code>blade</code> method returns an instance of <code>Illuminate\Testing\TestView</code>:</p>
+<pre><code><span class="hljs-variable">$view</span> = <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">blade</span>(
+    <span class="hljs-string">&#x27;&lt;x-component :name=&quot;$name&quot; /&gt;&#x27;</span>,
+    [<span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Taylor&#x27;</span>]
+);
+
+<span class="hljs-variable">$view</span>-&gt;<span class="hljs-title function_ invoke__">assertSee</span>(<span class="hljs-string">&#x27;Taylor&#x27;</span>);
+</code></pre>
+<p>You may use the <code>component</code> method to evaluate and render a <a href="/docs/%7B%7Bversion%7D%7D/blade#components">Blade component</a>. The <code>component</code> method returns an instance of <code>Illuminate\Testing\TestComponent</code>:</p>
+<pre><code><span class="hljs-variable">$view</span> = <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">component</span>(<span class="hljs-title class_">Profile</span>::<span class="hljs-variable language_">class</span>, [<span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Taylor&#x27;</span>]);
+
+<span class="hljs-variable">$view</span>-&gt;<span class="hljs-title function_ invoke__">assertSee</span>(<span class="hljs-string">&#x27;Taylor&#x27;</span>);
+</code></pre>
+<p><a name="available-assertions"></a></p>
+<h2 id="available-assertions">Available Assertions</h2>
+<p><a name="response-assertions"></a></p>
+<h3 id="response-assertions">Response Assertions</h3>
+<p>Laravel&#39;s <code>Illuminate\Testing\TestResponse</code> class provides a variety of custom assertion methods that you may utilize when testing your application. These assertions may be accessed on the response that is returned by the <code>json</code>, <code>get</code>, <code>post</code>, <code>put</code>, and <code>delete</code> test methods:</p>
+<style>
+    .collection-method-list > p {
+        columns: 14.4em 2; -moz-columns: 14.4em 2; -webkit-columns: 14.4em 2;
+    }
+
+    .collection-method-list a {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+</style>
+
+<div class="collection-method-list" markdown="1">
+
+<p><a href="#assert-cookie">assertCookie</a>
+<a href="#assert-cookie-expired">assertCookieExpired</a>
+<a href="#assert-cookie-not-expired">assertCookieNotExpired</a>
+<a href="#assert-cookie-missing">assertCookieMissing</a>
+<a href="#assert-created">assertCreated</a>
+<a href="#assert-dont-see">assertDontSee</a>
+<a href="#assert-dont-see-text">assertDontSeeText</a>
+<a href="#assert-download">assertDownload</a>
+<a href="#assert-exact-json">assertExactJson</a>
+<a href="#assert-forbidden">assertForbidden</a>
+<a href="#assert-header">assertHeader</a>
+<a href="#assert-header-missing">assertHeaderMissing</a>
+<a href="#assert-json">assertJson</a>
+<a href="#assert-json-count">assertJsonCount</a>
+<a href="#assert-json-fragment">assertJsonFragment</a>
+<a href="#assert-json-is-array">assertJsonIsArray</a>
+<a href="#assert-json-is-object">assertJsonIsObject</a>
+<a href="#assert-json-missing">assertJsonMissing</a>
+<a href="#assert-json-missing-exact">assertJsonMissingExact</a>
+<a href="#assert-json-missing-validation-errors">assertJsonMissingValidationErrors</a>
+<a href="#assert-json-path">assertJsonPath</a>
+<a href="#assert-json-missing-path">assertJsonMissingPath</a>
+<a href="#assert-json-structure">assertJsonStructure</a>
+<a href="#assert-json-validation-errors">assertJsonValidationErrors</a>
+<a href="#assert-json-validation-error-for">assertJsonValidationErrorFor</a>
+<a href="#assert-location">assertLocation</a>
+<a href="#assert-content">assertContent</a>
+<a href="#assert-no-content">assertNoContent</a>
+<a href="#assert-streamed-content">assertStreamedContent</a>
+<a href="#assert-not-found">assertNotFound</a>
+<a href="#assert-ok">assertOk</a>
+<a href="#assert-plain-cookie">assertPlainCookie</a>
+<a href="#assert-redirect">assertRedirect</a>
+<a href="#assert-redirect-contains">assertRedirectContains</a>
+<a href="#assert-redirect-to-route">assertRedirectToRoute</a>
+<a href="#assert-redirect-to-signed-route">assertRedirectToSignedRoute</a>
+<a href="#assert-see">assertSee</a>
+<a href="#assert-see-in-order">assertSeeInOrder</a>
+<a href="#assert-see-text">assertSeeText</a>
+<a href="#assert-see-text-in-order">assertSeeTextInOrder</a>
+<a href="#assert-session-has">assertSessionHas</a>
+<a href="#assert-session-has-input">assertSessionHasInput</a>
+<a href="#assert-session-has-all">assertSessionHasAll</a>
+<a href="#assert-session-has-errors">assertSessionHasErrors</a>
+<a href="#assert-session-has-errors-in">assertSessionHasErrorsIn</a>
+<a href="#assert-session-has-no-errors">assertSessionHasNoErrors</a>
+<a href="#assert-session-doesnt-have-errors">assertSessionDoesntHaveErrors</a>
+<a href="#assert-session-missing">assertSessionMissing</a>
+<a href="#assert-status">assertStatus</a>
+<a href="#assert-successful">assertSuccessful</a>
+<a href="#assert-unauthorized">assertUnauthorized</a>
+<a href="#assert-unprocessable">assertUnprocessable</a>
+<a href="#assert-valid">assertValid</a>
+<a href="#assert-invalid">assertInvalid</a>
+<a href="#assert-view-has">assertViewHas</a>
+<a href="#assert-view-has-all">assertViewHasAll</a>
+<a href="#assert-view-is">assertViewIs</a>
+<a href="#assert-view-missing">assertViewMissing</a></p>
+</div>
+
+<p><a name="assert-cookie"></a></p>
+<h4 id="assertcookie">assertCookie</h4>
+<p>Assert that the response contains the given cookie:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertCookie</span>(<span class="hljs-variable">$cookieName</span>, <span class="hljs-variable">$value</span> = <span class="hljs-literal">null</span>);
+</code></pre>
+<p><a name="assert-cookie-expired"></a></p>
+<h4 id="assertcookieexpired">assertCookieExpired</h4>
+<p>Assert that the response contains the given cookie and it is expired:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertCookieExpired</span>(<span class="hljs-variable">$cookieName</span>);
+</code></pre>
+<p><a name="assert-cookie-not-expired"></a></p>
+<h4 id="assertcookienotexpired">assertCookieNotExpired</h4>
+<p>Assert that the response contains the given cookie and it is not expired:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertCookieNotExpired</span>(<span class="hljs-variable">$cookieName</span>);
+</code></pre>
+<p><a name="assert-cookie-missing"></a></p>
+<h4 id="assertcookiemissing">assertCookieMissing</h4>
+<p>Assert that the response does not contain the given cookie:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertCookieMissing</span>(<span class="hljs-variable">$cookieName</span>);
+</code></pre>
+<p><a name="assert-created"></a></p>
+<h4 id="assertcreated">assertCreated</h4>
+<p>Assert that the response has a 201 HTTP status code:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertCreated</span>();
+</code></pre>
+<p><a name="assert-dont-see"></a></p>
+<h4 id="assertdontsee">assertDontSee</h4>
+<p>Assert that the given string is not contained within the response returned by the application. This assertion will automatically escape the given string unless you pass a second argument of <code>false</code>:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertDontSee</span>(<span class="hljs-variable">$value</span>, <span class="hljs-variable">$escaped</span> = <span class="hljs-literal">true</span>);
+</code></pre>
+<p><a name="assert-dont-see-text"></a></p>
+<h4 id="assertdontseetext">assertDontSeeText</h4>
+<p>Assert that the given string is not contained within the response text. This assertion will automatically escape the given string unless you pass a second argument of <code>false</code>. This method will pass the response content to the <code>strip_tags</code> PHP function before making the assertion:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertDontSeeText</span>(<span class="hljs-variable">$value</span>, <span class="hljs-variable">$escaped</span> = <span class="hljs-literal">true</span>);
+</code></pre>
+<p><a name="assert-download"></a></p>
+<h4 id="assertdownload">assertDownload</h4>
+<p>Assert that the response is a &quot;download&quot;. Typically, this means the invoked route that returned the response returned a <code>Response::download</code> response, <code>BinaryFileResponse</code>, or <code>Storage::download</code> response:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertDownload</span>();
+</code></pre>
+<p>If you wish, you may assert that the downloadable file was assigned a given file name:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertDownload</span>(<span class="hljs-string">&#x27;image.jpg&#x27;</span>);
+</code></pre>
+<p><a name="assert-exact-json"></a></p>
+<h4 id="assertexactjson">assertExactJson</h4>
+<p>Assert that the response contains an exact match of the given JSON data:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertExactJson</span>(<span class="hljs-keyword">array</span> <span class="hljs-variable">$data</span>);
+</code></pre>
+<p><a name="assert-forbidden"></a></p>
+<h4 id="assertforbidden">assertForbidden</h4>
+<p>Assert that the response has a forbidden (403) HTTP status code:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertForbidden</span>();
+</code></pre>
+<p><a name="assert-header"></a></p>
+<h4 id="assertheader">assertHeader</h4>
+<p>Assert that the given header and value is present on the response:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertHeader</span>(<span class="hljs-variable">$headerName</span>, <span class="hljs-variable">$value</span> = <span class="hljs-literal">null</span>);
+</code></pre>
+<p><a name="assert-header-missing"></a></p>
+<h4 id="assertheadermissing">assertHeaderMissing</h4>
+<p>Assert that the given header is not present on the response:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertHeaderMissing</span>(<span class="hljs-variable">$headerName</span>);
+</code></pre>
+<p><a name="assert-json"></a></p>
+<h4 id="assertjson">assertJson</h4>
+<p>Assert that the response contains the given JSON data:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJson</span>(<span class="hljs-keyword">array</span> <span class="hljs-variable">$data</span>, <span class="hljs-variable">$strict</span> = <span class="hljs-literal">false</span>);
+</code></pre>
+<p>The <code>assertJson</code> method converts the response to an array and utilizes <code>PHPUnit::assertArraySubset</code> to verify that the given array exists within the JSON response returned by the application. So, if there are other properties in the JSON response, this test will still pass as long as the given fragment is present.</p>
+<p><a name="assert-json-count"></a></p>
+<h4 id="assertjsoncount">assertJsonCount</h4>
+<p>Assert that the response JSON has an array with the expected number of items at the given key:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJsonCount</span>(<span class="hljs-variable">$count</span>, <span class="hljs-variable">$key</span> = <span class="hljs-literal">null</span>);
+</code></pre>
+<p><a name="assert-json-fragment"></a></p>
+<h4 id="assertjsonfragment">assertJsonFragment</h4>
+<p>Assert that the response contains the given JSON data anywhere in the response:</p>
+<pre><code><span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/users&#x27;</span>, function () {
+    <span class="hljs-keyword">return</span> [
+        <span class="hljs-string">&#x27;users&#x27;</span> =&gt; [
+            [
+                <span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Taylor Otwell&#x27;</span>,
+            ],
+        ],
+    ];
+});
+
+<span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJsonFragment</span>([<span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Taylor Otwell&#x27;</span>]);
+</code></pre>
+<p><a name="assert-json-is-array"></a></p>
+<h4 id="assertjsonisarray">assertJsonIsArray</h4>
+<p>Assert that the response JSON is an array:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJsonIsArray</span>();
+</code></pre>
+<p><a name="assert-json-is-object"></a></p>
+<h4 id="assertjsonisobject">assertJsonIsObject</h4>
+<p>Assert that the response JSON is an object:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJsonIsObject</span>();
+</code></pre>
+<p><a name="assert-json-missing"></a></p>
+<h4 id="assertjsonmissing">assertJsonMissing</h4>
+<p>Assert that the response does not contain the given JSON data:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJsonMissing</span>(<span class="hljs-keyword">array</span> <span class="hljs-variable">$data</span>);
+</code></pre>
+<p><a name="assert-json-missing-exact"></a></p>
+<h4 id="assertjsonmissingexact">assertJsonMissingExact</h4>
+<p>Assert that the response does not contain the exact JSON data:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJsonMissingExact</span>(<span class="hljs-keyword">array</span> <span class="hljs-variable">$data</span>);
+</code></pre>
+<p><a name="assert-json-missing-validation-errors"></a></p>
+<h4 id="assertjsonmissingvalidationerrors">assertJsonMissingValidationErrors</h4>
+<p>Assert that the response has no JSON validation errors for the given keys:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJsonMissingValidationErrors</span>(<span class="hljs-variable">$keys</span>);
+</code></pre>
+<blockquote>
+<p><strong>Note</strong><br>The more generic <a href="#assert-valid">assertValid</a> method may be used to assert that a response does not have validation errors that were returned as JSON <strong>and</strong> that no errors were flashed to session storage.</p>
+</blockquote>
+<p><a name="assert-json-path"></a></p>
+<h4 id="assertjsonpath">assertJsonPath</h4>
+<p>Assert that the response contains the given data at the specified path:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJsonPath</span>(<span class="hljs-variable">$path</span>, <span class="hljs-variable">$expectedValue</span>);
+</code></pre>
+<p>For example, if the following JSON response is returned by your application:</p>
+<pre><code class="language-json"><span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;user&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Steve Schoger&quot;</span>
+    <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+<p>You may assert that the <code>name</code> property of the <code>user</code> object matches a given value like so:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJsonPath</span>(<span class="hljs-string">&#x27;user.name&#x27;</span>, <span class="hljs-string">&#x27;Steve Schoger&#x27;</span>);
+</code></pre>
+<p><a name="assert-json-missing-path"></a></p>
+<h4 id="assertjsonmissingpath">assertJsonMissingPath</h4>
+<p>Assert that the response does not contain the given path:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJsonMissingPath</span>(<span class="hljs-variable">$path</span>);
+</code></pre>
+<p>For example, if the following JSON response is returned by your application:</p>
+<pre><code class="language-json"><span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;user&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Steve Schoger&quot;</span>
+    <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+<p>You may assert that it does not contain the <code>email</code> property of the <code>user</code> object:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJsonMissingPath</span>(<span class="hljs-string">&#x27;user.email&#x27;</span>);
+</code></pre>
+<p><a name="assert-json-structure"></a></p>
+<h4 id="assertjsonstructure">assertJsonStructure</h4>
+<p>Assert that the response has a given JSON structure:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJsonStructure</span>(<span class="hljs-keyword">array</span> <span class="hljs-variable">$structure</span>);
+</code></pre>
+<p>For example, if the JSON response returned by your application contains the following data:</p>
+<pre><code class="language-json"><span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;user&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Steve Schoger&quot;</span>
+    <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+<p>You may assert that the JSON structure matches your expectations like so:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJsonStructure</span>([
+    <span class="hljs-string">&#x27;user&#x27;</span> =&gt; [
+        <span class="hljs-string">&#x27;name&#x27;</span>,
+    ]
+]);
+</code></pre>
+<p>Sometimes, JSON responses returned by your application may contain arrays of objects:</p>
+<pre><code class="language-json"><span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;user&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+        <span class="hljs-punctuation">{</span>
+            <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Steve Schoger&quot;</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-attr">&quot;age&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">55</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-attr">&quot;location&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Earth&quot;</span>
+        <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-punctuation">{</span>
+            <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Mary Schoger&quot;</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-attr">&quot;age&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">60</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-attr">&quot;location&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Earth&quot;</span>
+        <span class="hljs-punctuation">}</span>
+    <span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+<p>In this situation, you may use the <code>*</code> character to assert against the structure of all of the objects in the array:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJsonStructure</span>([
+    <span class="hljs-string">&#x27;user&#x27;</span> =&gt; [
+        <span class="hljs-string">&#x27;*&#x27;</span> =&gt; [
+             <span class="hljs-string">&#x27;name&#x27;</span>,
+             <span class="hljs-string">&#x27;age&#x27;</span>,
+             <span class="hljs-string">&#x27;location&#x27;</span>
+        ]
+    ]
+]);
+</code></pre>
+<p><a name="assert-json-validation-errors"></a></p>
+<h4 id="assertjsonvalidationerrors">assertJsonValidationErrors</h4>
+<p>Assert that the response has the given JSON validation errors for the given keys. This method should be used when asserting against responses where the validation errors are returned as a JSON structure instead of being flashed to the session:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJsonValidationErrors</span>(<span class="hljs-keyword">array</span> <span class="hljs-variable">$data</span>, <span class="hljs-variable">$responseKey</span> = <span class="hljs-string">&#x27;errors&#x27;</span>);
+</code></pre>
+<blockquote>
+<p><strong>Note</strong><br>The more generic <a href="#assert-invalid">assertInvalid</a> method may be used to assert that a response has validation errors returned as JSON <strong>or</strong> that errors were flashed to session storage.</p>
+</blockquote>
+<p><a name="assert-json-validation-error-for"></a></p>
+<h4 id="assertjsonvalidationerrorfor">assertJsonValidationErrorFor</h4>
+<p>Assert the response has any JSON validation errors for the given key:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJsonValidationErrorFor</span>(<span class="hljs-keyword">string</span> <span class="hljs-variable">$key</span>, <span class="hljs-variable">$responseKey</span> = <span class="hljs-string">&#x27;errors&#x27;</span>);
+</code></pre>
+<p><a name="assert-location"></a></p>
+<h4 id="assertlocation">assertLocation</h4>
+<p>Assert that the response has the given URI value in the <code>Location</code> header:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertLocation</span>(<span class="hljs-variable">$uri</span>);
+</code></pre>
+<p><a name="assert-content"></a></p>
+<h4 id="assertcontent">assertContent</h4>
+<p>Assert that the given string matches the response content:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertContent</span>(<span class="hljs-variable">$value</span>);
+</code></pre>
+<p><a name="assert-no-content"></a></p>
+<h4 id="assertnocontent">assertNoContent</h4>
+<p>Assert that the response has the given HTTP status code and no content:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertNoContent</span>(<span class="hljs-variable">$status</span> = <span class="hljs-number">204</span>);
+</code></pre>
+<p><a name="assert-streamed-content"></a></p>
+<h4 id="assertstreamedcontent">assertStreamedContent</h4>
+<p>Assert that the given string matches the streamed response content:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertStreamedContent</span>(<span class="hljs-variable">$value</span>);
+</code></pre>
+<p><a name="assert-not-found"></a></p>
+<h4 id="assertnotfound">assertNotFound</h4>
+<p>Assert that the response has a not found (404) HTTP status code:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertNotFound</span>();
+</code></pre>
+<p><a name="assert-ok"></a></p>
+<h4 id="assertok">assertOk</h4>
+<p>Assert that the response has a 200 HTTP status code:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertOk</span>();
+</code></pre>
+<p><a name="assert-plain-cookie"></a></p>
+<h4 id="assertplaincookie">assertPlainCookie</h4>
+<p>Assert that the response contains the given unencrypted cookie:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertPlainCookie</span>(<span class="hljs-variable">$cookieName</span>, <span class="hljs-variable">$value</span> = <span class="hljs-literal">null</span>);
+</code></pre>
+<p><a name="assert-redirect"></a></p>
+<h4 id="assertredirect">assertRedirect</h4>
+<p>Assert that the response is a redirect to the given URI:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertRedirect</span>(<span class="hljs-variable">$uri</span>);
+</code></pre>
+<p><a name="assert-redirect-contains"></a></p>
+<h4 id="assertredirectcontains">assertRedirectContains</h4>
+<p>Assert whether the response is redirecting to a URI that contains the given string:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertRedirectContains</span>(<span class="hljs-variable">$string</span>);
+</code></pre>
+<p><a name="assert-redirect-to-route"></a></p>
+<h4 id="assertredirecttoroute">assertRedirectToRoute</h4>
+<p>Assert that the response is a redirect to the given <a href="/docs/%7B%7Bversion%7D%7D/routing#named-routes">named route</a>:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertRedirectToRoute</span>(<span class="hljs-variable">$name</span> = <span class="hljs-literal">null</span>, <span class="hljs-variable">$parameters</span> = []);
+</code></pre>
+<p><a name="assert-redirect-to-signed-route"></a></p>
+<h4 id="assertredirecttosignedroute">assertRedirectToSignedRoute</h4>
+<p>Assert that the response is a redirect to the given <a href="/docs/%7B%7Bversion%7D%7D/urls#signed-urls">signed route</a>:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertRedirectToSignedRoute</span>(<span class="hljs-variable">$name</span> = <span class="hljs-literal">null</span>, <span class="hljs-variable">$parameters</span> = []);
+</code></pre>
+<p><a name="assert-see"></a></p>
+<h4 id="assertsee">assertSee</h4>
+<p>Assert that the given string is contained within the response. This assertion will automatically escape the given string unless you pass a second argument of <code>false</code>:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertSee</span>(<span class="hljs-variable">$value</span>, <span class="hljs-variable">$escaped</span> = <span class="hljs-literal">true</span>);
+</code></pre>
+<p><a name="assert-see-in-order"></a></p>
+<h4 id="assertseeinorder">assertSeeInOrder</h4>
+<p>Assert that the given strings are contained in order within the response. This assertion will automatically escape the given strings unless you pass a second argument of <code>false</code>:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertSeeInOrder</span>(<span class="hljs-keyword">array</span> <span class="hljs-variable">$values</span>, <span class="hljs-variable">$escaped</span> = <span class="hljs-literal">true</span>);
+</code></pre>
+<p><a name="assert-see-text"></a></p>
+<h4 id="assertseetext">assertSeeText</h4>
+<p>Assert that the given string is contained within the response text. This assertion will automatically escape the given string unless you pass a second argument of <code>false</code>. The response content will be passed to the <code>strip_tags</code> PHP function before the assertion is made:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertSeeText</span>(<span class="hljs-variable">$value</span>, <span class="hljs-variable">$escaped</span> = <span class="hljs-literal">true</span>);
+</code></pre>
+<p><a name="assert-see-text-in-order"></a></p>
+<h4 id="assertseetextinorder">assertSeeTextInOrder</h4>
+<p>Assert that the given strings are contained in order within the response text. This assertion will automatically escape the given strings unless you pass a second argument of <code>false</code>. The response content will be passed to the <code>strip_tags</code> PHP function before the assertion is made:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertSeeTextInOrder</span>(<span class="hljs-keyword">array</span> <span class="hljs-variable">$values</span>, <span class="hljs-variable">$escaped</span> = <span class="hljs-literal">true</span>);
+</code></pre>
+<p><a name="assert-session-has"></a></p>
+<h4 id="assertsessionhas">assertSessionHas</h4>
+<p>Assert that the session contains the given piece of data:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertSessionHas</span>(<span class="hljs-variable">$key</span>, <span class="hljs-variable">$value</span> = <span class="hljs-literal">null</span>);
+</code></pre>
+<p>If needed, a closure can be provided as the second argument to the <code>assertSessionHas</code> method. The assertion will pass if the closure returns <code>true</code>:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertSessionHas</span>(<span class="hljs-variable">$key</span>, function (User <span class="hljs-variable">$value</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$value</span>-&gt;name === <span class="hljs-string">&#x27;Taylor Otwell&#x27;</span>;
+});
+</code></pre>
+<p><a name="assert-session-has-input"></a></p>
+<h4 id="assertsessionhasinput">assertSessionHasInput</h4>
+<p>Assert that the session has a given value in the <a href="/docs/%7B%7Bversion%7D%7D/responses#redirecting-with-flashed-session-data">flashed input array</a>:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertSessionHasInput</span>(<span class="hljs-variable">$key</span>, <span class="hljs-variable">$value</span> = <span class="hljs-literal">null</span>);
+</code></pre>
+<p>If needed, a closure can be provided as the second argument to the <code>assertSessionHasInput</code> method. The assertion will pass if the closure returns <code>true</code>:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertSessionHasInput</span>(<span class="hljs-variable">$key</span>, function (<span class="hljs-keyword">string</span> <span class="hljs-variable">$value</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-title class_">Crypt</span>::<span class="hljs-title function_ invoke__">decryptString</span>(<span class="hljs-variable">$value</span>) === <span class="hljs-string">&#x27;secret&#x27;</span>;
+});
+</code></pre>
+<p><a name="assert-session-has-all"></a></p>
+<h4 id="assertsessionhasall">assertSessionHasAll</h4>
+<p>Assert that the session contains a given array of key / value pairs:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertSessionHasAll</span>(<span class="hljs-keyword">array</span> <span class="hljs-variable">$data</span>);
+</code></pre>
+<p>For example, if your application&#39;s session contains <code>name</code> and <code>status</code> keys, you may assert that both exist and have the specified values like so:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertSessionHasAll</span>([
+    <span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Taylor Otwell&#x27;</span>,
+    <span class="hljs-string">&#x27;status&#x27;</span> =&gt; <span class="hljs-string">&#x27;active&#x27;</span>,
+]);
+</code></pre>
+<p><a name="assert-session-has-errors"></a></p>
+<h4 id="assertsessionhaserrors">assertSessionHasErrors</h4>
+<p>Assert that the session contains an error for the given <code>$keys</code>. If <code>$keys</code> is an associative array, assert that the session contains a specific error message (value) for each field (key). This method should be used when testing routes that flash validation errors to the session instead of returning them as a JSON structure:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertSessionHasErrors</span>(
+    <span class="hljs-keyword">array</span> <span class="hljs-variable">$keys</span>, <span class="hljs-variable">$format</span> = <span class="hljs-literal">null</span>, <span class="hljs-variable">$errorBag</span> = <span class="hljs-string">&#x27;default&#x27;</span>
+);
+</code></pre>
+<p>For example, to assert that the <code>name</code> and <code>email</code> fields have validation error messages that were flashed to the session, you may invoke the <code>assertSessionHasErrors</code> method like so:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertSessionHasErrors</span>([<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;email&#x27;</span>]);
+</code></pre>
+<p>Or, you may assert that a given field has a particular validation error message:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertSessionHasErrors</span>([
+    <span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;The given name was invalid.&#x27;</span>
+]);
+</code></pre>
+<blockquote>
+<p><strong>Note</strong><br>The more generic <a href="#assert-invalid">assertInvalid</a> method may be used to assert that a response has validation errors returned as JSON <strong>or</strong> that errors were flashed to session storage.</p>
+</blockquote>
+<p><a name="assert-session-has-errors-in"></a></p>
+<h4 id="assertsessionhaserrorsin">assertSessionHasErrorsIn</h4>
+<p>Assert that the session contains an error for the given <code>$keys</code> within a specific <a href="/docs/%7B%7Bversion%7D%7D/validation#named-error-bags">error bag</a>. If <code>$keys</code> is an associative array, assert that the session contains a specific error message (value) for each field (key), within the error bag:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertSessionHasErrorsIn</span>(<span class="hljs-variable">$errorBag</span>, <span class="hljs-variable">$keys</span> = [], <span class="hljs-variable">$format</span> = <span class="hljs-literal">null</span>);
+</code></pre>
+<p><a name="assert-session-has-no-errors"></a></p>
+<h4 id="assertsessionhasnoerrors">assertSessionHasNoErrors</h4>
+<p>Assert that the session has no validation errors:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertSessionHasNoErrors</span>();
+</code></pre>
+<p><a name="assert-session-doesnt-have-errors"></a></p>
+<h4 id="assertsessiondoesnthaveerrors">assertSessionDoesntHaveErrors</h4>
+<p>Assert that the session has no validation errors for the given keys:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertSessionDoesntHaveErrors</span>(<span class="hljs-variable">$keys</span> = [], <span class="hljs-variable">$format</span> = <span class="hljs-literal">null</span>, <span class="hljs-variable">$errorBag</span> = <span class="hljs-string">&#x27;default&#x27;</span>);
+</code></pre>
+<blockquote>
+<p><strong>Note</strong><br>The more generic <a href="#assert-valid">assertValid</a> method may be used to assert that a response does not have validation errors that were returned as JSON <strong>and</strong> that no errors were flashed to session storage.</p>
+</blockquote>
+<p><a name="assert-session-missing"></a></p>
+<h4 id="assertsessionmissing">assertSessionMissing</h4>
+<p>Assert that the session does not contain the given key:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertSessionMissing</span>(<span class="hljs-variable">$key</span>);
+</code></pre>
+<p><a name="assert-status"></a></p>
+<h4 id="assertstatus">assertStatus</h4>
+<p>Assert that the response has a given HTTP status code:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertStatus</span>(<span class="hljs-variable">$code</span>);
+</code></pre>
+<p><a name="assert-successful"></a></p>
+<h4 id="assertsuccessful">assertSuccessful</h4>
+<p>Assert that the response has a successful (&gt;= 200 and &lt; 300) HTTP status code:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertSuccessful</span>();
+</code></pre>
+<p><a name="assert-unauthorized"></a></p>
+<h4 id="assertunauthorized">assertUnauthorized</h4>
+<p>Assert that the response has an unauthorized (401) HTTP status code:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertUnauthorized</span>();
+</code></pre>
+<p><a name="assert-unprocessable"></a></p>
+<h4 id="assertunprocessable">assertUnprocessable</h4>
+<p>Assert that the response has an unprocessable entity (422) HTTP status code:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertUnprocessable</span>();
+</code></pre>
+<p><a name="assert-valid"></a></p>
+<h4 id="assertvalid">assertValid</h4>
+<p>Assert that the response has no validation errors for the given keys. This method may be used for asserting against responses where the validation errors are returned as a JSON structure or where the validation errors have been flashed to the session:</p>
+<pre><code><span class="hljs-comment">// Assert that no validation errors are present...</span>
+<span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertValid</span>();
+
+<span class="hljs-comment">// Assert that the given keys do not have validation errors...</span>
+<span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertValid</span>([<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;email&#x27;</span>]);
+</code></pre>
+<p><a name="assert-invalid"></a></p>
+<h4 id="assertinvalid">assertInvalid</h4>
+<p>Assert that the response has validation errors for the given keys. This method may be used for asserting against responses where the validation errors are returned as a JSON structure or where the validation errors have been flashed to the session:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertInvalid</span>([<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;email&#x27;</span>]);
+</code></pre>
+<p>You may also assert that a given key has a particular validation error message. When doing so, you may provide the entire message or only a small portion of the message:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertInvalid</span>([
+    <span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;The name field is required.&#x27;</span>,
+    <span class="hljs-string">&#x27;email&#x27;</span> =&gt; <span class="hljs-string">&#x27;valid email address&#x27;</span>,
+]);
+</code></pre>
+<p><a name="assert-view-has"></a></p>
+<h4 id="assertviewhas">assertViewHas</h4>
+<p>Assert that the response view contains given a piece of data:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertViewHas</span>(<span class="hljs-variable">$key</span>, <span class="hljs-variable">$value</span> = <span class="hljs-literal">null</span>);
+</code></pre>
+<p>Passing a closure as the second argument to the <code>assertViewHas</code> method will allow you to inspect and make assertions against a particular piece of view data:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertViewHas</span>(<span class="hljs-string">&#x27;user&#x27;</span>, function (User <span class="hljs-variable">$user</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$user</span>-&gt;name === <span class="hljs-string">&#x27;Taylor&#x27;</span>;
+});
+</code></pre>
+<p>In addition, view data may be accessed as array variables on the response, allowing you to conveniently inspect it:</p>
+<pre><code><span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">assertEquals</span>(<span class="hljs-string">&#x27;Taylor&#x27;</span>, <span class="hljs-variable">$response</span>[<span class="hljs-string">&#x27;name&#x27;</span>]);
+</code></pre>
+<p><a name="assert-view-has-all"></a></p>
+<h4 id="assertviewhasall">assertViewHasAll</h4>
+<p>Assert that the response view has a given list of data:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertViewHasAll</span>(<span class="hljs-keyword">array</span> <span class="hljs-variable">$data</span>);
+</code></pre>
+<p>This method may be used to assert that the view simply contains data matching the given keys:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertViewHasAll</span>([
+    <span class="hljs-string">&#x27;name&#x27;</span>,
+    <span class="hljs-string">&#x27;email&#x27;</span>,
+]);
+</code></pre>
+<p>Or, you may assert that the view data is present and has specific values:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertViewHasAll</span>([
+    <span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Taylor Otwell&#x27;</span>,
+    <span class="hljs-string">&#x27;email&#x27;</span> =&gt; <span class="hljs-string">&#x27;taylor@example.com,&#x27;</span>,
+]);
+</code></pre>
+<p><a name="assert-view-is"></a></p>
+<h4 id="assertviewis">assertViewIs</h4>
+<p>Assert that the given view was returned by the route:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertViewIs</span>(<span class="hljs-variable">$value</span>);
+</code></pre>
+<p><a name="assert-view-missing"></a></p>
+<h4 id="assertviewmissing">assertViewMissing</h4>
+<p>Assert that the given data key was not made available to the view returned in the application&#39;s response:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertViewMissing</span>(<span class="hljs-variable">$key</span>);
+</code></pre>
+<p><a name="authentication-assertions"></a></p>
+<h3 id="authentication-assertions">Authentication Assertions</h3>
+<p>Laravel also provides a variety of authentication related assertions that you may utilize within your application&#39;s feature tests. Note that these methods are invoked on the test class itself and not the <code>Illuminate\Testing\TestResponse</code> instance returned by methods such as <code>get</code> and <code>post</code>.</p>
+<p><a name="assert-authenticated"></a></p>
+<h4 id="assertauthenticated">assertAuthenticated</h4>
+<p>Assert that a user is authenticated:</p>
+<pre><code><span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">assertAuthenticated</span>(<span class="hljs-variable">$guard</span> = <span class="hljs-literal">null</span>);
+</code></pre>
+<p><a name="assert-guest"></a></p>
+<h4 id="assertguest">assertGuest</h4>
+<p>Assert that a user is not authenticated:</p>
+<pre><code><span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">assertGuest</span>(<span class="hljs-variable">$guard</span> = <span class="hljs-literal">null</span>);
+</code></pre>
+<p><a name="assert-authenticated-as"></a></p>
+<h4 id="assertauthenticatedas">assertAuthenticatedAs</h4>
+<p>Assert that a specific user is authenticated:</p>
+<pre><code><span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">assertAuthenticatedAs</span>(<span class="hljs-variable">$user</span>, <span class="hljs-variable">$guard</span> = <span class="hljs-literal">null</span>);
+</code></pre>
+<p><a name="validation-assertions"></a></p>
+<h2 id="validation-assertions">Validation Assertions</h2>
+<p>Laravel provides two primary validation related assertions that you may use to ensure the data provided in your request was either valid or invalid.</p>
+<p><a name="validation-assert-valid"></a></p>
+<h4 id="assertvalid-1">assertValid</h4>
+<p>Assert that the response has no validation errors for the given keys. This method may be used for asserting against responses where the validation errors are returned as a JSON structure or where the validation errors have been flashed to the session:</p>
+<pre><code><span class="hljs-comment">// Assert that no validation errors are present...</span>
+<span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertValid</span>();
+
+<span class="hljs-comment">// Assert that the given keys do not have validation errors...</span>
+<span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertValid</span>([<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;email&#x27;</span>]);
+</code></pre>
+<p><a name="validation-assert-invalid"></a></p>
+<h4 id="assertinvalid-1">assertInvalid</h4>
+<p>Assert that the response has validation errors for the given keys. This method may be used for asserting against responses where the validation errors are returned as a JSON structure or where the validation errors have been flashed to the session:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertInvalid</span>([<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;email&#x27;</span>]);
+</code></pre>
+<p>You may also assert that a given key has a particular validation error message. When doing so, you may provide the entire message or only a small portion of the message:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertInvalid</span>([
+    <span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;The name field is required.&#x27;</span>,
+    <span class="hljs-string">&#x27;email&#x27;</span> =&gt; <span class="hljs-string">&#x27;valid email address&#x27;</span>,
+]);
+</code></pre>

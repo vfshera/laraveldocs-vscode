@@ -394,11 +394,26 @@
 ];
 </code></pre>
 <p>Once you have defined the cast on your model, the specified attribute will be automatically cast to and from an enum when you interact with the attribute:</p>
-<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$server</span>-&gt;status == <span class="hljs-title class_">ServerStatus</span>::<span class="hljs-variable constant_">provisioned</span>) {
-    <span class="hljs-variable">$server</span>-&gt;status = <span class="hljs-title class_">ServerStatus</span>::<span class="hljs-variable constant_">ready</span>;
+<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable">$server</span>-&gt;status == <span class="hljs-title class_">ServerStatus</span>::<span class="hljs-variable constant_">Provisioned</span>) {
+    <span class="hljs-variable">$server</span>-&gt;status = <span class="hljs-title class_">ServerStatus</span>::<span class="hljs-variable constant_">Ready</span>;
 
     <span class="hljs-variable">$server</span>-&gt;<span class="hljs-title function_ invoke__">save</span>();
 }
+</code></pre>
+<p><a name="casting-arrays-of-enums"></a></p>
+<h4 id="casting-arrays-of-enums">Casting Arrays Of Enums</h4>
+<p>Sometimes you may need your model to store an array of enum values within a single column. To accomplish this, you may utilize the <code>AsEnumArrayObject</code> or <code>AsEnumCollection</code> casts provided by Laravel:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Enums</span>\<span class="hljs-title">ServerStatus</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Casts</span>\<span class="hljs-title">AsEnumCollection</span>;
+
+<span class="hljs-comment">/**
+ * The attributes that should be cast.
+ *
+ * <span class="hljs-doctag">@var</span> array
+ */</span>
+<span class="hljs-keyword">protected</span> <span class="hljs-variable">$casts</span> = [
+    <span class="hljs-string">&#x27;statuses&#x27;</span> =&gt; <span class="hljs-title class_">AsEnumCollection</span>::<span class="hljs-variable language_">class</span>.<span class="hljs-string">&#x27;:&#x27;</span>.<span class="hljs-title class_">ServerStatus</span>::<span class="hljs-variable language_">class</span>,
+];
 </code></pre>
 <p><a name="encrypted-casting"></a></p>
 <h3 id="encrypted-casting">Encrypted Casting</h3>
@@ -430,8 +445,10 @@
 </code></pre>
 <p><a name="custom-casts"></a></p>
 <h2 id="custom-casts">Custom Casts</h2>
-<p>Laravel has a variety of built-in, helpful cast types; however, you may occasionally need to define your own cast types. You may accomplish this by defining a class that implements the <code>CastsAttributes</code> interface.</p>
-<p>Classes that implement this interface must define a <code>get</code> and <code>set</code> method. The <code>get</code> method is responsible for transforming a raw value from the database into a cast value, while the <code>set</code> method should transform a cast value into a raw value that can be stored in the database. As an example, we will re-implement the built-in <code>json</code> cast type as a custom cast type:</p>
+<p>Laravel has a variety of built-in, helpful cast types; however, you may occasionally need to define your own cast types. To create a cast, execute the <code>make:cast</code> Artisan command. The new cast class will be placed in your <code>app/Casts</code> directory:</p>
+<pre><code class="language-shell">php artisan make:cast Json
+</code></pre>
+<p>All custom cast classes implement the <code>CastsAttributes</code> interface. Classes that implement this interface must define a <code>get</code> and <code>set</code> method. The <code>get</code> method is responsible for transforming a raw value from the database into a cast value, while the <code>set</code> method should transform a cast value into a raw value that can be stored in the database. As an example, we will re-implement the built-in <code>json</code> cast type as a custom cast type:</p>
 <pre><code><span class="hljs-meta">&lt;?php</span>
 
 <span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Casts</span>;
@@ -574,7 +591,11 @@
 </code></pre>
 <p><a name="inbound-casting"></a></p>
 <h3 id="inbound-casting">Inbound Casting</h3>
-<p>Occasionally, you may need to write a custom cast that only transforms values that are being set on the model and does not perform any operations when attributes are being retrieved from the model. A classic example of an inbound only cast is a &quot;hashing&quot; cast. Inbound only custom casts should implement the <code>CastsInboundAttributes</code> interface, which only requires a <code>set</code> method to be defined.</p>
+<p>Occasionally, you may need to write a custom cast class that only transforms values that are being set on the model and does not perform any operations when attributes are being retrieved from the model.</p>
+<p>Inbound only custom casts should implement the <code>CastsInboundAttributes</code> interface, which only requires a <code>set</code> method to be defined. The <code>make:cast</code> Artisan command may be invoked with the <code>--inbound</code> option to generate an inbound only cast class:</p>
+<pre><code class="language-shell">php artisan make:cast Hash --inbound
+</code></pre>
+<p>A classic example of an inbound only cast is a &quot;hashing&quot; cast. For example, we may define a cast that hashes inbound values via a given algorithm:</p>
 <pre><code><span class="hljs-meta">&lt;?php</span>
 
 <span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Casts</span>;

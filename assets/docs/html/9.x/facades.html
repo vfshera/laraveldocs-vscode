@@ -13,7 +13,7 @@
 <p><a name="introduction"></a></p>
 <h2 id="introduction">Introduction</h2>
 <p>Throughout the Laravel documentation, you will see examples of code that interacts with Laravel&#39;s features via &quot;facades&quot;. Facades provide a &quot;static&quot; interface to classes that are available in the application&#39;s <a href="/docs/%7B%7Bversion%7D%7D/container">service container</a>. Laravel ships with many facades which provide access to almost all of Laravel&#39;s features.</p>
-<p>Laravel facades serve as &quot;static proxies&quot; to underlying classes in the service container, providing the benefit of a terse, expressive syntax while maintaining more testability and flexibility than traditional static methods. It&#39;s perfectly fine if you don&#39;t totally understand how facades work under the hood - just go with the flow and continue learning about Laravel.</p>
+<p>Laravel facades serve as &quot;static proxies&quot; to underlying classes in the service container, providing the benefit of a terse, expressive syntax while maintaining more testability and flexibility than traditional static methods. It&#39;s perfectly fine if you don&#39;t totally understand how facades work - just go with the flow and continue learning about Laravel.</p>
 <p>All of Laravel&#39;s facades are defined in the <code>Illuminate\Support\Facades</code> namespace. So, we can easily access a facade like so:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Cache</span>;
 <span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Route</span>;
@@ -86,7 +86,7 @@
     <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">cache</span>(<span class="hljs-string">&#x27;key&#x27;</span>);
 });
 </code></pre>
-<p>Under the hood, the <code>cache</code> helper is going to call the <code>get</code> method on the class underlying the <code>Cache</code> facade. So, even though we are using the helper function, we can write the following test to verify that the method was called with the argument we expected:</p>
+<p>The <code>cache</code> helper is going to call the <code>get</code> method on the class underlying the <code>Cache</code> facade. So, even though we are using the helper function, we can write the following test to verify that the method was called with the argument we expected:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Cache</span>;
 
 <span class="hljs-comment">/**

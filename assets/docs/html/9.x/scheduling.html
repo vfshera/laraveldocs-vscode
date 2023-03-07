@@ -401,6 +401,12 @@
             -&gt;<span class="hljs-title function_ invoke__">everyFiveMinutes</span>()
             -&gt;<span class="hljs-title function_ invoke__">onOneServer</span>();
 </code></pre>
+<p>Similarly, scheduled closures must be assigned a name if they are intended to be run on one server:</p>
+<pre><code class="language-php"><span class="hljs-variable">$schedule</span>-&gt;<span class="hljs-title function_ invoke__">call</span>(fn () =&gt; <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">resetApiRequestCount</span>())
+    -&gt;<span class="hljs-title function_ invoke__">name</span>(<span class="hljs-string">&#x27;reset-api-request-count&#x27;</span>)
+    -&gt;<span class="hljs-title function_ invoke__">daily</span>()
+    -&gt;<span class="hljs-title function_ invoke__">onOneServer</span>();
+</code></pre>
 <p><a name="background-tasks"></a></p>
 <h3 id="background-tasks">Background Tasks</h3>
 <p>By default, multiple tasks scheduled at the same time will execute sequentially based on the order they are defined in your <code>schedule</code> method. If you have long-running tasks, this may cause subsequent tasks to start much later than anticipated. If you would like to run tasks in the background so that they may all run simultaneously, you may use the <code>runInBackground</code> method:</p>

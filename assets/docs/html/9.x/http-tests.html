@@ -21,6 +21,7 @@
 <li><a href="#available-assertions">Available Assertions</a><ul>
 <li><a href="#response-assertions">Response Assertions</a></li>
 <li><a href="#authentication-assertions">Authentication Assertions</a></li>
+<li><a href="#validation-assertions">Validation Assertions</a></li>
 </ul>
 </li>
 </ul>
@@ -341,6 +342,7 @@
         -&gt;<span class="hljs-title function_ invoke__">assertJson</span>(fn (AssertableJson <span class="hljs-variable">$json</span>) =&gt;
             <span class="hljs-variable">$json</span>-&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;id&#x27;</span>, <span class="hljs-number">1</span>)
                  -&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;Victoria Faith&#x27;</span>)
+                 -&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;email&#x27;</span>, fn (<span class="hljs-variable">$email</span>) =&gt; <span class="hljs-title function_ invoke__">str</span>(<span class="hljs-variable">$email</span>)-&gt;<span class="hljs-title function_ invoke__">is</span>(<span class="hljs-string">&#x27;victoria@gmail.com&#x27;</span>))
                  -&gt;<span class="hljs-title function_ invoke__">whereNot</span>(<span class="hljs-string">&#x27;status&#x27;</span>, <span class="hljs-string">&#x27;pending&#x27;</span>)
                  -&gt;<span class="hljs-title function_ invoke__">missing</span>(<span class="hljs-string">&#x27;password&#x27;</span>)
                  -&gt;<span class="hljs-title function_ invoke__">etc</span>()
@@ -385,6 +387,7 @@
              -&gt;<span class="hljs-title function_ invoke__">first</span>(fn (<span class="hljs-variable">$json</span>) =&gt;
                 <span class="hljs-variable">$json</span>-&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;id&#x27;</span>, <span class="hljs-number">1</span>)
                      -&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;Victoria Faith&#x27;</span>)
+                     -&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;email&#x27;</span>, fn (<span class="hljs-variable">$email</span>) =&gt; <span class="hljs-title function_ invoke__">str</span>(<span class="hljs-variable">$email</span>)-&gt;<span class="hljs-title function_ invoke__">is</span>(<span class="hljs-string">&#x27;victoria@gmail.com&#x27;</span>))
                      -&gt;<span class="hljs-title function_ invoke__">missing</span>(<span class="hljs-string">&#x27;password&#x27;</span>)
                      -&gt;<span class="hljs-title function_ invoke__">etc</span>()
              )
@@ -408,6 +411,7 @@
              -&gt;<span class="hljs-title function_ invoke__">has</span>(<span class="hljs-string">&#x27;users.0&#x27;</span>, fn (<span class="hljs-variable">$json</span>) =&gt;
                 <span class="hljs-variable">$json</span>-&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;id&#x27;</span>, <span class="hljs-number">1</span>)
                      -&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;Victoria Faith&#x27;</span>)
+                     -&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;email&#x27;</span>, fn (<span class="hljs-variable">$email</span>) =&gt; <span class="hljs-title function_ invoke__">str</span>(<span class="hljs-variable">$email</span>)-&gt;<span class="hljs-title function_ invoke__">is</span>(<span class="hljs-string">&#x27;victoria@gmail.com&#x27;</span>))
                      -&gt;<span class="hljs-title function_ invoke__">missing</span>(<span class="hljs-string">&#x27;password&#x27;</span>)
                      -&gt;<span class="hljs-title function_ invoke__">etc</span>()
              )
@@ -420,6 +424,7 @@
              -&gt;<span class="hljs-title function_ invoke__">has</span>(<span class="hljs-string">&#x27;users&#x27;</span>, <span class="hljs-number">3</span>, fn (<span class="hljs-variable">$json</span>) =&gt;
                 <span class="hljs-variable">$json</span>-&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;id&#x27;</span>, <span class="hljs-number">1</span>)
                      -&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;Victoria Faith&#x27;</span>)
+                     -&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;email&#x27;</span>, fn (<span class="hljs-variable">$email</span>) =&gt; <span class="hljs-title function_ invoke__">str</span>(<span class="hljs-variable">$email</span>)-&gt;<span class="hljs-title function_ invoke__">is</span>(<span class="hljs-string">&#x27;victoria@gmail.com&#x27;</span>))
                      -&gt;<span class="hljs-title function_ invoke__">missing</span>(<span class="hljs-string">&#x27;password&#x27;</span>)
                      -&gt;<span class="hljs-title function_ invoke__">etc</span>()
              )
@@ -574,6 +579,8 @@
 <a href="#assert-json">assertJson</a>
 <a href="#assert-json-count">assertJsonCount</a>
 <a href="#assert-json-fragment">assertJsonFragment</a>
+<a href="#assert-json-is-array">assertJsonIsArray</a>
+<a href="#assert-json-is-object">assertJsonIsObject</a>
 <a href="#assert-json-missing">assertJsonMissing</a>
 <a href="#assert-json-missing-exact">assertJsonMissingExact</a>
 <a href="#assert-json-missing-validation-errors">assertJsonMissingValidationErrors</a>
@@ -585,6 +592,7 @@
 <a href="#assert-location">assertLocation</a>
 <a href="#assert-content">assertContent</a>
 <a href="#assert-no-content">assertNoContent</a>
+<a href="#assert-streamed-content">assertStreamedContent</a>
 <a href="#assert-not-found">assertNotFound</a>
 <a href="#assert-ok">assertOk</a>
 <a href="#assert-plain-cookie">assertPlainCookie</a>
@@ -704,6 +712,16 @@
 });
 
 <span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJsonFragment</span>([<span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Taylor Otwell&#x27;</span>]);
+</code></pre>
+<p><a name="assert-json-is-array"></a></p>
+<h4 id="assertjsonisarray">assertJsonIsArray</h4>
+<p>Assert that the response JSON is an array:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJsonIsArray</span>();
+</code></pre>
+<p><a name="assert-json-is-object"></a></p>
+<h4 id="assertjsonisobject">assertJsonIsObject</h4>
+<p>Assert that the response JSON is an object:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertJsonIsObject</span>();
 </code></pre>
 <p><a name="assert-json-missing"></a></p>
 <h4 id="assertjsonmissing">assertJsonMissing</h4>
@@ -826,6 +844,11 @@
 <h4 id="assertnocontent">assertNoContent</h4>
 <p>Assert that the response has the given HTTP status code and no content:</p>
 <pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertNoContent</span>(<span class="hljs-variable">$status</span> = <span class="hljs-number">204</span>);
+</code></pre>
+<p><a name="assert-streamed-content"></a></p>
+<h4 id="assertstreamedcontent">assertStreamedContent</h4>
+<p>Assert that the given string matches the streamed response content:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertStreamedContent</span>(<span class="hljs-variable">$value</span>);
 </code></pre>
 <p><a name="assert-not-found"></a></p>
 <h4 id="assertnotfound">assertNotFound</h4>
@@ -1051,4 +1074,27 @@
 <h4 id="assertauthenticatedas">assertAuthenticatedAs</h4>
 <p>Assert that a specific user is authenticated:</p>
 <pre><code><span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">assertAuthenticatedAs</span>(<span class="hljs-variable">$user</span>, <span class="hljs-variable">$guard</span> = <span class="hljs-literal">null</span>);
+</code></pre>
+<p><a name="validation-assertions"></a></p>
+<h2 id="validation-assertions">Validation Assertions</h2>
+<p>Laravel provides two primary validation related assertions that you may use to ensure the data provided in your request was either valid or invalid.</p>
+<p><a name="validation-assert-valid"></a></p>
+<h4 id="assertvalid-1">assertValid</h4>
+<p>Assert that the response has no validation errors for the given keys. This method may be used for asserting against responses where the validation errors are returned as a JSON structure or where the validation errors have been flashed to the session:</p>
+<pre><code><span class="hljs-comment">// Assert that no validation errors are present...</span>
+<span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertValid</span>();
+
+<span class="hljs-comment">// Assert that the given keys do not have validation errors...</span>
+<span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertValid</span>([<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;email&#x27;</span>]);
+</code></pre>
+<p><a name="validation-assert-invalid"></a></p>
+<h4 id="assertinvalid-1">assertInvalid</h4>
+<p>Assert that the response has validation errors for the given keys. This method may be used for asserting against responses where the validation errors are returned as a JSON structure or where the validation errors have been flashed to the session:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertInvalid</span>([<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;email&#x27;</span>]);
+</code></pre>
+<p>You may also assert that a given key has a particular validation error message. When doing so, you may provide the entire message or only a small portion of the message:</p>
+<pre><code><span class="hljs-variable">$response</span>-&gt;<span class="hljs-title function_ invoke__">assertInvalid</span>([
+    <span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;The name field is required.&#x27;</span>,
+    <span class="hljs-string">&#x27;email&#x27;</span> =&gt; <span class="hljs-string">&#x27;valid email address&#x27;</span>,
+]);
 </code></pre>

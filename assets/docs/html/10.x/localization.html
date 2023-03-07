@@ -1,0 +1,196 @@
+<h1 id="localization">Localization</h1>
+<ul>
+<li><a href="#introduction">Introduction</a><ul>
+<li><a href="#publishing-the-language-files">Publishing The Language Files</a></li>
+<li><a href="#configuring-the-locale">Configuring The Locale</a></li>
+<li><a href="#pluralization-language">Pluralization Language</a></li>
+</ul>
+</li>
+<li><a href="#defining-translation-strings">Defining Translation Strings</a><ul>
+<li><a href="#using-short-keys">Using Short Keys</a></li>
+<li><a href="#using-translation-strings-as-keys">Using Translation Strings As Keys</a></li>
+</ul>
+</li>
+<li><a href="#retrieving-translation-strings">Retrieving Translation Strings</a><ul>
+<li><a href="#replacing-parameters-in-translation-strings">Replacing Parameters In Translation Strings</a></li>
+<li><a href="#pluralization">Pluralization</a></li>
+</ul>
+</li>
+<li><a href="#overriding-package-language-files">Overriding Package Language Files</a></li>
+</ul>
+<p><a name="introduction"></a></p>
+<h2 id="introduction">Introduction</h2>
+<blockquote>
+<p><strong>Note</strong>
+By default, the Laravel application skeleton does not include the <code>lang</code> directory. If you would like to customize Laravel&#39;s language files, you may publish them via the <code>lang:publish</code> Artisan command.</p>
+</blockquote>
+<p>Laravel&#39;s localization features provide a convenient way to retrieve strings in various languages, allowing you to easily support multiple languages within your application.</p>
+<p>Laravel provides two ways to manage translation strings. First, language strings may be stored in files within the application&#39;s <code>lang</code> directory. Within this directory, there may be subdirectories for each language supported by the application. This is the approach Laravel uses to manage translation strings for built-in Laravel features such as validation error messages:</p>
+<pre><code>/lang
+    /en
+        messages.php
+    /es
+        messages.php
+</code></pre>
+<p>Or, translation strings may be defined within JSON files that are placed within the <code>lang</code> directory. When taking this approach, each language supported by your application would have a corresponding JSON file within this directory. This approach is recommended for applications that have a large number of translatable strings:</p>
+<pre><code>/lang
+    en.json
+    es.json
+</code></pre>
+<p>We&#39;ll discuss each approach to managing translation strings within this documentation.</p>
+<p><a name="publishing-the-language-files"></a></p>
+<h3 id="publishing-the-language-files">Publishing The Language Files</h3>
+<p>By default, the Laravel application skeleton does not include the <code>lang</code> directory. If you would like to customize Laravel&#39;s language files or create your own, you should scaffold the <code>lang</code> directory via the <code>lang:publish</code> Artisan command. The <code>lang:publish</code> command will create the <code>lang</code> directory in your application and publish the default set of language files used by Laravel:</p>
+<pre><code class="language-shell">php artisan lang:publish
+</code></pre>
+<p><a name="configuring-the-locale"></a></p>
+<h3 id="configuring-the-locale">Configuring The Locale</h3>
+<p>The default language for your application is stored in the <code>config/app.php</code> configuration file&#39;s <code>locale</code> configuration option. You are free to modify this value to suit the needs of your application.</p>
+<p>You may modify the default language for a single HTTP request at runtime using the <code>setLocale</code> method provided by the <code>App</code> facade:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">App</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/greeting/{locale}&#x27;</span>, function (<span class="hljs-keyword">string</span> <span class="hljs-variable">$locale</span>) {
+    <span class="hljs-keyword">if</span> (! <span class="hljs-title function_ invoke__">in_array</span>(<span class="hljs-variable">$locale</span>, [<span class="hljs-string">&#x27;en&#x27;</span>, <span class="hljs-string">&#x27;es&#x27;</span>, <span class="hljs-string">&#x27;fr&#x27;</span>])) {
+        <span class="hljs-title function_ invoke__">abort</span>(<span class="hljs-number">400</span>);
+    }
+
+    <span class="hljs-title class_">App</span>::<span class="hljs-title function_ invoke__">setLocale</span>(<span class="hljs-variable">$locale</span>);
+
+    <span class="hljs-comment">// ...</span>
+});
+</code></pre>
+<p>You may configure a &quot;fallback language&quot;, which will be used when the active language does not contain a given translation string. Like the default language, the fallback language is also configured in the <code>config/app.php</code> configuration file:</p>
+<pre><code><span class="hljs-string">&#x27;fallback_locale&#x27;</span> =&gt; <span class="hljs-string">&#x27;en&#x27;</span>,
+</code></pre>
+<p><a name="determining-the-current-locale"></a></p>
+<h4 id="determining-the-current-locale">Determining The Current Locale</h4>
+<p>You may use the <code>currentLocale</code> and <code>isLocale</code> methods on the <code>App</code> facade to determine the current locale or check if the locale is a given value:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">App</span>;
+
+<span class="hljs-variable">$locale</span> = <span class="hljs-title class_">App</span>::<span class="hljs-title function_ invoke__">currentLocale</span>();
+
+<span class="hljs-keyword">if</span> (<span class="hljs-title class_">App</span>::<span class="hljs-title function_ invoke__">isLocale</span>(<span class="hljs-string">&#x27;en&#x27;</span>)) {
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p><a name="pluralization-language"></a></p>
+<h3 id="pluralization-language">Pluralization Language</h3>
+<p>You may instruct Laravel&#39;s &quot;pluralizer&quot;, which is used by Eloquent and other portions of the framework to convert singular strings to plural strings, to use a language other than English. This may be accomplished by invoking the <code>useLanguage</code> method within the <code>boot</code> method of one of your application&#39;s service providers. The pluralizer&#39;s currently supported languages are: <code>french</code>, <code>norwegian-bokmal</code>, <code>portuguese</code>, <code>spanish</code>, and <code>turkish</code>:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Pluralizer</span>;
+
+<span class="hljs-comment">/**
+ * Bootstrap any application services.
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+</span>{
+    <span class="hljs-title class_">Pluralizer</span>::<span class="hljs-title function_ invoke__">useLanguage</span>(<span class="hljs-string">&#x27;spanish&#x27;</span>);     
+
+    <span class="hljs-comment">// ...     </span>
+}
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>If you customize the pluralizer&#39;s language, you should explicitly define your Eloquent model&#39;s <a href="/docs/%7B%7Bversion%7D%7D/eloquent#table-names">table names</a>.</p>
+</blockquote>
+<p><a name="defining-translation-strings"></a></p>
+<h2 id="defining-translation-strings">Defining Translation Strings</h2>
+<p><a name="using-short-keys"></a></p>
+<h3 id="using-short-keys">Using Short Keys</h3>
+<p>Typically, translation strings are stored in files within the <code>lang</code> directory. Within this directory, there should be a subdirectory for each language supported by your application. This is the approach Laravel uses to manage translation strings for built-in Laravel features such as validation error messages:</p>
+<pre><code>/lang
+    /en
+        messages.php
+    /es
+        messages.php
+</code></pre>
+<p>All language files return an array of keyed strings. For example:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-comment">// lang/en/messages.php</span>
+
+<span class="hljs-keyword">return</span> [
+    <span class="hljs-string">&#x27;welcome&#x27;</span> =&gt; <span class="hljs-string">&#x27;Welcome to our application!&#x27;</span>,
+];
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>For languages that differ by territory, you should name the language directories according to the ISO 15897. For example, &quot;en_GB&quot; should be used for British English rather than &quot;en-gb&quot;.</p>
+</blockquote>
+<p><a name="using-translation-strings-as-keys"></a></p>
+<h3 id="using-translation-strings-as-keys">Using Translation Strings As Keys</h3>
+<p>For applications with a large number of translatable strings, defining every string with a &quot;short key&quot; can become confusing when referencing the keys in your views and it is cumbersome to continually invent keys for every translation string supported by your application.</p>
+<p>For this reason, Laravel also provides support for defining translation strings using the &quot;default&quot; translation of the string as the key. Language files that use translation strings as keys are stored as JSON files in the <code>lang</code> directory. For example, if your application has a Spanish translation, you should create a <code>lang/es.json</code> file:</p>
+<pre><code class="language-json"><span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;I love programming.&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Me encanta programar.&quot;</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+<h4 id="key--file-conflicts">Key / File Conflicts</h4>
+<p>You should not define translation string keys that conflict with other translation filenames. For example, translating <code>__(&#39;Action&#39;)</code> for the &quot;NL&quot; locale while a <code>nl/action.php</code> file exists but a <code>nl.json</code> file does not exist will result in the translator returning the entire contents of <code>nl/action.php</code>.</p>
+<p><a name="retrieving-translation-strings"></a></p>
+<h2 id="retrieving-translation-strings">Retrieving Translation Strings</h2>
+<p>You may retrieve translation strings from your language files using the <code>__</code> helper function. If you are using &quot;short keys&quot; to define your translation strings, you should pass the file that contains the key and the key itself to the <code>__</code> function using &quot;dot&quot; syntax. For example, let&#39;s retrieve the <code>welcome</code> translation string from the <code>lang/en/messages.php</code> language file:</p>
+<pre><code><span class="hljs-keyword">echo</span> <span class="hljs-title function_ invoke__">__</span>(<span class="hljs-string">&#x27;messages.welcome&#x27;</span>);
+</code></pre>
+<p>If the specified translation string does not exist, the <code>__</code> function will return the translation string key. So, using the example above, the <code>__</code> function would return <code>messages.welcome</code> if the translation string does not exist.</p>
+<p> If you are using your <a href="#using-translation-strings-as-keys">default translation strings as your translation keys</a>, you should pass the default translation of your string to the <code>__</code> function;</p>
+<pre><code><span class="hljs-keyword">echo</span> <span class="hljs-title function_ invoke__">__</span>(<span class="hljs-string">&#x27;I love programming.&#x27;</span>);
+</code></pre>
+<p>Again, if the translation string does not exist, the <code>__</code> function will return the translation string key that it was given.</p>
+<p>If you are using the <a href="/docs/%7B%7Bversion%7D%7D/blade">Blade templating engine</a>, you may use the <code>{{ }}</code> echo syntax to display the translation string:</p>
+<pre><code>{{ <span class="hljs-title function_ invoke__">__</span>(<span class="hljs-string">&#x27;messages.welcome&#x27;</span>) }}
+</code></pre>
+<p><a name="replacing-parameters-in-translation-strings"></a></p>
+<h3 id="replacing-parameters-in-translation-strings">Replacing Parameters In Translation Strings</h3>
+<p>If you wish, you may define placeholders in your translation strings. All placeholders are prefixed with a <code>:</code>. For example, you may define a welcome message with a placeholder name:</p>
+<pre><code><span class="hljs-string">&#x27;welcome&#x27;</span> =&gt; <span class="hljs-string">&#x27;Welcome, :name&#x27;</span>,
+</code></pre>
+<p>To replace the placeholders when retrieving a translation string, you may pass an array of replacements as the second argument to the <code>__</code> function:</p>
+<pre><code><span class="hljs-keyword">echo</span> <span class="hljs-title function_ invoke__">__</span>(<span class="hljs-string">&#x27;messages.welcome&#x27;</span>, [<span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;dayle&#x27;</span>]);
+</code></pre>
+<p>If your placeholder contains all capital letters, or only has its first letter capitalized, the translated value will be capitalized accordingly:</p>
+<pre><code><span class="hljs-string">&#x27;welcome&#x27;</span> =&gt; <span class="hljs-string">&#x27;Welcome, :NAME&#x27;</span>, <span class="hljs-comment">// Welcome, DAYLE</span>
+<span class="hljs-string">&#x27;goodbye&#x27;</span> =&gt; <span class="hljs-string">&#x27;Goodbye, :Name&#x27;</span>, <span class="hljs-comment">// Goodbye, Dayle</span>
+</code></pre>
+<p><a name="object-replacement-formatting"></a></p>
+<h4 id="object-replacement-formatting">Object Replacement Formatting</h4>
+<p>If you attempt to provide an object as a translation placeholder, the object&#39;s <code>__toString</code> method will be invoked. The <a href="https://www.php.net/manual/en/language.oop5.magic.php#object.tostring"><code>__toString</code></a> method is one of PHP&#39;s built-in &quot;magic methods&quot;. However, sometimes you may not have control over the <code>__toString</code> method of a given class, such as when the class that you are interacting with belongs to a third-party library.</p>
+<p>In these cases, Laravel allows you to register a custom formatting handler for that particular type of object. To accomplish this, you should invoke the translator&#39;s <code>stringable</code> method. The <code>stringable</code> method accepts a closure, which should type-hint the type of object that it is responsible for formatting. Typically, the <code>stringable</code> method should be invoked within the <code>boot</code> method of your application&#39;s <code>AppServiceProvider</code> class:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Lang</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Money</span>\<span class="hljs-title">Money</span>;
+
+<span class="hljs-comment">/**
+ * Bootstrap any application services.
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+</span>{
+    <span class="hljs-title class_">Lang</span>::<span class="hljs-title function_ invoke__">stringable</span>(function (Money <span class="hljs-variable">$money</span>) {
+        <span class="hljs-keyword">return</span> <span class="hljs-variable">$money</span>-&gt;<span class="hljs-title function_ invoke__">formatTo</span>(<span class="hljs-string">&#x27;en_GB&#x27;</span>);
+    });
+}
+</code></pre>
+<p><a name="pluralization"></a></p>
+<h3 id="pluralization">Pluralization</h3>
+<p>Pluralization is a complex problem, as different languages have a variety of complex rules for pluralization; however, Laravel can help you translate strings differently based on pluralization rules that you define. Using a <code>|</code> character, you may distinguish singular and plural forms of a string:</p>
+<pre><code><span class="hljs-string">&#x27;apples&#x27;</span> =&gt; <span class="hljs-string">&#x27;There is one apple|There are many apples&#x27;</span>,
+</code></pre>
+<p>Of course, pluralization is also supported when using <a href="#using-translation-strings-as-keys">translation strings as keys</a>:</p>
+<pre><code class="language-json"><span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;There is one apple|There are many apples&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Hay una manzana|Hay muchas manzanas&quot;</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+<p>You may even create more complex pluralization rules which specify translation strings for multiple ranges of values:</p>
+<pre><code><span class="hljs-string">&#x27;apples&#x27;</span> =&gt; <span class="hljs-string">&#x27;{0} There are none|[1,19] There are some|[20,*] There are many&#x27;</span>,
+</code></pre>
+<p>After defining a translation string that has pluralization options, you may use the <code>trans_choice</code> function to retrieve the line for a given &quot;count&quot;. In this example, since the count is greater than one, the plural form of the translation string is returned:</p>
+<pre><code><span class="hljs-keyword">echo</span> <span class="hljs-title function_ invoke__">trans_choice</span>(<span class="hljs-string">&#x27;messages.apples&#x27;</span>, <span class="hljs-number">10</span>);
+</code></pre>
+<p>You may also define placeholder attributes in pluralization strings. These placeholders may be replaced by passing an array as the third argument to the <code>trans_choice</code> function:</p>
+<pre><code><span class="hljs-string">&#x27;minutes_ago&#x27;</span> =&gt; <span class="hljs-string">&#x27;{1} :value minute ago|[2,*] :value minutes ago&#x27;</span>,
+
+<span class="hljs-keyword">echo</span> <span class="hljs-title function_ invoke__">trans_choice</span>(<span class="hljs-string">&#x27;time.minutes_ago&#x27;</span>, <span class="hljs-number">5</span>, [<span class="hljs-string">&#x27;value&#x27;</span> =&gt; <span class="hljs-number">5</span>]);
+</code></pre>
+<p>If you would like to display the integer value that was passed to the <code>trans_choice</code> function, you may use the built-in <code>:count</code> placeholder:</p>
+<pre><code><span class="hljs-string">&#x27;apples&#x27;</span> =&gt; <span class="hljs-string">&#x27;{0} There are none|{1} There is one|[2,*] There are :count&#x27;</span>,
+</code></pre>
+<p><a name="overriding-package-language-files"></a></p>
+<h2 id="overriding-package-language-files">Overriding Package Language Files</h2>
+<p>Some packages may ship with their own language files. Instead of changing the package&#39;s core files to tweak these lines, you may override them by placing files in the <code>lang/vendor/{package}/{locale}</code> directory.</p>
+<p>So, for example, if you need to override the English translation strings in <code>messages.php</code> for a package named <code>skyrim/hearthfire</code>, you should place a language file at: <code>lang/vendor/hearthfire/en/messages.php</code>. Within this file, you should only define the translation strings you wish to override. Any translation strings you don&#39;t override will still be loaded from the package&#39;s original language files.</p>

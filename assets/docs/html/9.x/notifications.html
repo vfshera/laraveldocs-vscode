@@ -191,6 +191,20 @@
  */</span>
 <span class="hljs-keyword">public</span> <span class="hljs-variable">$connection</span> = <span class="hljs-string">&#x27;redis&#x27;</span>;
 </code></pre>
+<p>Or, if you would like to specify a specific queue connection that should be used for each notification channel supported by the notification, you may define a <code>viaConnections</code> method on your notification. This method should return an array of channel name / queue connection name pairs:</p>
+<pre><code><span class="hljs-comment">/**
+ * Determine which connections should be used for each notification channel.
+ *
+ * <span class="hljs-doctag">@return</span> array
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">viaConnections</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-keyword">return</span> [
+        <span class="hljs-string">&#x27;mail&#x27;</span> =&gt; <span class="hljs-string">&#x27;redis&#x27;</span>,
+        <span class="hljs-string">&#x27;database&#x27;</span> =&gt; <span class="hljs-string">&#x27;sync&#x27;</span>,
+    ];
+}
+</code></pre>
 <p><a name="customizing-notification-channel-queues"></a></p>
 <h4 id="customizing-notification-channel-queues">Customizing Notification Channel Queues</h4>
 <p>If you would like to specify a specific queue that should be used for each notification channel supported by the notification, you may define a <code>viaQueues</code> method on your notification. This method should return an array of channel name / queue name pairs:</p>
@@ -262,6 +276,7 @@
 <h3 id="on-demand-notifications">On-Demand Notifications</h3>
 <p>Sometimes you may need to send a notification to someone who is not stored as a &quot;user&quot; of your application. Using the <code>Notification</code> facade&#39;s <code>route</code> method, you may specify ad-hoc notification routing information before sending the notification:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Broadcasting</span>\<span class="hljs-title">Channel</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Notification</span>;
 
 <span class="hljs-title class_">Notification</span>::<span class="hljs-title function_ invoke__">route</span>(<span class="hljs-string">&#x27;mail&#x27;</span>, <span class="hljs-string">&#x27;taylor@example.com&#x27;</span>)
             -&gt;<span class="hljs-title function_ invoke__">route</span>(<span class="hljs-string">&#x27;vonage&#x27;</span>, <span class="hljs-string">&#x27;5555555555&#x27;</span>)
@@ -866,7 +881,7 @@ php artisan migrate
 <pre><code>composer <span class="hljs-keyword">require</span> laravel/vonage-notification-channel guzzlehttp/guzzle
 </code></pre>
 <p>The package includes a <a href="https://github.com/laravel/vonage-notification-channel/blob/3.x/config/vonage.php">configuration file</a>. However, you are not required to export this configuration file to your own application. You can simply use the <code>VONAGE_KEY</code> and <code>VONAGE_SECRET</code> environment variables to define your Vonage public and secret keys.</p>
-<p>After defining your keys, you may set a <code>VONAGE_SMS_FROM</code> environment variable that defines the phone number that your SMS messages should be sent from by default. You may generate this phone number within the Vonage control panel:</p>
+<p>After defining your keys, you should set a <code>VONAGE_SMS_FROM</code> environment variable that defines the phone number that your SMS messages should be sent from by default. You may generate this phone number within the Vonage control panel:</p>
 <pre><code>VONAGE_SMS_FROM=<span class="hljs-number">15556666666</span>
 </code></pre>
 <p><a name="formatting-sms-notifications"></a></p>

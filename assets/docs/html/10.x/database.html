@@ -1,0 +1,346 @@
+<h1 id="database-getting-started">Database: Getting Started</h1>
+<ul>
+<li><a href="#introduction">Introduction</a><ul>
+<li><a href="#configuration">Configuration</a></li>
+<li><a href="#read-and-write-connections">Read &amp; Write Connections</a></li>
+</ul>
+</li>
+<li><a href="#running-queries">Running SQL Queries</a><ul>
+<li><a href="#using-multiple-database-connections">Using Multiple Database Connections</a></li>
+<li><a href="#listening-for-query-events">Listening For Query Events</a></li>
+<li><a href="#monitoring-cumulative-query-time">Monitoring Cumulative Query Time</a></li>
+</ul>
+</li>
+<li><a href="#database-transactions">Database Transactions</a></li>
+<li><a href="#connecting-to-the-database-cli">Connecting To The Database CLI</a></li>
+<li><a href="#inspecting-your-databases">Inspecting Your Databases</a></li>
+<li><a href="#monitoring-your-databases">Monitoring Your Databases</a></li>
+</ul>
+<p><a name="introduction"></a></p>
+<h2 id="introduction">Introduction</h2>
+<p>Almost every modern web application interacts with a database. Laravel makes interacting with databases extremely simple across a variety of supported databases using raw SQL, a <a href="/docs/%7B%7Bversion%7D%7D/queries">fluent query builder</a>, and the <a href="/docs/%7B%7Bversion%7D%7D/eloquent">Eloquent ORM</a>. Currently, Laravel provides first-party support for five databases:</p>
+<div class="content-list" markdown="1">
+
+<ul>
+<li>MariaDB 10.3+ (<a href="https://mariadb.org/about/#maintenance-policy">Version Policy</a>)</li>
+<li>MySQL 5.7+ (<a href="https://en.wikipedia.org/wiki/MySQL#Release_history">Version Policy</a>)</li>
+<li>PostgreSQL 10.0+ (<a href="https://www.postgresql.org/support/versioning/">Version Policy</a>)</li>
+<li>SQLite 3.8.8+</li>
+<li>SQL Server 2017+ (<a href="https://docs.microsoft.com/en-us/lifecycle/products/?products=sql-server">Version Policy</a>)</li>
+</ul>
+</div>
+
+<p><a name="configuration"></a></p>
+<h3 id="configuration">Configuration</h3>
+<p>The configuration for Laravel&#39;s database services is located in your application&#39;s <code>config/database.php</code> configuration file. In this file, you may define all of your database connections, as well as specify which connection should be used by default. Most of the configuration options within this file are driven by the values of your application&#39;s environment variables. Examples for most of Laravel&#39;s supported database systems are provided in this file.</p>
+<p>By default, Laravel&#39;s sample <a href="/docs/%7B%7Bversion%7D%7D/configuration#environment-configuration">environment configuration</a> is ready to use with <a href="/docs/%7B%7Bversion%7D%7D/sail">Laravel Sail</a>, which is a Docker configuration for developing Laravel applications on your local machine. However, you are free to modify your database configuration as needed for your local database.</p>
+<p><a name="sqlite-configuration"></a></p>
+<h4 id="sqlite-configuration">SQLite Configuration</h4>
+<p>SQLite databases are contained within a single file on your filesystem. You can create a new SQLite database using the <code>touch</code> command in your terminal: <code>touch database/database.sqlite</code>. After the database has been created, you may easily configure your environment variables to point to this database by placing the absolute path to the database in the <code>DB_DATABASE</code> environment variable:</p>
+<pre><code class="language-ini"><span class="hljs-attr">DB_CONNECTION</span>=sqlite
+<span class="hljs-attr">DB_DATABASE</span>=/absolute/path/to/database.sqlite
+</code></pre>
+<p>To enable foreign key constraints for SQLite connections, you should set the <code>DB_FOREIGN_KEYS</code> environment variable to <code>true</code>:</p>
+<pre><code class="language-ini"><span class="hljs-attr">DB_FOREIGN_KEYS</span>=<span class="hljs-literal">true</span>
+</code></pre>
+<p><a name="mssql-configuration"></a></p>
+<h4 id="microsoft-sql-server-configuration">Microsoft SQL Server Configuration</h4>
+<p>To use a Microsoft SQL Server database, you should ensure that you have the <code>sqlsrv</code> and <code>pdo_sqlsrv</code> PHP extensions installed as well as any dependencies they may require such as the Microsoft SQL ODBC driver.</p>
+<p><a name="configuration-using-urls"></a></p>
+<h4 id="configuration-using-urls">Configuration Using URLs</h4>
+<p>Typically, database connections are configured using multiple configuration values such as <code>host</code>, <code>database</code>, <code>username</code>, <code>password</code>, etc. Each of these configuration values has its own corresponding environment variable. This means that when configuring your database connection information on a production server, you need to manage several environment variables.</p>
+<p>Some managed database providers such as AWS and Heroku provide a single database &quot;URL&quot; that contains all of the connection information for the database in a single string. An example database URL may look something like the following:</p>
+<pre><code class="language-html">mysql://root:password@127.0.0.1/forge?charset=UTF-8
+</code></pre>
+<p>These URLs typically follow a standard schema convention:</p>
+<pre><code class="language-html">driver://username:password@host:port/database?options
+</code></pre>
+<p>For convenience, Laravel supports these URLs as an alternative to configuring your database with multiple configuration options. If the <code>url</code> (or corresponding <code>DATABASE_URL</code> environment variable) configuration option is present, it will be used to extract the database connection and credential information.</p>
+<p><a name="read-and-write-connections"></a></p>
+<h3 id="read--write-connections">Read &amp; Write Connections</h3>
+<p>Sometimes you may wish to use one database connection for SELECT statements, and another for INSERT, UPDATE, and DELETE statements. Laravel makes this a breeze, and the proper connections will always be used whether you are using raw queries, the query builder, or the Eloquent ORM.</p>
+<p>To see how read / write connections should be configured, let&#39;s look at this example:</p>
+<pre><code><span class="hljs-string">&#x27;mysql&#x27;</span> =&gt; [
+    <span class="hljs-string">&#x27;read&#x27;</span> =&gt; [
+        <span class="hljs-string">&#x27;host&#x27;</span> =&gt; [
+            <span class="hljs-string">&#x27;192.168.1.1&#x27;</span>,
+            <span class="hljs-string">&#x27;196.168.1.2&#x27;</span>,
+        ],
+    ],
+    <span class="hljs-string">&#x27;write&#x27;</span> =&gt; [
+        <span class="hljs-string">&#x27;host&#x27;</span> =&gt; [
+            <span class="hljs-string">&#x27;196.168.1.3&#x27;</span>,
+        ],
+    ],
+    <span class="hljs-string">&#x27;sticky&#x27;</span> =&gt; <span class="hljs-literal">true</span>,
+    <span class="hljs-string">&#x27;driver&#x27;</span> =&gt; <span class="hljs-string">&#x27;mysql&#x27;</span>,
+    <span class="hljs-string">&#x27;database&#x27;</span> =&gt; <span class="hljs-string">&#x27;database&#x27;</span>,
+    <span class="hljs-string">&#x27;username&#x27;</span> =&gt; <span class="hljs-string">&#x27;root&#x27;</span>,
+    <span class="hljs-string">&#x27;password&#x27;</span> =&gt; <span class="hljs-string">&#x27;&#x27;</span>,
+    <span class="hljs-string">&#x27;charset&#x27;</span> =&gt; <span class="hljs-string">&#x27;utf8mb4&#x27;</span>,
+    <span class="hljs-string">&#x27;collation&#x27;</span> =&gt; <span class="hljs-string">&#x27;utf8mb4_unicode_ci&#x27;</span>,
+    <span class="hljs-string">&#x27;prefix&#x27;</span> =&gt; <span class="hljs-string">&#x27;&#x27;</span>,
+],
+</code></pre>
+<p>Note that three keys have been added to the configuration array: <code>read</code>, <code>write</code> and <code>sticky</code>. The <code>read</code> and <code>write</code> keys have array values containing a single key: <code>host</code>. The rest of the database options for the <code>read</code> and <code>write</code> connections will be merged from the main <code>mysql</code> configuration array.</p>
+<p>You only need to place items in the <code>read</code> and <code>write</code> arrays if you wish to override the values from the main <code>mysql</code> array. So, in this case, <code>192.168.1.1</code> will be used as the host for the &quot;read&quot; connection, while <code>192.168.1.3</code> will be used for the &quot;write&quot; connection. The database credentials, prefix, character set, and all other options in the main <code>mysql</code> array will be shared across both connections. When multiple values exist in the <code>host</code> configuration array, a database host will be randomly chosen for each request.</p>
+<p><a name="the-sticky-option"></a></p>
+<h4 id="the-sticky-option">The <code>sticky</code> Option</h4>
+<p>The <code>sticky</code> option is an <em>optional</em> value that can be used to allow the immediate reading of records that have been written to the database during the current request cycle. If the <code>sticky</code> option is enabled and a &quot;write&quot; operation has been performed against the database during the current request cycle, any further &quot;read&quot; operations will use the &quot;write&quot; connection. This ensures that any data written during the request cycle can be immediately read back from the database during that same request. It is up to you to decide if this is the desired behavior for your application.</p>
+<p><a name="running-queries"></a></p>
+<h2 id="running-sql-queries">Running SQL Queries</h2>
+<p>Once you have configured your database connection, you may run queries using the <code>DB</code> facade. The <code>DB</code> facade provides methods for each type of query: <code>select</code>, <code>update</code>, <code>insert</code>, <code>delete</code>, and <code>statement</code>.</p>
+<p><a name="running-a-select-query"></a></p>
+<h4 id="running-a-select-query">Running A Select Query</h4>
+<p>To run a basic SELECT query, you may use the <code>select</code> method on the <code>DB</code> facade:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Http</span>\<span class="hljs-title class_">Controllers</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Controllers</span>\<span class="hljs-title">Controller</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">DB</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">View</span>\<span class="hljs-title">View</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserController</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Controller</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Show a list of all of the application&#x27;s users.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">index</span>(<span class="hljs-params"></span>): <span class="hljs-title">View</span>
+    </span>{
+        <span class="hljs-variable">$users</span> = DB::<span class="hljs-title function_ invoke__">select</span>(<span class="hljs-string">&#x27;select * from users where active = ?&#x27;</span>, [<span class="hljs-number">1</span>]);
+
+        <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;user.index&#x27;</span>, [<span class="hljs-string">&#x27;users&#x27;</span> =&gt; <span class="hljs-variable">$users</span>]);
+    }
+}
+</code></pre>
+<p>The first argument passed to the <code>select</code> method is the SQL query, while the second argument is any parameter bindings that need to be bound to the query. Typically, these are the values of the <code>where</code> clause constraints. Parameter binding provides protection against SQL injection.</p>
+<p>The <code>select</code> method will always return an <code>array</code> of results. Each result within the array will be a PHP <code>stdClass</code> object representing a record from the database:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">DB</span>;
+
+<span class="hljs-variable">$users</span> = DB::<span class="hljs-title function_ invoke__">select</span>(<span class="hljs-string">&#x27;select * from users&#x27;</span>);
+
+<span class="hljs-keyword">foreach</span> (<span class="hljs-variable">$users</span> <span class="hljs-keyword">as</span> <span class="hljs-variable">$user</span>) {
+    <span class="hljs-keyword">echo</span> <span class="hljs-variable">$user</span>-&gt;name;
+}
+</code></pre>
+<p><a name="selecting-scalar-values"></a></p>
+<h4 id="selecting-scalar-values">Selecting Scalar Values</h4>
+<p>Sometimes your database query may result in a single, scalar value. Instead of being required to retrieve the query&#39;s scalar result from a record object, Laravel allows you to retrieve this value directly using the <code>scalar</code> method:</p>
+<pre><code><span class="hljs-variable">$burgers</span> = DB::<span class="hljs-title function_ invoke__">scalar</span>(
+    <span class="hljs-string">&quot;select count(case when food = &#x27;burger&#x27; then 1 end) as burgers from menu&quot;</span>
+);
+</code></pre>
+<p><a name="using-named-bindings"></a></p>
+<h4 id="using-named-bindings">Using Named Bindings</h4>
+<p>Instead of using <code>?</code> to represent your parameter bindings, you may execute a query using named bindings:</p>
+<pre><code><span class="hljs-variable">$results</span> = DB::<span class="hljs-title function_ invoke__">select</span>(<span class="hljs-string">&#x27;select * from users where id = :id&#x27;</span>, [<span class="hljs-string">&#x27;id&#x27;</span> =&gt; <span class="hljs-number">1</span>]);
+</code></pre>
+<p><a name="running-an-insert-statement"></a></p>
+<h4 id="running-an-insert-statement">Running An Insert Statement</h4>
+<p>To execute an <code>insert</code> statement, you may use the <code>insert</code> method on the <code>DB</code> facade. Like <code>select</code>, this method accepts the SQL query as its first argument and bindings as its second argument:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">DB</span>;
+
+DB::<span class="hljs-title function_ invoke__">insert</span>(<span class="hljs-string">&#x27;insert into users (id, name) values (?, ?)&#x27;</span>, [<span class="hljs-number">1</span>, <span class="hljs-string">&#x27;Marc&#x27;</span>]);
+</code></pre>
+<p><a name="running-an-update-statement"></a></p>
+<h4 id="running-an-update-statement">Running An Update Statement</h4>
+<p>The <code>update</code> method should be used to update existing records in the database. The number of rows affected by the statement is returned by the method:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">DB</span>;
+
+<span class="hljs-variable">$affected</span> = DB::<span class="hljs-title function_ invoke__">update</span>(
+    <span class="hljs-string">&#x27;update users set votes = 100 where name = ?&#x27;</span>,
+    [<span class="hljs-string">&#x27;Anita&#x27;</span>]
+);
+</code></pre>
+<p><a name="running-a-delete-statement"></a></p>
+<h4 id="running-a-delete-statement">Running A Delete Statement</h4>
+<p>The <code>delete</code> method should be used to delete records from the database. Like <code>update</code>, the number of rows affected will be returned by the method:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">DB</span>;
+
+<span class="hljs-variable">$deleted</span> = DB::<span class="hljs-title function_ invoke__">delete</span>(<span class="hljs-string">&#x27;delete from users&#x27;</span>);
+</code></pre>
+<p><a name="running-a-general-statement"></a></p>
+<h4 id="running-a-general-statement">Running A General Statement</h4>
+<p>Some database statements do not return any value. For these types of operations, you may use the <code>statement</code> method on the <code>DB</code> facade:</p>
+<pre><code>DB::<span class="hljs-title function_ invoke__">statement</span>(<span class="hljs-string">&#x27;drop table users&#x27;</span>);
+</code></pre>
+<p><a name="running-an-unprepared-statement"></a></p>
+<h4 id="running-an-unprepared-statement">Running An Unprepared Statement</h4>
+<p>Sometimes you may want to execute an SQL statement without binding any values. You may use the <code>DB</code> facade&#39;s <code>unprepared</code> method to accomplish this:</p>
+<pre><code>DB::<span class="hljs-title function_ invoke__">unprepared</span>(<span class="hljs-string">&#x27;update users set votes = 100 where name = &quot;Dries&quot;&#x27;</span>);
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>Since unprepared statements do not bind parameters, they may be vulnerable to SQL injection. You should never allow user controlled values within an unprepared statement.</p>
+</blockquote>
+<p><a name="implicit-commits-in-transactions"></a></p>
+<h4 id="implicit-commits">Implicit Commits</h4>
+<p>When using the <code>DB</code> facade&#39;s <code>statement</code> and <code>unprepared</code> methods within transactions you must be careful to avoid statements that cause <a href="https://dev.mysql.com/doc/refman/8.0/en/implicit-commit.html">implicit commits</a>. These statements will cause the database engine to indirectly commit the entire transaction, leaving Laravel unaware of the database&#39;s transaction level. An example of such a statement is creating a database table:</p>
+<pre><code>DB::<span class="hljs-title function_ invoke__">unprepared</span>(<span class="hljs-string">&#x27;create table a (col varchar(1) null)&#x27;</span>);
+</code></pre>
+<p>Please refer to the MySQL manual for <a href="https://dev.mysql.com/doc/refman/8.0/en/implicit-commit.html">a list of all statements</a> that trigger implicit commits.</p>
+<p><a name="using-multiple-database-connections"></a></p>
+<h3 id="using-multiple-database-connections">Using Multiple Database Connections</h3>
+<p>If your application defines multiple connections in your <code>config/database.php</code> configuration file, you may access each connection via the <code>connection</code> method provided by the <code>DB</code> facade. The connection name passed to the <code>connection</code> method should correspond to one of the connections listed in your <code>config/database.php</code> configuration file or configured at runtime using the <code>config</code> helper:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">DB</span>;
+
+<span class="hljs-variable">$users</span> = DB::<span class="hljs-title function_ invoke__">connection</span>(<span class="hljs-string">&#x27;sqlite&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">select</span>(<span class="hljs-comment">/* ... */</span>);
+</code></pre>
+<p>You may access the raw, underlying PDO instance of a connection using the <code>getPdo</code> method on a connection instance:</p>
+<pre><code><span class="hljs-variable">$pdo</span> = DB::<span class="hljs-title function_ invoke__">connection</span>()-&gt;<span class="hljs-title function_ invoke__">getPdo</span>();
+</code></pre>
+<p><a name="listening-for-query-events"></a></p>
+<h3 id="listening-for-query-events">Listening For Query Events</h3>
+<p>If you would like to specify a closure that is invoked for each SQL query executed by your application, you may use the <code>DB</code> facade&#39;s <code>listen</code> method. This method can be useful for logging queries or debugging. You may register your query listener closure in the <code>boot</code> method of a <a href="/docs/%7B%7Bversion%7D%7D/providers">service provider</a>:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Providers</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Events</span>\<span class="hljs-title">QueryExecuted</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">DB</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">ServiceProvider</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AppServiceProvider</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">ServiceProvider</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Register any application services.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">register</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+    </span>{
+        <span class="hljs-comment">// ...</span>
+    }
+
+    <span class="hljs-comment">/**
+     * Bootstrap any application services.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+    </span>{
+        DB::<span class="hljs-title function_ invoke__">listen</span>(function (QueryExecuted <span class="hljs-variable">$query</span>) {
+            <span class="hljs-comment">// $query-&gt;sql;</span>
+            <span class="hljs-comment">// $query-&gt;bindings;</span>
+            <span class="hljs-comment">// $query-&gt;time;</span>
+        });
+    }
+}
+</code></pre>
+<p><a name="monitoring-cumulative-query-time"></a></p>
+<h3 id="monitoring-cumulative-query-time">Monitoring Cumulative Query Time</h3>
+<p>A common performance bottleneck of modern web applications is the amount of time they spend querying databases. Thankfully, Laravel can invoke a closure or callback of your choice when it spends too much time querying the database during a single request. To get started, provide a query time threshold (in milliseconds) and closure to the <code>whenQueryingForLongerThan</code> method. You may invoke this method in the <code>boot</code> method of a <a href="/docs/%7B%7Bversion%7D%7D/providers">service provider</a>:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Providers</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Connection</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">DB</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">ServiceProvider</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Events</span>\<span class="hljs-title">QueryExecuted</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AppServiceProvider</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">ServiceProvider</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Register any application services.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">register</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+    </span>{
+        <span class="hljs-comment">// ...</span>
+    }
+
+    <span class="hljs-comment">/**
+     * Bootstrap any application services.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+    </span>{
+        DB::<span class="hljs-title function_ invoke__">whenQueryingForLongerThan</span>(<span class="hljs-number">500</span>, function (Connection <span class="hljs-variable">$connection</span>, QueryExecuted <span class="hljs-variable">$event</span>) {
+            <span class="hljs-comment">// Notify development team...</span>
+        });
+    }
+}
+</code></pre>
+<p><a name="database-transactions"></a></p>
+<h2 id="database-transactions">Database Transactions</h2>
+<p>You may use the <code>transaction</code> method provided by the <code>DB</code> facade to run a set of operations within a database transaction. If an exception is thrown within the transaction closure, the transaction will automatically be rolled back and the exception is re-thrown. If the closure executes successfully, the transaction will automatically be committed. You don&#39;t need to worry about manually rolling back or committing while using the <code>transaction</code> method:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">DB</span>;
+
+DB::<span class="hljs-title function_ invoke__">transaction</span>(function () {
+    DB::<span class="hljs-title function_ invoke__">update</span>(<span class="hljs-string">&#x27;update users set votes = 1&#x27;</span>);
+
+    DB::<span class="hljs-title function_ invoke__">delete</span>(<span class="hljs-string">&#x27;delete from posts&#x27;</span>);
+});
+</code></pre>
+<p><a name="handling-deadlocks"></a></p>
+<h4 id="handling-deadlocks">Handling Deadlocks</h4>
+<p>The <code>transaction</code> method accepts an optional second argument which defines the number of times a transaction should be retried when a deadlock occurs. Once these attempts have been exhausted, an exception will be thrown:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">DB</span>;
+
+DB::<span class="hljs-title function_ invoke__">transaction</span>(function () {
+    DB::<span class="hljs-title function_ invoke__">update</span>(<span class="hljs-string">&#x27;update users set votes = 1&#x27;</span>);
+
+    DB::<span class="hljs-title function_ invoke__">delete</span>(<span class="hljs-string">&#x27;delete from posts&#x27;</span>);
+}, <span class="hljs-number">5</span>);
+</code></pre>
+<p><a name="manually-using-transactions"></a></p>
+<h4 id="manually-using-transactions">Manually Using Transactions</h4>
+<p>If you would like to begin a transaction manually and have complete control over rollbacks and commits, you may use the <code>beginTransaction</code> method provided by the <code>DB</code> facade:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">DB</span>;
+
+DB::<span class="hljs-title function_ invoke__">beginTransaction</span>();
+</code></pre>
+<p>You can rollback the transaction via the <code>rollBack</code> method:</p>
+<pre><code>DB::<span class="hljs-title function_ invoke__">rollBack</span>();
+</code></pre>
+<p>Lastly, you can commit a transaction via the <code>commit</code> method:</p>
+<pre><code>DB::<span class="hljs-title function_ invoke__">commit</span>();
+</code></pre>
+<blockquote>
+<p><strong>Note</strong><br>The <code>DB</code> facade&#39;s transaction methods control the transactions for both the <a href="/docs/%7B%7Bversion%7D%7D/queries">query builder</a> and <a href="/docs/%7B%7Bversion%7D%7D/eloquent">Eloquent ORM</a>.</p>
+</blockquote>
+<p><a name="connecting-to-the-database-cli"></a></p>
+<h2 id="connecting-to-the-database-cli">Connecting To The Database CLI</h2>
+<p>If you would like to connect to your database&#39;s CLI, you may use the <code>db</code> Artisan command:</p>
+<pre><code class="language-shell">php artisan db
+</code></pre>
+<p>If needed, you may specify a database connection name to connect to a database connection that is not the default connection:</p>
+<pre><code class="language-shell">php artisan db mysql
+</code></pre>
+<p><a name="inspecting-your-databases"></a></p>
+<h2 id="inspecting-your-databases">Inspecting Your Databases</h2>
+<p>Using the <code>db:show</code> and <code>db:table</code> Artisan commands, you can get valuable insight into your database and its associated tables. To see an overview of your database, including its size, type, number of open connections, and a summary of its tables, you may use the <code>db:show</code> command:</p>
+<pre><code class="language-shell">php artisan db:show
+</code></pre>
+<p>You may specify which database connection should be inspected by providing the database connection name to the command via the <code>--database</code> option:</p>
+<pre><code class="language-shell">php artisan db:show --database=pgsql
+</code></pre>
+<p>If you would like to include table row counts and database view details within the output of the command, you may provide the <code>--counts</code> and <code>--views</code> options, respectively. On large databases, retrieving row counts and view details can be slow:</p>
+<pre><code class="language-shell">php artisan db:show --counts --views
+</code></pre>
+<p><a name="table-overview"></a></p>
+<h4 id="table-overview">Table Overview</h4>
+<p>If you would like to get an overview of an individual table within your database, you may execute the <code>db:table</code> Artisan command. This command provides a general overview of a database table, including its columns, types, attributes, keys, and indexes:</p>
+<pre><code class="language-shell">php artisan db:table users
+</code></pre>
+<p><a name="monitoring-your-databases"></a></p>
+<h2 id="monitoring-your-databases">Monitoring Your Databases</h2>
+<p>Using the <code>db:monitor</code> Artisan command, you can instruct Laravel to dispatch an <code>Illuminate\Database\Events\DatabaseBusy</code> event if your database is managing more than a specified number of open connections.</p>
+<p>To get started, you should schedule the <code>db:monitor</code> command to <a href="/docs/%7B%7Bversion%7D%7D/scheduling">run every minute</a>. The command accepts the names of the database connection configurations that you wish to monitor as well as the maximum number of open connections that should be tolerated before dispatching an event:</p>
+<pre><code class="language-shell">php artisan db:monitor --databases=mysql,pgsql --max=100
+</code></pre>
+<p>Scheduling this command alone is not enough to trigger a notification alerting you of the number of open connections. When the command encounters a database that has an open connection count that exceeds your threshold, a <code>DatabaseBusy</code> event will be dispatched. You should listen for this event within your application&#39;s <code>EventServiceProvider</code> in order to send a notification to you or your development team:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Notifications</span>\<span class="hljs-title">DatabaseApproachingMaxConnections</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Events</span>\<span class="hljs-title">DatabaseBusy</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Event</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Notification</span>;
+
+<span class="hljs-comment">/**
+ * Register any other events for your application.
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+</span>{
+    <span class="hljs-title class_">Event</span>::<span class="hljs-title function_ invoke__">listen</span>(function (DatabaseBusy <span class="hljs-variable">$event</span>) {
+        <span class="hljs-title class_">Notification</span>::<span class="hljs-title function_ invoke__">route</span>(<span class="hljs-string">&#x27;mail&#x27;</span>, <span class="hljs-string">&#x27;dev@example.com&#x27;</span>)
+                -&gt;<span class="hljs-title function_ invoke__">notify</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">DatabaseApproachingMaxConnections</span>(
+                    <span class="hljs-variable">$event</span>-&gt;connectionName,
+                    <span class="hljs-variable">$event</span>-&gt;connections
+                ));
+    });
+}
+</code></pre>

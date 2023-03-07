@@ -5,6 +5,7 @@
 <li><a href="#configuration">Configuration</a></li>
 <li><a href="#balancing-strategies">Balancing Strategies</a></li>
 <li><a href="#dashboard-authorization">Dashboard Authorization</a></li>
+<li><a href="#silenced-jobs">Silenced Jobs</a></li>
 </ul>
 </li>
 <li><a href="#upgrading-horizon">Upgrading Horizon</a></li>
@@ -69,7 +70,7 @@
 </blockquote>
 <p><a name="supervisors"></a></p>
 <h4 id="supervisors">Supervisors</h4>
-<p>As you can see in Horizon&#39;s default configuration file. Each environment can contain one or more &quot;supervisors&quot;. By default, the configuration file defines this supervisor as <code>supervisor-1</code>; however, you are free to name your supervisors whatever you want. Each supervisor is essentially responsible for &quot;supervising&quot; a group of worker processes and takes care of balancing worker processes across queues.</p>
+<p>As you can see in Horizon&#39;s default configuration file, each environment can contain one or more &quot;supervisors&quot;. By default, the configuration file defines this supervisor as <code>supervisor-1</code>; however, you are free to name your supervisors whatever you want. Each supervisor is essentially responsible for &quot;supervising&quot; a group of worker processes and takes care of balancing worker processes across queues.</p>
 <p>You may add additional supervisors to a given environment if you would like to define a new group of worker processes that should run in that environment. You may choose to do this if you would like to define a different balancing strategy or worker process count for a given queue used by your application.</p>
 <p><a name="default-values"></a></p>
 <h4 id="default-values">Default Values</h4>
@@ -120,16 +121,33 @@
 <p><a name="alternative-authentication-strategies"></a></p>
 <h4 id="alternative-authentication-strategies">Alternative Authentication Strategies</h4>
 <p>Remember that Laravel automatically injects the authenticated user into the gate closure. If your application is providing Horizon security via another method, such as IP restrictions, then your Horizon users may not need to &quot;login&quot;. Therefore, you will need to change <code>function ($user)</code> closure signature above to <code>function ($user = null)</code> in order to force Laravel to not require authentication.</p>
+<p><a name="silenced-jobs"></a></p>
+<h3 id="silenced-jobs">Silenced Jobs</h3>
+<p>Sometimes, you may not be interested in viewing certain jobs dispatched by your application or third-party packages. Instead of these jobs taking up space in your &quot;Completed Jobs&quot; list, you can silence them. To get started, add the job&#39;s class name to the <code>silenced</code> configuration option in your application&#39;s <code>horizon</code> configuration file:</p>
+<pre><code><span class="hljs-string">&#x27;silenced&#x27;</span> =&gt; [
+    <span class="hljs-title class_">App\Jobs\ProcessPodcast</span>::<span class="hljs-variable language_">class</span>,
+],
+</code></pre>
+<p>Alternatively, the job you wish to silence can implement the <code>Laravel\Horizon\Contracts\Silenced</code> interface. If a job implements this interface, it will automatically be silenced, even if it is not present in the <code>silenced</code> configuration array:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Horizon</span>\<span class="hljs-title">Contracts</span>\<span class="hljs-title">Silenced</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ProcessPodcast</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">ShouldQueue</span>, <span class="hljs-title">Silenced</span>
+</span>{
+    <span class="hljs-keyword">use</span> <span class="hljs-title">Dispatchable</span>, <span class="hljs-title">InteractsWithQueue</span>, <span class="hljs-title">Queueable</span>, <span class="hljs-title">SerializesModels</span>;
+
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
 <p><a name="upgrading-horizon"></a></p>
 <h2 id="upgrading-horizon">Upgrading Horizon</h2>
 <p>When upgrading to a new major version of Horizon, it&#39;s important that you carefully review <a href="https://github.com/laravel/horizon/blob/master/UPGRADE.md">the upgrade guide</a>. In addition, when upgrading to any new Horizon version, you should re-publish Horizon&#39;s assets:</p>
 <pre><code class="language-shell">php artisan horizon:publish
 </code></pre>
-<p>To keep the assets up-to-date and avoid issues in future updates, you may add the <code>horizon:publish</code> command to the <code>post-update-cmd</code> scripts in your application&#39;s <code>composer.json</code> file:</p>
+<p>To keep the assets up-to-date and avoid issues in future updates, you may add the <code>vendor:publish --tag=laravel-assets</code> command to the <code>post-update-cmd</code> scripts in your application&#39;s <code>composer.json</code> file:</p>
 <pre><code class="language-json"><span class="hljs-punctuation">{</span>
     <span class="hljs-attr">&quot;scripts&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
         <span class="hljs-attr">&quot;post-update-cmd&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
-            <span class="hljs-string">&quot;@php artisan horizon:publish --ansi&quot;</span>
+            <span class="hljs-string">&quot;@php artisan vendor:publish --tag=laravel-assets --ansi --force&quot;</span>
         <span class="hljs-punctuation">]</span>
     <span class="hljs-punctuation">}</span>
 <span class="hljs-punctuation">}</span>

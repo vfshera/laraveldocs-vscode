@@ -369,6 +369,13 @@ owners
 }
 </code></pre>
 <p>The first argument passed to the <code>hasOneThrough</code> method is the name of the final model we wish to access, while the second argument is the name of the intermediate model.</p>
+<p>Or, if the relevant relationships have already been defined on all of the models involved in the relationship, you may fluently define a &quot;has-one-through&quot; relationship by invoking the <code>through</code> method and supplying the names of those relationships. For example, if the <code>Mechanic</code> model has a <code>cars</code> relationship and the <code>Car</code> model has an <code>owner</code> relationship, you may define a &quot;has-one-through&quot; relationship connecting the mechanic and the owner like so:</p>
+<pre><code class="language-php"><span class="hljs-comment">// String based syntax...</span>
+<span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">through</span>(<span class="hljs-string">&#x27;cars&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">has</span>(<span class="hljs-string">&#x27;owner&#x27;</span>);
+
+<span class="hljs-comment">// Dynamic syntax...</span>
+<span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">throughCars</span>()-&gt;<span class="hljs-title function_ invoke__">hasOwner</span>();
+</code></pre>
 <p><a name="has-one-through-key-conventions"></a></p>
 <h4 id="key-conventions">Key Conventions</h4>
 <p>Typical Eloquent foreign key conventions will be used when performing the relationship&#39;s queries. If you would like to customize the keys of the relationship, you may pass them as the third and fourth arguments to the <code>hasOneThrough</code> method. The third argument is the name of the foreign key on the intermediate model. The fourth argument is the name of the foreign key on the final model. The fifth argument is the local key, while the sixth argument is the local key of the intermediate model:</p>
@@ -389,6 +396,13 @@ owners
         );
     }
 }
+</code></pre>
+<p>Or, as discussed earlier, if the relevant relationships have already been defined on all of the models involved in the relationship, you may fluently define a &quot;has-one-through&quot; relationship by invoking the <code>through</code> method and supplying the names of those relationships. This approach offers the advantage of reusing the key conventions already defined on the existing relationships:</p>
+<pre><code class="language-php"><span class="hljs-comment">// String based syntax...</span>
+<span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">through</span>(<span class="hljs-string">&#x27;cars&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">has</span>(<span class="hljs-string">&#x27;owner&#x27;</span>);
+
+<span class="hljs-comment">// Dynamic syntax...</span>
+<span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">throughCars</span>()-&gt;<span class="hljs-title function_ invoke__">hasOwner</span>();
 </code></pre>
 <p><a name="has-many-through"></a></p>
 <h3 id="has-many-through">Has Many Through</h3>
@@ -426,6 +440,13 @@ deployments
 }
 </code></pre>
 <p>The first argument passed to the <code>hasManyThrough</code> method is the name of the final model we wish to access, while the second argument is the name of the intermediate model.</p>
+<p>Or, if the relevant relationships have already been defined on all of the models involved in the relationship, you may fluently define a &quot;has-many-through&quot; relationship by invoking the <code>through</code> method and supplying the names of those relationships. For example, if the <code>Project</code> model has a <code>environments</code> relationship and the <code>Environment</code> model has a <code>deployments</code> relationship, you may define a &quot;has-many-through&quot; relationship connecting the project and the deployments like so:</p>
+<pre><code class="language-php"><span class="hljs-comment">// String based syntax...</span>
+<span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">through</span>(<span class="hljs-string">&#x27;environments&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">has</span>(<span class="hljs-string">&#x27;deployments&#x27;</span>);
+
+<span class="hljs-comment">// Dynamic syntax...</span>
+<span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">throughEnvironments</span>()-&gt;<span class="hljs-title function_ invoke__">hasDeployments</span>();
+</code></pre>
 <p>Though the <code>Deployment</code> model&#39;s table does not contain a <code>project_id</code> column, the <code>hasManyThrough</code> relation provides access to a project&#39;s deployments via <code>$project-&gt;deployments</code>. To retrieve these models, Eloquent inspects the <code>project_id</code> column on the intermediate <code>Environment</code> model&#39;s table. After finding the relevant environment IDs, they are used to query the <code>Deployment</code> model&#39;s table.</p>
 <p><a name="has-many-through-key-conventions"></a></p>
 <h4 id="key-conventions-1">Key Conventions</h4>
@@ -444,6 +465,13 @@ deployments
         );
     }
 }
+</code></pre>
+<p>Or, as discussed earlier, if the relevant relationships have already been defined on all of the models involved in the relationship, you may fluently define a &quot;has-many-through&quot; relationship by invoking the <code>through</code> method and supplying the names of those relationships. This approach offers the advantage of reusing the key conventions already defined on the existing relationships:</p>
+<pre><code class="language-php"><span class="hljs-comment">// String based syntax...</span>
+<span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">through</span>(<span class="hljs-string">&#x27;environments&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">has</span>(<span class="hljs-string">&#x27;deployments&#x27;</span>);
+
+<span class="hljs-comment">// Dynamic syntax...</span>
+<span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">throughEnvironments</span>()-&gt;<span class="hljs-title function_ invoke__">hasDeployments</span>();
 </code></pre>
 <p><a name="many-to-many"></a></p>
 <h2 id="many-to-many-relationships">Many To Many Relationships</h2>
@@ -1569,6 +1597,9 @@ taggables
 <span class="hljs-variable">$post</span>-&gt;comments[<span class="hljs-number">0</span>]-&gt;author-&gt;name = <span class="hljs-string">&#x27;Author Name&#x27;</span>;
 
 <span class="hljs-variable">$post</span>-&gt;<span class="hljs-title function_ invoke__">push</span>();
+</code></pre>
+<p>The <code>pushQuietly</code> method may be used to save a model and its associated relationships without raising any events:</p>
+<pre><code><span class="hljs-variable">$post</span>-&gt;<span class="hljs-title function_ invoke__">pushQuietly</span>();
 </code></pre>
 <p><a name="the-create-method"></a></p>
 <h3 id="the-create-method">The <code>create</code> Method</h3>

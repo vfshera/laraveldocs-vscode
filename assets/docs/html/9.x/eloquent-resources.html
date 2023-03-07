@@ -472,6 +472,9 @@ php artisan make:resource UserCollection
     <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;secret-value&#x27;</span>;
 }),
 </code></pre>
+<p>The <code>whenHas</code> method may be used to include an attribute if it is actually present on the underlying model:</p>
+<pre><code><span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">whenHas</span>(<span class="hljs-string">&#x27;name&#x27;</span>),
+</code></pre>
 <p>Additionally, the <code>whenNotNull</code> method may be used to include an attribute in the resource response if the attribute is not null:</p>
 <pre><code><span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">whenNotNull</span>(<span class="hljs-variable">$this</span>-&gt;name),
 </code></pre>

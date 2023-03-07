@@ -310,7 +310,7 @@ php artisan make:model Member --pivot
 </code></pre>
 <p><a name="default-attribute-values"></a></p>
 <h3 id="default-attribute-values">Default Attribute Values</h3>
-<p>By default, a newly instantiated model instance will not contain any attribute values. If you would like to define the default values for some of your model&#39;s attributes, you may define an <code>$attributes</code> property on your model:</p>
+<p>By default, a newly instantiated model instance will not contain any attribute values. If you would like to define the default values for some of your model&#39;s attributes, you may define an <code>$attributes</code> property on your model. Attribute values placed in the <code>$attributes</code> array should be in their raw, &quot;storable&quot; format as if they were just read from the database:</p>
 <pre><code><span class="hljs-meta">&lt;?php</span>
 
 <span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Models</span>;
@@ -325,6 +325,7 @@ php artisan make:model Member --pivot
      * <span class="hljs-doctag">@var</span> array
      */</span>
     <span class="hljs-keyword">protected</span> <span class="hljs-variable">$attributes</span> = [
+        <span class="hljs-string">&#x27;options&#x27;</span> =&gt; <span class="hljs-string">&#x27;[]&#x27;</span>,
         <span class="hljs-string">&#x27;delayed&#x27;</span> =&gt; <span class="hljs-literal">false</span>,
     ];
 }
@@ -1211,7 +1212,7 @@ php artisan make:model Member --pivot
 <blockquote>
 <p><strong>Note</strong><br>Want to broadcast your Eloquent events directly to your client-side application? Check out Laravel&#39;s <a href="/docs/%7B%7Bversion%7D%7D/broadcasting#model-broadcasting">model event broadcasting</a>.</p>
 </blockquote>
-<p>Eloquent models dispatch several events, allowing you to hook into the following moments in a model&#39;s lifecycle: <code>retrieved</code>, <code>creating</code>, <code>created</code>, <code>updating</code>, <code>updated</code>, <code>saving</code>, <code>saved</code>, <code>deleting</code>, <code>deleted</code>, <code>trashed</code>, <code>forceDeleted</code>, <code>restoring</code>, <code>restored</code>, and <code>replicating</code>.</p>
+<p>Eloquent models dispatch several events, allowing you to hook into the following moments in a model&#39;s lifecycle: <code>retrieved</code>, <code>creating</code>, <code>created</code>, <code>updating</code>, <code>updated</code>, <code>saving</code>, <code>saved</code>, <code>deleting</code>, <code>deleted</code>, <code>trashed</code>, <code>forceDeleting</code>, <code>forceDeleted</code>, <code>restoring</code>, <code>restored</code>, and <code>replicating</code>.</p>
 <p>The <code>retrieved</code> event will dispatch when an existing model is retrieved from the database. When a new model is saved for the first time, the <code>creating</code> and <code>created</code> events will dispatch. The <code>updating</code> / <code>updated</code> events will dispatch when an existing model is modified and the <code>save</code> method is called. The <code>saving</code> / <code>saved</code> events will dispatch when a model is created or updated - even if the model&#39;s attributes have not been changed. Event names ending with <code>-ing</code> are dispatched before any changes to the model are persisted, while events ending with <code>-ed</code> are dispatched after the changes to the model are persisted.</p>
 <p>To start listening to model events, define a <code>$dispatchesEvents</code> property on your Eloquent model. This property maps various points of the Eloquent model&#39;s lifecycle to your own <a href="/docs/%7B%7Bversion%7D%7D/events">event classes</a>. Each model event class should expect to receive an instance of the affected model via its constructor:</p>
 <pre><code><span class="hljs-meta">&lt;?php</span>
@@ -1280,7 +1281,7 @@ php artisan make:model Member --pivot
 <p>If you are listening for many events on a given model, you may use observers to group all of your listeners into a single class. Observer classes have method names which reflect the Eloquent events you wish to listen for. Each of these methods receives the affected model as their only argument. The <code>make:observer</code> Artisan command is the easiest way to create a new observer class:</p>
 <pre><code class="language-shell">php artisan make:observer UserObserver --model=User
 </code></pre>
-<p>This command will place the new observer in your <code>App/Observers</code> directory. If this directory does not exist, Artisan will create it for you. Your fresh observer will look like the following:</p>
+<p>This command will place the new observer in your <code>app/Observers</code> directory. If this directory does not exist, Artisan will create it for you. Your fresh observer will look like the following:</p>
 <pre><code><span class="hljs-meta">&lt;?php</span>
 
 <span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Observers</span>;
@@ -1427,6 +1428,6 @@ php artisan make:model Member --pivot
 </code></pre>
 <p>You may also &quot;update&quot;, &quot;delete&quot;, &quot;soft delete&quot;, &quot;restore&quot;, and &quot;replicate&quot; a given model without dispatching any events:</p>
 <pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">deleteQuietly</span>();
-
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">forceDeleteQuietly</span>();
 <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">restoreQuietly</span>();
 </code></pre>

@@ -60,6 +60,7 @@
 <a href="#method-array-set">Arr::set</a>
 <a href="#method-array-shuffle">Arr::shuffle</a>
 <a href="#method-array-sort">Arr::sort</a>
+<a href="#method-array-sort-desc">Arr::sortDesc</a>
 <a href="#method-array-sort-recursive">Arr::sortRecursive</a>
 <a href="#method-array-to-css-classes">Arr::toCssClasses</a>
 <a href="#method-array-undot">Arr::undot</a>
@@ -114,6 +115,7 @@
 <a href="#method-str-is">Str::is</a>
 <a href="#method-str-is-ascii">Str::isAscii</a>
 <a href="#method-str-is-json">Str::isJson</a>
+<a href="#method-str-is-ulid">Str::isUlid</a>
 <a href="#method-str-is-uuid">Str::isUuid</a>
 <a href="#method-kebab-case">Str::kebab</a>
 <a href="#method-str-lcfirst">Str::lcfirst</a>
@@ -183,12 +185,14 @@
 <a href="#method-fluent-str-exactly">exactly</a>
 <a href="#method-fluent-str-explode">explode</a>
 <a href="#method-fluent-str-finish">finish</a>
+<a href="#method-fluent-str-headline">headline</a>
 <a href="#method-fluent-str-inline-markdown">inlineMarkdown</a>
 <a href="#method-fluent-str-is">is</a>
 <a href="#method-fluent-str-is-ascii">isAscii</a>
 <a href="#method-fluent-str-is-empty">isEmpty</a>
 <a href="#method-fluent-str-is-not-empty">isNotEmpty</a>
 <a href="#method-fluent-str-is-json">isJson</a>
+<a href="#method-fluent-str-is-ulid">isUlid</a>
 <a href="#method-fluent-str-is-uuid">isUuid</a>
 <a href="#method-fluent-str-kebab">kebab</a>
 <a href="#method-fluent-str-lcfirst">lcfirst</a>
@@ -244,6 +248,7 @@
 <a href="#method-fluent-str-when-not-exactly">whenNotExactly</a>
 <a href="#method-fluent-str-when-is">whenIs</a>
 <a href="#method-fluent-str-when-is-ascii">whenIsAscii</a>
+<a href="#method-fluent-str-when-is-ulid">whenIsUlid</a>
 <a href="#method-fluent-str-when-is-uuid">whenIsUuid</a>
 <a href="#method-fluent-str-when-test">whenTest</a>
 <a href="#method-fluent-str-word-count">wordCount</a>
@@ -301,6 +306,8 @@
 <a href="#method-policy">policy</a>
 <a href="#method-redirect">redirect</a>
 <a href="#method-report">report</a>
+<a href="#method-report-if">report_if</a>
+<a href="#method-report-unless">report_unless</a>
 <a href="#method-request">request</a>
 <a href="#method-rescue">rescue</a>
 <a href="#method-resolve">resolve</a>
@@ -812,6 +819,38 @@
         [&#x27;name&#x27; =&gt; &#x27;Chair&#x27;],
         [&#x27;name&#x27; =&gt; &#x27;Desk&#x27;],
         [&#x27;name&#x27; =&gt; &#x27;Table&#x27;],
+    ]
+*/</span>
+</code></pre>
+<p><a name="method-array-sort-desc"></a></p>
+<h4 id="arrsortdesc-collection-method"><code>Arr::sortDesc()</code> {.collection-method}</h4>
+<p>The <code>Arr::sortDesc</code> method sorts an array in descending order by its values:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Arr</span>;
+
+<span class="hljs-variable">$array</span> = [<span class="hljs-string">&#x27;Desk&#x27;</span>, <span class="hljs-string">&#x27;Table&#x27;</span>, <span class="hljs-string">&#x27;Chair&#x27;</span>];
+
+<span class="hljs-variable">$sorted</span> = <span class="hljs-title class_">Arr</span>::<span class="hljs-title function_ invoke__">sortDesc</span>(<span class="hljs-variable">$array</span>);
+
+<span class="hljs-comment">// [&#x27;Table&#x27;, &#x27;Desk&#x27;, &#x27;Chair&#x27;]</span>
+</code></pre>
+<p>You may also sort the array by the results of a given closure:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Arr</span>;
+
+<span class="hljs-variable">$array</span> = [
+    [<span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Desk&#x27;</span>],
+    [<span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Table&#x27;</span>],
+    [<span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Chair&#x27;</span>],
+];
+
+<span class="hljs-variable">$sorted</span> = <span class="hljs-title function_ invoke__">array_values</span>(<span class="hljs-title class_">Arr</span>::<span class="hljs-title function_ invoke__">sortDesc</span>(<span class="hljs-variable">$array</span>, function (<span class="hljs-variable">$value</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$value</span>[<span class="hljs-string">&#x27;name&#x27;</span>];
+}));
+
+<span class="hljs-comment">/*
+    [
+        [&#x27;name&#x27; =&gt; &#x27;Table&#x27;],
+        [&#x27;name&#x27; =&gt; &#x27;Desk&#x27;],
+        [&#x27;name&#x27; =&gt; &#x27;Chair&#x27;],
     ]
 */</span>
 </code></pre>
@@ -1328,6 +1367,19 @@
 <span class="hljs-comment">// true</span>
 
 <span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">isJson</span>(<span class="hljs-string">&#x27;{first: &quot;John&quot;, last: &quot;Doe&quot;}&#x27;</span>);
+
+<span class="hljs-comment">// false</span>
+</code></pre>
+<p><a name="method-str-is-ulid"></a></p>
+<h4 id="strisulid-collection-method"><code>Str::isUlid()</code> {.collection-method}</h4>
+<p>The <code>Str::isUlid</code> method determines if the given string is a valid ULID:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$isUlid</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">isUlid</span>(<span class="hljs-string">&#x27;01gd6r360bp37zj17nxb55yv40&#x27;</span>);
+
+<span class="hljs-comment">// true</span>
+
+<span class="hljs-variable">$isUlid</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">isUlid</span>(<span class="hljs-string">&#x27;laravel&#x27;</span>);
 
 <span class="hljs-comment">// false</span>
 </code></pre>
@@ -2030,6 +2082,19 @@
 
 <span class="hljs-comment">// this/string/</span>
 </code></pre>
+<p><a name="method-fluent-str-headline"></a></p>
+<h4 id="headline-collection-method"><code>headline</code> {.collection-method}</h4>
+<p>The <code>headline</code> method will convert strings delimited by casing, hyphens, or underscores into a space delimited string with each word&#39;s first letter capitalized:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$headline</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;taylor_otwell&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">headline</span>();
+
+<span class="hljs-comment">// Taylor Otwell</span>
+
+<span class="hljs-variable">$headline</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;EmailNotificationSent&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">headline</span>();
+
+<span class="hljs-comment">// Email Notification Sent</span>
+</code></pre>
 <p><a name="method-fluent-str-inline-markdown"></a></p>
 <h4 id="inlinemarkdown-collection-method"><code>inlineMarkdown</code> {.collection-method}</h4>
 <p>The <code>inlineMarkdown</code> method converts GitHub flavored Markdown into inline HTML using <a href="https://commonmark.thephpleague.com/">CommonMark</a>. However, unlike the <code>markdown</code> method, it does not wrap all generated HTML in a block-level element:</p>
@@ -2105,6 +2170,19 @@
 <span class="hljs-comment">// true</span>
 
 <span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;{first: &quot;John&quot;, last: &quot;Doe&quot;}&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">isJson</span>();
+
+<span class="hljs-comment">// false</span>
+</code></pre>
+<p><a name="method-fluent-str-is-ulid"></a></p>
+<h4 id="isulid-collection-method"><code>isUlid</code> {.collection-method}</h4>
+<p>The <code>isUlid</code> method determines if a given string is a ULID:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;01gd6r360bp37zj17nxb55yv40&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">isUlid</span>();
+
+<span class="hljs-comment">// true</span>
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Taylor&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">isUlid</span>();
 
 <span class="hljs-comment">// false</span>
 </code></pre>
@@ -2210,10 +2288,14 @@
 
 <span class="hljs-comment">// tay***************</span>
 </code></pre>
-<p>If needed, you provide a negative number as the third argument to the <code>mask</code> method, which will instruct the method to begin masking at the given distance from the end of the string:</p>
+<p>If needed, you may provide negative numbers as the third or fourth argument to the <code>mask</code> method, which will instruct the method to begin masking at the given distance from the end of the string:</p>
 <pre><code><span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;taylor@example.com&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">mask</span>(<span class="hljs-string">&#x27;*&#x27;</span>, -<span class="hljs-number">15</span>, <span class="hljs-number">3</span>);
 
 <span class="hljs-comment">// tay***@example.com</span>
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;taylor@example.com&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">mask</span>(<span class="hljs-string">&#x27;*&#x27;</span>, <span class="hljs-number">4</span>, -<span class="hljs-number">4</span>);
+
+<span class="hljs-comment">// tayl**********.com</span>
 </code></pre>
 <p><a name="method-fluent-str-match"></a></p>
 <h4 id="match-collection-method"><code>match</code> {.collection-method}</h4>
@@ -2752,18 +2834,29 @@
 <p>The <code>whenIsAscii</code> method invokes the given closure if the string is 7 bit ASCII. The closure will receive the fluent string instance:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
 
-<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;foo/bar&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">whenIsAscii</span>(<span class="hljs-string">&#x27;laravel&#x27;</span>, function (<span class="hljs-variable">$string</span>) {
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;laravel&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">whenIsAscii</span>(function (<span class="hljs-variable">$string</span>) {
     <span class="hljs-keyword">return</span> <span class="hljs-variable">$string</span>-&gt;<span class="hljs-title function_ invoke__">title</span>();
 });
 
 <span class="hljs-comment">// &#x27;Laravel&#x27;</span>
+</code></pre>
+<p><a name="method-fluent-str-when-is-ulid"></a></p>
+<h4 id="whenisulid-collection-method"><code>whenIsUlid</code> {.collection-method}</h4>
+<p>The <code>whenIsUlid</code> method invokes the given closure if the string is a valid ULID. The closure will receive the fluent string instance:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;01gd6r360bp37zj17nxb55yv40&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">whenIsUlid</span>(function (<span class="hljs-variable">$string</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$string</span>-&gt;<span class="hljs-title function_ invoke__">substr</span>(<span class="hljs-number">0</span>, <span class="hljs-number">8</span>);
+});
+
+<span class="hljs-comment">// &#x27;01gd6r36&#x27;</span>
 </code></pre>
 <p><a name="method-fluent-str-when-is-uuid"></a></p>
 <h4 id="whenisuuid-collection-method"><code>whenIsUuid</code> {.collection-method}</h4>
 <p>The <code>whenIsUuid</code> method invokes the given closure if the string is a valid UUID. The closure will receive the fluent string instance:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
 
-<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;foo/bar&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">whenIsUuid</span>(<span class="hljs-string">&#x27;a0a2a2d2-0b87-4a18-83f2-2529882be2de&#x27;</span>, function (<span class="hljs-variable">$string</span>) {
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;a0a2a2d2-0b87-4a18-83f2-2529882be2de&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">whenIsUuid</span>(function (<span class="hljs-variable">$string</span>) {
     <span class="hljs-keyword">return</span> <span class="hljs-variable">$string</span>-&gt;<span class="hljs-title function_ invoke__">substr</span>(<span class="hljs-number">0</span>, <span class="hljs-number">8</span>);
 });
 
@@ -3142,6 +3235,20 @@
 <p>The <code>report</code> function also accepts a string as an argument. When a string is given to the function, the function will create an exception with the given string as its message:</p>
 <pre><code><span class="hljs-title function_ invoke__">report</span>(<span class="hljs-string">&#x27;Something went wrong.&#x27;</span>);
 </code></pre>
+<p><a name="method-report-if"></a></p>
+<h4 id="report_if-collection-method"><code>report_if()</code> {.collection-method}</h4>
+<p>The <code>report_if</code> function will report an exception using your <a href="/docs/%7B%7Bversion%7D%7D/errors#the-exception-handler">exception handler</a> if the given condition is <code>true</code>:</p>
+<pre><code><span class="hljs-title function_ invoke__">report_if</span>(<span class="hljs-variable">$shouldReport</span>, <span class="hljs-variable">$e</span>);
+
+<span class="hljs-title function_ invoke__">report_if</span>(<span class="hljs-variable">$shouldReport</span>, <span class="hljs-string">&#x27;Something went wrong.&#x27;</span>);
+</code></pre>
+<p><a name="method-report-unless"></a></p>
+<h4 id="report_unless-collection-method"><code>report_unless()</code> {.collection-method}</h4>
+<p>The <code>report_unless</code> function will report an exception using your <a href="/docs/%7B%7Bversion%7D%7D/errors#the-exception-handler">exception handler</a> if the given condition is <code>false</code>:</p>
+<pre><code><span class="hljs-title function_ invoke__">report_unless</span>(<span class="hljs-variable">$reportingDisabled</span>, <span class="hljs-variable">$e</span>);
+
+<span class="hljs-title function_ invoke__">report_unless</span>(<span class="hljs-variable">$reportingDisabled</span>, <span class="hljs-string">&#x27;Something went wrong.&#x27;</span>);
+</code></pre>
 <p><a name="method-request"></a></p>
 <h4 id="request-collection-method"><code>request()</code> {.collection-method}</h4>
 <p>The <code>request</code> function returns the current <a href="/docs/%7B%7Bversion%7D%7D/requests">request</a> instance or obtains an input field&#39;s value from the current request:</p>
@@ -3303,6 +3410,13 @@
 });
 
 <span class="hljs-comment">// false</span>
+</code></pre>
+<p>Additional arguments may be passed to the <code>value</code> function. If the first argument is a closure then the additional parameters will be passed to the closure as arguments, otherwise they will be ignored:</p>
+<pre><code><span class="hljs-variable">$result</span> = <span class="hljs-title function_ invoke__">value</span>(function (<span class="hljs-variable">$name</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$parameter</span>;
+}, <span class="hljs-string">&#x27;Taylor&#x27;</span>);
+
+<span class="hljs-comment">// &#x27;Taylor&#x27;</span>
 </code></pre>
 <p><a name="method-view"></a></p>
 <h4 id="view-collection-method"><code>view()</code> {.collection-method}</h4>

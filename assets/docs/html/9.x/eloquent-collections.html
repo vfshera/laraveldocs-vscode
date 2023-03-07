@@ -66,6 +66,8 @@
 <a href="#method-makeVisible">makeVisible</a>
 <a href="#method-makeHidden">makeHidden</a>
 <a href="#method-only">only</a>
+<a href="#method-setVisible">setVisible</a>
+<a href="#method-setHidden">setHidden</a>
 <a href="#method-toquery">toQuery</a>
 <a href="#method-unique">unique</a></p>
 </div>
@@ -156,6 +158,16 @@
 <h4 id="onlykeys-collection-method"><code>only($keys)</code> {.collection-method}</h4>
 <p>The <code>only</code> method returns all of the models that have the given primary keys:</p>
 <pre><code><span class="hljs-variable">$users</span> = <span class="hljs-variable">$users</span>-&gt;<span class="hljs-title function_ invoke__">only</span>([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>]);
+</code></pre>
+<p><a name="method-setVisible"></a></p>
+<h4 id="setvisibleattributes-collection-method"><code>setVisible($attributes)</code> {.collection-method}</h4>
+<p>The <code>setVisible</code> method <a href="/docs/%7B%7Bversion%7D%7D/eloquent-serialization#temporarily-modifying-attribute-visibility">temporarily overrides</a> all of the visible attributes on each model in the collection:</p>
+<pre><code><span class="hljs-variable">$users</span> = <span class="hljs-variable">$users</span>-&gt;<span class="hljs-title function_ invoke__">setVisible</span>([<span class="hljs-string">&#x27;id&#x27;</span>, <span class="hljs-string">&#x27;name&#x27;</span>]);
+</code></pre>
+<p><a name="method-setHidden"></a></p>
+<h4 id="sethiddenattributes-collection-method"><code>setHidden($attributes)</code> {.collection-method}</h4>
+<p>The <code>setHidden</code> method <a href="/docs/%7B%7Bversion%7D%7D/eloquent-serialization#temporarily-modifying-attribute-visibility">temporarily overrides</a> all of the hidden attributes on each model in the collection:</p>
+<pre><code><span class="hljs-variable">$users</span> = <span class="hljs-variable">$users</span>-&gt;<span class="hljs-title function_ invoke__">setHidden</span>([<span class="hljs-string">&#x27;email&#x27;</span>, <span class="hljs-string">&#x27;password&#x27;</span>, <span class="hljs-string">&#x27;remember_token&#x27;</span>]);
 </code></pre>
 <p><a name="method-toquery"></a></p>
 <h4 id="toquery-collection-method"><code>toQuery()</code> {.collection-method}</h4>
