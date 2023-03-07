@@ -20,7 +20,7 @@
 
 ## Features
 
-- [x] Support for Laravel [9.x](/assets/docs/9.x) and [8.x](/assets/docs/8.x) Docs
+- [x] Support for Laravel [9.x](/assets/docs/9.x) and [10.x](/assets/docs/10.x) Docs
 - [x] Highlighted Codeblocks
 - [ ] More soon...
 
