@@ -22,7 +22,7 @@
 <li><a href="#automatic-redirection">Automatic Redirection</a></li>
 <li><a href="#named-error-bags">Named Error Bags</a></li>
 <li><a href="#manual-customizing-the-error-messages">Customizing The Error Messages</a></li>
-<li><a href="#after-validation-hook">After Validation Hook</a></li>
+<li><a href="#performing-additional-validation">Performing Additional Validation</a></li>
 </ul>
 </li>
 <li><a href="#working-with-validated-input">Working With Validated Input</a></li>
@@ -179,7 +179,8 @@
 </code></pre>
 <p><a name="quick-customizing-the-error-messages"></a></p>
 <h4 id="customizing-the-error-messages">Customizing The Error Messages</h4>
-<p>Laravel&#39;s built-in validation rules each have an error message that is located in your application&#39;s <code>lang/en/validation.php</code> file. Within this file, you will find a translation entry for each validation rule. You are free to change or modify these messages based on the needs of your application.</p>
+<p>Laravel&#39;s built-in validation rules each have an error message that is located in your application&#39;s <code>lang/en/validation.php</code> file. If your application does not have a <code>lang</code> directory, you may instruct Laravel to create it using the <code>lang:publish</code> Artisan command.</p>
+<p>Within the <code>lang/en/validation.php</code> file, you will find a translation entry for each validation rule. You are free to change or modify these messages based on the needs of your application.</p>
 <p>In addition, you may copy this file to another language directory to translate the messages for your application&#39;s language. To learn more about Laravel localization, check out the complete <a href="/docs/%7B%7Bversion%7D%7D/localization">localization documentation</a>.</p>
 <blockquote>
 <p><strong>Warning</strong>
@@ -272,7 +273,8 @@ By default, the Laravel application skeleton does not include the <code>lang</co
 }
 </code></pre>
 <blockquote>
-<p><strong>Note</strong><br>You may type-hint any dependencies you require within the <code>rules</code> method&#39;s signature. They will automatically be resolved via the Laravel <a href="/docs/%7B%7Bversion%7D%7D/container">service container</a>.</p>
+<p><strong>Note</strong>
+You may type-hint any dependencies you require within the <code>rules</code> method&#39;s signature. They will automatically be resolved via the Laravel <a href="/docs/%7B%7Bversion%7D%7D/container">service container</a>.</p>
 </blockquote>
 <p>So, how are the validation rules evaluated? All you need to do is type-hint the request on your controller method. The incoming form request is validated before the controller method is called, meaning you do not need to clutter your controller with any validation logic:</p>
 <pre><code><span class="hljs-comment">/**
@@ -295,25 +297,54 @@ By default, the Laravel application skeleton does not include the <code>lang</co
 }
 </code></pre>
 <p>If validation fails, a redirect response will be generated to send the user back to their previous location. The errors will also be flashed to the session so they are available for display. If the request was an XHR request, an HTTP response with a 422 status code will be returned to the user including a <a href="#validation-error-response-format">JSON representation of the validation errors</a>.</p>
-<p><a name="adding-after-hooks-to-form-requests"></a></p>
-<h4 id="adding-after-hooks-to-form-requests">Adding After Hooks To Form Requests</h4>
-<p>If you would like to add an &quot;after&quot; validation hook to a form request, you may use the <code>withValidator</code> method. This method receives the fully constructed validator, allowing you to call any of its methods before the validation rules are actually evaluated:</p>
+<blockquote>
+<p><strong>Note</strong>
+Need to add real-time form request validation to your Inertia powered Laravel frontend? Check out <a href="/docs/%7B%7Bversion%7D%7D/precognition">Laravel Precognition</a>.</p>
+</blockquote>
+<p><a name="performing-additional-validation-on-form-requests"></a></p>
+<h4 id="performing-additional-validation">Performing Additional Validation</h4>
+<p>Sometimes you need to perform additional validation after your initial validation is complete. You can accomplish this using the form request&#39;s <code>after</code> method.</p>
+<p>The <code>after</code> method should return an array of callables or closures which will be invoked after validation is complete. The given callables will receive an <code>Illuminate\Validation\Validator</code> instance, allowing you to raise additional error messages if necessary:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Validation</span>\<span class="hljs-title">Validator</span>;
 
 <span class="hljs-comment">/**
- * Configure the validator instance.
+ * Get the &quot;after&quot; validation callables for the request.
  */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">withValidator</span>(<span class="hljs-params">Validator <span class="hljs-variable">$validator</span></span>): <span class="hljs-title">void</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">after</span>(<span class="hljs-params"></span>): <span class="hljs-title">array</span>
 </span>{
-    <span class="hljs-variable">$validator</span>-&gt;<span class="hljs-title function_ invoke__">after</span>(function (Validator <span class="hljs-variable">$validator</span>) {
-        <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">somethingElseIsInvalid</span>()) {
-            <span class="hljs-variable">$validator</span>-&gt;<span class="hljs-title function_ invoke__">errors</span>()-&gt;<span class="hljs-title function_ invoke__">add</span>(<span class="hljs-string">&#x27;field&#x27;</span>, <span class="hljs-string">&#x27;Something is wrong with this field!&#x27;</span>);
+    <span class="hljs-keyword">return</span> [
+        <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">Validator <span class="hljs-variable">$validator</span></span>) </span>{
+            <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">somethingElseIsInvalid</span>()) {
+                <span class="hljs-variable">$validator</span>-&gt;<span class="hljs-title function_ invoke__">errors</span>()-&gt;<span class="hljs-title function_ invoke__">add</span>(
+                    <span class="hljs-string">&#x27;field&#x27;</span>,
+                    <span class="hljs-string">&#x27;Something is wrong with this field!&#x27;</span>
+                );
+            }
         }
-    });
+    ];
+}
+</code></pre>
+<p>As noted, the array returned by the <code>after</code> method may also contain invokable classes. The <code>__invoke</code> method of these classes will receive an <code>Illuminate\Validation\Validator</code> instance:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Validation</span>\<span class="hljs-title">ValidateShippingTime</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Validation</span>\<span class="hljs-title">ValidateUserStatus</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Validation</span>\<span class="hljs-title">Validator</span>;
+
+<span class="hljs-comment">/**
+ * Get the &quot;after&quot; validation callables for the request.
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">after</span>(<span class="hljs-params"></span>): <span class="hljs-title">array</span>
+</span>{
+    <span class="hljs-keyword">return</span> [
+        <span class="hljs-keyword">new</span> <span class="hljs-title class_">ValidateUserStatus</span>,
+        <span class="hljs-keyword">new</span> <span class="hljs-title class_">ValidateShippingTime</span>,
+        <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">Validator <span class="hljs-variable">$validator</span></span>) </span>{
+            <span class="hljs-comment">//</span>
+        }
+    ];
 }
 </code></pre>
 <p><a name="request-stopping-on-first-validation-rule-failure"></a></p>
-<h4 id="stopping-on-first-validation-failure-attribute">Stopping On First Validation Failure Attribute</h4>
+<h4 id="stopping-on-the-first-validation-failure">Stopping On The First Validation Failure</h4>
 <p>By adding a <code>stopOnFirstFailure</code> property to your request class, you may inform the validator that it should stop validating all attributes once a single validation failure has occurred:</p>
 <pre><code><span class="hljs-comment">/**
  * Indicates if the validator should stop on the first rule failure.
@@ -372,7 +403,8 @@ By default, the Laravel application skeleton does not include the <code>lang</co
 }
 </code></pre>
 <blockquote>
-<p><strong>Note</strong><br>You may type-hint any dependencies you need within the <code>authorize</code> method&#39;s signature. They will automatically be resolved via the Laravel <a href="/docs/%7B%7Bversion%7D%7D/container">service container</a>.</p>
+<p><strong>Note</strong>
+You may type-hint any dependencies you need within the <code>authorize</code> method&#39;s signature. They will automatically be resolved via the Laravel <a href="/docs/%7B%7Bversion%7D%7D/container">service container</a>.</p>
 </blockquote>
 <p><a name="customizing-the-error-messages"></a></p>
 <h3 id="customizing-the-error-messages-1">Customizing The Error Messages</h3>
@@ -421,9 +453,7 @@ By default, the Laravel application skeleton does not include the <code>lang</co
 }
 </code></pre>
 <p>Likewise, if you need to normalize any request data after validation is complete, you may use the <code>passedValidation</code> method:</p>
-<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
-
-<span class="hljs-comment">/**
+<pre><code><span class="hljs-comment">/**
  * Handle a passed validation attempt.
  */</span>
 <span class="hljs-keyword">protected</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">passedValidation</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
@@ -533,15 +563,14 @@ By default, the Laravel application skeleton does not include the <code>lang</co
     <span class="hljs-string">&#x27;email&#x27;</span> =&gt; <span class="hljs-string">&#x27;email address&#x27;</span>,
 ]);
 </code></pre>
-<p><a name="after-validation-hook"></a></p>
-<h3 id="after-validation-hook">After Validation Hook</h3>
-<p>You may also attach callbacks to be run after validation is completed. This allows you to easily perform further validation and even add more error messages to the message collection. To get started, call the <code>after</code> method on a validator instance:</p>
-<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>;
-<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Validation</span>\<span class="hljs-title">Validator</span>;
+<p><a name="performing-additional-validation"></a></p>
+<h3 id="performing-additional-validation-1">Performing Additional Validation</h3>
+<p>Sometimes you need to perform additional validation after your initial validation is complete. You can accomplish this using the validator&#39;s <code>after</code> method. The <code>after</code> method accepts a closure or an array of callables which will be invoked after validation is complete. The given callables will receive an <code>Illuminate\Validation\Validator</code> instance, allowing you to raise additional error messages if necessary:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Validator</span>;
 
-<span class="hljs-variable">$validator</span> = <span class="hljs-title class_">Facades\Validator</span>::<span class="hljs-title function_ invoke__">make</span>(<span class="hljs-comment">/* ... */</span>);
+<span class="hljs-variable">$validator</span> = <span class="hljs-title class_">Validator</span>::<span class="hljs-title function_ invoke__">make</span>(<span class="hljs-comment">/* ... */</span>);
 
-<span class="hljs-variable">$validator</span>-&gt;<span class="hljs-title function_ invoke__">after</span>(function (Validator <span class="hljs-variable">$validator</span>) {
+<span class="hljs-variable">$validator</span>-&gt;<span class="hljs-title function_ invoke__">after</span>(function (<span class="hljs-variable">$validator</span>) {
     <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">somethingElseIsInvalid</span>()) {
         <span class="hljs-variable">$validator</span>-&gt;<span class="hljs-title function_ invoke__">errors</span>()-&gt;<span class="hljs-title function_ invoke__">add</span>(
             <span class="hljs-string">&#x27;field&#x27;</span>, <span class="hljs-string">&#x27;Something is wrong with this field!&#x27;</span>
@@ -552,6 +581,18 @@ By default, the Laravel application skeleton does not include the <code>lang</co
 <span class="hljs-keyword">if</span> (<span class="hljs-variable">$validator</span>-&gt;<span class="hljs-title function_ invoke__">fails</span>()) {
     <span class="hljs-comment">// ...</span>
 }
+</code></pre>
+<p>As noted, the <code>after</code> method also accepts an array of callables, which is particularly convenient if your &quot;after validation&quot; logic is encapsulated in invokable classes, which will receive an <code>Illuminate\Validation\Validator</code> instance via their <code>__invoke</code> method:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Validation</span>\<span class="hljs-title">ValidateShippingTime</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Validation</span>\<span class="hljs-title">ValidateUserStatus</span>;
+
+<span class="hljs-variable">$validator</span>-&gt;<span class="hljs-title function_ invoke__">after</span>([
+    <span class="hljs-keyword">new</span> <span class="hljs-title class_">ValidateUserStatus</span>,
+    <span class="hljs-keyword">new</span> <span class="hljs-title class_">ValidateShippingTime</span>,
+    function (<span class="hljs-variable">$validator</span>) {
+        <span class="hljs-comment">// ...</span>
+    },
+]);
 </code></pre>
 <p><a name="working-with-validated-input"></a></p>
 <h2 id="working-with-validated-input">Working With Validated Input</h2>
@@ -622,7 +663,8 @@ By default, the Laravel application skeleton does not include the <code>lang</co
 </code></pre>
 <p><a name="specifying-custom-messages-in-language-files"></a></p>
 <h3 id="specifying-custom-messages-in-language-files">Specifying Custom Messages In Language Files</h3>
-<p>Laravel&#39;s built-in validation rules each have an error message that is located in your application&#39;s <code>lang/en/validation.php</code> file. Within this file, you will find a translation entry for each validation rule. You are free to change or modify these messages based on the needs of your application.</p>
+<p>Laravel&#39;s built-in validation rules each have an error message that is located in your application&#39;s <code>lang/en/validation.php</code> file. If your application does not have a <code>lang</code> directory, you may instruct Laravel to create it using the <code>lang:publish</code> Artisan command.</p>
+<p>Within the <code>lang/en/validation.php</code> file, you will find a translation entry for each validation rule. You are free to change or modify these messages based on the needs of your application.</p>
 <p>In addition, you may copy this file to another language directory to translate the messages for your application&#39;s language. To learn more about Laravel localization, check out the complete <a href="/docs/%7B%7Bversion%7D%7D/localization">localization documentation</a>.</p>
 <blockquote>
 <p><strong>Warning</strong>
@@ -1343,7 +1385,14 @@ By default, the Laravel application skeleton does not include the <code>lang</co
 <p>The field under validation must be a string. If you would like to allow the field to also be <code>null</code>, you should assign the <code>nullable</code> rule to the field.</p>
 <p><a name="rule-timezone"></a></p>
 <h4 id="timezone">timezone</h4>
-<p>The field under validation must be a valid timezone identifier according to the <code>timezone_identifiers_list</code> PHP function.</p>
+<p>The field under validation must be a valid timezone identifier according to the <code>DateTimeZone::listIdentifiers</code> method.</p>
+<p>The arguments <a href="https://www.php.net/manual/en/datetimezone.listidentifiers.php">accepted by the <code>DateTimeZone::listIdentifiers</code> method</a> may also be provided to this validation rule:</p>
+<pre><code><span class="hljs-string">&#x27;timezone&#x27;</span> =&gt; <span class="hljs-string">&#x27;required|timezone:all&#x27;</span>;
+
+<span class="hljs-string">&#x27;timezone&#x27;</span> =&gt; <span class="hljs-string">&#x27;required|timezone:Africa&#x27;</span>;
+
+<span class="hljs-string">&#x27;timezone&#x27;</span> =&gt; <span class="hljs-string">&#x27;required|timezone:per_country,US&#x27;</span>;
+</code></pre>
 <p><a name="rule-unique"></a></p>
 <h4 id="uniquetablecolumn">unique:<em>table</em>,<em>column</em></h4>
 <p>The field under validation must not exist within the given database table.</p>
@@ -1361,8 +1410,7 @@ By default, the Laravel application skeleton does not include the <code>lang</co
 <p><strong>Forcing A Unique Rule To Ignore A Given ID:</strong></p>
 <p>Sometimes, you may wish to ignore a given ID during unique validation. For example, consider an &quot;update profile&quot; screen that includes the user&#39;s name, email address, and location. You will probably want to verify that the email address is unique. However, if the user only changes the name field and not the email field, you do not want a validation error to be thrown because the user is already the owner of the email address in question.</p>
 <p>To instruct the validator to ignore the user&#39;s ID, we&#39;ll use the <code>Rule</code> class to fluently define the rule. In this example, we&#39;ll also specify the validation rules as an array instead of using the <code>|</code> character to delimit the rules:</p>
-<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Builder</span>;
-<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Validator</span>;
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Validator</span>;
 <span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Validation</span>\<span class="hljs-title">Rule</span>;
 
 <span class="hljs-title class_">Validator</span>::<span class="hljs-title function_ invoke__">make</span>(<span class="hljs-variable">$data</span>, [
@@ -1579,6 +1627,7 @@ By default, the Laravel application skeleton does not include the <code>lang</co
 </code></pre>
 <p>If your application accepts images uploaded by your users, you may use the <code>File</code> rule&#39;s <code>image</code> constructor method to indicate that the uploaded file should be an image. In addition, the <code>dimensions</code> rule may be used to limit the dimensions of the image:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Validator</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Validation</span>\<span class="hljs-title">Rule</span>;
 <span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Validation</span>\<span class="hljs-title">Rules</span>\<span class="hljs-title">File</span>;
 
 <span class="hljs-title class_">Validator</span>::<span class="hljs-title function_ invoke__">validate</span>(<span class="hljs-variable">$input</span>, [
@@ -1785,6 +1834,7 @@ By default, the Laravel application skeleton does not include the <code>lang</co
 <h3 id="using-closures">Using Closures</h3>
 <p>If you only need the functionality of a custom rule once throughout your application, you may use a closure instead of a rule object. The closure receives the attribute&#39;s name, the attribute&#39;s value, and a <code>$fail</code> callback that should be called if validation fails:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Validator</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Closure</span>;
 
 <span class="hljs-variable">$validator</span> = <span class="hljs-title class_">Validator</span>::<span class="hljs-title function_ invoke__">make</span>(<span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">all</span>(), [
     <span class="hljs-string">&#x27;title&#x27;</span> =&gt; [

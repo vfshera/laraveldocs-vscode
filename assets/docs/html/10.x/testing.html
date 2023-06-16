@@ -75,8 +75,10 @@ php artisan make:test UserTest --unit --pest
 </code></pre>
 <p><a name="running-tests-in-parallel"></a></p>
 <h3 id="running-tests-in-parallel">Running Tests In Parallel</h3>
-<p>By default, Laravel and PHPUnit execute your tests sequentially within a single process. However, you may greatly reduce the amount of time it takes to run your tests by running tests simultaneously across multiple processes. To get started, ensure your application depends on version <code>^5.3</code> or greater of the <code>nunomaduro/collision</code> package. Then, include the <code>--parallel</code> option when executing the <code>test</code> Artisan command:</p>
-<pre><code class="language-shell">php artisan test --parallel
+<p>By default, Laravel and PHPUnit execute your tests sequentially within a single process. However, you may greatly reduce the amount of time it takes to run your tests by running tests simultaneously across multiple processes. To get started, you should install the <code>brianium/paratest</code> Composer package as a &quot;dev&quot; dependency. Then, include the <code>--parallel</code> option when executing the <code>test</code> Artisan command:</p>
+<pre><code class="language-shell">composer require brianium/paratest --dev
+
+php artisan test --parallel
 </code></pre>
 <p>By default, Laravel will create as many processes as there are available CPU cores on your machine. However, you may adjust the number of processes using the <code>--processes</code> option:</p>
 <pre><code class="language-shell">php artisan test --parallel --processes=4

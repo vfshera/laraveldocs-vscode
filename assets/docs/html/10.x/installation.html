@@ -15,6 +15,7 @@
 <li><a href="#initial-configuration">Initial Configuration</a><ul>
 <li><a href="#environment-based-configuration">Environment Based Configuration</a></li>
 <li><a href="#databases-and-migrations">Databases &amp; Migrations</a></li>
+<li><a href="#directory-configuration">Directory Configuration</a></li>
 </ul>
 </li>
 <li><a href="#next-steps">Next Steps</a><ul>
@@ -164,6 +165,9 @@ DB_PASSWORD= <span class="hljs-comment"># [tl! remove]</span>
 <p>Once you have configured your SQLite database, you may run your application&#39;s <a href="/docs/%7B%7Bversion%7D%7D/migrations">database migrations</a>, which will create your application&#39;s database tables:</p>
 <pre><code class="language-shell">php artisan migrate
 </code></pre>
+<p><a name="directory-configuration"></a></p>
+<h3 id="directory-configuration">Directory Configuration</h3>
+<p>Laravel should always be served out of the root of the &quot;web directory&quot; configured for your web server. You should not attempt to serve a Laravel application out of a subdirectory of the &quot;web directory&quot;. Attempting to do so could expose sensitive files present within your application.</p>
 <p><a name="next-steps"></a></p>
 <h2 id="next-steps">Next Steps</h2>
 <p>Now that you have created your Laravel project, you may be wondering what to learn next. First, we strongly recommend becoming familiar with how Laravel works by reading the following documentation:</p>

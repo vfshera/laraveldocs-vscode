@@ -118,6 +118,8 @@
 <li>Go</li>
 <li>Grafana</li>
 <li>InfluxDB</li>
+<li>Logstash</li>
+<li>Mailpit <small>(Replaces Mailhog)</small></li>
 <li>MariaDB</li>
 <li>Meilisearch</li>
 <li>MinIO</li>
@@ -143,7 +145,7 @@
 <h3 id="first-steps">First Steps</h3>
 <p>Before launching your Homestead environment, you must install <a href="https://developer.hashicorp.com/vagrant/downloads">Vagrant</a> as well as one of the following supported providers:</p>
 <ul>
-<li><a href="https://www.virtualbox.org/wiki/Downloads">VirtualBox 6.1.x</a></li>
+<li><a href="https://www.virtualbox.org/wiki/Download_Old_Builds_6_1">VirtualBox 6.1.x</a></li>
 <li><a href="https://www.parallels.com/products/desktop/">Parallels</a></li>
 </ul>
 <p>All of these software packages provide easy-to-use visual installers for all popular operating systems.</p>
@@ -622,11 +624,4 @@ php82
 <p>By default, Homestead configures the <code>natdnshostresolver</code> setting to <code>on</code>. This allows Homestead to use your host operating system&#39;s DNS settings. If you would like to override this behavior, add the following configuration options to your <code>Homestead.yaml</code> file:</p>
 <pre><code class="language-yaml"><span class="hljs-attr">provider:</span> <span class="hljs-string">virtualbox</span>
 <span class="hljs-attr">natdnshostresolver:</span> <span class="hljs-string">&#x27;off&#x27;</span>
-</code></pre>
-<p><a name="symbolic-links-on-windows"></a></p>
-<h4 id="symbolic-links-on-windows">Symbolic Links On Windows</h4>
-<p>If symbolic links are not working properly on your Windows machine, you may need to add the following block to your <code>Vagrantfile</code>:</p>
-<pre><code class="language-ruby">config.vm.provider <span class="hljs-string">&quot;virtualbox&quot;</span> <span class="hljs-keyword">do</span> |<span class="hljs-params">v</span>|
-    v.customize [<span class="hljs-string">&quot;setextradata&quot;</span>, <span class="hljs-symbol">:id</span>, <span class="hljs-string">&quot;VBoxInternal2/SharedFoldersEnableSymlinksCreate/v-root&quot;</span>, <span class="hljs-string">&quot;1&quot;</span>]
-<span class="hljs-keyword">end</span>
 </code></pre>

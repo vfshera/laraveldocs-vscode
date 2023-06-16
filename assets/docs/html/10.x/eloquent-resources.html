@@ -173,7 +173,7 @@ php artisan make:resource UserCollection
 <blockquote>
 <p><strong>Note</strong><br>If you have not read the <a href="#concept-overview">concept overview</a>, you are highly encouraged to do so before proceeding with this documentation.</p>
 </blockquote>
-<p>In essence, resources are simple. They only need to transform a given model into an array. So, each resource contains a <code>toArray</code> method which translates your model&#39;s attributes into an API friendly array that can be returned from your application&#39;s routes or controllers:</p>
+<p>Resources only need to transform a given model into an array. So, each resource contains a <code>toArray</code> method which translates your model&#39;s attributes into an API friendly array that can be returned from your application&#39;s routes or controllers:</p>
 <pre><code><span class="hljs-meta">&lt;?php</span>
 
 <span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Http</span>\<span class="hljs-title class_">Resources</span>;
@@ -382,8 +382,8 @@ php artisan make:resource UserCollection
         <span class="hljs-punctuation">}</span>
     <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
     <span class="hljs-attr">&quot;links&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-punctuation">{</span>
-        <span class="hljs-attr">&quot;first&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;http://example.com/pagination?page=1&quot;</span><span class="hljs-punctuation">,</span>
-        <span class="hljs-attr">&quot;last&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;http://example.com/pagination?page=1&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;first&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;http://example.com/users?page=1&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;last&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;http://example.com/users?page=1&quot;</span><span class="hljs-punctuation">,</span>
         <span class="hljs-attr">&quot;prev&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">null</span></span><span class="hljs-punctuation">,</span>
         <span class="hljs-attr">&quot;next&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">null</span></span>
     <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
@@ -391,7 +391,7 @@ php artisan make:resource UserCollection
         <span class="hljs-attr">&quot;current_page&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1</span><span class="hljs-punctuation">,</span>
         <span class="hljs-attr">&quot;from&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1</span><span class="hljs-punctuation">,</span>
         <span class="hljs-attr">&quot;last_page&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1</span><span class="hljs-punctuation">,</span>
-        <span class="hljs-attr">&quot;path&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;http://example.com/pagination&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;path&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;http://example.com/users&quot;</span><span class="hljs-punctuation">,</span>
         <span class="hljs-attr">&quot;per_page&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">15</span><span class="hljs-punctuation">,</span>
         <span class="hljs-attr">&quot;to&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">10</span><span class="hljs-punctuation">,</span>
         <span class="hljs-attr">&quot;total&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">10</span>
@@ -423,8 +423,8 @@ php artisan make:resource UserCollection
         <span class="hljs-punctuation">}</span>
     <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
     <span class="hljs-attr">&quot;links&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-punctuation">{</span>
-        <span class="hljs-attr">&quot;first&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;http://example.com/pagination?page=1&quot;</span><span class="hljs-punctuation">,</span>
-        <span class="hljs-attr">&quot;last&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;http://example.com/pagination?page=1&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;first&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;http://example.com/users?page=1&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;last&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;http://example.com/users?page=1&quot;</span><span class="hljs-punctuation">,</span>
         <span class="hljs-attr">&quot;prev&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">null</span></span><span class="hljs-punctuation">,</span>
         <span class="hljs-attr">&quot;next&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">null</span></span>
     <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
@@ -432,12 +432,30 @@ php artisan make:resource UserCollection
         <span class="hljs-attr">&quot;current_page&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1</span><span class="hljs-punctuation">,</span>
         <span class="hljs-attr">&quot;from&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1</span><span class="hljs-punctuation">,</span>
         <span class="hljs-attr">&quot;last_page&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1</span><span class="hljs-punctuation">,</span>
-        <span class="hljs-attr">&quot;path&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;http://example.com/pagination&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;path&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;http://example.com/users&quot;</span><span class="hljs-punctuation">,</span>
         <span class="hljs-attr">&quot;per_page&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">15</span><span class="hljs-punctuation">,</span>
         <span class="hljs-attr">&quot;to&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">10</span><span class="hljs-punctuation">,</span>
         <span class="hljs-attr">&quot;total&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">10</span>
     <span class="hljs-punctuation">}</span>
 <span class="hljs-punctuation">}</span>
+</code></pre>
+<p><a name="customizing-the-pagination-information"></a></p>
+<h4 id="customizing-the-pagination-information">Customizing The Pagination Information</h4>
+<p>If you would like to customize the information included in the <code>links</code> or <code>meta</code> keys of the pagination response, you may define a <code>paginationInformation</code> method on the resource. This method will receive the <code>$paginated</code> data and the array of <code>$default</code> information, which is an array containing the <code>links</code> and <code>meta</code> keys:</p>
+<pre><code><span class="hljs-comment">/**
+ * Customize the pagination information for the resource.
+ *
+ * <span class="hljs-doctag">@param</span>  \Illuminate\Http\Request  $request
+ * <span class="hljs-doctag">@param</span>  array $paginated
+ * <span class="hljs-doctag">@param</span>  array $default
+ * <span class="hljs-doctag">@return</span> array
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">paginationInformation</span>(<span class="hljs-params"><span class="hljs-variable">$request</span>, <span class="hljs-variable">$paginated</span>, <span class="hljs-variable">$default</span></span>)
+</span>{
+    <span class="hljs-variable">$default</span>[<span class="hljs-string">&#x27;links&#x27;</span>][<span class="hljs-string">&#x27;custom&#x27;</span>] = <span class="hljs-string">&#x27;https://example.com&#x27;</span>;
+
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$default</span>;
+}
 </code></pre>
 <p><a name="conditional-attributes"></a></p>
 <h3 id="conditional-attributes">Conditional Attributes</h3>

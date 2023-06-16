@@ -351,6 +351,29 @@ public function largestOrder(): HasOne
 > **Warning**  
 > Because PostgreSQL does not support executing the `MAX` function against UUID columns, it is not currently possible to use one-of-many relationships in combination with PostgreSQL UUID columns.
 
+<a name="converting-many-relationships-to-has-one-relationships"></a>
+#### Converting "Many" Relationships To Has One Relationships
+
+Often, when retrieving a single model using the `latestOfMany`, `oldestOfMany`, or `ofMany` methods, you already have a "has many" relationship defined for the same model. For convenience, Laravel allows you to easily convert this relationship into a "has one" relationship by invoking the `one` method on the relationship:
+
+```php
+/**
+ * Get the user's orders.
+ */
+public function orders(): HasMany
+{
+    return $this->hasMany(Order::class);
+}
+
+/**
+ * Get the user's largest order.
+ */
+public function largestOrder(): HasOne
+{
+    return $this->orders()->one()->ofMany('price', 'max');
+}
+```
+
 <a name="advanced-has-one-of-many-relationships"></a>
 #### Advanced Has One Of Many Relationships
 
@@ -1231,7 +1254,7 @@ As demonstrated in the example above, you are free to add additional constraints
             ->orWhere('votes', '>=', 100)
             ->get();
 
-The example above will generate the following SQL. As you can see, the `or` clause instructs the query to return _any_ user with greater than 100 votes. The query is no longer constrained to a specific user:
+The example above will generate the following SQL. As you can see, the `or` clause instructs the query to return _any_ post with greater than 100 votes. The query is no longer constrained to a specific user:
 
 ```sql
 select *
@@ -1704,6 +1727,7 @@ If you would like to override all items within the `$with` property for a single
 Sometimes you may wish to eager load a relationship but also specify additional query conditions for the eager loading query. You can accomplish this by passing an array of relationships to the `with` method where the array key is a relationship name and the array value is a closure that adds additional constraints to the eager loading query:
 
     use App\Models\User;
+    use Illuminate\Contracts\Database\Eloquent\Builder;
 
     $users = User::with(['posts' => function (Builder $query) {
         $query->where('title', 'like', '%code%');

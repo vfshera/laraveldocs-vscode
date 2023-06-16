@@ -46,7 +46,7 @@
 <li><a href="#sms-notifications">SMS Notifications</a><ul>
 <li><a href="#sms-prerequisites">Prerequisites</a></li>
 <li><a href="#formatting-sms-notifications">Formatting SMS Notifications</a></li>
-<li><a href="#formatting-shortcode-notifications">Formatting Shortcode Notifications</a></li>
+<li><a href="#unicode-content">Unicode Content</a></li>
 <li><a href="#customizing-the-from-number">Customizing The &quot;From&quot; Number</a></li>
 <li><a href="#adding-a-client-reference">Adding A Client Reference</a></li>
 <li><a href="#routing-sms-notifications">Routing SMS Notifications</a></li>
@@ -675,6 +675,9 @@ This is the panel content.
 
 php artisan migrate
 </code></pre>
+<blockquote>
+<p><strong>Note</strong><br>If your notifiable models are using <a href="/docs/%7B%7Bversion%7D%7D/eloquent#uuid-and-ulid-keys">UUID or ULID primary keys</a>, you should replace the <code>morphs</code> method with <a href="docs/%7B%7Bversion%7D%7D/migrations#column-method-uuidMorphs"><code>uuidMorphs</code></a> or <a href="/docs/%7B%7Bversion%7D%7D/migrations#column-method-ulidMorphs"><code>ulidMorphs</code></a> in the notification table migration.</p>
+</blockquote>
 <p><a name="formatting-database-notifications"></a></p>
 <h3 id="formatting-database-notifications">Formatting Database Notifications</h3>
 <p>If a notification supports being stored in a database table, you should define a <code>toDatabase</code> or <code>toArray</code> method on the notification class. This method will receive a <code>$notifiable</code> entity and should return a plain PHP array. The returned array will be encoded as JSON and stored in the <code>data</code> column of your <code>notifications</code> table. Let&#39;s take a look at an example <code>toArray</code> method:</p>

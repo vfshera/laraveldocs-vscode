@@ -112,6 +112,11 @@
     <span class="hljs-comment">// ...</span>
 });
 </code></pre>
+<p>You may use the <code>bindIf</code> method to register a container binding only if a binding has not already been registered for the given type:</p>
+<pre><code class="language-php"><span class="hljs-variable language_">$this</span>-&gt;app-&gt;<span class="hljs-title function_ invoke__">bindIf</span>(<span class="hljs-title class_">Transistor</span>::<span class="hljs-variable language_">class</span>, function (Application <span class="hljs-variable">$app</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Transistor</span>(<span class="hljs-variable">$app</span>-&gt;<span class="hljs-title function_ invoke__">make</span>(<span class="hljs-title class_">PodcastParser</span>::<span class="hljs-variable language_">class</span>));
+});
+</code></pre>
 <blockquote>
 <p><strong>Note</strong><br>There is no need to bind classes into the container if they do not depend on any interfaces. The container does not need to be instructed on how to build these objects, since it can automatically resolve these objects using reflection.</p>
 </blockquote>
@@ -123,6 +128,11 @@
 <span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Contracts</span>\<span class="hljs-title">Foundation</span>\<span class="hljs-title">Application</span>;
 
 <span class="hljs-variable language_">$this</span>-&gt;app-&gt;<span class="hljs-title function_ invoke__">singleton</span>(<span class="hljs-title class_">Transistor</span>::<span class="hljs-variable language_">class</span>, function (Application <span class="hljs-variable">$app</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Transistor</span>(<span class="hljs-variable">$app</span>-&gt;<span class="hljs-title function_ invoke__">make</span>(<span class="hljs-title class_">PodcastParser</span>::<span class="hljs-variable language_">class</span>));
+});
+</code></pre>
+<p>You may use the <code>singletonIf</code> method to register a singleton container binding only if a binding has not already been registered for the given type:</p>
+<pre><code class="language-php"><span class="hljs-variable language_">$this</span>-&gt;app-&gt;<span class="hljs-title function_ invoke__">singletonIf</span>(<span class="hljs-title class_">Transistor</span>::<span class="hljs-variable language_">class</span>, function (Application <span class="hljs-variable">$app</span>) {
     <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Transistor</span>(<span class="hljs-variable">$app</span>-&gt;<span class="hljs-title function_ invoke__">make</span>(<span class="hljs-title class_">PodcastParser</span>::<span class="hljs-variable language_">class</span>));
 });
 </code></pre>
@@ -294,10 +304,15 @@
 
 <span class="hljs-variable">$transistor</span> = <span class="hljs-variable language_">$this</span>-&gt;app-&gt;<span class="hljs-title function_ invoke__">make</span>(<span class="hljs-title class_">Transistor</span>::<span class="hljs-variable language_">class</span>);
 </code></pre>
-<p>If some of your class&#39; dependencies are not resolvable via the container, you may inject them by passing them as an associative array into the <code>makeWith</code> method. For example, we may manually pass the <code>$id</code> constructor argument required by the <code>Transistor</code> service:</p>
+<p>If some of your class&#39;s dependencies are not resolvable via the container, you may inject them by passing them as an associative array into the <code>makeWith</code> method. For example, we may manually pass the <code>$id</code> constructor argument required by the <code>Transistor</code> service:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Services</span>\<span class="hljs-title">Transistor</span>;
 
 <span class="hljs-variable">$transistor</span> = <span class="hljs-variable language_">$this</span>-&gt;app-&gt;<span class="hljs-title function_ invoke__">makeWith</span>(<span class="hljs-title class_">Transistor</span>::<span class="hljs-variable language_">class</span>, [<span class="hljs-string">&#x27;id&#x27;</span> =&gt; <span class="hljs-number">1</span>]);
+</code></pre>
+<p>The <code>bound</code> method may be used to determine if a class or interface has been explicitly bound in the container:</p>
+<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-variable language_">$this</span>-&gt;app-&gt;<span class="hljs-title function_ invoke__">bound</span>(<span class="hljs-title class_">Transistor</span>::<span class="hljs-variable language_">class</span>)) {
+    <span class="hljs-comment">// ...</span>
+}
 </code></pre>
 <p>If you are outside of a service provider in a location of your code that does not have access to the <code>$app</code> variable, you may use the <code>App</code> <a href="/docs/%7B%7Bversion%7D%7D/facades">facade</a> or the <code>app</code> <a href="/docs/%7B%7Bversion%7D%7D/helpers#method-app">helper</a> to resolve a class instance from the container:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Services</span>\<span class="hljs-title">Transistor</span>;
@@ -307,7 +322,7 @@
 
 <span class="hljs-variable">$transistor</span> = <span class="hljs-title function_ invoke__">app</span>(<span class="hljs-title class_">Transistor</span>::<span class="hljs-variable language_">class</span>);
 </code></pre>
-<p>If you would like to have the Laravel container instance itself injected into a class that is being resolved by the container, you may type-hint the <code>Illuminate\Container\Container</code> class on your class&#39; constructor:</p>
+<p>If you would like to have the Laravel container instance itself injected into a class that is being resolved by the container, you may type-hint the <code>Illuminate\Container\Container</code> class on your class&#39;s constructor:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Container</span>\<span class="hljs-title">Container</span>;
 
 <span class="hljs-comment">/**

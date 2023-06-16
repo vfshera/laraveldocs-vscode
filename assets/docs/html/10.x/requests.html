@@ -204,7 +204,7 @@ composer require nyholm/psr7
 <p>Using the <code>collect</code> method, you may retrieve all of the incoming request&#39;s input data as a <a href="/docs/%7B%7Bversion%7D%7D/collections">collection</a>:</p>
 <pre><code><span class="hljs-variable">$input</span> = <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">collect</span>();
 </code></pre>
-<p>The <code>collect</code> method also allows you to retrieve a subset of the incoming request input as a collection:</p>
+<p>The <code>collect</code> method also allows you to retrieve a subset of the incoming request&#39;s input as a collection:</p>
 <pre><code><span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">collect</span>(<span class="hljs-string">&#x27;users&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">each</span>(function (<span class="hljs-keyword">string</span> <span class="hljs-variable">$user</span>) {
     <span class="hljs-comment">// ...</span>
 });

@@ -20,6 +20,7 @@
 <li><a href="#ports">Ports</a></li>
 <li><a href="#php-versions">PHP Versions</a></li>
 <li><a href="#connecting-to-databases">Connecting To Databases</a></li>
+<li><a href="#creating-databases">Creating Databases</a></li>
 <li><a href="#database-backups">Database Backups</a></li>
 <li><a href="#configuring-cron-schedules">Configuring Cron Schedules</a></li>
 <li><a href="#configuring-mailhog">Configuring MailHog</a></li>
@@ -64,7 +65,7 @@
 <ul>
 <li>Ubuntu 20.04</li>
 <li>Git</li>
-<li>PHP 8.2</li>
+<li>PHP 8.2 (Default)</li>
 <li>PHP 8.1</li>
 <li>PHP 8.0</li>
 <li>PHP 7.4</li>
@@ -80,7 +81,7 @@
 <li>PostgreSQL 15</li>
 <li>Composer</li>
 <li>Docker</li>
-<li>Node (With Yarn, Bower, Grunt, and Gulp)</li>
+<li>Node 18 (With Yarn, Bower, Grunt, and Gulp)</li>
 <li>Redis</li>
 <li>Memcached</li>
 <li>Beanstalkd</li>
@@ -114,9 +115,11 @@
 <li>Crystal &amp; Lucky Framework</li>
 <li>Elasticsearch</li>
 <li>EventStoreDB</li>
+<li>Flyway</li>
 <li>Gearman</li>
 <li>Go</li>
 <li>Grafana</li>
+<li>Heroku CLI</li>
 <li>InfluxDB</li>
 <li>MariaDB</li>
 <li>Meilisearch</li>
@@ -126,7 +129,7 @@
 <li>Oh My Zsh</li>
 <li>Open Resty</li>
 <li>PM2</li>
-<li>Python</li>
+<li>Python 3</li>
 <li>R</li>
 <li>RabbitMQ</li>
 <li>RVM (Ruby Version Manager)</li>
@@ -278,9 +281,11 @@ vendor\\bin\\homestead make
         <span class="hljs-attr">version:</span> <span class="hljs-number">7.9</span><span class="hljs-number">.0</span>
     <span class="hljs-bullet">-</span> <span class="hljs-attr">eventstore:</span> <span class="hljs-literal">true</span>
         <span class="hljs-attr">version:</span> <span class="hljs-number">21.2</span><span class="hljs-number">.0</span>
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">flyway:</span> <span class="hljs-literal">true</span>
     <span class="hljs-bullet">-</span> <span class="hljs-attr">gearman:</span> <span class="hljs-literal">true</span>
     <span class="hljs-bullet">-</span> <span class="hljs-attr">golang:</span> <span class="hljs-literal">true</span>
     <span class="hljs-bullet">-</span> <span class="hljs-attr">grafana:</span> <span class="hljs-literal">true</span>
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">heroku:</span> <span class="hljs-literal">true</span>
     <span class="hljs-bullet">-</span> <span class="hljs-attr">influxdb:</span> <span class="hljs-literal">true</span>
     <span class="hljs-bullet">-</span> <span class="hljs-attr">mariadb:</span> <span class="hljs-literal">true</span>
     <span class="hljs-bullet">-</span> <span class="hljs-attr">meilisearch:</span> <span class="hljs-literal">true</span>
@@ -308,7 +313,10 @@ vendor\\bin\\homestead make
 </blockquote>
 <p><a name="mariadb"></a></p>
 <h4 id="mariadb">MariaDB</h4>
-<p>Enabling MariaDB will remove MySQL and install MariaDB. MariaDB typically serves as a drop-in replacement for MySQL, so you should still use the <code>mysql</code> database driver in your application&#39;s database configuration.</p>
+<p>Enabling MariaDB will remove MySQL and install MariaDB. MariaDB typically serves as a drop-in replacement for MySQL, so you should still use the <code>mysql</code> database driver in your application&#39;s database configuration:</p>
+<pre><code class="language-yaml"><span class="hljs-attr">features:</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-attr">mariadb:</span> <span class="hljs-literal">true</span>
+</code></pre>
 <p><a name="mongodb"></a></p>
 <h4 id="mongodb">MongoDB</h4>
 <p>The default MongoDB installation will set the database username to <code>homestead</code> and the corresponding password to <code>secret</code>.</p>
@@ -441,7 +449,7 @@ init.bat
 <pre><code class="language-yaml"><span class="hljs-attr">sites:</span>
     <span class="hljs-bullet">-</span> <span class="hljs-attr">map:</span> <span class="hljs-string">homestead.test</span>
       <span class="hljs-attr">to:</span> <span class="hljs-string">/home/vagrant/project1/public</span>
-      <span class="hljs-attr">php:</span> <span class="hljs-string">&quot;7.1&quot;</span>
+      <span class="hljs-attr">php:</span> <span class="hljs-string">&quot;7.4&quot;</span>
 </code></pre>
 <p><a href="#connecting-via-ssh">Within your Homestead virtual machine</a>, you may use any of the supported PHP versions via the CLI:</p>
 <pre><code class="language-shell">php5.6 artisan list
@@ -454,7 +462,10 @@ php8.0 artisan list
 php8.1 artisan list
 php8.2 artisan list
 </code></pre>
-<p>You may change the default version of PHP used by the CLI by issuing the following commands from within your Homestead virtual machine:</p>
+<p>You may also specify the version of PHP that should be used by the CLI in your <code>Homestead.yaml</code> file:</p>
+<pre><code class="language-yaml"><span class="hljs-attr">php:</span> <span class="hljs-number">8.0</span>
+</code></pre>
+<p>Or, you may change it manually by issuing the following commands from within your Homestead virtual machine:</p>
 <pre><code class="language-shell">php56
 php70
 php71
@@ -471,6 +482,13 @@ php82
 <blockquote>
 <p><strong>Warning</strong><br>You should only use these non-standard ports when connecting to the databases from your host machine. You will use the default 3306 and 5432 ports in your Laravel application&#39;s <code>database</code> configuration file since Laravel is running <em>within</em> the virtual machine.</p>
 </blockquote>
+<p><a name="creating-databases"></a></p>
+<h3 id="creating-databases">Creating Databases</h3>
+<p>Homestead can automatically create any databases needed by your application. If a database service is running during the provisioning process, Homestead will ensure each database in your <code>Homestead.yaml</code> configuration file is created if it doesn&#39;t already exist:</p>
+<pre><code class="language-yaml"><span class="hljs-attr">databases:</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-string">database_1</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-string">database_2</span>
+</code></pre>
 <p><a name="database-backups"></a></p>
 <h3 id="database-backups">Database Backups</h3>
 <p>Homestead can automatically backup your database when your Homestead virtual machine is destroyed. To utilize this feature, you must be using Vagrant 2.1.0 or greater. Or, if you are using an older version of Vagrant, you must install the <code>vagrant-triggers</code> plug-in. To enable automatic database backups, add the following line to your <code>Homestead.yaml</code> file:</p>
@@ -553,7 +571,8 @@ php82
 <p><a name="debugging-web-requests"></a></p>
 <h3 id="debugging-web-requests-with-xdebug">Debugging Web Requests With Xdebug</h3>
 <p>Homestead includes support for step debugging using <a href="https://xdebug.org">Xdebug</a>. For example, you can access a page in your browser and PHP will connect to your IDE to allow inspection and modification of the running code.</p>
-<p>By default, Xdebug is already running and ready to accept connections. If you need to enable Xdebug on the CLI, execute the <code>sudo phpenmod xdebug</code> command within your Homestead virtual machine. Next, follow your IDE&#39;s instructions to enable debugging. Finally, configure your browser to trigger Xdebug with an extension or <a href="https://www.jetbrains.com/phpstorm/marklets/">bookmarklet</a>.</p>
+<p>By default, Xdebug is already running and ready to accept connections. If you need to enable or disable Xdebug on the CLI, execute the <code>sudo phpenmod xdebug</code> or <code>sudo phpdismod xdebug</code> commands within your Homestead virtual machine.</p>
+<p>Next, follow your IDE&#39;s instructions to enable debugging. Finally, configure your browser to trigger Xdebug with an extension or <a href="https://www.jetbrains.com/phpstorm/marklets/">bookmarklet</a>.</p>
 <blockquote>
 <p><strong>Warning</strong><br>Xdebug causes PHP to run significantly slower. To disable Xdebug, run <code>sudo phpdismod xdebug</code> within your Homestead virtual machine and restart the FPM service.</p>
 </blockquote>

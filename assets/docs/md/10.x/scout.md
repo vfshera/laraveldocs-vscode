@@ -26,7 +26,6 @@
     - [Soft Deleting](#soft-deleting)
     - [Customizing Engine Searches](#customizing-engine-searches)
 - [Custom Engines](#custom-engines)
-- [Builder Macros](#builder-macros)
 
 <a name="introduction"></a>
 ## Introduction
@@ -301,7 +300,7 @@ Scout also allows you to auto identify users when using [Algolia](https://algoli
 SCOUT_IDENTIFY=true
 ```
 
-Enabling this feature this will also pass the request's IP address and your authenticated user's primary identifier to Algolia so this data is associated with any search request that is made by the user.
+Enabling this feature will also pass the request's IP address and your authenticated user's primary identifier to Algolia so this data is associated with any search request that is made by the user.
 
 <a name="database-and-collection-engines"></a>
 ## Database / Collection Engines
@@ -405,6 +404,9 @@ If you would like to modify the query that is used to retrieve all of your model
         return $query->with('author');
     }
 
+> **Warning**  
+> The `makeAllSearchableUsing` method may not be applicable when using a queue to batch import models. Relationships are [not restored](/docs/{{version}}/queues#handling-relationships) when model collections are processed by jobs.
+
 <a name="adding-records"></a>
 ### Adding Records
 
@@ -462,6 +464,21 @@ If you would like to update the search index records for all of the models in a 
 Or, if you already have a collection of Eloquent models in memory, you may call the `searchable` method on the collection instance to update the model instances in their corresponding index:
 
     $orders->searchable();
+
+<a name="modifying-records-before-importing"></a>
+#### Modifying Records Before Importing
+
+Sometimes you may need to prepare the collection of models before they are made searchable. For instance, you may want to eager load a relationship so that the relationship data can be efficiently added to your search index. To accomplish this, define a `makeSearchableUsing` method on the corresponding model:
+
+    use Illuminate\Database\Eloquent\Collection;
+
+    /**
+     * Modify the collection of models being made searchable.
+     */
+    public function makeSearchableUsing(Collection $models): Collection
+    {
+        return $models->load('author');
+    }
 
 <a name="removing-records"></a>
 ### Removing Records
@@ -701,30 +718,3 @@ Once you have written your custom engine, you may register it with Scout using t
 Once your engine has been registered, you may specify it as your default Scout `driver` in your application's `config/scout.php` configuration file:
 
     'driver' => 'mysql',
-
-<a name="builder-macros"></a>
-## Builder Macros
-
-If you would like to define a custom Scout search builder method, you may use the `macro` method on the `Laravel\Scout\Builder` class. Typically, "macros" should be defined within a [service provider's](/docs/{{version}}/providers) `boot` method:
-
-    use Illuminate\Support\Facades\Response;
-    use Illuminate\Support\ServiceProvider;
-    use Laravel\Scout\Builder;
-
-    /**
-     * Bootstrap any application services.
-     */
-    public function boot(): void
-    {
-        Builder::macro('count', function () {
-            return $this->engine()->getTotalCount(
-                $this->engine()->search($this)
-            );
-        });
-    }
-
-The `macro` function accepts a macro name as its first argument and a closure as its second argument. The macro's closure will be executed when calling the macro name from a `Laravel\Scout\Builder` implementation:
-
-    use App\Models\Order;
-
-    Order::search('Star Trek')->count();

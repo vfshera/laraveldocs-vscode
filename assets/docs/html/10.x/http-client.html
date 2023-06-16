@@ -147,6 +147,15 @@
 <p>For convenience, you may use the <code>acceptJson</code> method to quickly specify that your application expects the <code>application/json</code> content type in response to your request:</p>
 <pre><code><span class="hljs-variable">$response</span> = <span class="hljs-title class_">Http</span>::<span class="hljs-title function_ invoke__">acceptJson</span>()-&gt;<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;http://example.com/users&#x27;</span>);
 </code></pre>
+<p>The <code>withHeaders</code> method merges new headers into the request&#39;s existing headers. If needed, you may replace all of the headers entirely using the <code>replaceHeaders</code> method:</p>
+<pre><code class="language-php"><span class="hljs-variable">$response</span> = <span class="hljs-title class_">Http</span>::<span class="hljs-title function_ invoke__">withHeaders</span>([
+    <span class="hljs-string">&#x27;X-Original&#x27;</span> =&gt; <span class="hljs-string">&#x27;foo&#x27;</span>,
+])-&gt;<span class="hljs-title function_ invoke__">replaceHeaders</span>([
+    <span class="hljs-string">&#x27;X-Replacement&#x27;</span> =&gt; <span class="hljs-string">&#x27;bar&#x27;</span>,
+])-&gt;<span class="hljs-title function_ invoke__">post</span>(<span class="hljs-string">&#x27;http://example.com/users&#x27;</span>, [
+    <span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Taylor&#x27;</span>,
+]);
+</code></pre>
 <p><a name="authentication"></a></p>
 <h3 id="authentication">Authentication</h3>
 <p>You may specify basic and digest authentication credentials using the <code>withBasicAuth</code> and <code>withDigestAuth</code> methods, respectively:</p>
@@ -163,7 +172,7 @@
 </code></pre>
 <p><a name="timeout"></a></p>
 <h3 id="timeout">Timeout</h3>
-<p>The <code>timeout</code> method may be used to specify the maximum number of seconds to wait for a response:</p>
+<p>The <code>timeout</code> method may be used to specify the maximum number of seconds to wait for a response. By default, the HTTP client will timeout after 30 seconds:</p>
 <pre><code><span class="hljs-variable">$response</span> = <span class="hljs-title class_">Http</span>::<span class="hljs-title function_ invoke__">timeout</span>(<span class="hljs-number">3</span>)-&gt;<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-comment">/* ... */</span>);
 </code></pre>
 <p>If the given timeout is exceeded, an instance of <code>Illuminate\Http\Client\ConnectionException</code> will  be thrown.</p>
@@ -328,6 +337,22 @@
 ]);
 
 <span class="hljs-keyword">return</span> <span class="hljs-variable">$responses</span>[<span class="hljs-string">&#x27;first&#x27;</span>]-&gt;<span class="hljs-title function_ invoke__">ok</span>();
+</code></pre>
+<p><a name="customizing-concurrent-requests"></a></p>
+<h4 id="customizing-concurrent-requests">Customizing Concurrent Requests</h4>
+<p>The <code>pool</code> method cannot be chained with other HTTP client methods such as the <code>withHeaders</code> or <code>middleware</code> methods. If you want to apply custom headers or middleware to pooled requests, you should configure those options on each request in the pool:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Client</span>\<span class="hljs-title">Pool</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Http</span>;
+
+<span class="hljs-variable">$headers</span> = [
+    <span class="hljs-string">&#x27;X-Example&#x27;</span> =&gt; <span class="hljs-string">&#x27;example&#x27;</span>,
+];
+
+<span class="hljs-variable">$responses</span> = <span class="hljs-title class_">Http</span>::<span class="hljs-title function_ invoke__">pool</span>(fn (Pool <span class="hljs-variable">$pool</span>) =&gt; [
+    <span class="hljs-variable">$pool</span>-&gt;<span class="hljs-title function_ invoke__">withHeaders</span>(<span class="hljs-variable">$headers</span>)-&gt;<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;http://laravel.test/test&#x27;</span>),
+    <span class="hljs-variable">$pool</span>-&gt;<span class="hljs-title function_ invoke__">withHeaders</span>(<span class="hljs-variable">$headers</span>)-&gt;<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;http://laravel.test/test&#x27;</span>),
+    <span class="hljs-variable">$pool</span>-&gt;<span class="hljs-title function_ invoke__">withHeaders</span>(<span class="hljs-variable">$headers</span>)-&gt;<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;http://laravel.test/test&#x27;</span>),
+]);
 </code></pre>
 <p><a name="macros"></a></p>
 <h2 id="macros">Macros</h2>

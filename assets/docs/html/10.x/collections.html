@@ -106,6 +106,7 @@
 <a href="#method-diffassoc">diffAssoc</a>
 <a href="#method-diffkeys">diffKeys</a>
 <a href="#method-doesntcontain">doesntContain</a>
+<a href="#method-dot">dot</a>
 <a href="#method-dump">dump</a>
 <a href="#method-duplicates">duplicates</a>
 <a href="#method-duplicatesstrict">duplicatesStrict</a>
@@ -597,6 +598,17 @@
 <span class="hljs-comment">// true</span>
 </code></pre>
 <p>The <code>doesntContain</code> method uses &quot;loose&quot; comparisons when checking item values, meaning a string with an integer value will be considered equal to an integer of the same value.</p>
+<p><a name="method-dot"></a></p>
+<h4 id="dot-collection-method"><code>dot()</code> {.collection-method}</h4>
+<p>The <code>dot</code> method flattens a multi-dimensional collection into a single level collection that uses &quot;dot&quot; notation to indicate depth:</p>
+<pre><code><span class="hljs-variable">$collection</span> = <span class="hljs-title function_ invoke__">collect</span>([<span class="hljs-string">&#x27;products&#x27;</span> =&gt; [<span class="hljs-string">&#x27;desk&#x27;</span> =&gt; [<span class="hljs-string">&#x27;price&#x27;</span> =&gt; <span class="hljs-number">100</span>]]]);
+
+<span class="hljs-variable">$flattened</span> = <span class="hljs-variable">$collection</span>-&gt;<span class="hljs-title function_ invoke__">dot</span>();
+
+<span class="hljs-variable">$flattened</span>-&gt;<span class="hljs-title function_ invoke__">all</span>();
+
+<span class="hljs-comment">// [&#x27;products.desk.price&#x27; =&gt; 100]</span>
+</code></pre>
 <p><a name="method-dump"></a></p>
 <h4 id="dump-collection-method"><code>dump()</code> {.collection-method}</h4>
 <p>The <code>dump</code> method dumps the collection&#39;s items:</p>
@@ -1694,7 +1706,7 @@
 <p>The <code>reduce</code> method reduces the collection to a single value, passing the result of each iteration into the subsequent iteration:</p>
 <pre><code><span class="hljs-variable">$collection</span> = <span class="hljs-title function_ invoke__">collect</span>([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>]);
 
-<span class="hljs-variable">$total</span> = <span class="hljs-variable">$collection</span>-&gt;<span class="hljs-title function_ invoke__">reduce</span>(function (<span class="hljs-keyword">int</span> <span class="hljs-variable">$carry</span>, <span class="hljs-keyword">int</span> <span class="hljs-variable">$item</span>) {
+<span class="hljs-variable">$total</span> = <span class="hljs-variable">$collection</span>-&gt;<span class="hljs-title function_ invoke__">reduce</span>(function (?<span class="hljs-keyword">int</span> <span class="hljs-variable">$carry</span>, <span class="hljs-keyword">int</span> <span class="hljs-variable">$item</span>) {
     <span class="hljs-keyword">return</span> <span class="hljs-variable">$carry</span> + <span class="hljs-variable">$item</span>;
 });
 

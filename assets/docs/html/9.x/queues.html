@@ -900,7 +900,7 @@ The <code>WithoutOverlapping</code> middleware requires a cache driver that supp
 <p>One approach to specifying the maximum number of times a job may be attempted is via the <code>--tries</code> switch on the Artisan command line. This will apply to all jobs processed by the worker unless the job being processed specifies the number of times it may be attempted:</p>
 <pre><code class="language-shell">php artisan queue:work --tries=3
 </code></pre>
-<p>If a job exceeds its maximum number of attempts, it will be considered a &quot;failed&quot; job. For more information on handling failed jobs, consult the <a href="#dealing-with-failed-jobs">failed job documentation</a>. If <code>--tries=0</code> is provided to the <code>queue:work</code> command, the job will retried indefinitely.</p>
+<p>If a job exceeds its maximum number of attempts, it will be considered a &quot;failed&quot; job. For more information on handling failed jobs, consult the <a href="#dealing-with-failed-jobs">failed job documentation</a>. If <code>--tries=0</code> is provided to the <code>queue:work</code> command, the job will be retried indefinitely.</p>
 <p>You may take a more granular approach by defining the maximum number of times a job may be attempted on the job class itself. If the maximum number of attempts is specified on the job, it will take precedence over the <code>--tries</code> value provided on the command line:</p>
 <pre><code><span class="hljs-meta">&lt;?php</span>
 

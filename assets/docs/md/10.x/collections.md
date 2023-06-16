@@ -114,6 +114,7 @@ For the majority of the remaining collection documentation, we'll discuss each m
 [diffAssoc](#method-diffassoc)
 [diffKeys](#method-diffkeys)
 [doesntContain](#method-doesntcontain)
+[dot](#method-dot)
 [dump](#method-dump)
 [duplicates](#method-duplicates)
 [duplicatesStrict](#method-duplicatesstrict)
@@ -660,6 +661,19 @@ You may also pass a key / value pair to the `doesntContain` method, which will d
     // true
 
 The `doesntContain` method uses "loose" comparisons when checking item values, meaning a string with an integer value will be considered equal to an integer of the same value.
+
+<a name="method-dot"></a>
+#### `dot()` {.collection-method}
+
+The `dot` method flattens a multi-dimensional collection into a single level collection that uses "dot" notation to indicate depth:
+
+    $collection = collect(['products' => ['desk' => ['price' => 100]]]);
+
+    $flattened = $collection->dot();
+
+    $flattened->all();
+
+    // ['products.desk.price' => 100]
 
 <a name="method-dump"></a>
 #### `dump()` {.collection-method}
@@ -1914,7 +1928,7 @@ The `reduce` method reduces the collection to a single value, passing the result
 
     $collection = collect([1, 2, 3]);
 
-    $total = $collection->reduce(function (int $carry, int $item) {
+    $total = $collection->reduce(function (?int $carry, int $item) {
         return $carry + $item;
     });
 

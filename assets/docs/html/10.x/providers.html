@@ -126,13 +126,13 @@
 </code></pre>
 <p><a name="registering-providers"></a></p>
 <h2 id="registering-providers">Registering Providers</h2>
-<p>All service providers are registered in the <code>config/app.php</code> configuration file. This file contains a <code>providers</code> array where you can list the class names of your service providers. By default, a set of Laravel core service providers are listed in this array. These providers bootstrap the core Laravel components, such as the mailer, queue, cache, and others.</p>
+<p>All service providers are registered in the <code>config/app.php</code> configuration file. This file contains a <code>providers</code> array where you can list the class names of your service providers. By default, a set of Laravel core service providers are registered in this array. The default providers bootstrap the core Laravel components, such as the mailer, queue, cache, and others.</p>
 <p>To register your provider, add it to the array:</p>
-<pre><code><span class="hljs-string">&#x27;providers&#x27;</span> =&gt; [
-    <span class="hljs-comment">// Other Service Providers</span>
+<pre><code><span class="hljs-string">&#x27;providers&#x27;</span> =&gt; <span class="hljs-title class_">ServiceProvider</span>::<span class="hljs-title function_ invoke__">defaultProviders</span>()-&gt;<span class="hljs-title function_ invoke__">merge</span>([
+    // Other Service Providers
 
     <span class="hljs-title class_">App\Providers\ComposerServiceProvider</span>::<span class="hljs-variable language_">class</span>,
-],
+])-&gt;<span class="hljs-title function_ invoke__">toArray</span>(),
 </code></pre>
 <p><a name="deferred-providers"></a></p>
 <h2 id="deferred-providers">Deferred Providers</h2>

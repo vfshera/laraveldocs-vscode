@@ -40,7 +40,7 @@
 <span class="hljs-comment">/**
  * The event listener mappings for the application.
  *
- * <span class="hljs-doctag">@var</span> array
+ * <span class="hljs-doctag">@var</span> array&lt;class-string, array&lt;int, class-string&gt;&gt;
  */</span>
 <span class="hljs-keyword">protected</span> <span class="hljs-variable">$listen</span> = [
     <span class="hljs-title class_">OrderShipped</span>::<span class="hljs-variable language_">class</span> =&gt; [
@@ -473,7 +473,7 @@ php artisan make:listener SendPodcastNotification --event=PodcastProcessed
 <span class="hljs-title class_">OrderShipped</span>::<span class="hljs-title function_ invoke__">dispatchUnless</span>(<span class="hljs-variable">$condition</span>, <span class="hljs-variable">$order</span>);
 </code></pre>
 <blockquote>
-<p><strong>Note</strong><br>When testing, it can be helpful to assert that certain events were dispatched without actually triggering their listeners. Laravel&#39;s <a href="#testing">built-in testing helpers</a> makes it a cinch.</p>
+<p><strong>Note</strong><br>When testing, it can be helpful to assert that certain events were dispatched without actually triggering their listeners. Laravel&#39;s <a href="#testing">built-in testing helpers</a> make it a cinch.</p>
 </blockquote>
 <p><a name="event-subscribers"></a></p>
 <h2 id="event-subscribers">Event Subscribers</h2>

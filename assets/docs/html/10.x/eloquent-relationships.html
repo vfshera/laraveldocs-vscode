@@ -319,6 +319,25 @@
 <blockquote>
 <p><strong>Warning</strong><br>Because PostgreSQL does not support executing the <code>MAX</code> function against UUID columns, it is not currently possible to use one-of-many relationships in combination with PostgreSQL UUID columns.</p>
 </blockquote>
+<p><a name="converting-many-relationships-to-has-one-relationships"></a></p>
+<h4 id="converting-many-relationships-to-has-one-relationships">Converting &quot;Many&quot; Relationships To Has One Relationships</h4>
+<p>Often, when retrieving a single model using the <code>latestOfMany</code>, <code>oldestOfMany</code>, or <code>ofMany</code> methods, you already have a &quot;has many&quot; relationship defined for the same model. For convenience, Laravel allows you to easily convert this relationship into a &quot;has one&quot; relationship by invoking the <code>one</code> method on the relationship:</p>
+<pre><code class="language-php"><span class="hljs-comment">/**
+ * Get the user&#x27;s orders.
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">orders</span>(<span class="hljs-params"></span>): <span class="hljs-title">HasMany</span>
+</span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">hasMany</span>(<span class="hljs-title class_">Order</span>::<span class="hljs-variable language_">class</span>);
+}
+
+<span class="hljs-comment">/**
+ * Get the user&#x27;s largest order.
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">largestOrder</span>(<span class="hljs-params"></span>): <span class="hljs-title">HasOne</span>
+</span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">orders</span>()-&gt;<span class="hljs-title function_ invoke__">one</span>()-&gt;<span class="hljs-title function_ invoke__">ofMany</span>(<span class="hljs-string">&#x27;price&#x27;</span>, <span class="hljs-string">&#x27;max&#x27;</span>);
+}
+</code></pre>
 <p><a name="advanced-has-one-of-many-relationships"></a></p>
 <h4 id="advanced-has-one-of-many-relationships">Advanced Has One Of Many Relationships</h4>
 <p>It is possible to construct more advanced &quot;has one of many&quot; relationships. For example, a <code>Product</code> model may have many associated <code>Price</code> models that are retained in the system even after new pricing is published. In addition, new pricing data for the product may be able to be published in advance to take effect at a future date via a <code>published_at</code> column.</p>
@@ -1074,7 +1093,7 @@ taggables
         -&gt;<span class="hljs-title function_ invoke__">orWhere</span>(<span class="hljs-string">&#x27;votes&#x27;</span>, <span class="hljs-string">&#x27;&gt;=&#x27;</span>, <span class="hljs-number">100</span>)
         -&gt;<span class="hljs-title function_ invoke__">get</span>();
 </code></pre>
-<p>The example above will generate the following SQL. As you can see, the <code>or</code> clause instructs the query to return <em>any</em> user with greater than 100 votes. The query is no longer constrained to a specific user:</p>
+<p>The example above will generate the following SQL. As you can see, the <code>or</code> clause instructs the query to return <em>any</em> post with greater than 100 votes. The query is no longer constrained to a specific user:</p>
 <pre><code class="language-sql"><span class="hljs-keyword">select</span> <span class="hljs-operator">*</span>
 <span class="hljs-keyword">from</span> posts
 <span class="hljs-keyword">where</span> user_id <span class="hljs-operator">=</span> ? <span class="hljs-keyword">and</span> active <span class="hljs-operator">=</span> <span class="hljs-number">1</span> <span class="hljs-keyword">or</span> votes <span class="hljs-operator">&gt;=</span> <span class="hljs-number">100</span>
@@ -1474,6 +1493,7 @@ taggables
 <h3 id="constraining-eager-loads">Constraining Eager Loads</h3>
 <p>Sometimes you may wish to eager load a relationship but also specify additional query conditions for the eager loading query. You can accomplish this by passing an array of relationships to the <code>with</code> method where the array key is a relationship name and the array value is a closure that adds additional constraints to the eager loading query:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Contracts</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Builder</span>;
 
 <span class="hljs-variable">$users</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">with</span>([<span class="hljs-string">&#x27;posts&#x27;</span> =&gt; function (Builder <span class="hljs-variable">$query</span>) {
     <span class="hljs-variable">$query</span>-&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;title&#x27;</span>, <span class="hljs-string">&#x27;like&#x27;</span>, <span class="hljs-string">&#x27;%code%&#x27;</span>);

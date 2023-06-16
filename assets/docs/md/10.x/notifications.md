@@ -36,7 +36,7 @@
 - [SMS Notifications](#sms-notifications)
     - [Prerequisites](#sms-prerequisites)
     - [Formatting SMS Notifications](#formatting-sms-notifications)
-    - [Formatting Shortcode Notifications](#formatting-shortcode-notifications)
+    - [Unicode Content](#unicode-content)
     - [Customizing The "From" Number](#customizing-the-from-number)
     - [Adding A Client Reference](#adding-a-client-reference)
     - [Routing SMS Notifications](#routing-sms-notifications)
@@ -781,6 +781,9 @@ php artisan notifications:table
 
 php artisan migrate
 ```
+
+> **Note**  
+> If your notifiable models are using [UUID or ULID primary keys](/docs/{{version}}/eloquent#uuid-and-ulid-keys), you should replace the `morphs` method with [`uuidMorphs`](docs/{{version}}/migrations#column-method-uuidMorphs) or [`ulidMorphs`](/docs/{{version}}/migrations#column-method-ulidMorphs) in the notification table migration.
 
 <a name="formatting-database-notifications"></a>
 ### Formatting Database Notifications

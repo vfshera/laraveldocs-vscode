@@ -56,7 +56,7 @@
 # </span><span class="language-bash">Dump the current database schema and prune all existing migrations...</span>
 php artisan schema:dump --prune
 </code></pre>
-<p>When you execute this command, Laravel will write a &quot;schema&quot; file to your application&#39;s <code>database/schema</code> directory. The schema file&#39;s name will correspond to the database connection. Now, when you attempt to migrate your database and no other migrations have been executed, Laravel will execute first the SQL statements of the schema file of the database connection you are using. After executing the schema file&#39;s statements, Laravel will execute any remaining migrations that were not part of the schema dump.</p>
+<p>When you execute this command, Laravel will write a &quot;schema&quot; file to your application&#39;s <code>database/schema</code> directory. The schema file&#39;s name will correspond to the database connection. Now, when you attempt to migrate your database and no other migrations have been executed, Laravel will first execute the SQL statements in the schema file of the database connection you are using. After executing the schema file&#39;s SQL statements, Laravel will execute any remaining migrations that were not part of the schema dump.</p>
 <p>If your application&#39;s tests use a different database connection than the one you typically use during local development, you should ensure you have dumped a schema file using that database connection so that your tests are able to build your database. You may wish to do this after dumping the database connection you typically use during local development:</p>
 <pre><code class="language-shell">php artisan schema:dump
 php artisan schema:dump --database=testing --prune
@@ -152,6 +152,9 @@ To utilize this feature, your application must be using the <code>memcached</cod
 </code></pre>
 <p>You may roll back a specific &quot;batch&quot; of migrations by providing the <code>batch</code> option to the <code>rollback</code> command, where the <code>batch</code> option corresponds to a batch value within your application&#39;s <code>migrations</code> database table. For example, the following command will roll back all migrations in batch three:</p>
 <pre><code class="language-shell">php artisan migrate:rollback --batch=3
+</code></pre>
+<p>If you would like to see the SQL statements that will be executed by the migrations without actually running them, you may provide the <code>--pretend</code> flag to the <code>migrate:rollback</code> command:</p>
+<pre><code class="language-shell">php artisan migrate:rollback --pretend
 </code></pre>
 <p>The <code>migrate:reset</code> command will roll back all of your application&#39;s migrations:</p>
 <pre><code class="language-shell">php artisan migrate:reset
@@ -483,6 +486,7 @@ php artisan migrate:fresh --seed
 <p>The <code>ipAddress</code> method creates a <code>VARCHAR</code> equivalent column:</p>
 <pre><code><span class="hljs-variable">$table</span>-&gt;<span class="hljs-title function_ invoke__">ipAddress</span>(<span class="hljs-string">&#x27;visitor&#x27;</span>);
 </code></pre>
+<p>When using Postgres, an <code>INET</code> column will be created.</p>
 <p><a name="column-method-json"></a></p>
 <h4 id="json-collection-method"><code>json()</code> {.collection-method}</h4>
 <p>The <code>json</code> method creates a <code>JSON</code> equivalent column:</p>
@@ -788,7 +792,7 @@ php artisan migrate:fresh --seed
 </tr>
 <tr>
 <td><code>-&gt;useCurrentOnUpdate()</code></td>
-<td>Set TIMESTAMP columns to use CURRENT_TIMESTAMP when a record is updated.</td>
+<td>Set TIMESTAMP columns to use CURRENT_TIMESTAMP when a record is updated (MySQL).</td>
 </tr>
 <tr>
 <td><code>-&gt;virtualAs($expression)</code></td>
@@ -1077,9 +1081,11 @@ php artisan migrate:fresh --seed
     <span class="hljs-variable">$table</span>-&gt;<span class="hljs-title function_ invoke__">foreignId</span>(<span class="hljs-string">&#x27;user_id&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">constrained</span>();
 });
 </code></pre>
-<p>The <code>foreignId</code> method creates an <code>UNSIGNED BIGINT</code> equivalent column, while the <code>constrained</code> method will use conventions to determine the table and column name being referenced. If your table name does not match Laravel&#39;s conventions, you may specify the table name by passing it as an argument to the <code>constrained</code> method:</p>
+<p>The <code>foreignId</code> method creates an <code>UNSIGNED BIGINT</code> equivalent column, while the <code>constrained</code> method will use conventions to determine the table and column being referenced. If your table name does not match Laravel&#39;s conventions, you may manually provide it to the <code>constrained</code> method. In addition, the name that should be assigned to the generated index may be specified as well:</p>
 <pre><code><span class="hljs-title class_">Schema</span>::<span class="hljs-title function_ invoke__">table</span>(<span class="hljs-string">&#x27;posts&#x27;</span>, function (Blueprint <span class="hljs-variable">$table</span>) {
-    <span class="hljs-variable">$table</span>-&gt;<span class="hljs-title function_ invoke__">foreignId</span>(<span class="hljs-string">&#x27;user_id&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">constrained</span>(<span class="hljs-string">&#x27;users&#x27;</span>);
+    <span class="hljs-variable">$table</span>-&gt;<span class="hljs-title function_ invoke__">foreignId</span>(<span class="hljs-string">&#x27;user_id&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">constrained</span>(
+        <span class="hljs-attr">table</span>: <span class="hljs-string">&#x27;users&#x27;</span>, <span class="hljs-attr">indexName</span>: <span class="hljs-string">&#x27;posts_user_id&#x27;</span>
+    );
 });
 </code></pre>
 <p>You may also specify the desired action for the &quot;on delete&quot; and &quot;on update&quot; properties of the constraint:</p>

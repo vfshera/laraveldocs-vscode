@@ -131,6 +131,13 @@
     <span class="hljs-string">&quot;select count(case when food = &#x27;burger&#x27; then 1 end) as burgers from menu&quot;</span>
 );
 </code></pre>
+<p><a name="selecting-multiple-result-sets"></a></p>
+<h4 id="selecting-multiple-result-sets">Selecting Multiple Result Sets</h4>
+<p>If your application calls stored procedures that return multiple result sets, you may use the <code>selectResultSets</code> method to retrieve all of the result sets returned by the stored procedure:</p>
+<pre><code>[<span class="hljs-variable">$options</span>, <span class="hljs-variable">$notifications</span>] = DB::<span class="hljs-title function_ invoke__">selectResultSets</span>(
+    <span class="hljs-string">&quot;CALL get_user_options_and_notifications(?)&quot;</span>, <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;id
+);
+</code></pre>
 <p><a name="using-named-bindings"></a></p>
 <h4 id="using-named-bindings">Using Named Bindings</h4>
 <p>Instead of using <code>?</code> to represent your parameter bindings, you may execute a query using named bindings:</p>

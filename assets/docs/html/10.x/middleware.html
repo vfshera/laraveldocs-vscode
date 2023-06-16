@@ -129,7 +129,7 @@
     <span class="hljs-string">&#x27;verified&#x27;</span> =&gt; <span class="hljs-title class_">\Illuminate\Auth\Middleware\EnsureEmailIsVerified</span>::<span class="hljs-variable language_">class</span>,
 ];
 </code></pre>
-<p>Once the middleware alias has been defined in the HTTP kernel, you may use the alias when assigning middlware to routes:</p>
+<p>Once the middleware alias has been defined in the HTTP kernel, you may use the alias when assigning middleware to routes:</p>
 <pre><code><span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/profile&#x27;</span>, function () {
     <span class="hljs-comment">// ...</span>
 })-&gt;<span class="hljs-title function_ invoke__">middleware</span>(<span class="hljs-string">&#x27;auth&#x27;</span>);

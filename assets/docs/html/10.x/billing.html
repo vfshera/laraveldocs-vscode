@@ -81,7 +81,10 @@
 <li><a href="#generating-invoice-pdfs">Generating Invoice PDFs</a></li>
 </ul>
 </li>
-<li><a href="#handling-failed-payments">Handling Failed Payments</a></li>
+<li><a href="#handling-failed-payments">Handling Failed Payments</a><ul>
+<li><a href="#confirming-payments">Confirming Payments</a></li>
+</ul>
+</li>
 <li><a href="#strong-customer-authentication">Strong Customer Authentication (SCA)</a><ul>
 <li><a href="#payments-requiring-additional-confirmation">Payments Requiring Additional Confirmation</a></li>
 <li><a href="#off-session-payment-notifications">Off-session Payment Notifications</a></li>
@@ -1208,8 +1211,9 @@ cardButton.<span class="hljs-title function_">addEventListener</span>(<span clas
 <li><code>customer.subscription.deleted</code></li>
 <li><code>customer.updated</code></li>
 <li><code>customer.deleted</code></li>
-<li><code>invoice.payment_succeeded</code></li>
+<li><code>payment_method.automatically_updated</code></li>
 <li><code>invoice.payment_action_required</code></li>
+<li><code>invoice.payment_succeeded</code></li>
 </ul>
 <p>For convenience, Cashier includes a <code>cashier:webhook</code> Artisan command. This command will create a webhook in Stripe that listens to all of the events required by Cashier:</p>
 <pre><code class="language-shell">php artisan cashier:webhook
@@ -1684,6 +1688,14 @@ cardButton.<span class="hljs-title function_">addEventListener</span>(<span clas
     }
 }
 </code></pre>
+<p><a name="confirming-payments"></a></p>
+<h3 id="confirming-payments">Confirming Payments</h3>
+<p>Some payment methods require additional data in order to confirm payments. For example, SEPA payment methods require additional &quot;mandate&quot; data during the payment process. You may provide this data to Cashier using the <code>withPaymentConfirmationOptions</code> method:</p>
+<pre><code><span class="hljs-variable">$subscription</span>-&gt;<span class="hljs-title function_ invoke__">withPaymentConfirmationOptions</span>([
+    <span class="hljs-string">&#x27;mandate_data&#x27;</span> =&gt; <span class="hljs-string">&#x27;...&#x27;</span>,
+])-&gt;<span class="hljs-title function_ invoke__">swap</span>(<span class="hljs-string">&#x27;price_xxx&#x27;</span>);
+</code></pre>
+<p>You may consult the <a href="https://stripe.com/docs/api/payment_intents/confirm">Stripe API documentation</a> to review all of the options accepted when confirming payments.</p>
 <p><a name="strong-customer-authentication"></a></p>
 <h2 id="strong-customer-authentication">Strong Customer Authentication</h2>
 <p>If your business or one of your customers is based in Europe you will need to abide by the EU&#39;s Strong Customer Authentication (SCA) regulations. These regulations were imposed in September 2019 by the European Union to prevent payment fraud. Luckily, Stripe and Cashier are prepared for building SCA compliant applications.</p>

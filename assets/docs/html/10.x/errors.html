@@ -26,8 +26,8 @@
 <h2 id="the-exception-handler">The Exception Handler</h2>
 <p><a name="reporting-exceptions"></a></p>
 <h3 id="reporting-exceptions">Reporting Exceptions</h3>
-<p>All exceptions are handled by the <code>App\Exceptions\Handler</code> class. This class contains a <code>register</code> method where you may register custom exception reporting and rendering callbacks. We&#39;ll examine each of these concepts in detail. Exception reporting is used to log exceptions or send them to an external service like <a href="https://flareapp.io">Flare</a>, <a href="https://bugsnag.com">Bugsnag</a> or <a href="https://github.com/getsentry/sentry-laravel">Sentry</a>. By default, exceptions will be logged based on your <a href="/docs/%7B%7Bversion%7D%7D/logging">logging</a> configuration. However, you are free to log exceptions however you wish.</p>
-<p>For example, if you need to report different types of exceptions in different ways, you may use the <code>reportable</code> method to register a closure that should be executed when an exception of a given type needs to be reported. Laravel will deduce what type of exception the closure reports by examining the type-hint of the closure:</p>
+<p>All exceptions are handled by the <code>App\Exceptions\Handler</code> class. This class contains a <code>register</code> method where you may register custom exception reporting and rendering callbacks. We&#39;ll examine each of these concepts in detail. Exception reporting is used to log exceptions or send them to an external service like <a href="https://flareapp.io">Flare</a>, <a href="https://bugsnag.com">Bugsnag</a>, or <a href="https://github.com/getsentry/sentry-laravel">Sentry</a>. By default, exceptions will be logged based on your <a href="/docs/%7B%7Bversion%7D%7D/logging">logging</a> configuration. However, you are free to log exceptions however you wish.</p>
+<p>If you need to report different types of exceptions in different ways, you may use the <code>reportable</code> method to register a closure that should be executed when an exception of a given type needs to be reported. Laravel will determine what type of exception the closure reports by examining the type-hint of the closure:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Exceptions</span>\<span class="hljs-title">InvalidOrderException</span>;
 
 <span class="hljs-comment">/**
@@ -54,7 +54,7 @@
 </blockquote>
 <p><a name="global-log-context"></a></p>
 <h4 id="global-log-context">Global Log Context</h4>
-<p>If available, Laravel automatically adds the current user&#39;s ID to every exception&#39;s log message as contextual data. You may define your own global contextual data by overriding the <code>context</code> method of your application&#39;s <code>App\Exceptions\Handler</code> class. This information will be included in every exception&#39;s log message written by your application:</p>
+<p>If available, Laravel automatically adds the current user&#39;s ID to every exception&#39;s log message as contextual data. You may define your own global contextual data by defining a <code>context</code> method on your application&#39;s <code>App\Exceptions\Handler</code> class. This information will be included in every exception&#39;s log message written by your application:</p>
 <pre><code><span class="hljs-comment">/**
  * Get the default context variables for logging.
  *
@@ -69,7 +69,7 @@
 </code></pre>
 <p><a name="exception-log-context"></a></p>
 <h4 id="exception-log-context">Exception Log Context</h4>
-<p>While adding context to every log message can be useful, sometimes a particular exception may have unique context that you would like to include in your logs. By defining a <code>context</code> method on one of your application&#39;s custom exceptions, you may specify any data relevant to that exception that should be added to the exception&#39;s log entry:</p>
+<p>While adding context to every log message can be useful, sometimes a particular exception may have unique context that you would like to include in your logs. By defining a <code>context</code> method on one of your application&#39;s exceptions, you may specify any data relevant to that exception that should be added to the exception&#39;s log entry:</p>
 <pre><code><span class="hljs-meta">&lt;?php</span>
 
 <span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Exceptions</span>;
@@ -109,7 +109,7 @@
 <h3 id="exception-log-levels">Exception Log Levels</h3>
 <p>When messages are written to your application&#39;s <a href="/docs/%7B%7Bversion%7D%7D/logging">logs</a>, the messages are written at a specified <a href="/docs/%7B%7Bversion%7D%7D/logging#log-levels">log level</a>, which indicates the severity or importance of the message being logged.</p>
 <p>As noted above, even when you register a custom exception reporting callback using the <code>reportable</code> method, Laravel will still log the exception using the default logging configuration for the application; however, since the log level can sometimes influence the channels on which a message is logged, you may wish to configure the log level that certain exceptions are logged at.</p>
-<p>To accomplish this, you may define an array of exception types and their associated log levels within the <code>$levels</code> property of your application&#39;s exception handler:</p>
+<p>To accomplish this, you may define a <code>$levels</code> property on your application&#39;s exception handler. This property should contain an array of exception types and their associated log levels:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">PDOException</span>;
 <span class="hljs-keyword">use</span> <span class="hljs-title">Psr</span>\<span class="hljs-title">Log</span>\<span class="hljs-title">LogLevel</span>;
 
@@ -124,7 +124,7 @@
 </code></pre>
 <p><a name="ignoring-exceptions-by-type"></a></p>
 <h3 id="ignoring-exceptions-by-type">Ignoring Exceptions By Type</h3>
-<p>When building your application, there will be some types of exceptions you simply want to ignore and never report. Your application&#39;s exception handler contains a <code>$dontReport</code> property which is initialized to an empty array. Any classes that you add to this property will never be reported; however, they may still have custom rendering logic:</p>
+<p>When building your application, there will be some types of exceptions you never want to report. To ignore these exceptions, define a <code>$dontReport</code> property on your application&#39;s exception handler. Any classes that you add to this property will never be reported; however, they may still have custom rendering logic:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Exceptions</span>\<span class="hljs-title">InvalidOrderException</span>;
 
 <span class="hljs-comment">/**
@@ -152,7 +152,7 @@
 <p><a name="rendering-exceptions"></a></p>
 <h3 id="rendering-exceptions">Rendering Exceptions</h3>
 <p>By default, the Laravel exception handler will convert exceptions into an HTTP response for you. However, you are free to register a custom rendering closure for exceptions of a given type. You may accomplish this by invoking the <code>renderable</code> method within your exception handler.</p>
-<p>The closure passed to the <code>renderable</code> method should return an instance of <code>Illuminate\Http\Response</code>, which may be generated via the <code>response</code> helper. Laravel will deduce what type of exception the closure renders by examining the type-hint of the closure:</p>
+<p>The closure passed to the <code>renderable</code> method should return an instance of <code>Illuminate\Http\Response</code>, which may be generated via the <code>response</code> helper. Laravel will determine what type of exception the closure renders by examining the type-hint of the closure:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Exceptions</span>\<span class="hljs-title">InvalidOrderException</span>;
 <span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
 
@@ -186,7 +186,7 @@
 </code></pre>
 <p><a name="renderable-exceptions"></a></p>
 <h3 id="reportable--renderable-exceptions">Reportable &amp; Renderable Exceptions</h3>
-<p>Instead of defining custom reporting and rendering behavior in your exception handler&#39;s <code>register</code> method, you may define <code>report</code> and <code>render</code> methods directly on your custom exceptions. When these methods exist, they will be automatically called by the framework:</p>
+<p>Instead of defining custom reporting and rendering behavior in your exception handler&#39;s <code>register</code> method, you may define <code>report</code> and <code>render</code> methods directly on your application&#39;s exceptions. When these methods exist, they will automatically be called by the framework:</p>
 <pre><code><span class="hljs-meta">&lt;?php</span>
 
 <span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Exceptions</span>;
@@ -249,12 +249,12 @@
 </blockquote>
 <p><a name="http-exceptions"></a></p>
 <h2 id="http-exceptions">HTTP Exceptions</h2>
-<p>Some exceptions describe HTTP error codes from the server. For example, this may be a &quot;page not found&quot; error (404), an &quot;unauthorized error&quot; (401) or even a developer generated 500 error. In order to generate such a response from anywhere in your application, you may use the <code>abort</code> helper:</p>
+<p>Some exceptions describe HTTP error codes from the server. For example, this may be a &quot;page not found&quot; error (404), an &quot;unauthorized error&quot; (401), or even a developer generated 500 error. In order to generate such a response from anywhere in your application, you may use the <code>abort</code> helper:</p>
 <pre><code><span class="hljs-title function_ invoke__">abort</span>(<span class="hljs-number">404</span>);
 </code></pre>
 <p><a name="custom-http-error-pages"></a></p>
 <h3 id="custom-http-error-pages">Custom HTTP Error Pages</h3>
-<p>Laravel makes it easy to display custom error pages for various HTTP status codes. For example, if you wish to customize the error page for 404 HTTP status codes, create a <code>resources/views/errors/404.blade.php</code> view template. This view will be rendered on all 404 errors generated by your application. The views within this directory should be named to match the HTTP status code they correspond to. The <code>Symfony\Component\HttpKernel\Exception\HttpException</code> instance raised by the <code>abort</code> function will be passed to the view as an <code>$exception</code> variable:</p>
+<p>Laravel makes it easy to display custom error pages for various HTTP status codes. For example, to customize the error page for 404 HTTP status codes, create a <code>resources/views/errors/404.blade.php</code> view template. This view will be rendered for all 404 errors generated by your application. The views within this directory should be named to match the HTTP status code they correspond to. The <code>Symfony\Component\HttpKernel\Exception\HttpException</code> instance raised by the <code>abort</code> function will be passed to the view as an <code>$exception</code> variable:</p>
 <pre><code>&lt;h2&gt;{{ <span class="hljs-variable">$exception</span>-&gt;<span class="hljs-title function_ invoke__">getMessage</span>() }}&lt;/h2&gt;
 </code></pre>
 <p>You may publish Laravel&#39;s default error page templates using the <code>vendor:publish</code> Artisan command. Once the templates have been published, you may customize them to your liking:</p>

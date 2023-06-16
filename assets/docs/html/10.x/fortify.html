@@ -172,8 +172,6 @@
 <p>If the login attempt is successful, Fortify will redirect you to the URI configured via the <code>home</code> configuration option within your application&#39;s <code>fortify</code> configuration file. If the login request was an XHR request, a 200 HTTP response will be returned. After a user logs out of the application, the user will be redirected to the <code>/</code> URI.</p>
 <p>If you need advanced customization of this behavior, you may bind implementations of the <code>LoginResponse</code> and <code>LogoutResponse</code> contracts into the Laravel <a href="/docs/%7B%7Bversion%7D%7D/container">service container</a>. Typically, this should be done within the <code>register</code> method of your application&#39;s <code>App\Providers\FortifyServiceProvider</code> class:</p>
 <pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Fortify</span>\<span class="hljs-title">Contracts</span>\<span class="hljs-title">LogoutResponse</span>;
-<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">RedirectResponse</span>;
-<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
 
 <span class="hljs-comment">/**
  * Register any application services.
@@ -181,7 +179,7 @@
 <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">register</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
 </span>{
     <span class="hljs-variable language_">$this</span>-&gt;app-&gt;<span class="hljs-title function_ invoke__">instance</span>(<span class="hljs-title class_">LogoutResponse</span>::<span class="hljs-variable language_">class</span>, <span class="hljs-keyword">new</span> <span class="hljs-keyword">class</span> <span class="hljs-keyword">implements</span> LogoutResponse {
-        <span class="hljs-keyword">public</span> function <span class="hljs-title function_ invoke__">toResponse</span>(Request <span class="hljs-variable">$request</span>): RedirectResponse
+        <span class="hljs-keyword">public</span> function <span class="hljs-title function_ invoke__">toResponse</span>(<span class="hljs-variable">$request</span>)
         {
             <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">redirect</span>(<span class="hljs-string">&#x27;/&#x27;</span>);
         }

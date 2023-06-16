@@ -193,6 +193,7 @@
 <li><code>encrypted:collection</code></li>
 <li><code>encrypted:object</code></li>
 <li><code>float</code></li>
+<li><code>hashed</code></li>
 <li><code>integer</code></li>
 <li><code>object</code></li>
 <li><code>real</code></li>
@@ -328,6 +329,19 @@
     <span class="hljs-string">&#x27;options&#x27;</span> =&gt; <span class="hljs-title class_">AsCollection</span>::<span class="hljs-variable language_">class</span>,
 ];
 </code></pre>
+<p>If you would like the <code>AsCollection</code> cast to instantiate a custom collection class instead of Laravel&#39;s base collection class, you may provide the collection class name as a cast argument:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Collections</span>\<span class="hljs-title">OptionCollection</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Casts</span>\<span class="hljs-title">AsCollection</span>;
+
+<span class="hljs-comment">/**
+ * The attributes that should be cast.
+ *
+ * <span class="hljs-doctag">@var</span> array
+ */</span>
+<span class="hljs-keyword">protected</span> <span class="hljs-variable">$casts</span> = [
+    <span class="hljs-string">&#x27;options&#x27;</span> =&gt; <span class="hljs-title class_">AsCollection</span>::<span class="hljs-variable language_">class</span>.<span class="hljs-string">&#x27;:&#x27;</span>.<span class="hljs-title class_">OptionCollection</span>::<span class="hljs-variable language_">class</span>,
+];
+</code></pre>
 <p><a name="date-casting"></a></p>
 <h3 id="date-casting">Date Casting</h3>
 <p>By default, Eloquent will cast the <code>created_at</code> and <code>updated_at</code> columns to instances of <a href="https://github.com/briannesbitt/Carbon">Carbon</a>, which extends the PHP <code>DateTime</code> class and provides an assortment of helpful methods. You may cast additional date attributes by defining additional date casts within your model&#39;s <code>$casts</code> property array. Typically, dates should be cast using the <code>datetime</code> or <code>immutable_datetime</code> cast types.</p>
@@ -361,7 +375,7 @@
 </code></pre>
 <p><a name="date-casting-and-timezones"></a></p>
 <h4 id="date-casting-serialization--timezones">Date Casting, Serialization, &amp; Timezones</h4>
-<p>By default, the <code>date</code> and <code>datetime</code> casts will serialize dates to a UTC ISO-8601 date string (<code>1986-05-28T21:05:54.000000Z</code>), regardless of the timezone specified in your application&#39;s <code>timezone</code> configuration option. You are strongly encouraged to always use this serialization format, as well as to store your application&#39;s dates in the UTC timezone by not changing your application&#39;s <code>timezone</code> configuration option from its default <code>UTC</code> value. Consistently using the UTC timezone throughout your application will provide the maximum level of interoperability with other date manipulation libraries written in PHP and JavaScript.</p>
+<p>By default, the <code>date</code> and <code>datetime</code> casts will serialize dates to a UTC ISO-8601 date string (<code>YYYY-MM-DDTHH:MM:SS.uuuuuuZ</code>), regardless of the timezone specified in your application&#39;s <code>timezone</code> configuration option. You are strongly encouraged to always use this serialization format, as well as to store your application&#39;s dates in the UTC timezone by not changing your application&#39;s <code>timezone</code> configuration option from its default <code>UTC</code> value. Consistently using the UTC timezone throughout your application will provide the maximum level of interoperability with other date manipulation libraries written in PHP and JavaScript.</p>
 <p>If a custom format is applied to the <code>date</code> or <code>datetime</code> cast, such as <code>datetime:Y-m-d H:i:s</code>, the inner timezone of the Carbon instance will be used during date serialization. Typically, this will be the timezone specified in your application&#39;s <code>timezone</code> configuration option.</p>
 <p><a name="enum-casting"></a></p>
 <h3 id="enum-casting">Enum Casting</h3>

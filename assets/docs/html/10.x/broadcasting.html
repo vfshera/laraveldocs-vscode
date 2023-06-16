@@ -487,6 +487,9 @@ The documentation below discusses how to use Ably in &quot;Pusher compatibility&
 </code></pre>
 <p>The <code>channel</code> method accepts two arguments: the name of the channel and a callback which returns <code>true</code> or <code>false</code> indicating whether the user is authorized to listen on the channel.</p>
 <p>All authorization callbacks receive the currently authenticated user as their first argument and any additional wildcard parameters as their subsequent arguments. In this example, we are using the <code>{orderId}</code> placeholder to indicate that the &quot;ID&quot; portion of the channel name is a wildcard.</p>
+<p>You may view a list of your application&#39;s broadcast authorization callbacks using the <code>channel:list</code> Artisan command:</p>
+<pre><code class="language-shell">php artisan channel:list
+</code></pre>
 <p><a name="authorization-callback-model-binding"></a></p>
 <h4 id="authorization-callback-model-binding">Authorization Callback Model Binding</h4>
 <p>Just like HTTP routes, channel routes may also take advantage of implicit and explicit <a href="/docs/%7B%7Bversion%7D%7D/routing#route-model-binding">route model binding</a>. For example, instead of receiving a string or numeric order ID, you may request an actual <code>Order</code> model instance:</p>
@@ -699,7 +702,7 @@ The documentation below discusses how to use Ably in &quot;Pusher compatibility&
 <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">broadcastOn</span>(<span class="hljs-params"></span>): <span class="hljs-title">array</span>
 </span>{
     <span class="hljs-keyword">return</span> [
-        <span class="hljs-keyword">new</span> <span class="hljs-title class_">PresenceChannel</span>(<span class="hljs-string">&#x27;room.&#x27;</span>.<span class="hljs-variable language_">$this</span>-&gt;message-&gt;room_id),
+        <span class="hljs-keyword">new</span> <span class="hljs-title class_">PresenceChannel</span>(<span class="hljs-string">&#x27;chat.&#x27;</span>.<span class="hljs-variable language_">$this</span>-&gt;message-&gt;room_id),
     ];
 }
 </code></pre>
