@@ -27,7 +27,7 @@
 <p>Under the hood, Laravel utilizes the <a href="https://github.com/Seldaek/monolog">Monolog</a> library, which provides support for a variety of powerful log handlers. Laravel makes it a cinch to configure these handlers, allowing you to mix and match them to customize your application&#39;s log handling.</p>
 <p><a name="configuration"></a></p>
 <h2 id="configuration">Configuration</h2>
-<p>All of the configuration options for your application&#39;s logging behavior is housed in the <code>config/logging.php</code> configuration file. This file allows you to configure your application&#39;s log channels, so be sure to review each of the available channels and their options. We&#39;ll review a few common options below.</p>
+<p>All of the configuration options for your application&#39;s logging behavior are housed in the <code>config/logging.php</code> configuration file. This file allows you to configure your application&#39;s log channels, so be sure to review each of the available channels and their options. We&#39;ll review a few common options below.</p>
 <p>By default, Laravel will use the <code>stack</code> channel when logging messages. The <code>stack</code> channel is used to aggregate multiple log channels into a single channel. For more information on building stacks, check out the <a href="#building-log-stacks">documentation below</a>.</p>
 <p><a name="configuring-the-channel-name"></a></p>
 <h4 id="configuring-the-channel-name">Configuring The Channel Name</h4>
@@ -236,7 +236,7 @@
      */</span>
     <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">show</span>(<span class="hljs-params"><span class="hljs-keyword">string</span> <span class="hljs-variable">$id</span></span>): <span class="hljs-title">View</span>
     </span>{
-        <span class="hljs-title class_">Log</span>::<span class="hljs-title function_ invoke__">info</span>(<span class="hljs-string">&#x27;Showing the user profile for user: &#x27;</span>.<span class="hljs-variable">$id</span>);
+        <span class="hljs-title class_">Log</span>::<span class="hljs-title function_ invoke__">info</span>(<span class="hljs-string">&#x27;Showing the user profile for user: {id}&#x27;</span>, [<span class="hljs-string">&#x27;id&#x27;</span> =&gt; <span class="hljs-variable">$id</span>]);
 
         <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;user.profile&#x27;</span>, [
             <span class="hljs-string">&#x27;user&#x27;</span> =&gt; <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">findOrFail</span>(<span class="hljs-variable">$id</span>)
@@ -249,7 +249,7 @@
 <p>An array of contextual data may be passed to the log methods. This contextual data will be formatted and displayed with the log message:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Log</span>;
 
-<span class="hljs-title class_">Log</span>::<span class="hljs-title function_ invoke__">info</span>(<span class="hljs-string">&#x27;User failed to login.&#x27;</span>, [<span class="hljs-string">&#x27;id&#x27;</span> =&gt; <span class="hljs-variable">$user</span>-&gt;id]);
+<span class="hljs-title class_">Log</span>::<span class="hljs-title function_ invoke__">info</span>(<span class="hljs-string">&#x27;User {id} failed to login.&#x27;</span>, [<span class="hljs-string">&#x27;id&#x27;</span> =&gt; <span class="hljs-variable">$user</span>-&gt;id]);
 </code></pre>
 <p>Occasionally, you may wish to specify some contextual information that should be included with all subsequent log entries in a particular channel. For example, you may wish to log a request ID that is associated with each incoming request to your application. To accomplish this, you may call the <code>Log</code> facade&#39;s <code>withContext</code> method:</p>
 <pre><code><span class="hljs-meta">&lt;?php</span>
@@ -398,6 +398,28 @@
     <span class="hljs-string">&#x27;handler&#x27;</span> =&gt; <span class="hljs-title class_">Monolog\Handler\NewRelicHandler</span>::<span class="hljs-variable language_">class</span>,
     <span class="hljs-string">&#x27;formatter&#x27;</span> =&gt; <span class="hljs-string">&#x27;default&#x27;</span>,
 ],
+</code></pre>
+<p> <a name="monolog-processors"></a></p>
+<h4 id="monolog-processors">Monolog Processors</h4>
+<p> Monolog can also process messages before logging them. You can create your own processors or use the <a href="https://github.com/Seldaek/monolog/tree/main/src/Monolog/Processor">existing processors offered by Monolog</a>.</p>
+<p> If you would like to customize the processors for a <code>monolog</code> driver, add a <code>processors</code> configuration value to your channel&#39;s configuration:</p>
+<pre><code> <span class="hljs-string">&#x27;memory&#x27;</span> =&gt; [
+     <span class="hljs-string">&#x27;driver&#x27;</span> =&gt; <span class="hljs-string">&#x27;monolog&#x27;</span>,
+     <span class="hljs-string">&#x27;handler&#x27;</span> =&gt; <span class="hljs-title class_">Monolog\Handler\StreamHandler</span>::<span class="hljs-variable language_">class</span>,
+     <span class="hljs-string">&#x27;with&#x27;</span> =&gt; [
+         <span class="hljs-string">&#x27;stream&#x27;</span> =&gt; <span class="hljs-string">&#x27;php://stderr&#x27;</span>,
+     ],
+     <span class="hljs-string">&#x27;processors&#x27;</span> =&gt; [
+         <span class="hljs-comment">// Simple syntax...</span>
+         <span class="hljs-title class_">Monolog\Processor\MemoryUsageProcessor</span>::<span class="hljs-variable language_">class</span>,
+
+         <span class="hljs-comment">// With options...</span>
+         [
+            <span class="hljs-string">&#x27;processor&#x27;</span> =&gt; <span class="hljs-title class_">Monolog\Processor\PsrLogMessageProcessor</span>::<span class="hljs-variable language_">class</span>,
+            <span class="hljs-string">&#x27;with&#x27;</span> =&gt; [<span class="hljs-string">&#x27;removeUsedContextFields&#x27;</span> =&gt; <span class="hljs-literal">true</span>],
+        ],
+     ],
+ ],
 </code></pre>
 <p><a name="creating-custom-channels-via-factories"></a></p>
 <h3 id="creating-custom-channels-via-factories">Creating Custom Channels Via Factories</h3>

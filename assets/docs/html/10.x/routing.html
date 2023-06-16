@@ -351,7 +351,7 @@
 </code></pre>
 <p><a name="route-group-name-prefixes"></a></p>
 <h3 id="route-name-prefixes">Route Name Prefixes</h3>
-<p>The <code>name</code> method may be used to prefix each route name in the group with a given string. For example, you may want to prefix all of the grouped route&#39;s names with <code>admin</code>. The given string is prefixed to the route name exactly as it is specified, so we will be sure to provide the trailing <code>.</code> character in the prefix:</p>
+<p>The <code>name</code> method may be used to prefix each route name in the group with a given string. For example, you may want to prefix the names of all of the routes in the group with <code>admin</code>. The given string is prefixed to the route name exactly as it is specified, so we will be sure to provide the trailing <code>.</code> character in the prefix:</p>
 <pre><code><span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">name</span>(<span class="hljs-string">&#x27;admin.&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">group</span>(function () {
     <span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/users&#x27;</span>, function () {
         <span class="hljs-comment">// Route assigned name &quot;admin.users&quot;...</span>
@@ -561,19 +561,22 @@
 <h2 id="rate-limiting">Rate Limiting</h2>
 <p><a name="defining-rate-limiters"></a></p>
 <h3 id="defining-rate-limiters">Defining Rate Limiters</h3>
-<p>Laravel includes powerful and customizable rate limiting services that you may utilize to restrict the amount of traffic for a given route or group of routes. To get started, you should define rate limiter configurations that meet your application&#39;s needs. Typically, this should be done within the <code>configureRateLimiting</code> method of your application&#39;s <code>App\Providers\RouteServiceProvider</code> class, which already includes a rate limiter definition that is applied to the routes in your application&#39;s <code>routes/api.php</code> file:</p>
+<p>Laravel includes powerful and customizable rate limiting services that you may utilize to restrict the amount of traffic for a given route or group of routes. To get started, you should define rate limiter configurations that meet your application&#39;s needs.</p>
+<p>Typically, rate limiters are defined within the <code>boot</code> method of your application&#39;s <code>App\Providers\RouteServiceProvider</code> class. In fact, this class already includes a rate limiter definition that is applied to the routes in your application&#39;s <code>routes/api.php</code> file:</p>
 <pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Cache</span>\<span class="hljs-title">RateLimiting</span>\<span class="hljs-title">Limit</span>;
 <span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
 <span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">RateLimiter</span>;
 
 <span class="hljs-comment">/**
- * Configure the rate limiters for the application.
+ * Define your route model bindings, pattern filters, and other route configuration.
  */</span>
-<span class="hljs-keyword">protected</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">configureRateLimiting</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+<span class="hljs-keyword">protected</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
 </span>{
     <span class="hljs-title class_">RateLimiter</span>::<span class="hljs-keyword">for</span>(<span class="hljs-string">&#x27;api&#x27;</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">Request <span class="hljs-variable">$request</span></span>) </span>{
         <span class="hljs-keyword">return</span> <span class="hljs-title class_">Limit</span>::<span class="hljs-title function_ invoke__">perMinute</span>(<span class="hljs-number">60</span>)-&gt;<span class="hljs-title function_ invoke__">by</span>(<span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()?-&gt;id ?: <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">ip</span>());
     });
+
+    <span class="hljs-comment">// ...</span>
 }
 </code></pre>
 <p>Rate limiters are defined using the <code>RateLimiter</code> facade&#39;s <code>for</code> method. The <code>for</code> method accepts a rate limiter name and a closure that returns the limit configuration that should apply to routes that are assigned to the rate limiter. Limit configuration are instances of the <code>Illuminate\Cache\RateLimiting\Limit</code> class. This class contains helpful &quot;builder&quot; methods so that you can quickly define your limit. The rate limiter name may be any string you wish:</p>
@@ -582,13 +585,15 @@
 <span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">RateLimiter</span>;
 
 <span class="hljs-comment">/**
- * Configure the rate limiters for the application.
+ * Define your route model bindings, pattern filters, and other route configuration.
  */</span>
-<span class="hljs-keyword">protected</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">configureRateLimiting</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+<span class="hljs-keyword">protected</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
 </span>{
     <span class="hljs-title class_">RateLimiter</span>::<span class="hljs-keyword">for</span>(<span class="hljs-string">&#x27;global&#x27;</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">Request <span class="hljs-variable">$request</span></span>) </span>{
         <span class="hljs-keyword">return</span> <span class="hljs-title class_">Limit</span>::<span class="hljs-title function_ invoke__">perMinute</span>(<span class="hljs-number">1000</span>);
     });
+
+    <span class="hljs-comment">// ...</span>
 }
 </code></pre>
 <p>If the incoming request exceeds the specified rate limit, a response with a 429 HTTP status code will automatically be returned by Laravel. If you would like to define your own response that should be returned by a rate limit, you may use the <code>response</code> method:</p>

@@ -238,6 +238,8 @@ Because loaded relationships also get serialized, the serialized job string can 
 
 Furthermore, when a job is deserialized and model relationships are re-retrieved from the database, they will be retrieved in their entirety. Any previous relationship constraints that were applied before the model was serialized during the job queueing process will not be applied when the job is deserialized. Therefore, if you wish to work with a subset of a given relationship, you should re-constrain that relationship within your queued job.
 
+If a job receives a collection or array of Eloquent models instead of a single model, the models within that collection will not have their relationships restored when the job is deserialized and executed. This is to prevent excessive resource usage on jobs that deal with large numbers of models.
+
 <a name="unique-jobs"></a>
 ### Unique Jobs
 
@@ -381,7 +383,7 @@ Instead of rate limiting in the handle method, we could define a job middleware 
         {
             Redis::throttle('key')
                     ->block(0)->allow(1)->every(5)
-                    ->then(function () use (object $job, Closure $next) {
+                    ->then(function () use ($job, $next) {
                         // Lock obtained...
 
                         $next($job);
@@ -438,7 +440,7 @@ In the example above, we defined an hourly rate limit; however, you may easily d
 
     return Limit::perMinute(50)->by($job->user->id);
 
-Once you have defined your rate limit, you may attach the rate limiter to your backup job using the `Illuminate\Queue\Middleware\RateLimited` middleware. Each time the job exceeds the rate limit, this middleware will release the job back to the queue with an appropriate delay based on the rate limit duration.
+Once you have defined your rate limit, you may attach the rate limiter to your job using the `Illuminate\Queue\Middleware\RateLimited` middleware. Each time the job exceeds the rate limit, this middleware will release the job back to the queue with an appropriate delay based on the rate limit duration.
 
     use Illuminate\Queue\Middleware\RateLimited;
 
@@ -978,7 +980,7 @@ One approach to specifying the maximum number of times a job may be attempted is
 php artisan queue:work --tries=3
 ```
 
-If a job exceeds its maximum number of attempts, it will be considered a "failed" job. For more information on handling failed jobs, consult the [failed job documentation](#dealing-with-failed-jobs). If `--tries=0` is provided to the `queue:work` command, the job will retried indefinitely.
+If a job exceeds its maximum number of attempts, it will be considered a "failed" job. For more information on handling failed jobs, consult the [failed job documentation](#dealing-with-failed-jobs). If `--tries=0` is provided to the `queue:work` command, the job will be retried indefinitely.
 
 You may take a more granular approach by defining the maximum number of times a job may be attempted on the job class itself. If the maximum number of attempts is specified on the job, it will take precedence over the `--tries` value provided on the command line:
 
@@ -1125,9 +1127,11 @@ Sometimes you may wish to manually release a job back onto the queue so that it 
         $this->release();
     }
 
-By default, the `release` method will release the job back onto the queue for immediate processing. However, by passing an integer to the `release` method you may instruct the queue to not make the job available for processing until a given number of seconds has elapsed:
+By default, the `release` method will release the job back onto the queue for immediate processing. However, you may instruct the queue to not make the job available for processing until a given number of seconds has elapsed by passing an integer or date instance to the `release` method:
 
     $this->release(10);
+
+    $this->release(now()->addSeconds(10));
 
 <a name="manually-failing-a-job"></a>
 #### Manually Failing A Job

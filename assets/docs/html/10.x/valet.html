@@ -14,8 +14,6 @@
 </ul>
 </li>
 <li><a href="#sharing-sites">Sharing Sites</a><ul>
-<li><a href="#sharing-sites-via-ngrok">Sharing Sites Via Ngrok</a></li>
-<li><a href="#sharing-sites-via-expose">Sharing Sites Via Expose</a></li>
 <li><a href="#sharing-sites-on-your-local-network">Sharing Sites On Your Local Network</a></li>
 </ul>
 </li>
@@ -82,7 +80,7 @@
 <p>Next, you should use Homebrew to install PHP:</p>
 <pre><code class="language-shell">brew install php
 </code></pre>
-<p>After installing PHP, you are ready to install the <a href="https://getcomposer.org">Composer package manager</a>. In addition, you should make sure the <code>~/.composer/vendor/bin</code> directory is in your system&#39;s &quot;PATH&quot;. After Composer has been installed, you may install Laravel Valet as a global Composer package:</p>
+<p>After installing PHP, you are ready to install the <a href="https://getcomposer.org">Composer package manager</a>. In addition, you should make sure the <code>$HOME/.composer/vendor/bin</code> directory is in your system&#39;s &quot;PATH&quot;. After Composer has been installed, you may install Laravel Valet as a global Composer package:</p>
 <pre><code class="language-shell">composer global require laravel/valet
 </code></pre>
 <p>Finally, you may execute Valet&#39;s <code>install</code> command. This will configure and install Valet and DnsMasq. In addition, the daemons Valet depends on will be configured to launch when your system starts:</p>
@@ -92,13 +90,16 @@
 <p>Valet will automatically start its required services each time your machine boots.</p>
 <p><a name="php-versions"></a></p>
 <h4 id="php-versions">PHP Versions</h4>
+<blockquote>
+<p><strong>Note</strong><br>Instead of modifying your global PHP version, you can instruct Valet to use per-site PHP versions via the <code>isolate</code> <a href="#per-site-php-versions">command</a>.</p>
+</blockquote>
 <p>Valet allows you to switch PHP versions using the <code>valet use php@version</code> command. Valet will install the specified PHP version via Homebrew if it is not already installed:</p>
 <pre><code class="language-shell">valet use php@8.1
 
 valet use php
 </code></pre>
-<p>You may also create a <code>.valetphprc</code> file in the root of your project. The <code>.valetphprc</code> file should contain the PHP version the site should use:</p>
-<pre><code class="language-shell">php@8.1
+<p>You may also create a <code>.valetrc</code> file in the root of your project. The <code>.valetrc</code> file should contain the PHP version the site should use:</p>
+<pre><code class="language-shell">php=php@8.1
 </code></pre>
 <p>Once this file has been created, you may simply execute the <code>valet use</code> command and the command will determine the site&#39;s preferred PHP version by reading the file.</p>
 <blockquote>
@@ -113,6 +114,18 @@ valet use php
 <p><a name="upgrading-valet"></a></p>
 <h3 id="upgrading-valet">Upgrading Valet</h3>
 <p>You may update your Valet installation by executing the <code>composer global require laravel/valet</code> command in your terminal. After upgrading, it is good practice to run the <code>valet install</code> command so Valet can make additional upgrades to your configuration files if necessary.</p>
+<p><a name="upgrading-to-valet-4"></a></p>
+<h4 id="upgrading-to-valet-4">Upgrading To Valet 4</h4>
+<p>If you&#39;re upgrading from Valet 3 to Valet 4, take the following steps to properly upgrade your Valet installation:</p>
+<div class="content-list" markdown="1">
+
+<ul>
+<li>If you&#39;ve added <code>.valetphprc</code> files to customize your site&#39;s PHP version, rename each <code>.valetphprc</code> file to <code>.valetrc</code>. Then, prepend <code>php=</code> to the existing content of the <code>.valetrc</code> file.</li>
+<li>Update any custom drivers to match the namespace, extension, type-hints, and return type-hints of the new driver system. You may consult Valet&#39;s <a href="https://github.com/laravel/valet/blob/d7787c025e60abc24a5195dc7d4c5c6f2d984339/cli/stubs/SampleValetDriver.php">SampleValetDriver</a> as an example.</li>
+<li>If you use PHP 7.1 - 7.4 to serve your sites, make sure you still use Homebrew to install a version of PHP that&#39;s 8.0 or higher, as Valet will use this version, even if it&#39;s not your primary linked version, to run some of its scripts.</li>
+</ul>
+</div>
+
 <p><a name="serving-sites"></a></p>
 <h2 id="serving-sites">Serving Sites</h2>
 <p>Once Valet is installed, you&#39;re ready to start serving your Laravel applications. Valet provides two commands to help you serve your applications: <code>park</code> and <code>link</code>.</p>
@@ -184,26 +197,33 @@ valet which-php
 </code></pre>
 <p><a name="sharing-sites"></a></p>
 <h2 id="sharing-sites">Sharing Sites</h2>
-<p>Valet even includes a command to share your local sites with the world, providing an easy way to test your site on mobile devices or share it with team members and clients.</p>
-<p><a name="sharing-sites-via-ngrok"></a></p>
-<h3 id="sharing-sites-via-ngrok">Sharing Sites Via Ngrok</h3>
-<p>To share a site, navigate to the site&#39;s directory in your terminal and run Valet&#39;s <code>share</code> command. A publicly accessible URL will be inserted into your clipboard and is ready to paste directly into your browser or share with your team:</p>
+<p>Valet includes a command to share your local sites with the world, providing an easy way to test your site on mobile devices or share it with team members and clients.</p>
+<p>Out of the box, Valet supports sharing your sites via ngrok or Expose. Before sharing a site, you should update your Valet configuration using the <code>share-tool</code> command, specifying either <code>ngrok</code> or <code>expose</code>:</p>
+<pre><code class="language-shell">valet share-tool ngrok
+</code></pre>
+<p>If you choose a tool and don&#39;t have it installed via Homebrew (for ngrok) or Composer (for Expose), Valet will automatically prompt you to install it. Of course, both tools require you to authenticate your ngrok or Expose account before you can start sharing sites.</p>
+<p>To share a site, navigate to the site&#39;s directory in your terminal and run Valet&#39;s <code>share</code> command. A publicly accessible URL will be placed into your clipboard and is ready to paste directly into your browser or to be shared with your team:</p>
 <pre><code class="language-shell">cd ~/Sites/laravel
 
 valet share
 </code></pre>
-<p>To stop sharing your site, you may press <code>Control + C</code>. Sharing your site using Ngrok requires you to <a href="https://dashboard.ngrok.com/signup">create an Ngrok account</a> and <a href="https://dashboard.ngrok.com/get-started/your-authtoken">setup an authentication token</a>.</p>
+<p>To stop sharing your site, you may press <code>Control + C</code>.</p>
 <blockquote>
-<p><strong>Note</strong><br>You may pass additional Ngrok parameters to the share command, such as <code>valet share --region=eu</code>. For more information, consult the <a href="https://ngrok.com/docs">ngrok documentation</a>.</p>
+<p><strong>Warning</strong>
+If you&#39;re using a custom DNS server (like <code>1.1.1.1</code>), ngrok sharing may not work correctly. If this is the case on your machine, open your Mac&#39;s system settings, go to the Network settings, open the Advanced settings, then go the DNS tab and add <code>127.0.0.1</code> as your first DNS server.</p>
+</blockquote>
+<p><a name="sharing-sites-via-ngrok"></a></p>
+<h4 id="sharing-sites-via-ngrok">Sharing Sites Via Ngrok</h4>
+<p>Sharing your site using ngrok requires you to <a href="https://dashboard.ngrok.com/signup">create an ngrok account</a> and <a href="https://dashboard.ngrok.com/get-started/your-authtoken">set up an authentication token</a>. Once you have an authentication token, you can update your Valet configuration with that token:</p>
+<pre><code class="language-shell">valet set-ngrok-token YOUR_TOKEN_HERE
+</code></pre>
+<blockquote>
+<p><strong>Note</strong><br>You may pass additional ngrok parameters to the share command, such as <code>valet share --region=eu</code>. For more information, consult the <a href="https://ngrok.com/docs">ngrok documentation</a>.</p>
 </blockquote>
 <p><a name="sharing-sites-via-expose"></a></p>
-<h3 id="sharing-sites-via-expose">Sharing Sites Via Expose</h3>
-<p>If you have <a href="https://expose.dev">Expose</a> installed, you can share your site by navigating to the site&#39;s directory in your terminal and running the <code>expose</code> command. Consult the <a href="https://expose.dev/docs">Expose documentation</a> for information regarding the additional command-line parameters it supports. After sharing the site, Expose will display the sharable URL that you may use on your other devices or amongst team members:</p>
-<pre><code class="language-shell">cd ~/Sites/laravel
-
-expose
-</code></pre>
-<p>To stop sharing your site, you may press <code>Control + C</code>.</p>
+<h4 id="sharing-sites-via-expose">Sharing Sites Via Expose</h4>
+<p>Sharing your site using Expose requires you to <a href="https://expose.dev/register">create an Expose account</a> and <a href="https://expose.dev/docs/getting-started/getting-your-token">authenticate with Expose via your authentication token</a>.</p>
+<p>You may consult the <a href="https://expose.dev/docs">Expose documentation</a> for information regarding the additional command-line parameters it supports.</p>
 <p><a name="sharing-sites-on-your-local-network"></a></p>
 <h3 id="sharing-sites-on-your-local-network">Sharing Sites On Your Local Network</h3>
 <p>Valet restricts incoming traffic to the internal <code>127.0.0.1</code> interface by default so that your development machine isn&#39;t exposed to security risks from the Internet.</p>
@@ -255,13 +275,8 @@ valet proxy elasticsearch http://127.0.0.1:9200 --secure
 <p>For example, let&#39;s imagine we are writing a <code>WordPressValetDriver</code>. Our <code>serves</code> method might look something like this:</p>
 <pre><code><span class="hljs-comment">/**
  * Determine if the driver serves the request.
- *
- * <span class="hljs-doctag">@param</span>  string  $sitePath
- * <span class="hljs-doctag">@param</span>  string  $siteName
- * <span class="hljs-doctag">@param</span>  string  $uri
- * <span class="hljs-doctag">@return</span> bool
  */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">serves</span>(<span class="hljs-params"><span class="hljs-variable">$sitePath</span>, <span class="hljs-variable">$siteName</span>, <span class="hljs-variable">$uri</span></span>)
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">serves</span>(<span class="hljs-params"><span class="hljs-keyword">string</span> <span class="hljs-variable">$sitePath</span>, <span class="hljs-keyword">string</span> <span class="hljs-variable">$siteName</span>, <span class="hljs-keyword">string</span> <span class="hljs-variable">$uri</span></span>): <span class="hljs-title">bool</span>
 </span>{
     <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">is_dir</span>(<span class="hljs-variable">$sitePath</span>.<span class="hljs-string">&#x27;/wp-admin&#x27;</span>);
 }
@@ -272,12 +287,9 @@ valet proxy elasticsearch http://127.0.0.1:9200 --secure
 <pre><code><span class="hljs-comment">/**
  * Determine if the incoming request is for a static file.
  *
- * <span class="hljs-doctag">@param</span>  string  $sitePath
- * <span class="hljs-doctag">@param</span>  string  $siteName
- * <span class="hljs-doctag">@param</span>  string  $uri
  * <span class="hljs-doctag">@return</span> string|false
  */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isStaticFile</span>(<span class="hljs-params"><span class="hljs-variable">$sitePath</span>, <span class="hljs-variable">$siteName</span>, <span class="hljs-variable">$uri</span></span>)
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isStaticFile</span>(<span class="hljs-params"><span class="hljs-keyword">string</span> <span class="hljs-variable">$sitePath</span>, <span class="hljs-keyword">string</span> <span class="hljs-variable">$siteName</span>, <span class="hljs-keyword">string</span> <span class="hljs-variable">$uri</span></span>)
 </span>{
     <span class="hljs-keyword">if</span> (<span class="hljs-title function_ invoke__">file_exists</span>(<span class="hljs-variable">$staticFilePath</span> = <span class="hljs-variable">$sitePath</span>.<span class="hljs-string">&#x27;/public/&#x27;</span>.<span class="hljs-variable">$uri</span>)) {
         <span class="hljs-keyword">return</span> <span class="hljs-variable">$staticFilePath</span>;
@@ -294,13 +306,8 @@ valet proxy elasticsearch http://127.0.0.1:9200 --secure
 <p>The <code>frontControllerPath</code> method should return the fully qualified path to your application&#39;s &quot;front controller&quot;, which is typically an &quot;index.php&quot; file or equivalent:</p>
 <pre><code><span class="hljs-comment">/**
  * Get the fully resolved path to the application&#x27;s front controller.
- *
- * <span class="hljs-doctag">@param</span>  string  $sitePath
- * <span class="hljs-doctag">@param</span>  string  $siteName
- * <span class="hljs-doctag">@param</span>  string  $uri
- * <span class="hljs-doctag">@return</span> string
  */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">frontControllerPath</span>(<span class="hljs-params"><span class="hljs-variable">$sitePath</span>, <span class="hljs-variable">$siteName</span>, <span class="hljs-variable">$uri</span></span>)
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">frontControllerPath</span>(<span class="hljs-params"><span class="hljs-keyword">string</span> <span class="hljs-variable">$sitePath</span>, <span class="hljs-keyword">string</span> <span class="hljs-variable">$siteName</span>, <span class="hljs-keyword">string</span> <span class="hljs-variable">$uri</span></span>): <span class="hljs-title">string</span>
 </span>{
     <span class="hljs-keyword">return</span> <span class="hljs-variable">$sitePath</span>.<span class="hljs-string">&#x27;/public/index.php&#x27;</span>;
 }
@@ -314,26 +321,16 @@ valet proxy elasticsearch http://127.0.0.1:9200 --secure
 </span>{
     <span class="hljs-comment">/**
      * Determine if the driver serves the request.
-     *
-     * <span class="hljs-doctag">@param</span>  string  $sitePath
-     * <span class="hljs-doctag">@param</span>  string  $siteName
-     * <span class="hljs-doctag">@param</span>  string  $uri
-     * <span class="hljs-doctag">@return</span> bool
      */</span>
-    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">serves</span>(<span class="hljs-params"><span class="hljs-variable">$sitePath</span>, <span class="hljs-variable">$siteName</span>, <span class="hljs-variable">$uri</span></span>)
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">serves</span>(<span class="hljs-params"><span class="hljs-keyword">string</span> <span class="hljs-variable">$sitePath</span>, <span class="hljs-keyword">string</span> <span class="hljs-variable">$siteName</span>, <span class="hljs-keyword">string</span> <span class="hljs-variable">$uri</span></span>): <span class="hljs-title">bool</span>
     </span>{
         <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
     }
 
     <span class="hljs-comment">/**
      * Get the fully resolved path to the application&#x27;s front controller.
-     *
-     * <span class="hljs-doctag">@param</span>  string  $sitePath
-     * <span class="hljs-doctag">@param</span>  string  $siteName
-     * <span class="hljs-doctag">@param</span>  string  $uri
-     * <span class="hljs-doctag">@return</span> string
      */</span>
-    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">frontControllerPath</span>(<span class="hljs-params"><span class="hljs-variable">$sitePath</span>, <span class="hljs-variable">$siteName</span>, <span class="hljs-variable">$uri</span></span>)
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">frontControllerPath</span>(<span class="hljs-params"><span class="hljs-keyword">string</span> <span class="hljs-variable">$sitePath</span>, <span class="hljs-keyword">string</span> <span class="hljs-variable">$siteName</span>, <span class="hljs-keyword">string</span> <span class="hljs-variable">$uri</span></span>): <span class="hljs-title">string</span>
     </span>{
         <span class="hljs-keyword">return</span> <span class="hljs-variable">$sitePath</span>.<span class="hljs-string">&#x27;/public_html/index.php&#x27;</span>;
     }
@@ -353,6 +350,14 @@ valet proxy elasticsearch http://127.0.0.1:9200 --secure
 <tbody><tr>
 <td><code>valet list</code></td>
 <td>Display a list of all Valet commands.</td>
+</tr>
+<tr>
+<td><code>valet diagnose</code></td>
+<td>Output diagnostics to aid in debugging Valet.</td>
+</tr>
+<tr>
+<td><code>valet directory-listing</code></td>
+<td>Determine directory-listing behavior. Default is &quot;off&quot;, which renders a 404 page for directories.</td>
 </tr>
 <tr>
 <td><code>valet forget</code></td>
@@ -398,8 +403,6 @@ valet proxy elasticsearch http://127.0.0.1:9200 --secure
 <p>This directory contains DNSMasq&#39;s configuration.</p>
 <h4 id="configvaletdrivers"><code>~/.config/valet/Drivers/</code></h4>
 <p>This directory contains Valet&#39;s drivers. Drivers determine how a particular framework / CMS is served.</p>
-<h4 id="configvaletextensions"><code>~/.config/valet/Extensions/</code></h4>
-<p>This directory contains custom Valet extensions / commands.</p>
 <h4 id="configvaletnginx"><code>~/.config/valet/Nginx/</code></h4>
 <p>This directory contains all of Valet&#39;s Nginx site configurations. These files are rebuilt when running the <code>install</code> and <code>secure</code> commands.</p>
 <h4 id="configvaletsites"><code>~/.config/valet/Sites/</code></h4>

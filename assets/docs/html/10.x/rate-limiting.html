@@ -41,6 +41,16 @@
   <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;Too many messages sent!&#x27;</span>;
 }
 </code></pre>
+<p>If necessary, you may provide a fourth argument to the <code>attempt</code> method, which is the &quot;decay rate&quot;, or the number of seconds until the available attempts are reset. For example, we can modify the example above to allow five attempts every two minutes:</p>
+<pre><code><span class="hljs-variable">$executed</span> = <span class="hljs-title class_">RateLimiter</span>::<span class="hljs-title function_ invoke__">attempt</span>(
+    <span class="hljs-string">&#x27;send-message:&#x27;</span>.<span class="hljs-variable">$user</span>-&gt;id,
+    <span class="hljs-variable">$perTwoMinutes</span> = <span class="hljs-number">5</span>,
+    function() {
+        <span class="hljs-comment">// Send message...</span>
+    },
+    <span class="hljs-variable">$decayRate</span> = <span class="hljs-number">120</span>,
+);
+</code></pre>
 <p><a name="manually-incrementing-attempts"></a></p>
 <h3 id="manually-incrementing-attempts">Manually Incrementing Attempts</h3>
 <p>If you would like to manually interact with the rate limiter, a variety of other methods are available. For example, you may invoke the <code>tooManyAttempts</code> method to determine if a given rate limiter key has exceeded its maximum number of allowed attempts per minute:</p>
@@ -49,6 +59,10 @@
 <span class="hljs-keyword">if</span> (<span class="hljs-title class_">RateLimiter</span>::<span class="hljs-title function_ invoke__">tooManyAttempts</span>(<span class="hljs-string">&#x27;send-message:&#x27;</span>.<span class="hljs-variable">$user</span>-&gt;id, <span class="hljs-variable">$perMinute</span> = <span class="hljs-number">5</span>)) {
     <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;Too many attempts!&#x27;</span>;
 }
+
+<span class="hljs-title class_">RateLimiter</span>::<span class="hljs-title function_ invoke__">hit</span>(<span class="hljs-string">&#x27;send-message:&#x27;</span>.<span class="hljs-variable">$user</span>-&gt;id);
+
+<span class="hljs-comment">// Send message...</span>
 </code></pre>
 <p>Alternatively, you may use the <code>remaining</code> method to retrieve the number of attempts remaining for a given key. If a given key has retries remaining, you may invoke the <code>hit</code> method to increment the number of total attempts:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">RateLimiter</span>;
@@ -69,6 +83,10 @@
 
     <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;You may try again in &#x27;</span>.<span class="hljs-variable">$seconds</span>.<span class="hljs-string">&#x27; seconds.&#x27;</span>;
 }
+
+<span class="hljs-title class_">RateLimiter</span>::<span class="hljs-title function_ invoke__">hit</span>(<span class="hljs-string">&#x27;send-message:&#x27;</span>.<span class="hljs-variable">$user</span>-&gt;id);
+
+<span class="hljs-comment">// Send message...</span>
 </code></pre>
 <p><a name="clearing-attempts"></a></p>
 <h3 id="clearing-attempts">Clearing Attempts</h3>

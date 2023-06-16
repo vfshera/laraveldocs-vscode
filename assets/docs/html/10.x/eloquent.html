@@ -96,6 +96,7 @@ php artisan make:model Flight --all
 <span class="hljs-meta prompt_">
 # </span><span class="language-bash">Generate a pivot model...</span>
 php artisan make:model Member --pivot
+php artisan make:model Member -p
 </code></pre>
 <p><a name="inspecting-models"></a></p>
 <h4 id="inspecting-models">Inspecting Models</h4>
@@ -344,14 +345,6 @@ php artisan make:model Member --pivot
 </code></pre>
 <p>Also, you may instruct Laravel to throw an exception when attempting to fill an unfillable attribute by invoking the <code>preventSilentlyDiscardingAttributes</code> method. This can help prevent unexpected errors during local development when attempting to set an attribute that has not been added to the model&#39;s <code>fillable</code> array:</p>
 <pre><code class="language-php"><span class="hljs-title class_">Model</span>::<span class="hljs-title function_ invoke__">preventSilentlyDiscardingAttributes</span>(! <span class="hljs-variable">$this</span>-&gt;app-&gt;<span class="hljs-title function_ invoke__">isProduction</span>());
-</code></pre>
-<p>Finally, you may instruct Eloquent to throw an exception if you attempt to access an attribute on a model when that attribute was not actually retrieved from the database or when the attribute does not exist. For example, this may occur when you forget to add an attribute to the <code>select</code> clause of an Eloquent query:</p>
-<pre><code class="language-php"><span class="hljs-title class_">Model</span>::<span class="hljs-title function_ invoke__">preventAccessingMissingAttributes</span>(! <span class="hljs-variable">$this</span>-&gt;app-&gt;<span class="hljs-title function_ invoke__">isProduction</span>());
-</code></pre>
-<p><a name="enabling-eloquent-strict-mode"></a></p>
-<h4 id="enabling-eloquent-strict-mode">Enabling Eloquent &quot;Strict Mode&quot;</h4>
-<p>For convenience, you may enable all three of the methods discussed above by simply invoking the <code>shouldBeStrict</code> method:</p>
-<pre><code class="language-php"><span class="hljs-title class_">Model</span>::<span class="hljs-title function_ invoke__">shouldBeStrict</span>(! <span class="hljs-variable">$this</span>-&gt;app-&gt;<span class="hljs-title function_ invoke__">isProduction</span>());
 </code></pre>
 <p><a name="retrieving-models"></a></p>
 <h2 id="retrieving-models">Retrieving Models</h2>
@@ -1004,10 +997,14 @@ php artisan make:model Member --pivot
 <p><a name="global-scopes"></a></p>
 <h3 id="global-scopes">Global Scopes</h3>
 <p>Global scopes allow you to add constraints to all queries for a given model. Laravel&#39;s own <a href="#soft-deleting">soft delete</a> functionality utilizes global scopes to only retrieve &quot;non-deleted&quot; models from the database. Writing your own global scopes can provide a convenient, easy way to make sure every query for a given model receives certain constraints.</p>
+<p><a name="generating-scopes"></a></p>
+<h4 id="generating-scopes">Generating Scopes</h4>
+<p>To generate a new global scope, you may invoke the <code>make:scope</code> Artisan command, which will place the generated scope in your application&#39;s <code>app/Models/Scopes</code> directory:</p>
+<pre><code class="language-shell">php artisan make:scope AncientScope
+</code></pre>
 <p><a name="writing-global-scopes"></a></p>
 <h4 id="writing-global-scopes">Writing Global Scopes</h4>
-<p>Writing a global scope is simple. First, define a class that implements the <code>Illuminate\Database\Eloquent\Scope</code> interface. Laravel does not have a conventional location where you should place scope classes, so you are free to place this class in any directory that you wish.</p>
-<p>The <code>Scope</code> interface requires you to implement one method: <code>apply</code>. The <code>apply</code> method may add <code>where</code> constraints or other types of clauses to the query as needed:</p>
+<p>Writing a global scope is simple. First, use the <code>make:scope</code> command to generate a class that implements the <code>Illuminate\Database\Eloquent\Scope</code> interface. The <code>Scope</code> interface requires you to implement one method: <code>apply</code>. The <code>apply</code> method may add <code>where</code> constraints or other types of clauses to the query as needed:</p>
 <pre><code><span class="hljs-meta">&lt;?php</span>
 
 <span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Models</span>\<span class="hljs-title class_">Scopes</span>;
@@ -1137,7 +1134,7 @@ php artisan make:model Member --pivot
 })-&gt;<span class="hljs-title function_ invoke__">get</span>();
 </code></pre>
 <p>However, since this can be cumbersome, Laravel provides a &quot;higher order&quot; <code>orWhere</code> method that allows you to fluently chain scopes together without the use of closures:</p>
-<pre><code><span class="hljs-variable">$users</span> = <span class="hljs-title class_">App\Models\User</span>::<span class="hljs-title function_ invoke__">popular</span>()-&gt;orWhere-&gt;<span class="hljs-title function_ invoke__">active</span>()-&gt;<span class="hljs-title function_ invoke__">get</span>();
+<pre><code><span class="hljs-variable">$users</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">popular</span>()-&gt;orWhere-&gt;<span class="hljs-title function_ invoke__">active</span>()-&gt;<span class="hljs-title function_ invoke__">get</span>();
 </code></pre>
 <p><a name="dynamic-scopes"></a></p>
 <h4 id="dynamic-scopes">Dynamic Scopes</h4>

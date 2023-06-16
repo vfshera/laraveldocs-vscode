@@ -214,6 +214,7 @@ php artisan migrate
 }
 </code></pre>
 <p>Furthermore, when a job is deserialized and model relationships are re-retrieved from the database, they will be retrieved in their entirety. Any previous relationship constraints that were applied before the model was serialized during the job queueing process will not be applied when the job is deserialized. Therefore, if you wish to work with a subset of a given relationship, you should re-constrain that relationship within your queued job.</p>
+<p>If a job receives a collection or array of Eloquent models instead of a single model, the models within that collection will not have their relationships restored when the job is deserialized and executed. This is to prevent excessive resource usage on jobs that deal with large numbers of models.</p>
 <p><a name="unique-jobs"></a></p>
 <h3 id="unique-jobs">Unique Jobs</h3>
 <blockquote>
@@ -344,7 +345,7 @@ php artisan migrate
     </span>{
         <span class="hljs-title class_">Redis</span>::<span class="hljs-title function_ invoke__">throttle</span>(<span class="hljs-string">&#x27;key&#x27;</span>)
                 -&gt;<span class="hljs-title function_ invoke__">block</span>(<span class="hljs-number">0</span>)-&gt;<span class="hljs-title function_ invoke__">allow</span>(<span class="hljs-number">1</span>)-&gt;<span class="hljs-title function_ invoke__">every</span>(<span class="hljs-number">5</span>)
-                -&gt;<span class="hljs-title function_ invoke__">then</span>(function () <span class="hljs-keyword">use</span> (<span class="hljs-title">object</span> $<span class="hljs-title">job</span>, <span class="hljs-title">Closure</span> $<span class="hljs-title">next</span>) {
+                -&gt;<span class="hljs-title function_ invoke__">then</span>(function () <span class="hljs-keyword">use</span> ($<span class="hljs-title">job</span>, $<span class="hljs-title">next</span>) {
                     // <span class="hljs-title">Lock</span> <span class="hljs-title">obtained</span>...
 
                     $<span class="hljs-title">next</span>($<span class="hljs-title">job</span>);
@@ -395,7 +396,7 @@ php artisan migrate
 <p>In the example above, we defined an hourly rate limit; however, you may easily define a rate limit based on minutes using the <code>perMinute</code> method. In addition, you may pass any value you wish to the <code>by</code> method of the rate limit; however, this value is most often used to segment rate limits by customer:</p>
 <pre><code><span class="hljs-keyword">return</span> <span class="hljs-title class_">Limit</span>::<span class="hljs-title function_ invoke__">perMinute</span>(<span class="hljs-number">50</span>)-&gt;<span class="hljs-title function_ invoke__">by</span>(<span class="hljs-variable">$job</span>-&gt;user-&gt;id);
 </code></pre>
-<p>Once you have defined your rate limit, you may attach the rate limiter to your backup job using the <code>Illuminate\Queue\Middleware\RateLimited</code> middleware. Each time the job exceeds the rate limit, this middleware will release the job back to the queue with an appropriate delay based on the rate limit duration.</p>
+<p>Once you have defined your rate limit, you may attach the rate limiter to your job using the <code>Illuminate\Queue\Middleware\RateLimited</code> middleware. Each time the job exceeds the rate limit, this middleware will release the job back to the queue with an appropriate delay based on the rate limit duration.</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Queue</span>\<span class="hljs-title">Middleware</span>\<span class="hljs-title">RateLimited</span>;
 
 <span class="hljs-comment">/**
@@ -877,7 +878,7 @@ The <code>WithoutOverlapping</code> middleware requires a cache driver that supp
 <p>One approach to specifying the maximum number of times a job may be attempted is via the <code>--tries</code> switch on the Artisan command line. This will apply to all jobs processed by the worker unless the job being processed specifies the number of times it may be attempted:</p>
 <pre><code class="language-shell">php artisan queue:work --tries=3
 </code></pre>
-<p>If a job exceeds its maximum number of attempts, it will be considered a &quot;failed&quot; job. For more information on handling failed jobs, consult the <a href="#dealing-with-failed-jobs">failed job documentation</a>. If <code>--tries=0</code> is provided to the <code>queue:work</code> command, the job will retried indefinitely.</p>
+<p>If a job exceeds its maximum number of attempts, it will be considered a &quot;failed&quot; job. For more information on handling failed jobs, consult the <a href="#dealing-with-failed-jobs">failed job documentation</a>. If <code>--tries=0</code> is provided to the <code>queue:work</code> command, the job will be retried indefinitely.</p>
 <p>You may take a more granular approach by defining the maximum number of times a job may be attempted on the job class itself. If the maximum number of attempts is specified on the job, it will take precedence over the <code>--tries</code> value provided on the command line:</p>
 <pre><code><span class="hljs-meta">&lt;?php</span>
 
@@ -1001,8 +1002,10 @@ The <code>WithoutOverlapping</code> middleware requires a cache driver that supp
     <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">release</span>();
 }
 </code></pre>
-<p>By default, the <code>release</code> method will release the job back onto the queue for immediate processing. However, by passing an integer to the <code>release</code> method you may instruct the queue to not make the job available for processing until a given number of seconds has elapsed:</p>
+<p>By default, the <code>release</code> method will release the job back onto the queue for immediate processing. However, you may instruct the queue to not make the job available for processing until a given number of seconds has elapsed by passing an integer or date instance to the <code>release</code> method:</p>
 <pre><code><span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">release</span>(<span class="hljs-number">10</span>);
+
+<span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">release</span>(<span class="hljs-title function_ invoke__">now</span>()-&gt;<span class="hljs-title function_ invoke__">addSeconds</span>(<span class="hljs-number">10</span>));
 </code></pre>
 <p><a name="manually-failing-a-job"></a></p>
 <h4 id="manually-failing-a-job">Manually Failing A Job</h4>

@@ -142,9 +142,24 @@ npm -v
 });
 </code></pre>
 <p>If you are unable to generate a trusted certificate for your system, you may install and configure the <a href="https://github.com/vitejs/vite-plugin-basic-ssl"><code>@vitejs/plugin-basic-ssl</code> plugin</a>. When using untrusted certificates, you will need to accept the certificate warning for Vite&#39;s development server in your browser by following the &quot;Local&quot; link in your console when running the <code>npm run dev</code> command.</p>
+<p><a name="configuring-hmr-in-sail-on-wsl2"></a></p>
+<h4 id="running-the-development-server-in-sail-on-wsl2">Running The Development Server In Sail On WSL2</h4>
+<p>When running the Vite development server within <a href="/docs/%7B%7Bversion%7D%7D/sail">Laravel Sail</a> on Windows Subsystem for Linux 2 (WSL2), you should add the following configuration to your <code>vite.config.js</code> file to ensure the browser can communicate with the development server:</p>
+<pre><code class="language-js"><span class="hljs-comment">// ...</span>
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-title function_">defineConfig</span>({
+    <span class="hljs-comment">// ...</span>
+    <span class="hljs-attr">server</span>: { <span class="hljs-comment">// [tl! add:start]</span>
+        <span class="hljs-attr">hmr</span>: {
+            <span class="hljs-attr">host</span>: <span class="hljs-string">&#x27;localhost&#x27;</span>,
+        },
+    }, <span class="hljs-comment">// [tl! add:end]</span>
+});
+</code></pre>
+<p>If your file changes are not being reflected in the browser while the development server is running, you may also need to configure Vite&#39;s <a href="https://vitejs.dev/config/server-options.html#server-watch"><code>server.watch.usePolling</code> option</a>.</p>
 <p><a name="loading-your-scripts-and-styles"></a></p>
 <h3 id="loading-your-scripts-and-styles">Loading Your Scripts And Styles</h3>
-<p>With your Vite entry points configured, you only need reference them in a <code>@vite()</code> Blade directive that you add to the <code>&lt;head&gt;</code> of your application&#39;s root template:</p>
+<p>With your Vite entry points configured, you may now reference them in a <code>@vite()</code> Blade directive that you add to the <code>&lt;head&gt;</code> of your application&#39;s root template:</p>
 <pre><code class="language-blade"><span class="language-xml"><span class="hljs-meta">&lt;!doctype <span class="hljs-keyword">html</span>&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
     </span><span class="hljs-comment">{{-- ... --}}</span><span class="language-xml">
@@ -179,6 +194,7 @@ npm run dev
 # </span><span class="language-bash">Build and version the assets <span class="hljs-keyword">for</span> production...</span>
 npm run build
 </code></pre>
+<p>If you are running the development server in <a href="/docs/%7B%7Bversion%7D%7D/sail">Sail</a> on WSL2, you may need some <a href="#configuring-hmr-in-sail-on-wsl2">additional configuration</a> options.</p>
 <p><a name="working-with-scripts"></a></p>
 <h2 id="working-with-javascript">Working With JavaScript</h2>
 <p><a name="aliases"></a></p>
@@ -205,7 +221,7 @@ npm run build
 </code></pre>
 <p><a name="vue"></a></p>
 <h3 id="vue">Vue</h3>
-<p>If you would like to build your front-end using the <a href="https://vuejs.org/">Vue</a> framework, then you will also need to install the <code>@vitejs/plugin-vue</code> plugin:</p>
+<p>If you would like to build your frontend using the <a href="https://vuejs.org/">Vue</a> framework, then you will also need to install the <code>@vitejs/plugin-vue</code> plugin:</p>
 <pre><code class="language-sh">npm install --save-dev @vitejs/plugin-vue
 </code></pre>
 <p>You may then include the plugin in your <code>vite.config.js</code> configuration file. There are a few additional options you will need when using the Vue plugin with Laravel:</p>
@@ -242,7 +258,7 @@ npm run build
 </blockquote>
 <p><a name="react"></a></p>
 <h3 id="react">React</h3>
-<p>If you would like to build your front-end using the <a href="https://reactjs.org/">React</a> framework, then you will also need to install the <code>@vitejs/plugin-react</code> plugin:</p>
+<p>If you would like to build your frontend using the <a href="https://reactjs.org/">React</a> framework, then you will also need to install the <code>@vitejs/plugin-react</code> plugin:</p>
 <pre><code class="language-sh">npm install --save-dev @vitejs/plugin-react
 </code></pre>
 <p>You may then include the plugin in your <code>vite.config.js</code> configuration file:</p>
@@ -309,7 +325,7 @@ resources/
 <p><a name="working-with-stylesheets"></a></p>
 <h2 id="working-with-stylesheets">Working With Stylesheets</h2>
 <p>You can learn more about Vite&#39;s CSS support within the <a href="https://vitejs.dev/guide/features.html#css">Vite documentation</a>. If you are using PostCSS plugins such as <a href="https://tailwindcss.com">Tailwind</a>, you may create a <code>postcss.config.js</code> file in the root of your project and Vite will automatically apply it:</p>
-<pre><code class="language-js"><span class="hljs-variable language_">module</span>.<span class="hljs-property">exports</span> = {
+<pre><code class="language-js"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> {
     <span class="hljs-attr">plugins</span>: {
         <span class="hljs-attr">tailwindcss</span>: {},
         <span class="hljs-attr">autoprefixer</span>: {},
@@ -615,7 +631,7 @@ node bootstrap/ssr/ssr.mjs
 <pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;/@imagetools/f0b2f404b13f052c604e632f2fb60381bf61a520&quot;</span>&gt;</span>
 </code></pre>
 <p>The <code>vite-imagetools</code> plugin is expecting that the output URL will be intercepted by Vite and the plugin may then handle all URLs that start with <code>/@imagetools</code>. If you are using plugins that are expecting this behaviour, you will need to manually correct the URLs. You can do this in your <code>vite.config.js</code> file by using the <code>transformOnServe</code> option. </p>
-<p>In this particular example, we will append the dev server URL to all occurrences of <code>/@imagetools</code> within the generated code:</p>
+<p>In this particular example, we will prepend the dev server URL to all occurrences of <code>/@imagetools</code> within the generated code:</p>
 <pre><code class="language-js"><span class="hljs-keyword">import</span> { defineConfig } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;vite&#x27;</span>;
 <span class="hljs-keyword">import</span> laravel <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;laravel-vite-plugin&#x27;</span>;
 <span class="hljs-keyword">import</span> { imagetools } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;vite-imagetools&#x27;</span>;

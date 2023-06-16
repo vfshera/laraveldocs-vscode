@@ -3,6 +3,7 @@
 <li><a href="#introduction">Introduction</a></li>
 <li><a href="#success-failure-expectations">Success / Failure Expectations</a></li>
 <li><a href="#input-output-expectations">Input / Output Expectations</a></li>
+<li><a href="#console-events">Console Events</a></li>
 </ul>
 <p><a name="introduction"></a></p>
 <h2 id="introduction">Introduction</h2>
@@ -75,4 +76,21 @@
         [<span class="hljs-number">1</span>, <span class="hljs-string">&#x27;taylor@example.com&#x27;</span>],
         [<span class="hljs-number">2</span>, <span class="hljs-string">&#x27;abigail@example.com&#x27;</span>],
     ]);
+</code></pre>
+<p><a name="console-events"></a></p>
+<h2 id="console-events">Console Events</h2>
+<p>By default, the <code>Illuminate\Console\Events\CommandStarting</code> and <code>Illuminate\Console\Events\CommandFinished</code> events are not dispatched while running your application&#39;s tests. However, you can enable these events for a given test class by adding the <code>Illuminate\Foundation\Testing\WithConsoleEvents</code> trait to the class:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">Tests</span>\<span class="hljs-title class_">Feature</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Foundation</span>\<span class="hljs-title">Testing</span>\<span class="hljs-title">WithConsoleEvents</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Tests</span>\<span class="hljs-title">TestCase</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ConsoleEventTest</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">TestCase</span>
+</span>{
+    <span class="hljs-keyword">use</span> <span class="hljs-title">WithConsoleEvents</span>;
+
+    <span class="hljs-comment">// ...</span>
+}
 </code></pre>

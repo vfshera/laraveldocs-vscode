@@ -4,6 +4,7 @@
 <li><a href="#invoking-processes">Invoking Processes</a><ul>
 <li><a href="#process-options">Process Options</a></li>
 <li><a href="#process-output">Process Output</a></li>
+<li><a href="#process-pipelines">Pipelines</a></li>
 </ul>
 </li>
 <li><a href="#asynchronous-processes">Asynchronous Processes</a><ul>
@@ -121,6 +122,43 @@
 <pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Process</span>;
 
 <span class="hljs-variable">$result</span> = <span class="hljs-title class_">Process</span>::<span class="hljs-title function_ invoke__">quietly</span>()-&gt;<span class="hljs-title function_ invoke__">run</span>(<span class="hljs-string">&#x27;bash import.sh&#x27;</span>);
+</code></pre>
+<p><a name="process-pipelines"></a></p>
+<h3 id="pipelines">Pipelines</h3>
+<p>Sometimes you may want to make the output of one process the input of another process. This is often referred to as &quot;piping&quot; the output of a process into another. The <code>pipe</code> method provided by the <code>Process</code> facades makes this easy to accomplish. The <code>pipe</code> method will execute the piped processes synchronously and return the process result for the last process in the pipeline:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Process</span>\<span class="hljs-title">Pipe</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Process</span>;
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Process</span>::<span class="hljs-title function_ invoke__">pipe</span>(function (Pipe <span class="hljs-variable">$pipe</span>) {
+    <span class="hljs-variable">$pipe</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;cat example.txt&#x27;</span>);
+    <span class="hljs-variable">$pipe</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;grep -i &quot;laravel&quot;&#x27;</span>);
+});
+
+<span class="hljs-keyword">if</span> (<span class="hljs-variable">$result</span>-&gt;<span class="hljs-title function_ invoke__">successful</span>()) {
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p>If you do not need to customize the individual processes that make up the pipeline, you may simply pass an array of command strings to the <code>pipe</code> method:</p>
+<pre><code class="language-php"><span class="hljs-variable">$result</span> = <span class="hljs-title class_">Process</span>::<span class="hljs-title function_ invoke__">pipe</span>([
+    <span class="hljs-string">&#x27;cat example.txt&#x27;</span>,
+    <span class="hljs-string">&#x27;grep -i &quot;laravel&quot;&#x27;</span>,
+]);
+</code></pre>
+<p>The process output may be gathered in real-time by passing a closure as the second argument to the <code>pipe</code> method. The closure will receive two arguments: the &quot;type&quot; of output (<code>stdout</code> or <code>stderr</code>) and the output string itself:</p>
+<pre><code class="language-php"><span class="hljs-variable">$result</span> = <span class="hljs-title class_">Process</span>::<span class="hljs-title function_ invoke__">pipe</span>(function (Pipe <span class="hljs-variable">$pipe</span>) {
+    <span class="hljs-variable">$pipe</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;cat example.txt&#x27;</span>);
+    <span class="hljs-variable">$pipe</span>-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;grep -i &quot;laravel&quot;&#x27;</span>);
+}, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"><span class="hljs-keyword">string</span> <span class="hljs-variable">$type</span>, <span class="hljs-keyword">string</span> <span class="hljs-variable">$output</span></span>) </span>{
+    <span class="hljs-keyword">echo</span> <span class="hljs-variable">$output</span>;
+});
+</code></pre>
+<p>Laravel also allows you to assign string keys to each process within a pipeline via the <code>as</code> method. This key will also be passed to the output closure provided to the <code>pipe</code> method, allowing you to determine which process the output belongs to:</p>
+<pre><code class="language-php"><span class="hljs-variable">$result</span> = <span class="hljs-title class_">Process</span>::<span class="hljs-title function_ invoke__">pipe</span>(function (Pipe <span class="hljs-variable">$pipe</span>) {
+    <span class="hljs-variable">$pipe</span>-&gt;<span class="hljs-keyword">as</span>(<span class="hljs-string">&#x27;first&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;cat example.txt&#x27;</span>);
+    <span class="hljs-variable">$pipe</span>-&gt;<span class="hljs-keyword">as</span>(<span class="hljs-string">&#x27;second&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">command</span>(<span class="hljs-string">&#x27;grep -i &quot;laravel&quot;&#x27;</span>);
+})-&gt;<span class="hljs-title function_ invoke__">start</span>(function (<span class="hljs-keyword">string</span> <span class="hljs-variable">$type</span>, <span class="hljs-keyword">string</span> <span class="hljs-variable">$output</span>, <span class="hljs-keyword">string</span> <span class="hljs-variable">$key</span>) {
+    <span class="hljs-comment">// ...</span>
+});
 </code></pre>
 <p><a name="asynchronous-processes"></a></p>
 <h2 id="asynchronous-processes">Asynchronous Processes</h2>

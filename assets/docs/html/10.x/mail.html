@@ -48,7 +48,7 @@
 </ul>
 <p><a name="introduction"></a></p>
 <h2 id="introduction">Introduction</h2>
-<p>Sending email doesn&#39;t have to be complicated. Laravel provides a clean, simple email API powered by the popular <a href="https://symfony.com/doc/6.0/mailer.html">Symfony Mailer</a> component. Laravel and Symfony Mailer provide drivers for sending email via SMTP, Mailgun, Postmark, Amazon SES, and <code>sendmail</code>, allowing you to quickly get started sending mail through a local or cloud based service of your choice.</p>
+<p>Sending email doesn&#39;t have to be complicated. Laravel provides a clean, simple email API powered by the popular <a href="https://symfony.com/doc/6.2/mailer.html">Symfony Mailer</a> component. Laravel and Symfony Mailer provide drivers for sending email via SMTP, Mailgun, Postmark, Amazon SES, and <code>sendmail</code>, allowing you to quickly get started sending mail through a local or cloud based service of your choice.</p>
 <p><a name="configuration"></a></p>
 <h3 id="configuration">Configuration</h3>
 <p>Laravel&#39;s email services may be configured via your application&#39;s <code>config/mail.php</code> configuration file. Each mailer configured within this file may have its own unique configuration and even its own unique &quot;transport&quot;, allowing your application to use different email services to send certain email messages. For example, your application might use Postmark to send transactional emails while using Amazon SES to send bulk emails.</p>
@@ -184,14 +184,17 @@
 <p><a name="using-a-global-from-address"></a></p>
 <h4 id="using-a-global-from-address">Using A Global <code>from</code> Address</h4>
 <p>However, if your application uses the same &quot;from&quot; address for all of its emails, it can become cumbersome to call the <code>from</code> method in each mailable class you generate. Instead, you may specify a global &quot;from&quot; address in your <code>config/mail.php</code> configuration file. This address will be used if no other &quot;from&quot; address is specified within the mailable class:</p>
-<pre><code><span class="hljs-string">&#x27;from&#x27;</span> =&gt; [<span class="hljs-string">&#x27;address&#x27;</span> =&gt; <span class="hljs-string">&#x27;example@example.com&#x27;</span>, <span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;App Name&#x27;</span>],
+<pre><code><span class="hljs-string">&#x27;from&#x27;</span> =&gt; [
+    <span class="hljs-string">&#x27;address&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;MAIL_FROM_ADDRESS&#x27;</span>, <span class="hljs-string">&#x27;hello@example.com&#x27;</span>),
+    <span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;MAIL_FROM_NAME&#x27;</span>, <span class="hljs-string">&#x27;Example&#x27;</span>),
+],
 </code></pre>
 <p>In addition, you may define a global &quot;reply_to&quot; address within your <code>config/mail.php</code> configuration file:</p>
 <pre><code><span class="hljs-string">&#x27;reply_to&#x27;</span> =&gt; [<span class="hljs-string">&#x27;address&#x27;</span> =&gt; <span class="hljs-string">&#x27;example@example.com&#x27;</span>, <span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;App Name&#x27;</span>],
 </code></pre>
 <p><a name="configuring-the-view"></a></p>
 <h3 id="configuring-the-view">Configuring The View</h3>
-<p>Within a mailable class&#39; <code>content</code> method, you may define the <code>view</code>, or which template should be used when rendering the email&#39;s contents. Since each email typically uses a <a href="/docs/%7B%7Bversion%7D%7D/blade">Blade template</a> to render its contents, you have the full power and convenience of the Blade templating engine when building your email&#39;s HTML:</p>
+<p>Within a mailable class&#39;s <code>content</code> method, you may define the <code>view</code>, or which template should be used when rendering the email&#39;s contents. Since each email typically uses a <a href="/docs/%7B%7Bversion%7D%7D/blade">Blade template</a> to render its contents, you have the full power and convenience of the Blade templating engine when building your email&#39;s HTML:</p>
 <pre><code><span class="hljs-comment">/**
  * Get the message content definition.
  */</span>
@@ -229,7 +232,7 @@
 <h3 id="view-data">View Data</h3>
 <p><a name="via-public-properties"></a></p>
 <h4 id="via-public-properties">Via Public Properties</h4>
-<p>Typically, you will want to pass some data to your view that you can utilize when rendering the email&#39;s HTML. There are two ways you may make data available to your view. First, any public property defined on your mailable class will automatically be made available to the view. So, for example, you may pass data into your mailable class&#39; constructor and set that data to public properties defined on the class:</p>
+<p>Typically, you will want to pass some data to your view that you can utilize when rendering the email&#39;s HTML. There are two ways you may make data available to your view. First, any public property defined on your mailable class will automatically be made available to the view. So, for example, you may pass data into your mailable class&#39;s constructor and set that data to public properties defined on the class:</p>
 <pre><code><span class="hljs-meta">&lt;?php</span>
 
 <span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Mail</span>;
@@ -269,7 +272,7 @@
 </code></pre>
 <p><a name="via-the-with-parameter"></a></p>
 <h4 id="via-the-with-parameter">Via The <code>with</code> Parameter:</h4>
-<p>If you would like to customize the format of your email&#39;s data before it is sent to the template, you may manually pass your data to the view via the <code>Content</code> definition&#39;s <code>with</code> parameter. Typically, you will still pass data via the mailable class&#39; constructor; however, you should set this data to <code>protected</code> or <code>private</code> properties so the data is not automatically made available to the template:</p>
+<p>If you would like to customize the format of your email&#39;s data before it is sent to the template, you may manually pass your data to the view via the <code>Content</code> definition&#39;s <code>with</code> parameter. Typically, you will still pass data via the mailable class&#39;s constructor; however, you should set this data to <code>protected</code> or <code>private</code> properties so the data is not automatically made available to the template:</p>
 <pre><code><span class="hljs-meta">&lt;?php</span>
 
 <span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Mail</span>;
@@ -831,7 +834,7 @@ This is the panel content.
 </code></pre>
 <p><a name="testing-mailable-sending"></a></p>
 <h3 id="testing-mailable-sending">Testing Mailable Sending</h3>
-<p>We suggest testing the content of your mailables separately from your tests that assert that a given mailable was &quot;sent&quot; to a specific user. Typically, the content of mailables it not relevant to the code you are testing, and it is sufficient to simply assert that Laravel was instructed to send a given mailable.</p>
+<p>We suggest testing the content of your mailables separately from your tests that assert that a given mailable was &quot;sent&quot; to a specific user. Typically, the content of mailables is not relevant to the code you are testing, and it is sufficient to simply assert that Laravel was instructed to send a given mailable.</p>
 <p>You may use the <code>Mail</code> facade&#39;s <code>fake</code> method to prevent mail from being sent. After calling the <code>Mail</code> facade&#39;s <code>fake</code> method, you may then assert that mailables were instructed to be sent to users and even inspect the data the mailables received:</p>
 <pre><code><span class="hljs-meta">&lt;?php</span>
 

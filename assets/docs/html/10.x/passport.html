@@ -227,7 +227,7 @@
 <pre><code><span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">group</span>([
     <span class="hljs-string">&#x27;as&#x27;</span> =&gt; <span class="hljs-string">&#x27;passport.&#x27;</span>,
     <span class="hljs-string">&#x27;prefix&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">config</span>(<span class="hljs-string">&#x27;passport.path&#x27;</span>, <span class="hljs-string">&#x27;oauth&#x27;</span>),
-    <span class="hljs-string">&#x27;namespace&#x27;</span> =&gt; <span class="hljs-string">&#x27;Laravel\Passport\Http\Controllers&#x27;</span>,
+    <span class="hljs-string">&#x27;namespace&#x27;</span> =&gt; <span class="hljs-string">&#x27;\Laravel\Passport\Http\Controllers&#x27;</span>,
 ], function () {
     <span class="hljs-comment">// Passport routes...</span>
 });
@@ -365,7 +365,8 @@ axios.<span class="hljs-title function_">put</span>(<span class="hljs-string">&#
 
     <span class="hljs-title function_ invoke__">throw_unless</span>(
         <span class="hljs-title function_ invoke__">strlen</span>(<span class="hljs-variable">$state</span>) &gt; <span class="hljs-number">0</span> &amp;&amp; <span class="hljs-variable">$state</span> === <span class="hljs-variable">$request</span>-&gt;state,
-        <span class="hljs-title class_">InvalidArgumentException</span>::<span class="hljs-variable language_">class</span>
+        <span class="hljs-title class_">InvalidArgumentException</span>::<span class="hljs-variable language_">class</span>,
+        <span class="hljs-string">&#x27;Invalid state value.&#x27;</span>
     );
 
     <span class="hljs-variable">$response</span> = <span class="hljs-title class_">Http</span>::<span class="hljs-title function_ invoke__">asForm</span>()-&gt;<span class="hljs-title function_ invoke__">post</span>(<span class="hljs-string">&#x27;http://passport-app.test/oauth/token&#x27;</span>, [

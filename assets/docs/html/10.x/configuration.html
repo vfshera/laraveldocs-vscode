@@ -164,6 +164,9 @@
 <p>You should typically run the <code>php artisan config:cache</code> command as part of your production deployment process. The command should not be run during local development as configuration options will frequently need to be changed during the course of your application&#39;s development.</p>
 <p>Once the configuration has been cached, your application&#39;s <code>.env</code> file will not be loaded by the framework during requests or Artisan commands; therefore, the <code>env</code> function will only return external, system level environment variables.</p>
 <p>For this reason, you should ensure you are only calling the <code>env</code> function from within your application&#39;s configuration (<code>config</code>) files. You can see many examples of this by examining Laravel&#39;s default configuration files. Configuration values may be accessed from anywhere in your application using the <code>config</code> function <a href="#accessing-configuration-values">described above</a>.</p>
+<p>The <code>config:clear</code> command may be used to purge the cached configuration:</p>
+<pre><code class="language-shell">php artisan config:clear
+</code></pre>
 <blockquote>
 <p><strong>Warning</strong><br>If you execute the <code>config:cache</code> command during your deployment process, you should be sure that you are only calling the <code>env</code> function from within your configuration files. Once the configuration has been cached, the <code>.env</code> file will not be loaded; therefore, the <code>env</code> function will only return external, system level environment variables.</p>
 </blockquote>

@@ -934,7 +934,9 @@ Hello, @</span><span class="hljs-template-variable">{{</span><span class="langua
 <p><a name="dynamic-components"></a></p>
 <h3 id="dynamic-components">Dynamic Components</h3>
 <p>Sometimes you may need to render a component but not know which component should be rendered until runtime. In this situation, you may use Laravel&#39;s built-in <code>dynamic-component</code> component to render the component based on a runtime value or variable:</p>
-<pre><code class="language-blade"><span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">x-dynamic-component</span> <span class="hljs-attr">:component</span>=<span class="hljs-string">&quot;$componentName&quot;</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;mt-4&quot;</span> /&gt;</span></span>
+<pre><code class="language-blade"><span class="language-xml">// $componentName = &quot;secondary-button&quot;;
+
+<span class="hljs-tag">&lt;<span class="hljs-name">x-dynamic-component</span> <span class="hljs-attr">:component</span>=<span class="hljs-string">&quot;$componentName&quot;</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;mt-4&quot;</span> /&gt;</span></span>
 </code></pre>
 <p><a name="manually-registering-components"></a></p>
 <h3 id="manually-registering-components">Manually Registering Components</h3>

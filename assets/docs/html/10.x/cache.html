@@ -140,7 +140,11 @@
 <p><a name="incrementing-decrementing-values"></a></p>
 <h4 id="incrementing--decrementing-values">Incrementing / Decrementing Values</h4>
 <p>The <code>increment</code> and <code>decrement</code> methods may be used to adjust the value of integer items in the cache. Both of these methods accept an optional second argument indicating the amount by which to increment or decrement the item&#39;s value:</p>
-<pre><code><span class="hljs-title class_">Cache</span>::<span class="hljs-title function_ invoke__">increment</span>(<span class="hljs-string">&#x27;key&#x27;</span>);
+<pre><code><span class="hljs-comment">// Initialize the value if it does not exist...</span>
+<span class="hljs-title class_">Cache</span>::<span class="hljs-title function_ invoke__">add</span>(<span class="hljs-string">&#x27;key&#x27;</span>, <span class="hljs-number">0</span>, <span class="hljs-title function_ invoke__">now</span>()-&gt;<span class="hljs-title function_ invoke__">addHours</span>(<span class="hljs-number">4</span>));
+
+<span class="hljs-comment">// Increment or decrement the value...</span>
+<span class="hljs-title class_">Cache</span>::<span class="hljs-title function_ invoke__">increment</span>(<span class="hljs-string">&#x27;key&#x27;</span>);
 <span class="hljs-title class_">Cache</span>::<span class="hljs-title function_ invoke__">increment</span>(<span class="hljs-string">&#x27;key&#x27;</span>, <span class="hljs-variable">$amount</span>);
 <span class="hljs-title class_">Cache</span>::<span class="hljs-title function_ invoke__">decrement</span>(<span class="hljs-string">&#x27;key&#x27;</span>);
 <span class="hljs-title class_">Cache</span>::<span class="hljs-title function_ invoke__">decrement</span>(<span class="hljs-string">&#x27;key&#x27;</span>, <span class="hljs-variable">$amount</span>);
@@ -273,6 +277,10 @@ Pruning stale cache tags is only necessary when using Redis as your application&
     <span class="hljs-variable">$table</span>-&gt;<span class="hljs-keyword">integer</span>(<span class="hljs-string">&#x27;expiration&#x27;</span>);
 });
 </code></pre>
+<blockquote>
+<p><strong>Note</strong>
+If you used the <code>cache:table</code> Artisan command to create the database driver&#39;s cache table, the migration created by that command already includes a definition for the <code>cache_locks</code> table.</p>
+</blockquote>
 <p><a name="managing-locks"></a></p>
 <h3 id="managing-locks">Managing Locks</h3>
 <p>Atomic locks allow for the manipulation of distributed locks without worrying about race conditions. For example, <a href="https://forge.laravel.com">Laravel Forge</a> uses atomic locks to ensure that only one remote task is being executed on a server at a time. You may create and manage locks using the <code>Cache::lock</code> method:</p>

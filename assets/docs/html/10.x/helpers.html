@@ -4,7 +4,10 @@
 <li><a href="#available-methods">Available Methods</a></li>
 <li><a href="#other-utilities">Other Utilities</a><ul>
 <li><a href="#benchmarking">Benchmarking</a></li>
+<li><a href="#dates">Dates</a></li>
 <li><a href="#lottery">Lottery</a></li>
+<li><a href="#pipeline">Pipeline</a></li>
+<li><a href="#sleep">Sleep</a></li>
 </ul>
 </li>
 </ul>
@@ -50,6 +53,7 @@
 <a href="#method-array-keyby">Arr::keyBy</a>
 <a href="#method-array-last">Arr::last</a>
 <a href="#method-array-map">Arr::map</a>
+<a href="#method-array-map-with-keys">Arr::mapWithKeys</a>
 <a href="#method-array-only">Arr::only</a>
 <a href="#method-array-pluck">Arr::pluck</a>
 <a href="#method-array-prepend">Arr::prepend</a>
@@ -62,6 +66,7 @@
 <a href="#method-array-sort">Arr::sort</a>
 <a href="#method-array-sort-desc">Arr::sortDesc</a>
 <a href="#method-array-sort-recursive">Arr::sortRecursive</a>
+<a href="#method-array-sort-recursive-desc">Arr::sortRecursiveDesc</a>
 <a href="#method-array-to-css-classes">Arr::toCssClasses</a>
 <a href="#method-array-undot">Arr::undot</a>
 <a href="#method-array-where">Arr::where</a>
@@ -293,6 +298,7 @@
 <a href="#method-decrypt">decrypt</a>
 <a href="#method-dd">dd</a>
 <a href="#method-dispatch">dispatch</a>
+<a href="#method-dispatch-sync">dispatch_sync</a>
 <a href="#method-dump">dump</a>
 <a href="#method-encrypt">encrypt</a>
 <a href="#method-env">env</a>
@@ -648,6 +654,35 @@
 
 <span class="hljs-comment">// [&#x27;first&#x27; =&gt; &#x27;James&#x27;, &#x27;last&#x27; =&gt; &#x27;Kirk&#x27;]</span>
 </code></pre>
+<p><a name="method-array-map-with-keys"></a></p>
+<h4 id="arrmapwithkeys-collection-method"><code>Arr::mapWithKeys()</code> {.collection-method}</h4>
+<p>The <code>Arr::mapWithKeys</code> method iterates through the array and passes each value to the given callback. The callback should return an associative array containing a single key / value pair:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Arr</span>;
+
+<span class="hljs-variable">$array</span> = [
+    [
+        <span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;John&#x27;</span>,
+        <span class="hljs-string">&#x27;department&#x27;</span> =&gt; <span class="hljs-string">&#x27;Sales&#x27;</span>,
+        <span class="hljs-string">&#x27;email&#x27;</span> =&gt; <span class="hljs-string">&#x27;john@example.com&#x27;</span>,
+    ],
+    [
+        <span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-string">&#x27;Jane&#x27;</span>,
+        <span class="hljs-string">&#x27;department&#x27;</span> =&gt; <span class="hljs-string">&#x27;Marketing&#x27;</span>,
+        <span class="hljs-string">&#x27;email&#x27;</span> =&gt; <span class="hljs-string">&#x27;jane@example.com&#x27;</span>,
+    ]
+];
+
+<span class="hljs-variable">$mapped</span> = <span class="hljs-title class_">Arr</span>::<span class="hljs-title function_ invoke__">mapWithKeys</span>(<span class="hljs-variable">$array</span>, function (<span class="hljs-keyword">array</span> <span class="hljs-variable">$item</span>, <span class="hljs-keyword">int</span> <span class="hljs-variable">$key</span>) {
+    <span class="hljs-keyword">return</span> [<span class="hljs-variable">$item</span>[<span class="hljs-string">&#x27;email&#x27;</span>] =&gt; <span class="hljs-variable">$item</span>[<span class="hljs-string">&#x27;name&#x27;</span>]];
+});
+
+<span class="hljs-comment">/*
+    [
+        &#x27;john<span class="hljs-doctag">@example</span>.com&#x27; =&gt; &#x27;John&#x27;,
+        &#x27;jane<span class="hljs-doctag">@example</span>.com&#x27; =&gt; &#x27;Jane&#x27;,
+    ]
+*/</span>
+</code></pre>
 <p><a name="method-array-only"></a></p>
 <h4 id="arronly-collection-method"><code>Arr::only()</code> {.collection-method}</h4>
 <p>The <code>Arr::only</code> method returns only the specified key / value pairs from the given array:</p>
@@ -876,6 +911,9 @@
         [&#x27;Li&#x27;, &#x27;Roman&#x27;, &#x27;Taylor&#x27;],
     ]
 */</span>
+</code></pre>
+<p>If you would like the results sorted in descending order, you may use the <code>Arr::sortRecursiveDesc</code> method.</p>
+<pre><code><span class="hljs-variable">$sorted</span> = <span class="hljs-title class_">Arr</span>::<span class="hljs-title function_ invoke__">sortRecursiveDesc</span>(<span class="hljs-variable">$array</span>);
 </code></pre>
 <p><a name="method-array-to-css-classes"></a></p>
 <h4 id="arrtocssclasses-collection-method"><code>Arr::toCssClasses()</code> {.collection-method}</h4>
@@ -1620,6 +1658,9 @@ By default, the Laravel application skeleton does not include the <code>lang</co
 
 <span class="hljs-comment">// Laravel 9.x</span>
 </code></pre>
+<p>The <code>replace</code> method also accepts a <code>caseSensitive</code> argument. By default, the <code>replace</code> method is case sensitive:</p>
+<pre><code><span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">replace</span>(<span class="hljs-string">&#x27;Framework&#x27;</span>, <span class="hljs-string">&#x27;Laravel&#x27;</span>, <span class="hljs-attr">caseSensitive</span>: <span class="hljs-literal">false</span>);
+</code></pre>
 <p><a name="method-str-replace-array"></a></p>
 <h4 id="strreplacearray-collection-method"><code>Str::replaceArray()</code> {.collection-method}</h4>
 <p>The <code>Str::replaceArray</code> method replaces a given value in the string sequentially using an array:</p>
@@ -1824,12 +1865,18 @@ By default, the Laravel application skeleton does not include the <code>lang</co
 </code></pre>
 <p><a name="method-str-ulid"></a></p>
 <h4 id="strulid-collection-method"><code>Str::ulid()</code> {.collection-method}</h4>
-<p>The <code>Str::ulid</code> method generates a ULID:</p>
+<p>The <code>Str::ulid</code> method generates a ULID, which is a compact, time-ordered unique identifier:</p>
 <pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
 
 <span class="hljs-keyword">return</span> (<span class="hljs-keyword">string</span>) <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">ulid</span>();
 
 <span class="hljs-comment">// 01gd6r360bp37zj17nxb55yv40</span>
+</code></pre>
+<p>If you would like to retrieve a <code>Illuminate\Support\Carbon</code> date instance representing the date and time that a given ULID was created, you may use the <code>createFromId</code> method provided by Laravel&#39;s Carbon integration:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Carbon</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$date</span> = <span class="hljs-title class_">Carbon</span>::<span class="hljs-title function_ invoke__">createFromId</span>((<span class="hljs-keyword">string</span>) <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">ulid</span>());
 </code></pre>
 <p><a name="method-str-uuid"></a></p>
 <h4 id="struuid-collection-method"><code>Str::uuid()</code> {.collection-method}</h4>
@@ -2355,7 +2402,7 @@ By default, the Laravel application skeleton does not include the <code>lang</co
 
 <span class="hljs-comment">// true</span>
 
-<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;laravel&#x27;</span>)-&gt;<span class="hljs-keyword">match</span>(<span class="hljs-string">&#x27;/foo (.*)/&#x27;</span>);
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;laravel&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">isMatch</span>(<span class="hljs-string">&#x27;/foo (.*)/&#x27;</span>);
 
 <span class="hljs-comment">// false</span>
 </code></pre>
@@ -2475,6 +2522,11 @@ By default, the Laravel application skeleton does not include the <code>lang</co
 <span class="hljs-variable">$replaced</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Laravel 6.x&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">replace</span>(<span class="hljs-string">&#x27;6.x&#x27;</span>, <span class="hljs-string">&#x27;7.x&#x27;</span>);
 
 <span class="hljs-comment">// Laravel 7.x</span>
+</code></pre>
+<p>The <code>replace</code> method also accepts a <code>caseSensitive</code> argument. By default, the <code>replace</code> method is case sensitive:</p>
+<pre><code><span class="hljs-variable">$replaced</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;macOS 13.x&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">replace</span>(
+    <span class="hljs-string">&#x27;macOS&#x27;</span>, <span class="hljs-string">&#x27;iOS&#x27;</span>, <span class="hljs-attr">caseSensitive</span>: <span class="hljs-literal">false</span>
+);
 </code></pre>
 <p><a name="method-fluent-str-replace-array"></a></p>
 <h4 id="replacearray-collection-method"><code>replaceArray</code> {.collection-method}</h4>
@@ -3144,6 +3196,11 @@ By default, the Laravel application skeleton does not include the <code>lang</co
 <p>The <code>dispatch</code> function pushes the given <a href="/docs/%7B%7Bversion%7D%7D/queues#creating-jobs">job</a> onto the Laravel <a href="/docs/%7B%7Bversion%7D%7D/queues">job queue</a>:</p>
 <pre><code><span class="hljs-title function_ invoke__">dispatch</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">App\Jobs\SendEmails</span>);
 </code></pre>
+<p><a name="method-dispatch-sync"></a></p>
+<h4 id="dispatch_sync-collection-method"><code>dispatch_sync()</code> {.collection-method}</h4>
+<p>The <code>dispatch_sync</code> function pushes the given job to the <a href="/docs/%7B%7Bversion%7D%7D/queues#synchronous-dispatching">sync</a> queue so that it is processed immediately:</p>
+<pre><code><span class="hljs-title function_ invoke__">dispatch_sync</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">App\Jobs\SendEmails</span>);
+</code></pre>
 <p><a name="method-dump"></a></p>
 <h4 id="dump-collection-method"><code>dump()</code> {.collection-method}</h4>
 <p>The <code>dump</code> function dumps the given variables:</p>
@@ -3516,6 +3573,17 @@ By default, the Laravel application skeleton does not include the <code>lang</co
 <p>To invoke a callback more than once, you may specify the number of iterations that the callback should be invoked as the second argument to the method. When executing a callback more than once, the <code>Benchmark</code> class will return the average amount of milliseconds it took to execute the callback across all iterations:</p>
 <pre><code><span class="hljs-title class_">Benchmark</span>::<span class="hljs-title function_ invoke__">dd</span>(fn () =&gt; <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">count</span>(), iterations: <span class="hljs-number">10</span>); <span class="hljs-comment">// 0.5 ms</span>
 </code></pre>
+<p><a name="dates"></a></p>
+<h3 id="dates">Dates</h3>
+<p>Laravel includes <a href="https://carbon.nesbot.com/docs/">Carbon</a>, a powerful date and time manipulation library. To create a new <code>Carbon</code> instance, you may invoke the <code>now</code> function. This function is globally available within your Laravel application:</p>
+<pre><code class="language-php"><span class="hljs-variable">$now</span> = <span class="hljs-title function_ invoke__">now</span>();
+</code></pre>
+<p>Or, you may create a new <code>Carbon</code> instance using the <code>Illuminate\Support\Carbon</code> class:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Carbon</span>;
+
+<span class="hljs-variable">$now</span> = <span class="hljs-title class_">Carbon</span>::<span class="hljs-title function_ invoke__">now</span>();
+</code></pre>
+<p>For a thorough discussion of Carbon and its features, please consult the <a href="https://carbon.nesbot.com/docs/">official Carbon documentation</a>.</p>
 <p><a name="lottery"></a></p>
 <h3 id="lottery">Lottery</h3>
 <p>Laravel&#39;s lottery class may be used to execute callbacks based on a set of given odds. This can be particularly useful when you only want to execute code for a percentage of your incoming requests:</p>
@@ -3551,3 +3619,141 @@ DB::<span class="hljs-title function_ invoke__">whenQueryingForLongerThan</span>
 <span class="hljs-comment">// Lottery will return to normal behavior...</span>
 <span class="hljs-title class_">Lottery</span>::<span class="hljs-title function_ invoke__">determineResultsNormally</span>();
 </code></pre>
+<p><a name="pipeline"></a></p>
+<h3 id="pipeline">Pipeline</h3>
+<p>Laravel&#39;s <code>Pipeline</code> facade provides a convenient way to &quot;pipe&quot; a given input through a series of invokable classes, closures, or callables, giving each class the opportunity to inspect or modify the input and invoke the next callable in the pipeline:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Closure</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Pipeline</span>;
+
+<span class="hljs-variable">$user</span> = <span class="hljs-title class_">Pipeline</span>::<span class="hljs-title function_ invoke__">send</span>(<span class="hljs-variable">$user</span>)
+            -&gt;<span class="hljs-title function_ invoke__">through</span>([
+                function (User <span class="hljs-variable">$user</span>, <span class="hljs-built_in">Closure</span> <span class="hljs-variable">$next</span>) {
+                    <span class="hljs-comment">// ...</span>
+
+                    <span class="hljs-keyword">return</span> <span class="hljs-variable">$next</span>(<span class="hljs-variable">$user</span>);
+                },
+                <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">User <span class="hljs-variable">$user</span>, <span class="hljs-built_in">Closure</span> <span class="hljs-variable">$next</span></span>) </span>{
+                    <span class="hljs-comment">// ...</span>
+
+                    <span class="hljs-keyword">return</span> <span class="hljs-variable">$next</span>(<span class="hljs-variable">$user</span>);
+                },
+            ])
+            -&gt;<span class="hljs-title function_ invoke__">then</span>(fn (User <span class="hljs-variable">$user</span>) =&gt; <span class="hljs-variable">$user</span>);
+</code></pre>
+<p>As you can see, each invokable class or closure in the pipeline is provided the input and a <code>$next</code> closure. Invoking the <code>$next</code> closure will invoke the next callable in the pipeline. As you may have noticed, this is very similar to <a href="/docs/%7B%7Bversion%7D%7D/middleware">middleware</a>.</p>
+<p>When the last callable in the pipeline invokes the <code>$next</code> closure, the callable provided to the <code>then</code> method will be invoked. Typically, this callable will simply return the given input.</p>
+<p>Of course, as discussed previously, you are not limited to providing closures to your pipeline. You may also provide invokable classes. If a class name is provided, the class will be instantiated via Laravel&#39;s <a href="/docs/%7B%7Bversion%7D%7D/container">service container</a>, allowing dependencies to be injected into the invokable class:</p>
+<pre><code class="language-php"><span class="hljs-variable">$user</span> = <span class="hljs-title class_">Pipeline</span>::<span class="hljs-title function_ invoke__">send</span>(<span class="hljs-variable">$user</span>)
+            -&gt;<span class="hljs-title function_ invoke__">through</span>([
+                <span class="hljs-title class_">GenerateProfilePhoto</span>::<span class="hljs-variable language_">class</span>,
+                <span class="hljs-title class_">ActivateSubscription</span>::<span class="hljs-variable language_">class</span>,
+                <span class="hljs-title class_">SendWelcomeEmail</span>::<span class="hljs-variable language_">class</span>,
+            ])
+            -&gt;<span class="hljs-title function_ invoke__">then</span>(fn (User <span class="hljs-variable">$user</span>) =&gt; <span class="hljs-variable">$user</span>);
+</code></pre>
+<p><a name="sleep"></a></p>
+<h3 id="sleep">Sleep</h3>
+<p>Laravel&#39;s <code>Sleep</code> class is a light-weight wrapper around PHP&#39;s native <code>sleep</code> and <code>usleep</code> functions, offering greater testability while also exposing a developer friendly API for working with time:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Sleep</span>;
+
+<span class="hljs-variable">$waiting</span> = <span class="hljs-literal">true</span>;
+
+<span class="hljs-keyword">while</span> (<span class="hljs-variable">$waiting</span>) {
+    <span class="hljs-title class_">Sleep</span>::<span class="hljs-keyword">for</span>(<span class="hljs-number">1</span>)-&gt;<span class="hljs-title function_ invoke__">second</span>();
+
+    <span class="hljs-variable">$waiting</span> = <span class="hljs-comment">/* ... */</span>;
+}
+</code></pre>
+<p>The <code>Sleep</code> class offers a variety of methods that allow you to work with different units of time:</p>
+<pre><code><span class="hljs-comment">// Pause execution for 90 seconds...</span>
+<span class="hljs-title class_">Sleep</span>::<span class="hljs-keyword">for</span>(<span class="hljs-number">1.5</span>)-&gt;<span class="hljs-title function_ invoke__">minutes</span>();
+
+<span class="hljs-comment">// Pause execution for 2 seconds...</span>
+<span class="hljs-title class_">Sleep</span>::<span class="hljs-keyword">for</span>(<span class="hljs-number">2</span>)-&gt;<span class="hljs-title function_ invoke__">seconds</span>();
+
+<span class="hljs-comment">// Pause execution for 500 milliseconds...</span>
+<span class="hljs-title class_">Sleep</span>::<span class="hljs-keyword">for</span>(<span class="hljs-number">500</span>)-&gt;<span class="hljs-title function_ invoke__">milliseconds</span>();
+
+<span class="hljs-comment">// Pause execution for 5,000 microseconds...</span>
+<span class="hljs-title class_">Sleep</span>::<span class="hljs-keyword">for</span>(<span class="hljs-number">5000</span>)-&gt;<span class="hljs-title function_ invoke__">microseconds</span>();
+
+<span class="hljs-comment">// Pause execution until a given time...</span>
+<span class="hljs-title class_">Sleep</span>::<span class="hljs-title function_ invoke__">until</span>(<span class="hljs-title function_ invoke__">now</span>()-&gt;<span class="hljs-title function_ invoke__">addMinute</span>());
+
+<span class="hljs-comment">// Alias of PHP&#x27;s native &quot;sleep&quot; function...</span>
+<span class="hljs-title class_">Sleep</span>::<span class="hljs-title function_ invoke__">sleep</span>(<span class="hljs-number">2</span>);
+
+<span class="hljs-comment">// Alias of PHP&#x27;s native &quot;usleep&quot; function...</span>
+<span class="hljs-title class_">Sleep</span>::<span class="hljs-title function_ invoke__">usleep</span>(<span class="hljs-number">5000</span>);
+</code></pre>
+<p>To easily combine units of time, you may use the <code>and</code> method:</p>
+<pre><code><span class="hljs-title class_">Sleep</span>::<span class="hljs-keyword">for</span>(<span class="hljs-number">1</span>)-&gt;<span class="hljs-title function_ invoke__">second</span>()-&gt;<span class="hljs-keyword">and</span>(<span class="hljs-number">10</span>)-&gt;<span class="hljs-title function_ invoke__">milliseconds</span>();
+</code></pre>
+<p><a name="testing-sleep"></a></p>
+<h4 id="testing-sleep">Testing Sleep</h4>
+<p>When testing code that utilizes the <code>Sleep</code> class or PHP&#39;s native sleep functions, your test will pause execution. As you might expect, this makes your test suite significantly slower. For example, imagine you are testing the following code:</p>
+<pre><code><span class="hljs-variable">$waiting</span> = <span class="hljs-comment">/* ... */</span>;
+
+<span class="hljs-variable">$seconds</span> = <span class="hljs-number">1</span>;
+
+<span class="hljs-keyword">while</span> (<span class="hljs-variable">$waiting</span>) {
+    <span class="hljs-title class_">Sleep</span>::<span class="hljs-keyword">for</span>(<span class="hljs-variable">$seconds</span>++)-&gt;<span class="hljs-title function_ invoke__">seconds</span>();
+
+    <span class="hljs-variable">$waiting</span> = <span class="hljs-comment">/* ... */</span>;
+}
+</code></pre>
+<p>Typically, testing this code would take <em>at least</em> one second. Luckily, the <code>Sleep</code> class allows us to &quot;fake&quot; sleeping so that our test suite stays fast:</p>
+<pre><code><span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test_it_waits_until_ready</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-title class_">Sleep</span>::<span class="hljs-title function_ invoke__">fake</span>();
+
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p>When faking the <code>Sleep</code> class, the actual execution pause is by-passed, leading to a substantially faster test.</p>
+<p>Once the <code>Sleep</code> class has been faked, it is possible to make assertions against the expected &quot;sleeps&quot; that should have occurred. To illustrate this, let&#39;s imagine we are testing code that pauses execution three times, with each pause increasing by a single second. Using the <code>assertSequence</code> method, we can assert that our code &quot;slept&quot; for the proper amount of time while keeping our test fast:</p>
+<pre><code><span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test_it_checks_if_ready_four_times</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-title class_">Sleep</span>::<span class="hljs-title function_ invoke__">fake</span>();
+
+    <span class="hljs-comment">// ...</span>
+
+    <span class="hljs-title class_">Sleep</span>::<span class="hljs-title function_ invoke__">assertSequence</span>([
+        <span class="hljs-title class_">Sleep</span>::<span class="hljs-keyword">for</span>(<span class="hljs-number">1</span>)-&gt;<span class="hljs-title function_ invoke__">second</span>(),
+        <span class="hljs-title class_">Sleep</span>::<span class="hljs-keyword">for</span>(<span class="hljs-number">2</span>)-&gt;<span class="hljs-title function_ invoke__">seconds</span>(),
+        <span class="hljs-title class_">Sleep</span>::<span class="hljs-keyword">for</span>(<span class="hljs-number">3</span>)-&gt;<span class="hljs-title function_ invoke__">seconds</span>(),
+    ]);
+}
+</code></pre>
+<p>Of course, the <code>Sleep</code> class offers a variety of other assertions you may use when testing:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Carbon</span>\<span class="hljs-title">CarbonInterval</span> <span class="hljs-keyword">as</span> <span class="hljs-title">Duration</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Sleep</span>;
+
+<span class="hljs-comment">// Assert that sleep was called 3 times...</span>
+<span class="hljs-title class_">Sleep</span>::<span class="hljs-title function_ invoke__">assertSleptTimes</span>(<span class="hljs-number">3</span>);
+
+<span class="hljs-comment">// Assert against the duration of sleep...</span>
+<span class="hljs-title class_">Sleep</span>::<span class="hljs-title function_ invoke__">assertSlept</span>(function (Duration <span class="hljs-variable">$duration</span>): <span class="hljs-keyword">bool</span> {
+    <span class="hljs-keyword">return</span> <span class="hljs-comment">/* ... */</span>;
+}, times: <span class="hljs-number">1</span>);
+
+<span class="hljs-comment">// Assert that the Sleep class was never invoked...</span>
+<span class="hljs-title class_">Sleep</span>::<span class="hljs-title function_ invoke__">assertNeverSlept</span>();
+
+<span class="hljs-comment">// Assert that, even if Sleep was called, no execution paused occurred...</span>
+<span class="hljs-title class_">Sleep</span>::<span class="hljs-title function_ invoke__">assertInsomniac</span>();
+</code></pre>
+<p>Sometimes it may be useful to perform an action whenever a fake sleep occurs in your application code. To achieve this, you may provide a callback to the <code>whenFakingSleep</code> method. In the following example, we use Laravel&#39;s <a href="/docs/%7B%7Bversion%7D%7D/mocking#interacting-with-time">time manipulation helpers</a> to instantly progress time by the duration of each sleep:</p>
+<pre><code class="language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Carbon</span>\<span class="hljs-title">CarbonInterval</span> <span class="hljs-keyword">as</span> <span class="hljs-title">Duration</span>;
+
+<span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">freezeTime</span>();
+
+<span class="hljs-title class_">Sleep</span>::<span class="hljs-title function_ invoke__">fake</span>();
+
+<span class="hljs-title class_">Sleep</span>::<span class="hljs-title function_ invoke__">whenFakingSleep</span>(function (Duration <span class="hljs-variable">$duration</span>) {
+    <span class="hljs-comment">// Progress time when faking sleep...</span>
+    <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">travel</span>(<span class="hljs-variable">$duration</span>-&gt;totalMilliseconds)-&gt;<span class="hljs-title function_ invoke__">milliseconds</span>();
+});
+</code></pre>
+<p>Laravel uses the <code>Sleep</code> class internally whenever it is pausing execution. For example, the <a href="#method-retry"><code>retry</code></a> helper uses the <code>Sleep</code> class when sleeping, allowing for improved testability when using that helper.</p>

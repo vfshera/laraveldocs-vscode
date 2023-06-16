@@ -32,6 +32,7 @@
 
 <ul>
 <li><a href="#closure-validation-rule-messages">Closure Validation Rule Messages</a></li>
+<li><a href="#form-request-after-method">Form Request <code>after</code> Method</a></li>
 <li><a href="#public-path-binding">Public Path Binding</a></li>
 <li><a href="#query-exception-constructor">Query Exception Constructor</a></li>
 <li><a href="#rate-limiter-return-values">Rate Limiter Return Values</a></li>
@@ -66,6 +67,7 @@
 <li><code>laravel/sanctum</code> to <code>^3.2</code></li>
 <li><code>doctrine/dbal</code> to <code>^3.0</code></li>
 <li><code>spatie/laravel-ignition</code> to <code>^2.0</code></li>
+<li><code>laravel/passport</code> to <code>^11.0</code> (<a href="https://github.com/laravel/passport/blob/11.x/UPGRADE.md">Upgrade Guide</a>)</li>
 </ul>
 </div>
 
@@ -82,7 +84,7 @@
 <p>Finally, examine any other third-party packages consumed by your application and verify you are using the proper version for Laravel 10 support.</p>
 <p><a name="updating-minimum-stability"></a></p>
 <h4 id="minimum-stability">Minimum Stability</h4>
-<p>You should update the <code>minimum-stability</code> setting in your application&#39;s <code>composer.json</code> file to <code>stable</code>:</p>
+<p>You should update the <code>minimum-stability</code> setting in your application&#39;s <code>composer.json</code> file to <code>stable</code>. Or, since the default value of <code>minimum-stability</code> is <code>stable</code>, you may delete this setting from your application&#39;s <code>composer.json</code> file:</p>
 <pre><code class="language-json"><span class="hljs-attr">&quot;minimum-stability&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;stable&quot;</span><span class="hljs-punctuation">,</span>
 </code></pre>
 <h3 id="application">Application</h3>
@@ -201,6 +203,10 @@
     ],
 }
 </code></pre>
+<p><a name="form-request-after-method"></a></p>
+<h4 id="form-request-after-method">Form Request After Method</h4>
+<p><strong>Likelihood Of Impact: Very Low</strong></p>
+<p>Within form requests, the <code>after</code> method is now <a href="https://github.com/laravel/framework/pull/46757">reserved by Laravel</a>. If your form requests define an <code>after</code> method, the method should be renamed or modified to utilize the new &quot;after validation&quot; feature of Laravel&#39;s form requests.</p>
 <p><a name="miscellaneous"></a></p>
 <h3 id="miscellaneous">Miscellaneous</h3>
 <p>We also encourage you to view the changes in the <code>laravel/laravel</code> <a href="https://github.com/laravel/laravel">GitHub repository</a>. While many of these changes are not required, you may wish to keep these files in sync with your application. Some of these changes will be covered in this upgrade guide, but others, such as changes to configuration files or comments, will not be.</p>

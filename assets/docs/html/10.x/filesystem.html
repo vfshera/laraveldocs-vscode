@@ -72,7 +72,7 @@ You may configure as many disks as you like and may even have multiple disks tha
 <p><a name="s3-driver-configuration"></a></p>
 <h4 id="s3-driver-configuration">S3 Driver Configuration</h4>
 <p>Before using the S3 driver, you will need to install the Flysystem S3 package via the Composer package manager:</p>
-<pre><code class="language-shell">composer require league/flysystem-aws-s3-v3 &quot;^3.0&quot;
+<pre><code class="language-shell">composer require league/flysystem-aws-s3-v3 &quot;^3.0&quot; --with-all-dependencies
 </code></pre>
 <p>The S3 driver configuration information is located in your <code>config/filesystems.php</code> configuration file. This file contains an example configuration array for an S3 driver. You are free to modify this array with your own S3 configuration and credentials. For convenience, these environment variables match the naming convention used by the AWS CLI.</p>
 <p><a name="ftp-driver-configuration"></a></p>
@@ -112,6 +112,10 @@ You may configure as many disks as you like and may even have multiple disks tha
     <span class="hljs-comment">// Settings for SSH key based authentication with encryption password...</span>
     <span class="hljs-string">&#x27;privateKey&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;SFTP_PRIVATE_KEY&#x27;</span>),
     <span class="hljs-string">&#x27;passphrase&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;SFTP_PASSPHRASE&#x27;</span>),
+
+    <span class="hljs-comment">// Settings for file / directory permissions...</span>
+    <span class="hljs-string">&#x27;visibility&#x27;</span> =&gt; <span class="hljs-string">&#x27;private&#x27;</span>, <span class="hljs-comment">// `private` = 0600, `public` = 0700</span>
+    <span class="hljs-string">&#x27;directory_visibility&#x27;</span> =&gt; <span class="hljs-string">&#x27;private&#x27;</span>, <span class="hljs-comment">// `private` = 0700, `public` = 0755</span>
 
     <span class="hljs-comment">// Optional SFTP Settings...</span>
     <span class="hljs-comment">// &#x27;hostFingerprint&#x27; =&gt; env(&#x27;SFTP_HOST_FINGERPRINT&#x27;),</span>
@@ -185,6 +189,9 @@ You may configure as many disks as you like and may even have multiple disks tha
 <h2 id="retrieving-files">Retrieving Files</h2>
 <p>The <code>get</code> method may be used to retrieve the contents of a file. The raw string contents of the file will be returned by the method. Remember, all file paths should be specified relative to the disk&#39;s &quot;root&quot; location:</p>
 <pre><code><span class="hljs-variable">$contents</span> = <span class="hljs-title class_">Storage</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;file.jpg&#x27;</span>);
+</code></pre>
+<p>If the file you are retrieving contains JSON, you may use the <code>json</code> method to retrieve the file and decode its contents:</p>
+<pre><code><span class="hljs-variable">$orders</span> = <span class="hljs-title class_">Storage</span>::<span class="hljs-title function_ invoke__">json</span>(<span class="hljs-string">&#x27;orders.json&#x27;</span>);
 </code></pre>
 <p>The <code>exists</code> method may be used to determine if a file exists on the disk:</p>
 <pre><code><span class="hljs-keyword">if</span> (<span class="hljs-title class_">Storage</span>::<span class="hljs-title function_ invoke__">disk</span>(<span class="hljs-string">&#x27;s3&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">exists</span>(<span class="hljs-string">&#x27;file.jpg&#x27;</span>)) {

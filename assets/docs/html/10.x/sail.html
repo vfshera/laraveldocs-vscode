@@ -44,7 +44,7 @@
 <p>Laravel Sail is supported on macOS, Linux, and Windows (via <a href="https://docs.microsoft.com/en-us/windows/wsl/about">WSL2</a>).</p>
 <p><a name="installation"></a></p>
 <h2 id="installation--setup">Installation &amp; Setup</h2>
-<p>Laravel Sail is automatically installed with all new Laravel applications so you may start using it immediately. To learn how to create a new Laravel application, please consult Laravel&#39;s <a href="/docs/%7B%7Bversion%7D%7D/installation">installation documentation</a> for your operating system. During installation, you will be asked to choose which Sail supported services your application will be interacting with.</p>
+<p>Laravel Sail is automatically installed with all new Laravel applications so you may start using it immediately. To learn how to create a new Laravel application, please consult Laravel&#39;s <a href="/docs/%7B%7Bversion%7D%7D/installation#laravel-and-docker">installation documentation</a> for your operating system. During installation, you will be asked to choose which Sail supported services your application will be interacting with.</p>
 <p><a name="installing-sail-into-existing-applications"></a></p>
 <h3 id="installing-sail-into-existing-applications">Installing Sail Into Existing Applications</h3>
 <p>If you are interested in using Sail with an existing Laravel application, you may simply install Sail using the Composer package manager. Of course, these steps assume that your existing local development environment allows you to install Composer dependencies:</p>
@@ -237,7 +237,7 @@ sail root-shell
 </code></pre>
 <p><a name="sail-php-versions"></a></p>
 <h2 id="php-versions">PHP Versions</h2>
-<p>Sail currently supports serving your application via PHP 8.2, 8.1, PHP 8.0, or PHP 7.4. The default PHP version used by Sail is currently PHP 8.2. To change the PHP version that is used to serve your application, you should update the <code>build</code> definition of the <code>laravel.test</code> container in your application&#39;s <code>docker-compose.yml</code> file:</p>
+<p>Sail currently supports serving your application via PHP 8.2, 8.1, or PHP 8.0. The default PHP version used by Sail is currently PHP 8.2. To change the PHP version that is used to serve your application, you should update the <code>build</code> definition of the <code>laravel.test</code> container in your application&#39;s <code>docker-compose.yml</code> file:</p>
 <pre><code class="language-yaml"><span class="hljs-comment"># PHP 8.2</span>
 <span class="hljs-attr">context:</span> <span class="hljs-string">./vendor/laravel/sail/runtimes/8.2</span>
 
@@ -246,9 +246,6 @@ sail root-shell
 
 <span class="hljs-comment"># PHP 8.0</span>
 <span class="hljs-attr">context:</span> <span class="hljs-string">./vendor/laravel/sail/runtimes/8.0</span>
-
-<span class="hljs-comment"># PHP 7.4</span>
-<span class="hljs-attr">context:</span> <span class="hljs-string">./vendor/laravel/sail/runtimes/7.4</span>
 </code></pre>
 <p>In addition, you may wish to update your <code>image</code> name to reflect the version of PHP being used by your application. This option is also defined in your application&#39;s <code>docker-compose.yml</code> file:</p>
 <pre><code class="language-yaml"><span class="hljs-attr">image:</span> <span class="hljs-string">sail-8.1/app</span>

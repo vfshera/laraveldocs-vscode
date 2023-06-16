@@ -77,10 +77,10 @@
 <p>Within Horizon&#39;s default configuration file, you will notice a <code>defaults</code> configuration option. This configuration option specifies the default values for your application&#39;s <a href="#supervisors">supervisors</a>. The supervisor&#39;s default configuration values will be merged into the supervisor&#39;s configuration for each environment, allowing you to avoid unnecessary repetition when defining your supervisors.</p>
 <p><a name="balancing-strategies"></a></p>
 <h3 id="balancing-strategies">Balancing Strategies</h3>
-<p>Unlike Laravel&#39;s default queue system, Horizon allows you to choose from three worker balancing strategies: <code>simple</code>, <code>auto</code>, and <code>false</code>. The <code>simple</code> strategy, which is the configuration file&#39;s default, splits incoming jobs evenly between worker processes:</p>
+<p>Unlike Laravel&#39;s default queue system, Horizon allows you to choose from three worker balancing strategies: <code>simple</code>, <code>auto</code>, and <code>false</code>. The <code>simple</code> strategy splits incoming jobs evenly between worker processes:</p>
 <pre><code><span class="hljs-string">&#x27;balance&#x27;</span> =&gt; <span class="hljs-string">&#x27;simple&#x27;</span>,
 </code></pre>
-<p>The <code>auto</code> strategy adjusts the number of worker processes per queue based on the current workload of the queue. For example, if your <code>notifications</code> queue has 1,000 pending jobs while your <code>render</code> queue is empty, Horizon will allocate more workers to your <code>notifications</code> queue until the queue is empty.</p>
+<p>The <code>auto</code> strategy, which is the configuration file&#39;s default, adjusts the number of worker processes per queue based on the current workload of the queue. For example, if your <code>notifications</code> queue has 1,000 pending jobs while your <code>render</code> queue is empty, Horizon will allocate more workers to your <code>notifications</code> queue until the queue is empty.</p>
 <p>When using the <code>auto</code> strategy, you may define the <code>minProcesses</code> and <code>maxProcesses</code> configuration options to control the minimum and the maximum number of worker processes Horizon should scale up and down to:</p>
 <pre><code><span class="hljs-string">&#x27;environments&#x27;</span> =&gt; [
     <span class="hljs-string">&#x27;production&#x27;</span> =&gt; [
@@ -88,6 +88,7 @@
             <span class="hljs-string">&#x27;connection&#x27;</span> =&gt; <span class="hljs-string">&#x27;redis&#x27;</span>,
             <span class="hljs-string">&#x27;queue&#x27;</span> =&gt; [<span class="hljs-string">&#x27;default&#x27;</span>],
             <span class="hljs-string">&#x27;balance&#x27;</span> =&gt; <span class="hljs-string">&#x27;auto&#x27;</span>,
+            <span class="hljs-string">&#x27;autoScalingStrategy&#x27;</span> =&gt; <span class="hljs-string">&#x27;time&#x27;</span>,
             <span class="hljs-string">&#x27;minProcesses&#x27;</span> =&gt; <span class="hljs-number">1</span>,
             <span class="hljs-string">&#x27;maxProcesses&#x27;</span> =&gt; <span class="hljs-number">10</span>,
             <span class="hljs-string">&#x27;balanceMaxShift&#x27;</span> =&gt; <span class="hljs-number">1</span>,
@@ -97,6 +98,7 @@
     ],
 ],
 </code></pre>
+<p>The <code>autoScalingStrategy</code> configuration value determines if Horizon will assign more worker processes to queues based on the total amount of time it will take to clear the queue (<code>time</code> strategy) or by the total number of jobs on the queue (<code>size</code> strategy).</p>
 <p>The <code>balanceMaxShift</code> and <code>balanceCooldown</code> configuration values determine how quickly Horizon will scale to meet worker demand. In the example above, a maximum of one new process will be created or destroyed every three seconds. You are free to tweak these values as necessary based on your application&#39;s needs.</p>
 <p>When the <code>balance</code> option is set to <code>false</code>, the default Laravel behavior will be used, wherein queues are processed in the order they are listed in your configuration.</p>
 <p><a name="dashboard-authorization"></a></p>

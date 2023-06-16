@@ -160,6 +160,10 @@ The `has` method may be used to determine if an item exists in the cache. This m
 
 The `increment` and `decrement` methods may be used to adjust the value of integer items in the cache. Both of these methods accept an optional second argument indicating the amount by which to increment or decrement the item's value:
 
+    // Initialize the value if it does not exist...
+    Cache::add('key', 0, now()->addHours(4));
+
+    // Increment or decrement the value...
     Cache::increment('key');
     Cache::increment('key', $amount);
     Cache::decrement('key');
@@ -327,6 +331,9 @@ When using the `database` cache driver, you will need to setup a table to contai
         $table->string('owner');
         $table->integer('expiration');
     });
+
+> **Note**
+> If you used the `cache:table` Artisan command to create the database driver's cache table, the migration created by that command already includes a definition for the `cache_locks` table.
 
 <a name="managing-locks"></a>
 ### Managing Locks

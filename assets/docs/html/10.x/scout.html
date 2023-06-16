@@ -36,7 +36,6 @@
 </ul>
 </li>
 <li><a href="#custom-engines">Custom Engines</a></li>
-<li><a href="#builder-macros">Builder Macros</a></li>
 </ul>
 <p><a name="introduction"></a></p>
 <h2 id="introduction">Introduction</h2>
@@ -255,7 +254,7 @@
 <p>Scout also allows you to auto identify users when using <a href="https://algolia.com">Algolia</a>. Associating the authenticated user with search operations may be helpful when viewing your search analytics within Algolia&#39;s dashboard. You can enable user identification by defining a <code>SCOUT_IDENTIFY</code> environment variable as <code>true</code> in your application&#39;s <code>.env</code> file:</p>
 <pre><code class="language-ini"><span class="hljs-attr">SCOUT_IDENTIFY</span>=<span class="hljs-literal">true</span>
 </code></pre>
-<p>Enabling this feature this will also pass the request&#39;s IP address and your authenticated user&#39;s primary identifier to Algolia so this data is associated with any search request that is made by the user.</p>
+<p>Enabling this feature will also pass the request&#39;s IP address and your authenticated user&#39;s primary identifier to Algolia so this data is associated with any search request that is made by the user.</p>
 <p><a name="database-and-collection-engines"></a></p>
 <h2 id="database--collection-engines">Database / Collection Engines</h2>
 <p><a name="database-engine"></a></p>
@@ -327,6 +326,9 @@
     <span class="hljs-keyword">return</span> <span class="hljs-variable">$query</span>-&gt;<span class="hljs-title function_ invoke__">with</span>(<span class="hljs-string">&#x27;author&#x27;</span>);
 }
 </code></pre>
+<blockquote>
+<p><strong>Warning</strong><br>The <code>makeAllSearchableUsing</code> method may not be applicable when using a queue to batch import models. Relationships are <a href="/docs/%7B%7Bversion%7D%7D/queues#handling-relationships">not restored</a> when model collections are processed by jobs.</p>
+</blockquote>
 <p><a name="adding-records"></a></p>
 <h3 id="adding-records">Adding Records</h3>
 <p>Once you have added the <code>Laravel\Scout\Searchable</code> trait to a model, all you need to do is <code>save</code> or <code>create</code> a model instance and it will automatically be added to your search index. If you have configured Scout to <a href="#queueing">use queues</a> this operation will be performed in the background by your queue worker:</p>
@@ -373,6 +375,19 @@
 </code></pre>
 <p>Or, if you already have a collection of Eloquent models in memory, you may call the <code>searchable</code> method on the collection instance to update the model instances in their corresponding index:</p>
 <pre><code><span class="hljs-variable">$orders</span>-&gt;<span class="hljs-title function_ invoke__">searchable</span>();
+</code></pre>
+<p><a name="modifying-records-before-importing"></a></p>
+<h4 id="modifying-records-before-importing">Modifying Records Before Importing</h4>
+<p>Sometimes you may need to prepare the collection of models before they are made searchable. For instance, you may want to eager load a relationship so that the relationship data can be efficiently added to your search index. To accomplish this, define a <code>makeSearchableUsing</code> method on the corresponding model:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Collection</span>;
+
+<span class="hljs-comment">/**
+ * Modify the collection of models being made searchable.
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">makeSearchableUsing</span>(<span class="hljs-params">Collection <span class="hljs-variable">$models</span></span>): <span class="hljs-title">Collection</span>
+</span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$models</span>-&gt;<span class="hljs-title function_ invoke__">load</span>(<span class="hljs-string">&#x27;author&#x27;</span>);
+}
 </code></pre>
 <p><a name="removing-records"></a></p>
 <h3 id="removing-records">Removing Records</h3>
@@ -569,28 +584,4 @@ If your application is using Meilisearch, you must configure your application&#3
 </code></pre>
 <p>Once your engine has been registered, you may specify it as your default Scout <code>driver</code> in your application&#39;s <code>config/scout.php</code> configuration file:</p>
 <pre><code><span class="hljs-string">&#x27;driver&#x27;</span> =&gt; <span class="hljs-string">&#x27;mysql&#x27;</span>,
-</code></pre>
-<p><a name="builder-macros"></a></p>
-<h2 id="builder-macros">Builder Macros</h2>
-<p>If you would like to define a custom Scout search builder method, you may use the <code>macro</code> method on the <code>Laravel\Scout\Builder</code> class. Typically, &quot;macros&quot; should be defined within a <a href="/docs/%7B%7Bversion%7D%7D/providers">service provider&#39;s</a> <code>boot</code> method:</p>
-<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Response</span>;
-<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">ServiceProvider</span>;
-<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Scout</span>\<span class="hljs-title">Builder</span>;
-
-<span class="hljs-comment">/**
- * Bootstrap any application services.
- */</span>
-<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
-</span>{
-    <span class="hljs-title class_">Builder</span>::<span class="hljs-title function_ invoke__">macro</span>(<span class="hljs-string">&#x27;count&#x27;</span>, function () {
-        <span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">engine</span>()-&gt;<span class="hljs-title function_ invoke__">getTotalCount</span>(
-            <span class="hljs-variable">$this</span>-&gt;<span class="hljs-title function_ invoke__">engine</span>()-&gt;<span class="hljs-title function_ invoke__">search</span>(<span class="hljs-variable">$this</span>)
-        );
-    });
-}
-</code></pre>
-<p>The <code>macro</code> function accepts a macro name as its first argument and a closure as its second argument. The macro&#39;s closure will be executed when calling the macro name from a <code>Laravel\Scout\Builder</code> implementation:</p>
-<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Order</span>;
-
-<span class="hljs-title class_">Order</span>::<span class="hljs-title function_ invoke__">search</span>(<span class="hljs-string">&#x27;Star Trek&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">count</span>();
 </code></pre>
