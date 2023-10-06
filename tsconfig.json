@@ -2,15 +2,12 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "es6",
-    "outDir": "out",
+    "outDir": "dist",
     "lib": ["es6", "dom"],
     "sourceMap": true,
     "rootDir": "src",
     "strict": true,
-    "skipLibCheck": true,
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    "skipLibCheck": true
   },
   "exclude": ["node_modules", ".vscode-test", "webview-ui"]
 }
