@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import DocPreviewPanel from "./DocPreviewPanel";
 import { COMPILED_DIR, CSS_ASSET, DOCS_LIST, OPEN_DOC } from "../constants";
-import { docs, getNonce, htmlDocs } from "../utils";
+import { getNonce, htmlDocs } from "../utils";
 import { getUri } from "../utils/code";
 
 export default class SidebarProvider implements vscode.WebviewViewProvider {
@@ -58,12 +58,15 @@ export default class SidebarProvider implements vscode.WebviewViewProvider {
   }
 
   private _getHtmlForWebview(webview: vscode.Webview) {
+    // scripts
+    const scriptUri = getUri(webview, this._extensionUri, [COMPILED_DIR, "sidebar.js"]);
+
+    // styles
     const styleResetUri = getUri(webview, this._extensionUri, [CSS_ASSET, "reset.css"]);
     const styleVSCodeUri = getUri(webview, this._extensionUri, [CSS_ASSET, "vscode.css"]);
-    const scriptUri = getUri(webview, this._extensionUri, [COMPILED_DIR, "sidebar.js"]);
-    const styleMainUri = getUri(webview, this._extensionUri, [COMPILED_DIR, "sidebar.css"]);
     const themeStylesUri = getUri(webview, this._extensionUri, [CSS_ASSET, "theme.css"]);
-    // Use a nonce to only allow a specific script to be run.
+    const styleMainUri = getUri(webview, this._extensionUri, [COMPILED_DIR, "sidebar.css"]);
+
     const nonce = getNonce();
 
     return `<!DOCTYPE html>

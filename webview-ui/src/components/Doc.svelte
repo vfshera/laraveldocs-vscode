@@ -7,8 +7,6 @@
   function openDoc(file: IDocFile) {
     ldvscode.postMessage({ command: "open-doc", value: file });
   }
-
-
 </script>
 
 <div class="doc">
@@ -30,6 +28,7 @@
   <hr />
   <div class="doc-topic">
     {#each doc.files as docFile}
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
       <div class="doc-type" on:click={() => openDoc(docFile)}>
         <span>#</span>
         {docFile.title}

@@ -5,7 +5,6 @@ import {
   CSS_ASSET,
   DOC_LOCATION,
   EXT_NAME,
-  JS_ASSET,
   IMAGE_ASSET,
   EXT_ICON,
   ASSETS_DIR,
@@ -120,12 +119,15 @@ export default class DocPreviewPanel {
   }
 
   private _getHtmlForWebview(webview: vscode.Webview) {
+    // scripts
+    const scriptUri = getUri(webview, this._extensionUri, [COMPILED_DIR, "preview.js"]);
+
+    // styles
     const stylesResetUri = getUri(webview, this._extensionUri, [CSS_ASSET, "reset.css"]);
     const stylesVSCodeUri = getUri(webview, this._extensionUri, [CSS_ASSET, "vscode.css"]);
-    const scriptUri = getUri(webview, this._extensionUri, [COMPILED_DIR, "preview.js"]);
-    const stylesMainUri = getUri(webview, this._extensionUri, [COMPILED_DIR, "preview.css"]);
-    const highlightStylesUri = getUri(webview, this._extensionUri, [CSS_ASSET, "highlight.css"]);
     const themeStylesUri = getUri(webview, this._extensionUri, [CSS_ASSET, "theme.css"]);
+    const highlightStylesUri = getUri(webview, this._extensionUri, [CSS_ASSET, "highlight.css"]);
+    const stylesMainUri = getUri(webview, this._extensionUri, [COMPILED_DIR, "preview.css"]);
 
     const nonce = getNonce();
 
