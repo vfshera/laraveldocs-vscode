@@ -1,0 +1,77 @@
+<h1>Hashing</h1>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#configuration">Configuration</a></li>
+<li><a href="#basic-usage">Basic Usage</a><ul>
+<li><a href="#hashing-passwords">Hashing Passwords</a></li>
+<li><a href="#verifying-that-a-password-matches-a-hash">Verifying That A Password Matches A Hash</a></li>
+<li><a href="#determining-if-a-password-needs-to-be-rehashed">Determining If A Password Needs To Be Rehashed</a></li>
+</ul>
+</li>
+</ul>
+<p><a name="introduction"></a></p>
+<h2>Introduction</h2>
+<p>The Laravel <code>Hash</code> <a href="/docs/%7B%7Bversion%7D%7D/facades">facade</a> provides secure Bcrypt and Argon2 hashing for storing user passwords. If you are using one of the <a href="/docs/%7B%7Bversion%7D%7D/starter-kits">Laravel application starter kits</a>, Bcrypt will be used for registration and authentication by default.</p>
+<p>Bcrypt is a great choice for hashing passwords because its &quot;work factor&quot; is adjustable, which means that the time it takes to generate a hash can be increased as hardware power increases. When hashing passwords, slow is good. The longer an algorithm takes to hash a password, the longer it takes malicious users to generate &quot;rainbow tables&quot; of all possible string hash values that may be used in brute force attacks against applications.</p>
+<p><a name="configuration"></a></p>
+<h2>Configuration</h2>
+<p>The default hashing driver for your application is configured in your application&#39;s <code>config/hashing.php</code> configuration file. There are currently several supported drivers: <a href="https://en.wikipedia.org/wiki/Bcrypt">Bcrypt</a> and <a href="https://en.wikipedia.org/wiki/Argon2">Argon2</a> (Argon2i and Argon2id variants).</p>
+<p><a name="basic-usage"></a></p>
+<h2>Basic Usage</h2>
+<p><a name="hashing-passwords"></a></p>
+<h3>Hashing Passwords</h3>
+<p>You may hash a password by calling the <code>make</code> method on the <code>Hash</code> facade:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Http</span>\<span class="hljs-title class_">Controllers</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">RedirectResponse</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Hash</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PasswordController</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Controller</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Update the password for the user.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">update</span>(<span class="hljs-params">Request <span class="hljs-variable">$request</span></span>): <span class="hljs-title">RedirectResponse</span>
+    </span>{
+        <span class="hljs-comment">// Validate the new password length...</span>
+
+        <span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">fill</span>([
+            <span class="hljs-string">&#x27;password&#x27;</span> =&gt; <span class="hljs-title class_">Hash</span>::<span class="hljs-title function_ invoke__">make</span>(<span class="hljs-variable">$request</span>-&gt;newPassword)
+        ])-&gt;<span class="hljs-title function_ invoke__">save</span>();
+
+        <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">redirect</span>(<span class="hljs-string">&#x27;/profile&#x27;</span>);
+    }
+}
+</code></pre><p><a name="adjusting-the-bcrypt-work-factor"></a></p>
+<h4>Adjusting The Bcrypt Work Factor</h4>
+<p>If you are using the Bcrypt algorithm, the <code>make</code> method allows you to manage the work factor of the algorithm using the <code>rounds</code> option; however, the default work factor managed by Laravel is acceptable for most applications:</p>
+<pre><code><span class="hljs-variable">$hashed</span> = <span class="hljs-title class_">Hash</span>::<span class="hljs-title function_ invoke__">make</span>(<span class="hljs-string">&#x27;password&#x27;</span>, [
+    <span class="hljs-string">&#x27;rounds&#x27;</span> =&gt; <span class="hljs-number">12</span>,
+]);
+</code></pre><p><a name="adjusting-the-argon2-work-factor"></a></p>
+<h4>Adjusting The Argon2 Work Factor</h4>
+<p>If you are using the Argon2 algorithm, the <code>make</code> method allows you to manage the work factor of the algorithm using the <code>memory</code>, <code>time</code>, and <code>threads</code> options; however, the default values managed by Laravel are acceptable for most applications:</p>
+<pre><code><span class="hljs-variable">$hashed</span> = <span class="hljs-title class_">Hash</span>::<span class="hljs-title function_ invoke__">make</span>(<span class="hljs-string">&#x27;password&#x27;</span>, [
+    <span class="hljs-string">&#x27;memory&#x27;</span> =&gt; <span class="hljs-number">1024</span>,
+    <span class="hljs-string">&#x27;time&#x27;</span> =&gt; <span class="hljs-number">2</span>,
+    <span class="hljs-string">&#x27;threads&#x27;</span> =&gt; <span class="hljs-number">2</span>,
+]);
+</code></pre><blockquote>
+<p><strong>Note</strong><br>For more information on these options, please refer to the <a href="https://secure.php.net/manual/en/function.password-hash.php">official PHP documentation regarding Argon hashing</a>.</p>
+</blockquote>
+<p><a name="verifying-that-a-password-matches-a-hash"></a></p>
+<h3>Verifying That A Password Matches A Hash</h3>
+<p>The <code>check</code> method provided by the <code>Hash</code> facade allows you to verify that a given plain-text string corresponds to a given hash:</p>
+<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-title class_">Hash</span>::<span class="hljs-title function_ invoke__">check</span>(<span class="hljs-string">&#x27;plain-text&#x27;</span>, <span class="hljs-variable">$hashedPassword</span>)) {
+    <span class="hljs-comment">// The passwords match...</span>
+}
+</code></pre><p><a name="determining-if-a-password-needs-to-be-rehashed"></a></p>
+<h3>Determining If A Password Needs To Be Rehashed</h3>
+<p>The <code>needsRehash</code> method provided by the <code>Hash</code> facade allows you to determine if the work factor used by the hasher has changed since the password was hashed. Some applications choose to perform this check during the application&#39;s authentication process:</p>
+<pre><code><span class="hljs-keyword">if</span> (<span class="hljs-title class_">Hash</span>::<span class="hljs-title function_ invoke__">needsRehash</span>(<span class="hljs-variable">$hashed</span>)) {
+    <span class="hljs-variable">$hashed</span> = <span class="hljs-title class_">Hash</span>::<span class="hljs-title function_ invoke__">make</span>(<span class="hljs-string">&#x27;plain-text&#x27;</span>);
+}
+</code></pre>

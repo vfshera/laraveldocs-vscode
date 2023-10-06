@@ -1,0 +1,225 @@
+<h1>Laravel Folio</h1>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#installation">Installation</a><ul>
+<li><a href="#page-paths-uris">Page Paths / URIs</a></li>
+<li><a href="#subdomain-routing">Subdomain Routing</a></li>
+</ul>
+</li>
+<li><a href="#creating-routes">Creating Routes</a><ul>
+<li><a href="#nested-routes">Nested Routes</a></li>
+<li><a href="#index-routes">Index Routes</a></li>
+</ul>
+</li>
+<li><a href="#route-parameters">Route Parameters</a></li>
+<li><a href="#route-model-binding">Route Model Binding</a><ul>
+<li><a href="#soft-deleted-models">Soft Deleted Models</a></li>
+</ul>
+</li>
+<li><a href="#render-hooks">Render Hooks</a></li>
+<li><a href="#named-routes">Named Routes</a></li>
+<li><a href="#middleware">Middleware</a></li>
+<li><a href="#route-caching">Route Caching</a></li>
+</ul>
+<p><a name="introduction"></a></p>
+<h2>Introduction</h2>
+<p><a href="https://github.com/laravel/folio">Laravel Folio</a> is a powerful page based router designed to simplify routing in Laravel applications. With Laravel Folio, generating a route becomes as effortless as creating a Blade template within your application&#39;s <code>resources/views/pages</code> directory.</p>
+<p>For example, to create a page that is accessible at the <code>/greeting</code> URL, just create a <code>greeting.blade.php</code> file in your application&#39;s <code>resources/views/pages</code> directory:</p>
+<pre><code class="hljs language-php">&lt;div&gt;
+    Hello World
+&lt;/div&gt;
+</code></pre><p><a name="installation"></a></p>
+<h2>Installation</h2>
+<p>To get started, install Folio into your project using the Composer package manager:</p>
+<pre><code class="hljs language-bash">composer require laravel/folio
+</code></pre><p>After installing Folio, you may execute the <code>folio:install</code> Artisan command, which will install Folio&#39;s service provider into your application. This service provider registers the directory where Folio will search for routes / pages:</p>
+<pre><code class="hljs language-bash">php artisan folio:install
+</code></pre><p><a name="page-paths-uris"></a></p>
+<h3>Page Paths / URIs</h3>
+<p>By default, Folio serves pages from your application&#39;s <code>resources/views/pages</code> directory, but you may customize these directories in your Folio service provider&#39;s <code>boot</code> method.</p>
+<p>For example, sometimes it may be convenient to specify multiple Folio paths in the same Laravel application. You may wish to have a separate directory of Folio pages for your application&#39;s &quot;admin&quot; area, while using another directory for the rest of your application&#39;s pages.</p>
+<p>You may accomplish this using the <code>Folio::path</code> and <code>Folio::uri</code> methods. The <code>path</code> method registers a directory that Folio will scan for pages when routing incoming HTTP requests, while the <code>uri</code> method specifies the &quot;base URI&quot; for that directory of pages:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Folio</span>\<span class="hljs-title">Folio</span>;
+
+<span class="hljs-title class_">Folio</span>::<span class="hljs-title function_ invoke__">path</span>(<span class="hljs-title function_ invoke__">resource_path</span>(<span class="hljs-string">&#x27;views/pages/guest&#x27;</span>))-&gt;<span class="hljs-title function_ invoke__">uri</span>(<span class="hljs-string">&#x27;/&#x27;</span>);
+
+<span class="hljs-title class_">Folio</span>::<span class="hljs-title function_ invoke__">path</span>(<span class="hljs-title function_ invoke__">resource_path</span>(<span class="hljs-string">&#x27;views/pages/admin&#x27;</span>))
+    -&gt;<span class="hljs-title function_ invoke__">uri</span>(<span class="hljs-string">&#x27;/admin&#x27;</span>)
+    -&gt;<span class="hljs-title function_ invoke__">middleware</span>([
+        <span class="hljs-string">&#x27;*&#x27;</span> =&gt; [
+            <span class="hljs-string">&#x27;auth&#x27;</span>,
+            <span class="hljs-string">&#x27;verified&#x27;</span>,
+
+            // ...
+        ],
+    ]);
+</code></pre><p><a name="subdomain-routing"></a></p>
+<h3>Subdomain Routing</h3>
+<p>You may also route to pages based on the incoming request&#39;s subdomain. For example, you may wish to route requests from <code>admin.example.com</code> to a different page directory than the rest of your Folio pages. You may accomplish this by invoking the <code>domain</code> method after invoking the <code>Folio::path</code> method:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Folio</span>\<span class="hljs-title">Folio</span>;
+
+<span class="hljs-title class_">Folio</span>::<span class="hljs-title function_ invoke__">domain</span>(<span class="hljs-string">&#x27;admin.example.com&#x27;</span>)
+    -&gt;<span class="hljs-title function_ invoke__">path</span>(<span class="hljs-title function_ invoke__">resource_path</span>(<span class="hljs-string">&#x27;views/pages/admin&#x27;</span>));
+</code></pre><p>The <code>domain</code> method also allows you to capture parts of the domain or subdomain as parameters. These parameters will be injected into your page template:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Folio</span>\<span class="hljs-title">Folio</span>;
+
+<span class="hljs-title class_">Folio</span>::<span class="hljs-title function_ invoke__">domain</span>(<span class="hljs-string">&#x27;{account}.example.com&#x27;</span>)
+    -&gt;<span class="hljs-title function_ invoke__">path</span>(<span class="hljs-title function_ invoke__">resource_path</span>(<span class="hljs-string">&#x27;views/pages/admin&#x27;</span>));
+</code></pre><p><a name="creating-routes"></a></p>
+<h2>Creating Routes</h2>
+<p>You may create a Folio route by placing a Blade template in any of your Folio mounted directories. By default, Folio mounts the <code>resources/views/pages</code> directory, but you may customize these directories in your Folio service provider&#39;s <code>boot</code> method.</p>
+<p>Once a Blade template has been placed in a Folio mounted directory, you may immediately access it via your browser. For example, a page placed in <code>pages/schedule.blade.php</code> may be accessed in your browser at <code>http://example.com/schedule</code>.</p>
+<p>To quickly view a list of all of your Folio pages / routes, you may invoke the <code>folio:list</code> Artisan command:</p>
+<pre><code class="hljs language-bash">php artisan folio:list
+</code></pre><p><a name="nested-routes"></a></p>
+<h3>Nested Routes</h3>
+<p>You may create a nested route by creating one or more directories within one of Folio&#39;s directories. For instance, to create a page that is accessible via <code>/user/profile</code>, create a <code>profile.blade.php</code> template within the <code>pages/user</code> directory:</p>
+<pre><code class="hljs language-bash">php artisan make:folio user/profile
+
+<span class="hljs-comment"># pages/user/profile.blade.php → /user/profile</span>
+</code></pre><p><a name="index-routes"></a></p>
+<h3>Index Routes</h3>
+<p>Sometimes, you may wish to make a given page the &quot;index&quot; of a directory. By placing an <code>index.blade.php</code> template within a Folio directory, any requests to the root of that directory will be routed to that page:</p>
+<pre><code class="hljs language-bash">php artisan make:folio index
+<span class="hljs-comment"># pages/index.blade.php → /</span>
+
+php artisan make:folio <span class="hljs-built_in">users</span>/index
+<span class="hljs-comment"># pages/users/index.blade.php → /users</span>
+</code></pre><p><a name="route-parameters"></a></p>
+<h2>Route Parameters</h2>
+<p>Often, you will need to have segments of the incoming request&#39;s URL injected into your page so that you can interact with them. For example, you may need to access the &quot;ID&quot; of the user whose profile is being displayed. To accomplish this, you may encapsulate a segment of the page&#39;s filename in square brackets:</p>
+<pre><code class="hljs language-bash">php artisan make:folio <span class="hljs-string">&quot;users/[id]&quot;</span>
+
+<span class="hljs-comment"># pages/users/[id].blade.php → /users/1</span>
+</code></pre><p>Captured segments can be accessed as variables within your Blade template:</p>
+<pre><code class="hljs language-html"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
+    User {{ $id }}
+<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+</code></pre><p>To capture multiple segments, you can prefix the encapsulated segment with three dots <code>...</code>:</p>
+<pre><code class="hljs language-bash">php artisan make:folio <span class="hljs-string">&quot;users/[...ids]&quot;</span>
+
+<span class="hljs-comment"># pages/users/[...ids].blade.php → /users/1/2/3</span>
+</code></pre><p>When capturing multiple segments, the captured segments will be injected into the page as an array:</p>
+<pre><code class="hljs language-html"><span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span>
+    @foreach ($ids as $id)
+        <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>User {{ $id }}<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
+    @endforeach
+<span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span>
+</code></pre><p><a name="route-model-binding"></a></p>
+<h2>Route Model Binding</h2>
+<p>If a wildcard segment of your page template&#39;s filename corresponds one of your application&#39;s Eloquent models, Folio will automatically take advantage of Laravel&#39;s route model binding capabilities and attempt to inject the resolved model instance into your page:</p>
+<pre><code class="hljs language-bash">php artisan make:folio <span class="hljs-string">&quot;users/[User]&quot;</span>
+
+<span class="hljs-comment"># pages/users/[User].blade.php → /users/1</span>
+</code></pre><p>Captured models can be accessed as variables within your Blade template. The model&#39;s variable name will be converted to &quot;camel case&quot;:</p>
+<pre><code class="hljs language-html"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
+    User {{ $user-&gt;id }}
+<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+</code></pre><h4>Customizing The Key</h4>
+<p>Sometimes you may wish to resolve bound Eloquent models using a column other than <code>id</code>. To do so, you may specify the column in the page&#39;s filename. For example, a page with the filename <code>[Post:slug].blade.php</code> will attempt to resolve the bound model via the <code>slug</code> column instead of the <code>id</code> column.</p>
+<h4>Model Location</h4>
+<p>By default, Folio will search for your model within your application&#39;s <code>app/Models</code> directory. However, if needed, you may specify the fully-qualified model class name in your template&#39;s filename:</p>
+<pre><code class="hljs language-bash">php artisan make:folio <span class="hljs-string">&quot;users/[.App.Models.User]&quot;</span>
+
+<span class="hljs-comment"># pages/users/[.App.Models.User].blade.php → /users/1</span>
+</code></pre><p><a name="soft-deleted-models"></a></p>
+<h3>Soft Deleted Models</h3>
+<p>By default, models that have been soft deleted are not retrieved when resolving implicit model bindings. However, if you wish, you can instruct Folio to retrieve soft deleted models by invoking the <code>withTrashed</code> function within the page&#39;s template:</p>
+<pre><code class="hljs language-php"><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">use</span> <span class="hljs-keyword">function</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Folio</span>\{<span class="hljs-title">withTrashed</span>};
+
+<span class="hljs-title function_ invoke__">withTrashed</span>();
+
+<span class="hljs-meta">?&gt;</span>
+
+&lt;div&gt;
+    User {{ <span class="hljs-variable">$user</span>-&gt;id }}
+&lt;/div&gt;
+</code></pre><p><a name="render-hooks"></a></p>
+<h2>Render Hooks</h2>
+<p>By default, Folio will return the content of the page&#39;s Blade template as the response to the incoming request. However, you may customize the response by invoking the <code>render</code> function within the page&#39;s template.</p>
+<p>The <code>render</code> function accepts a closure which will receive the <code>View</code> instance being rendered by Folio, allowing you to add additional data to the view or customize the entire response. In addition to receiving the <code>View</code> instance, any additional route parameters or model bindings will also be provided to the <code>render</code> closure:</p>
+<pre><code class="hljs language-php"><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Post</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Auth</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">View</span>\<span class="hljs-title">View</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-keyword">function</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Folio</span>\<span class="hljs-title">render</span>;
+
+<span class="hljs-title function_ invoke__">render</span>(function (View <span class="hljs-variable">$view</span>, Post <span class="hljs-variable">$post</span>) {
+    <span class="hljs-keyword">if</span> (! <span class="hljs-title class_">Auth</span>::<span class="hljs-title function_ invoke__">user</span>()-&gt;<span class="hljs-title function_ invoke__">can</span>(<span class="hljs-string">&#x27;view&#x27;</span>, <span class="hljs-variable">$post</span>)) {
+        <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">response</span>(<span class="hljs-string">&#x27;Unauthorized&#x27;</span>, <span class="hljs-number">403</span>);
+    }
+
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$view</span>-&gt;<span class="hljs-title function_ invoke__">with</span>(<span class="hljs-string">&#x27;photos&#x27;</span>, <span class="hljs-variable">$post</span>-&gt;author-&gt;photos);
+}); <span class="hljs-meta">?&gt;</span>
+
+&lt;div&gt;
+    {{ <span class="hljs-variable">$post</span>-&gt;content }}
+&lt;/div&gt;
+
+&lt;div&gt;
+    This author has also taken {{ <span class="hljs-title function_ invoke__">count</span>(<span class="hljs-variable">$photos</span>) }} photos.
+&lt;/div&gt;
+</code></pre><p><a name="named-routes"></a></p>
+<h2>Named Routes</h2>
+<p>You may specify a name for a given page&#39;s route using the <code>name</code> function:</p>
+<pre><code class="hljs language-php"><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">use</span> <span class="hljs-keyword">function</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Folio</span>\<span class="hljs-title">name</span>;
+
+<span class="hljs-title function_ invoke__">name</span>(<span class="hljs-string">&#x27;users.index&#x27;</span>);
+</code></pre><p>Just like Laravel&#39;s named routes, you may use the <code>route</code> function to generate URLs to Folio pages that have been assigned a name:</p>
+<pre><code class="hljs language-php">&lt;a href=<span class="hljs-string">&quot;{{ route(&#x27;users.index&#x27;) }}&quot;</span>&gt;
+    All Users
+&lt;/a&gt;
+</code></pre><p>If the page has parameters, you may simply pass their values to the <code>route</code> function:</p>
+<pre><code class="hljs language-php"><span class="hljs-title function_ invoke__">route</span>(<span class="hljs-string">&#x27;users.show&#x27;</span>, [<span class="hljs-string">&#x27;user&#x27;</span> =&gt; <span class="hljs-variable">$user</span>]);
+</code></pre><p><a name="middleware"></a></p>
+<h2>Middleware</h2>
+<p>You can apply middleware to a specific page by invoking the <code>middleware</code> function within the page&#39;s template:</p>
+<pre><code class="hljs language-php"><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">use</span> <span class="hljs-keyword">function</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Folio</span>\{<span class="hljs-title">middleware</span>};
+
+<span class="hljs-title function_ invoke__">middleware</span>([<span class="hljs-string">&#x27;auth&#x27;</span>, <span class="hljs-string">&#x27;verified&#x27;</span>]);
+
+<span class="hljs-meta">?&gt;</span>
+
+&lt;div&gt;
+    Dashboard
+&lt;/div&gt;
+</code></pre><p>Or, to assign middleware to a group of pages, you may chain the <code>middleware</code> method after invoking the <code>Folio::path</code> method.</p>
+<p>To specify which pages the middleware should be applied to, the array of middleware may be keyed using the corresponding URL patterns of the pages they should be applied to. The <code>*</code> character may be utilized as a wildcard character:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Folio</span>\<span class="hljs-title">Folio</span>;
+
+<span class="hljs-title class_">Folio</span>::<span class="hljs-title function_ invoke__">path</span>(<span class="hljs-title function_ invoke__">resource_path</span>(<span class="hljs-string">&#x27;views/pages&#x27;</span>))-&gt;<span class="hljs-title function_ invoke__">middleware</span>([
+    <span class="hljs-string">&#x27;admin/*&#x27;</span> =&gt; [
+        <span class="hljs-string">&#x27;auth&#x27;</span>,
+        <span class="hljs-string">&#x27;verified&#x27;</span>,
+
+        // ...
+    ],
+]);
+</code></pre><p>You may include closures in the array of middleware to define inline, anonymous middleware:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Closure</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Folio</span>\<span class="hljs-title">Folio</span>;
+
+<span class="hljs-title class_">Folio</span>::<span class="hljs-title function_ invoke__">path</span>(<span class="hljs-title function_ invoke__">resource_path</span>(<span class="hljs-string">&#x27;views/pages&#x27;</span>))-&gt;<span class="hljs-title function_ invoke__">middleware</span>([
+    <span class="hljs-string">&#x27;admin/*&#x27;</span> =&gt; [
+        <span class="hljs-string">&#x27;auth&#x27;</span>,
+        <span class="hljs-string">&#x27;verified&#x27;</span>,
+
+        function (Request <span class="hljs-variable">$request</span>, <span class="hljs-built_in">Closure</span> <span class="hljs-variable">$next</span>) {
+            <span class="hljs-comment">// ...</span>
+
+            <span class="hljs-keyword">return</span> <span class="hljs-variable">$next</span>(<span class="hljs-variable">$request</span>);
+        },
+    ],
+]);
+</code></pre><p><a name="route-caching"></a></p>
+<h2>Route Caching</h2>
+<p>When using Folio, you should always take advantage of <a href="/docs/%7B%7Bversion%7D%7D/routing#route-caching">Laravel&#39;s route caching capabilities</a>. Folio listens for the <code>route:cache</code> Artisan command to ensure that Folio page definitions and route names are properly cached for maximum performance.</p>

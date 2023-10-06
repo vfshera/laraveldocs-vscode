@@ -1,0 +1,173 @@
+<h1>Laravel Socialite</h1>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#upgrading-socialite">Upgrading Socialite</a></li>
+<li><a href="#configuration">Configuration</a></li>
+<li><a href="#authentication">Authentication</a><ul>
+<li><a href="#routing">Routing</a></li>
+<li><a href="#authentication-and-storage">Authentication &amp; Storage</a></li>
+<li><a href="#access-scopes">Access Scopes</a></li>
+<li><a href="#slack-bot-scopes">Slack Bot Scopes</a></li>
+<li><a href="#optional-parameters">Optional Parameters</a></li>
+</ul>
+</li>
+<li><a href="#retrieving-user-details">Retrieving User Details</a></li>
+</ul>
+<p><a name="introduction"></a></p>
+<h2>Introduction</h2>
+<p>In addition to typical, form based authentication, Laravel also provides a simple, convenient way to authenticate with OAuth providers using <a href="https://github.com/laravel/socialite">Laravel Socialite</a>. Socialite currently supports authentication via Facebook, Twitter, LinkedIn, Google, GitHub, GitLab, Bitbucket, and Slack.</p>
+<blockquote>
+<p><strong>Note</strong><br>Adapters for other platforms are available via the community driven <a href="https://socialiteproviders.com/">Socialite Providers</a> website.</p>
+</blockquote>
+<p><a name="installation"></a></p>
+<h2>Installation</h2>
+<p>To get started with Socialite, use the Composer package manager to add the package to your project&#39;s dependencies:</p>
+<pre><code class="hljs language-shell">composer require laravel/socialite
+</code></pre><p><a name="upgrading-socialite"></a></p>
+<h2>Upgrading Socialite</h2>
+<p>When upgrading to a new major version of Socialite, it&#39;s important that you carefully review <a href="https://github.com/laravel/socialite/blob/master/UPGRADE.md">the upgrade guide</a>.</p>
+<p><a name="configuration"></a></p>
+<h2>Configuration</h2>
+<p>Before using Socialite, you will need to add credentials for the OAuth providers your application utilizes. Typically, these credentials may be retrieved by creating a &quot;developer application&quot; within the dashboard of the service you will be authenticating with.</p>
+<p>These credentials should be placed in your application&#39;s <code>config/services.php</code> configuration file, and should use the key <code>facebook</code>, <code>twitter</code> (OAuth 1.0), <code>twitter-oauth-2</code> (OAuth 2.0), <code>linkedin-openid</code>, <code>google</code>, <code>github</code>, <code>gitlab</code>, <code>bitbucket</code>, or <code>slack</code>, depending on the providers your application requires:</p>
+<pre><code><span class="hljs-string">&#x27;github&#x27;</span> =&gt; [
+    <span class="hljs-string">&#x27;client_id&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;GITHUB_CLIENT_ID&#x27;</span>),
+    <span class="hljs-string">&#x27;client_secret&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;GITHUB_CLIENT_SECRET&#x27;</span>),
+    <span class="hljs-string">&#x27;redirect&#x27;</span> =&gt; <span class="hljs-string">&#x27;http://example.com/callback-url&#x27;</span>,
+],
+</code></pre><blockquote>
+<p><strong>Note</strong><br>If the <code>redirect</code> option contains a relative path, it will automatically be resolved to a fully qualified URL.</p>
+</blockquote>
+<p><a name="authentication"></a></p>
+<h2>Authentication</h2>
+<p><a name="routing"></a></p>
+<h3>Routing</h3>
+<p>To authenticate users using an OAuth provider, you will need two routes: one for redirecting the user to the OAuth provider, and another for receiving the callback from the provider after authentication. The example routes below demonstrate the implementation of both routes:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Socialite</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Socialite</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/auth/redirect&#x27;</span>, function () {
+    <span class="hljs-keyword">return</span> <span class="hljs-title class_">Socialite</span>::<span class="hljs-title function_ invoke__">driver</span>(<span class="hljs-string">&#x27;github&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">redirect</span>();
+});
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/auth/callback&#x27;</span>, function () {
+    <span class="hljs-variable">$user</span> = <span class="hljs-title class_">Socialite</span>::<span class="hljs-title function_ invoke__">driver</span>(<span class="hljs-string">&#x27;github&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">user</span>();
+
+    <span class="hljs-comment">// $user-&gt;token</span>
+});
+</code></pre><p>The <code>redirect</code> method provided by the <code>Socialite</code> facade takes care of redirecting the user to the OAuth provider, while the <code>user</code> method will examine the incoming request and retrieve the user&#39;s information from the provider after they have approved the authentication request.</p>
+<p><a name="authentication-and-storage"></a></p>
+<h3>Authentication &amp; Storage</h3>
+<p>Once the user has been retrieved from the OAuth provider, you may determine if the user exists in your application&#39;s database and <a href="/docs/%7B%7Bversion%7D%7D/authentication#authenticate-a-user-instance">authenticate the user</a>. If the user does not exist in your application&#39;s database, you will typically create a new record in your database to represent the user:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Auth</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Socialite</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Socialite</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/auth/callback&#x27;</span>, function () {
+    <span class="hljs-variable">$githubUser</span> = <span class="hljs-title class_">Socialite</span>::<span class="hljs-title function_ invoke__">driver</span>(<span class="hljs-string">&#x27;github&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">user</span>();
+
+    <span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">updateOrCreate</span>([
+        <span class="hljs-string">&#x27;github_id&#x27;</span> =&gt; <span class="hljs-variable">$githubUser</span>-&gt;id,
+    ], [
+        <span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-variable">$githubUser</span>-&gt;name,
+        <span class="hljs-string">&#x27;email&#x27;</span> =&gt; <span class="hljs-variable">$githubUser</span>-&gt;email,
+        <span class="hljs-string">&#x27;github_token&#x27;</span> =&gt; <span class="hljs-variable">$githubUser</span>-&gt;token,
+        <span class="hljs-string">&#x27;github_refresh_token&#x27;</span> =&gt; <span class="hljs-variable">$githubUser</span>-&gt;refreshToken,
+    ]);
+
+    <span class="hljs-title class_">Auth</span>::<span class="hljs-title function_ invoke__">login</span>(<span class="hljs-variable">$user</span>);
+
+    <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">redirect</span>(<span class="hljs-string">&#x27;/dashboard&#x27;</span>);
+});
+</code></pre><blockquote>
+<p><strong>Note</strong><br>For more information regarding what user information is available from specific OAuth providers, please consult the documentation on <a href="#retrieving-user-details">retrieving user details</a>.</p>
+</blockquote>
+<p><a name="access-scopes"></a></p>
+<h3>Access Scopes</h3>
+<p>Before redirecting the user, you may use the <code>scopes</code> method to specify the &quot;scopes&quot; that should be included in the authentication request. This method will merge all previously specified scopes with the scopes that you specify:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Socialite</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Socialite</span>;
+
+<span class="hljs-keyword">return</span> <span class="hljs-title class_">Socialite</span>::<span class="hljs-title function_ invoke__">driver</span>(<span class="hljs-string">&#x27;github&#x27;</span>)
+    -&gt;<span class="hljs-title function_ invoke__">scopes</span>([<span class="hljs-string">&#x27;read:user&#x27;</span>, <span class="hljs-string">&#x27;public_repo&#x27;</span>])
+    -&gt;<span class="hljs-title function_ invoke__">redirect</span>();
+</code></pre><p>You can overwrite all existing scopes on the authentication request using the <code>setScopes</code> method:</p>
+<pre><code><span class="hljs-keyword">return</span> <span class="hljs-title class_">Socialite</span>::<span class="hljs-title function_ invoke__">driver</span>(<span class="hljs-string">&#x27;github&#x27;</span>)
+    -&gt;<span class="hljs-title function_ invoke__">setScopes</span>([<span class="hljs-string">&#x27;read:user&#x27;</span>, <span class="hljs-string">&#x27;public_repo&#x27;</span>])
+    -&gt;<span class="hljs-title function_ invoke__">redirect</span>();
+</code></pre><p><a name="slack-bot-scopes"></a></p>
+<h3>Slack Bot Scopes</h3>
+<p>Slack&#39;s API provides <a href="https://api.slack.com/authentication/token-types">different types of access tokens</a>, each with their own set of <a href="https://api.slack.com/scopes">permission scopes</a>. Socialite is compatible with both of the following Slack access tokens types:</p>
+<div class="content-list" markdown="1">
+
+<ul>
+<li>Bot (prefixed with <code>xoxb-</code>)</li>
+<li>User (prefixed with <code>xoxp-</code>)</li>
+</ul>
+</div>
+
+<p>By default, the <code>slack</code> driver will generate a <code>user</code> token and invoking the the driver&#39;s <code>user</code> method will return the user&#39;s details.</p>
+<p>Bot tokens are primarily useful if your application will be sending notifications to external Slack workspaces that are owned by your application&#39;s users. To generate a bot token, invoke the <code>asBotUser</code> method before redirecting the user to Slack for authentication:</p>
+<pre><code><span class="hljs-keyword">return</span> <span class="hljs-title class_">Socialite</span>::<span class="hljs-title function_ invoke__">driver</span>(<span class="hljs-string">&#x27;slack&#x27;</span>)
+    -&gt;<span class="hljs-title function_ invoke__">asBotUser</span>()
+    -&gt;<span class="hljs-title function_ invoke__">setScopes</span>([<span class="hljs-string">&#x27;chat:write&#x27;</span>, <span class="hljs-string">&#x27;chat:write.public&#x27;</span>, <span class="hljs-string">&#x27;chat:write.customize&#x27;</span>])
+    -&gt;<span class="hljs-title function_ invoke__">redirect</span>();
+</code></pre><p>In addition, you must invoke the <code>asBotUser</code> method before invoking the <code>user</code> method after Slack redirects the user back to your application after authentication:</p>
+<pre><code><span class="hljs-variable">$user</span> = <span class="hljs-title class_">Socialite</span>::<span class="hljs-title function_ invoke__">driver</span>(<span class="hljs-string">&#x27;slack&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">asBotUser</span>()-&gt;<span class="hljs-title function_ invoke__">user</span>();
+</code></pre><p>When generating a bot token, the <code>user</code> method will still return a <code>Laravel\Socialite\Two\User</code> instance; however, only the <code>token</code> property will be hydrated. This token may be stored in order to <a href="/docs/%7B%7Bversion%7D%7D/notifications#notifying-external-slack-workspaces">send notifications to the authenticated user&#39;s Slack workspaces</a>.</p>
+<p><a name="optional-parameters"></a></p>
+<h3>Optional Parameters</h3>
+<p>A number of OAuth providers support other optional parameters on the redirect request. To include any optional parameters in the request, call the <code>with</code> method with an associative array:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Socialite</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Socialite</span>;
+
+<span class="hljs-keyword">return</span> <span class="hljs-title class_">Socialite</span>::<span class="hljs-title function_ invoke__">driver</span>(<span class="hljs-string">&#x27;google&#x27;</span>)
+    -&gt;<span class="hljs-title function_ invoke__">with</span>([<span class="hljs-string">&#x27;hd&#x27;</span> =&gt; <span class="hljs-string">&#x27;example.com&#x27;</span>])
+    -&gt;<span class="hljs-title function_ invoke__">redirect</span>();
+</code></pre><blockquote>
+<p><strong>Warning</strong><br>When using the <code>with</code> method, be careful not to pass any reserved keywords such as <code>state</code> or <code>response_type</code>.</p>
+</blockquote>
+<p><a name="retrieving-user-details"></a></p>
+<h2>Retrieving User Details</h2>
+<p>After the user is redirected back to your application&#39;s authentication callback route, you may retrieve the user&#39;s details using Socialite&#39;s <code>user</code> method. The user object returned by the <code>user</code> method provides a variety of properties and methods you may use to store information about the user in your own database.</p>
+<p>Differing properties and methods may be available on this object depending on whether the OAuth provider you are authenticating with supports OAuth 1.0 or OAuth 2.0:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Socialite</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Socialite</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/auth/callback&#x27;</span>, function () {
+    <span class="hljs-variable">$user</span> = <span class="hljs-title class_">Socialite</span>::<span class="hljs-title function_ invoke__">driver</span>(<span class="hljs-string">&#x27;github&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">user</span>();
+
+    <span class="hljs-comment">// OAuth 2.0 providers...</span>
+    <span class="hljs-variable">$token</span> = <span class="hljs-variable">$user</span>-&gt;token;
+    <span class="hljs-variable">$refreshToken</span> = <span class="hljs-variable">$user</span>-&gt;refreshToken;
+    <span class="hljs-variable">$expiresIn</span> = <span class="hljs-variable">$user</span>-&gt;expiresIn;
+
+    <span class="hljs-comment">// OAuth 1.0 providers...</span>
+    <span class="hljs-variable">$token</span> = <span class="hljs-variable">$user</span>-&gt;token;
+    <span class="hljs-variable">$tokenSecret</span> = <span class="hljs-variable">$user</span>-&gt;tokenSecret;
+
+    <span class="hljs-comment">// All providers...</span>
+    <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">getId</span>();
+    <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">getNickname</span>();
+    <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">getName</span>();
+    <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">getEmail</span>();
+    <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">getAvatar</span>();
+});
+</code></pre><p><a name="retrieving-user-details-from-a-token-oauth2"></a></p>
+<h4>Retrieving User Details From A Token (OAuth2)</h4>
+<p>If you already have a valid access token for a user, you can retrieve their user details using Socialite&#39;s <code>userFromToken</code> method:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Socialite</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Socialite</span>;
+
+<span class="hljs-variable">$user</span> = <span class="hljs-title class_">Socialite</span>::<span class="hljs-title function_ invoke__">driver</span>(<span class="hljs-string">&#x27;github&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">userFromToken</span>(<span class="hljs-variable">$token</span>);
+</code></pre><p><a name="retrieving-user-details-from-a-token-and-secret-oauth1"></a></p>
+<h4>Retrieving User Details From A Token And Secret (OAuth1)</h4>
+<p>If you already have a valid token and secret for a user, you can retrieve their user details using Socialite&#39;s <code>userFromTokenAndSecret</code> method:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Socialite</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Socialite</span>;
+
+<span class="hljs-variable">$user</span> = <span class="hljs-title class_">Socialite</span>::<span class="hljs-title function_ invoke__">driver</span>(<span class="hljs-string">&#x27;twitter&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">userFromTokenAndSecret</span>(<span class="hljs-variable">$token</span>, <span class="hljs-variable">$secret</span>);
+</code></pre><p><a name="stateless-authentication"></a></p>
+<h4>Stateless Authentication</h4>
+<p>The <code>stateless</code> method may be used to disable session state verification. This is useful when adding social authentication to a stateless API that does not utilize cookie based sessions:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Socialite</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Socialite</span>;
+
+<span class="hljs-keyword">return</span> <span class="hljs-title class_">Socialite</span>::<span class="hljs-title function_ invoke__">driver</span>(<span class="hljs-string">&#x27;google&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">stateless</span>()-&gt;<span class="hljs-title function_ invoke__">user</span>();
+</code></pre><blockquote>
+<p><strong>Warning</strong><br>Stateless authentication is not available for the Twitter OAuth 1.0 driver.</p>
+</blockquote>

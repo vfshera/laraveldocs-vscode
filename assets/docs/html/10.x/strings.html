@@ -1,0 +1,2008 @@
+<h1>Strings</h1>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#available-methods">Available Methods</a></li>
+</ul>
+<p><a name="introduction"></a></p>
+<h2>Introduction</h2>
+<p>Laravel includes a variety of functions for manipulating string values. Many of these functions are used by the framework itself; however, you are free to use them in your own applications if you find them convenient.</p>
+<p><a name="available-methods"></a></p>
+<h2>Available Methods</h2>
+<style>
+    .collection-method-list > p {
+        columns: 10.8em 3; -moz-columns: 10.8em 3; -webkit-columns: 10.8em 3;
+    }
+
+    .collection-method-list a {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+</style>
+
+<p><a name="strings-method-list"></a></p>
+<h3>Strings</h3>
+<div class="collection-method-list" markdown="1">
+
+<p><a href="#method-__">__</a>
+<a href="#method-class-basename">class_basename</a>
+<a href="#method-e">e</a>
+<a href="#method-preg-replace-array">preg_replace_array</a>
+<a href="#method-str-after">Str::after</a>
+<a href="#method-str-after-last">Str::afterLast</a>
+<a href="#method-str-ascii">Str::ascii</a>
+<a href="#method-str-before">Str::before</a>
+<a href="#method-str-before-last">Str::beforeLast</a>
+<a href="#method-str-between">Str::between</a>
+<a href="#method-str-between-first">Str::betweenFirst</a>
+<a href="#method-camel-case">Str::camel</a>
+<a href="#method-str-contains">Str::contains</a>
+<a href="#method-str-contains-all">Str::containsAll</a>
+<a href="#method-ends-with">Str::endsWith</a>
+<a href="#method-excerpt">Str::excerpt</a>
+<a href="#method-str-finish">Str::finish</a>
+<a href="#method-str-headline">Str::headline</a>
+<a href="#method-str-inline-markdown">Str::inlineMarkdown</a>
+<a href="#method-str-is">Str::is</a>
+<a href="#method-str-is-ascii">Str::isAscii</a>
+<a href="#method-str-is-json">Str::isJson</a>
+<a href="#method-str-is-ulid">Str::isUlid</a>
+<a href="#method-str-is-url">Str::isUrl</a>
+<a href="#method-str-is-uuid">Str::isUuid</a>
+<a href="#method-kebab-case">Str::kebab</a>
+<a href="#method-str-lcfirst">Str::lcfirst</a>
+<a href="#method-str-length">Str::length</a>
+<a href="#method-str-limit">Str::limit</a>
+<a href="#method-str-lower">Str::lower</a>
+<a href="#method-str-markdown">Str::markdown</a>
+<a href="#method-str-mask">Str::mask</a>
+<a href="#method-str-ordered-uuid">Str::orderedUuid</a>
+<a href="#method-str-padboth">Str::padBoth</a>
+<a href="#method-str-padleft">Str::padLeft</a>
+<a href="#method-str-padright">Str::padRight</a>
+<a href="#method-str-password">Str::password</a>
+<a href="#method-str-plural">Str::plural</a>
+<a href="#method-str-plural-studly">Str::pluralStudly</a>
+<a href="#method-str-position">Str::position</a>
+<a href="#method-str-random">Str::random</a>
+<a href="#method-str-remove">Str::remove</a>
+<a href="#method-str-repeat">Str::repeat</a>
+<a href="#method-str-replace">Str::replace</a>
+<a href="#method-str-replace-array">Str::replaceArray</a>
+<a href="#method-str-replace-first">Str::replaceFirst</a>
+<a href="#method-str-replace-last">Str::replaceLast</a>
+<a href="#method-str-replace-start">Str::replaceStart</a>
+<a href="#method-str-replace-end">Str::replaceEnd</a>
+<a href="#method-str-reverse">Str::reverse</a>
+<a href="#method-str-singular">Str::singular</a>
+<a href="#method-str-slug">Str::slug</a>
+<a href="#method-snake-case">Str::snake</a>
+<a href="#method-str-squish">Str::squish</a>
+<a href="#method-str-start">Str::start</a>
+<a href="#method-starts-with">Str::startsWith</a>
+<a href="#method-studly-case">Str::studly</a>
+<a href="#method-str-substr">Str::substr</a>
+<a href="#method-str-substrcount">Str::substrCount</a>
+<a href="#method-str-substrreplace">Str::substrReplace</a>
+<a href="#method-str-swap">Str::swap</a>
+<a href="#method-take">Str::take</a>
+<a href="#method-title-case">Str::title</a>
+<a href="#method-str-to-html-string">Str::toHtmlString</a>
+<a href="#method-str-ucfirst">Str::ucfirst</a>
+<a href="#method-str-ucsplit">Str::ucsplit</a>
+<a href="#method-str-upper">Str::upper</a>
+<a href="#method-str-ulid">Str::ulid</a>
+<a href="#method-str-uuid">Str::uuid</a>
+<a href="#method-str-word-count">Str::wordCount</a>
+<a href="#method-str-word-wrap">Str::wordWrap</a>
+<a href="#method-str-words">Str::words</a>
+<a href="#method-str-wrap">Str::wrap</a>
+<a href="#method-str">str</a>
+<a href="#method-trans">trans</a>
+<a href="#method-trans-choice">trans_choice</a></p>
+</div>
+
+<p><a name="fluent-strings-method-list"></a></p>
+<h3>Fluent Strings</h3>
+<div class="collection-method-list" markdown="1">
+
+<p><a href="#method-fluent-str-after">after</a>
+<a href="#method-fluent-str-after-last">afterLast</a>
+<a href="#method-fluent-str-append">append</a>
+<a href="#method-fluent-str-ascii">ascii</a>
+<a href="#method-fluent-str-basename">basename</a>
+<a href="#method-fluent-str-before">before</a>
+<a href="#method-fluent-str-before-last">beforeLast</a>
+<a href="#method-fluent-str-between">between</a>
+<a href="#method-fluent-str-between-first">betweenFirst</a>
+<a href="#method-fluent-str-camel">camel</a>
+<a href="#method-fluent-str-class-basename">classBasename</a>
+<a href="#method-fluent-str-contains">contains</a>
+<a href="#method-fluent-str-contains-all">containsAll</a>
+<a href="#method-fluent-str-dirname">dirname</a>
+<a href="#method-fluent-str-ends-with">endsWith</a>
+<a href="#method-fluent-str-excerpt">excerpt</a>
+<a href="#method-fluent-str-exactly">exactly</a>
+<a href="#method-fluent-str-explode">explode</a>
+<a href="#method-fluent-str-finish">finish</a>
+<a href="#method-fluent-str-headline">headline</a>
+<a href="#method-fluent-str-inline-markdown">inlineMarkdown</a>
+<a href="#method-fluent-str-is">is</a>
+<a href="#method-fluent-str-is-ascii">isAscii</a>
+<a href="#method-fluent-str-is-empty">isEmpty</a>
+<a href="#method-fluent-str-is-not-empty">isNotEmpty</a>
+<a href="#method-fluent-str-is-json">isJson</a>
+<a href="#method-fluent-str-is-ulid">isUlid</a>
+<a href="#method-fluent-str-is-url">isUrl</a>
+<a href="#method-fluent-str-is-uuid">isUuid</a>
+<a href="#method-fluent-str-kebab">kebab</a>
+<a href="#method-fluent-str-lcfirst">lcfirst</a>
+<a href="#method-fluent-str-length">length</a>
+<a href="#method-fluent-str-limit">limit</a>
+<a href="#method-fluent-str-lower">lower</a>
+<a href="#method-fluent-str-ltrim">ltrim</a>
+<a href="#method-fluent-str-markdown">markdown</a>
+<a href="#method-fluent-str-mask">mask</a>
+<a href="#method-fluent-str-match">match</a>
+<a href="#method-fluent-str-match-all">matchAll</a>
+<a href="#method-fluent-str-is-match">isMatch</a>
+<a href="#method-fluent-str-new-line">newLine</a>
+<a href="#method-fluent-str-padboth">padBoth</a>
+<a href="#method-fluent-str-padleft">padLeft</a>
+<a href="#method-fluent-str-padright">padRight</a>
+<a href="#method-fluent-str-pipe">pipe</a>
+<a href="#method-fluent-str-plural">plural</a>
+<a href="#method-fluent-str-position">position</a>
+<a href="#method-fluent-str-prepend">prepend</a>
+<a href="#method-fluent-str-remove">remove</a>
+<a href="#method-fluent-str-repeat">repeat</a>
+<a href="#method-fluent-str-replace">replace</a>
+<a href="#method-fluent-str-replace-array">replaceArray</a>
+<a href="#method-fluent-str-replace-first">replaceFirst</a>
+<a href="#method-fluent-str-replace-last">replaceLast</a>
+<a href="#method-fluent-str-replace-matches">replaceMatches</a>
+<a href="#method-fluent-str-replace-start">replaceStart</a>
+<a href="#method-fluent-str-replace-end">replaceEnd</a>
+<a href="#method-fluent-str-rtrim">rtrim</a>
+<a href="#method-fluent-str-scan">scan</a>
+<a href="#method-fluent-str-singular">singular</a>
+<a href="#method-fluent-str-slug">slug</a>
+<a href="#method-fluent-str-snake">snake</a>
+<a href="#method-fluent-str-split">split</a>
+<a href="#method-fluent-str-squish">squish</a>
+<a href="#method-fluent-str-start">start</a>
+<a href="#method-fluent-str-starts-with">startsWith</a>
+<a href="#method-fluent-str-studly">studly</a>
+<a href="#method-fluent-str-substr">substr</a>
+<a href="#method-fluent-str-substrreplace">substrReplace</a>
+<a href="#method-fluent-str-swap">swap</a>
+<a href="#method-fluent-str-take">take</a>
+<a href="#method-fluent-str-tap">tap</a>
+<a href="#method-fluent-str-test">test</a>
+<a href="#method-fluent-str-title">title</a>
+<a href="#method-fluent-str-trim">trim</a>
+<a href="#method-fluent-str-ucfirst">ucfirst</a>
+<a href="#method-fluent-str-ucsplit">ucsplit</a>
+<a href="#method-fluent-str-upper">upper</a>
+<a href="#method-fluent-str-when">when</a>
+<a href="#method-fluent-str-when-contains">whenContains</a>
+<a href="#method-fluent-str-when-contains-all">whenContainsAll</a>
+<a href="#method-fluent-str-when-empty">whenEmpty</a>
+<a href="#method-fluent-str-when-not-empty">whenNotEmpty</a>
+<a href="#method-fluent-str-when-starts-with">whenStartsWith</a>
+<a href="#method-fluent-str-when-ends-with">whenEndsWith</a>
+<a href="#method-fluent-str-when-exactly">whenExactly</a>
+<a href="#method-fluent-str-when-not-exactly">whenNotExactly</a>
+<a href="#method-fluent-str-when-is">whenIs</a>
+<a href="#method-fluent-str-when-is-ascii">whenIsAscii</a>
+<a href="#method-fluent-str-when-is-ulid">whenIsUlid</a>
+<a href="#method-fluent-str-when-is-uuid">whenIsUuid</a>
+<a href="#method-fluent-str-when-test">whenTest</a>
+<a href="#method-fluent-str-word-count">wordCount</a>
+<a href="#method-fluent-str-words">words</a></p>
+</div>
+
+<p><a name="strings"></a></p>
+<h2>Strings</h2>
+<p><a name="method-__"></a></p>
+<h4><code>__()</code> {.collection-method}</h4>
+<p>The <code>__</code> function translates the given translation string or translation key using your <a href="/docs/%7B%7Bversion%7D%7D/localization">language files</a>:</p>
+<pre><code><span class="hljs-keyword">echo</span> <span class="hljs-title function_ invoke__">__</span>(<span class="hljs-string">&#x27;Welcome to our application&#x27;</span>);
+
+<span class="hljs-keyword">echo</span> <span class="hljs-title function_ invoke__">__</span>(<span class="hljs-string">&#x27;messages.welcome&#x27;</span>);
+</code></pre><p>If the specified translation string or key does not exist, the <code>__</code> function will return the given value. So, using the example above, the <code>__</code> function would return <code>messages.welcome</code> if that translation key does not exist.</p>
+<p><a name="method-class-basename"></a></p>
+<h4><code>class_basename()</code> {.collection-method}</h4>
+<p>The <code>class_basename</code> function returns the class name of the given class with the class&#39;s namespace removed:</p>
+<pre><code><span class="hljs-variable">$class</span> = <span class="hljs-title function_ invoke__">class_basename</span>(<span class="hljs-string">&#x27;Foo\Bar\Baz&#x27;</span>);
+
+<span class="hljs-comment">// Baz</span>
+</code></pre><p><a name="method-e"></a></p>
+<h4><code>e()</code> {.collection-method}</h4>
+<p>The <code>e</code> function runs PHP&#39;s <code>htmlspecialchars</code> function with the <code>double_encode</code> option set to <code>true</code> by default:</p>
+<pre><code><span class="hljs-keyword">echo</span> <span class="hljs-title function_ invoke__">e</span>(<span class="hljs-string">&#x27;&lt;html&gt;foo&lt;/html&gt;&#x27;</span>);
+
+<span class="hljs-comment">// &amp;lt;html&amp;gt;foo&amp;lt;/html&amp;gt;</span>
+</code></pre><p><a name="method-preg-replace-array"></a></p>
+<h4><code>preg_replace_array()</code> {.collection-method}</h4>
+<p>The <code>preg_replace_array</code> function replaces a given pattern in the string sequentially using an array:</p>
+<pre><code><span class="hljs-variable">$string</span> = <span class="hljs-string">&#x27;The event will take place between :start and :end&#x27;</span>;
+
+<span class="hljs-variable">$replaced</span> = <span class="hljs-title function_ invoke__">preg_replace_array</span>(<span class="hljs-string">&#x27;/:[a-z_]+/&#x27;</span>, [<span class="hljs-string">&#x27;8:30&#x27;</span>, <span class="hljs-string">&#x27;9:00&#x27;</span>], <span class="hljs-variable">$string</span>);
+
+<span class="hljs-comment">// The event will take place between 8:30 and 9:00</span>
+</code></pre><p><a name="method-str-after"></a></p>
+<h4><code>Str::after()</code> {.collection-method}</h4>
+<p>The <code>Str::after</code> method returns everything after the given value in a string. The entire string will be returned if the value does not exist within the string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$slice</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">after</span>(<span class="hljs-string">&#x27;This is my name&#x27;</span>, <span class="hljs-string">&#x27;This is&#x27;</span>);
+
+<span class="hljs-comment">// &#x27; my name&#x27;</span>
+</code></pre><p><a name="method-str-after-last"></a></p>
+<h4><code>Str::afterLast()</code> {.collection-method}</h4>
+<p>The <code>Str::afterLast</code> method returns everything after the last occurrence of the given value in a string. The entire string will be returned if the value does not exist within the string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$slice</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">afterLast</span>(<span class="hljs-string">&#x27;App\Http\Controllers\Controller&#x27;</span>, <span class="hljs-string">&#x27;\\&#x27;</span>);
+
+<span class="hljs-comment">// &#x27;Controller&#x27;</span>
+</code></pre><p><a name="method-str-ascii"></a></p>
+<h4><code>Str::ascii()</code> {.collection-method}</h4>
+<p>The <code>Str::ascii</code> method will attempt to transliterate the string into an ASCII value:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$slice</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">ascii</span>(<span class="hljs-string">&#x27;û&#x27;</span>);
+
+<span class="hljs-comment">// &#x27;u&#x27;</span>
+</code></pre><p><a name="method-str-before"></a></p>
+<h4><code>Str::before()</code> {.collection-method}</h4>
+<p>The <code>Str::before</code> method returns everything before the given value in a string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$slice</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">before</span>(<span class="hljs-string">&#x27;This is my name&#x27;</span>, <span class="hljs-string">&#x27;my name&#x27;</span>);
+
+<span class="hljs-comment">// &#x27;This is &#x27;</span>
+</code></pre><p><a name="method-str-before-last"></a></p>
+<h4><code>Str::beforeLast()</code> {.collection-method}</h4>
+<p>The <code>Str::beforeLast</code> method returns everything before the last occurrence of the given value in a string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$slice</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">beforeLast</span>(<span class="hljs-string">&#x27;This is my name&#x27;</span>, <span class="hljs-string">&#x27;is&#x27;</span>);
+
+<span class="hljs-comment">// &#x27;This &#x27;</span>
+</code></pre><p><a name="method-str-between"></a></p>
+<h4><code>Str::between()</code> {.collection-method}</h4>
+<p>The <code>Str::between</code> method returns the portion of a string between two values:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$slice</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">between</span>(<span class="hljs-string">&#x27;This is my name&#x27;</span>, <span class="hljs-string">&#x27;This&#x27;</span>, <span class="hljs-string">&#x27;name&#x27;</span>);
+
+<span class="hljs-comment">// &#x27; is my &#x27;</span>
+</code></pre><p><a name="method-str-between-first"></a></p>
+<h4><code>Str::betweenFirst()</code> {.collection-method}</h4>
+<p>The <code>Str::betweenFirst</code> method returns the smallest possible portion of a string between two values:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$slice</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">betweenFirst</span>(<span class="hljs-string">&#x27;[a] bc [d]&#x27;</span>, <span class="hljs-string">&#x27;[&#x27;</span>, <span class="hljs-string">&#x27;]&#x27;</span>);
+
+<span class="hljs-comment">// &#x27;a&#x27;</span>
+</code></pre><p><a name="method-camel-case"></a></p>
+<h4><code>Str::camel()</code> {.collection-method}</h4>
+<p>The <code>Str::camel</code> method converts the given string to <code>camelCase</code>:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$converted</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">camel</span>(<span class="hljs-string">&#x27;foo_bar&#x27;</span>);
+
+<span class="hljs-comment">// fooBar</span>
+</code></pre><p><a name="method-str-contains"></a></p>
+<h4><code>Str::contains()</code> {.collection-method}</h4>
+<p>The <code>Str::contains</code> method determines if the given string contains the given value. This method is case sensitive:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$contains</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">contains</span>(<span class="hljs-string">&#x27;This is my name&#x27;</span>, <span class="hljs-string">&#x27;my&#x27;</span>);
+
+<span class="hljs-comment">// true</span>
+</code></pre><p>You may also pass an array of values to determine if the given string contains any of the values in the array:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$contains</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">contains</span>(<span class="hljs-string">&#x27;This is my name&#x27;</span>, [<span class="hljs-string">&#x27;my&#x27;</span>, <span class="hljs-string">&#x27;foo&#x27;</span>]);
+
+<span class="hljs-comment">// true</span>
+</code></pre><p><a name="method-str-contains-all"></a></p>
+<h4><code>Str::containsAll()</code> {.collection-method}</h4>
+<p>The <code>Str::containsAll</code> method determines if the given string contains all of the values in a given array:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$containsAll</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">containsAll</span>(<span class="hljs-string">&#x27;This is my name&#x27;</span>, [<span class="hljs-string">&#x27;my&#x27;</span>, <span class="hljs-string">&#x27;name&#x27;</span>]);
+
+<span class="hljs-comment">// true</span>
+</code></pre><p><a name="method-ends-with"></a></p>
+<h4><code>Str::endsWith()</code> {.collection-method}</h4>
+<p>The <code>Str::endsWith</code> method determines if the given string ends with the given value:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">endsWith</span>(<span class="hljs-string">&#x27;This is my name&#x27;</span>, <span class="hljs-string">&#x27;name&#x27;</span>);
+
+<span class="hljs-comment">// true</span>
+</code></pre><p>You may also pass an array of values to determine if the given string ends with any of the values in the array:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">endsWith</span>(<span class="hljs-string">&#x27;This is my name&#x27;</span>, [<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;foo&#x27;</span>]);
+
+<span class="hljs-comment">// true</span>
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">endsWith</span>(<span class="hljs-string">&#x27;This is my name&#x27;</span>, [<span class="hljs-string">&#x27;this&#x27;</span>, <span class="hljs-string">&#x27;foo&#x27;</span>]);
+
+<span class="hljs-comment">// false</span>
+</code></pre><p><a name="method-excerpt"></a></p>
+<h4><code>Str::excerpt()</code> {.collection-method}</h4>
+<p>The <code>Str::excerpt</code> method extracts an excerpt from a given string that matches the first instance of a phrase within that string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$excerpt</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">excerpt</span>(<span class="hljs-string">&#x27;This is my name&#x27;</span>, <span class="hljs-string">&#x27;my&#x27;</span>, [
+    <span class="hljs-string">&#x27;radius&#x27;</span> =&gt; <span class="hljs-number">3</span>
+]);
+
+<span class="hljs-comment">// &#x27;...is my na...&#x27;</span>
+</code></pre><p>The <code>radius</code> option, which defaults to <code>100</code>, allows you to define the number of characters that should appear on each side of the truncated string.</p>
+<p>In addition, you may use the <code>omission</code> option to define the string that will be prepended and appended to the truncated string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$excerpt</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">excerpt</span>(<span class="hljs-string">&#x27;This is my name&#x27;</span>, <span class="hljs-string">&#x27;name&#x27;</span>, [
+    <span class="hljs-string">&#x27;radius&#x27;</span> =&gt; <span class="hljs-number">3</span>,
+    <span class="hljs-string">&#x27;omission&#x27;</span> =&gt; <span class="hljs-string">&#x27;(...) &#x27;</span>
+]);
+
+<span class="hljs-comment">// &#x27;(...) my name&#x27;</span>
+</code></pre><p><a name="method-str-finish"></a></p>
+<h4><code>Str::finish()</code> {.collection-method}</h4>
+<p>The <code>Str::finish</code> method adds a single instance of the given value to a string if it does not already end with that value:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$adjusted</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">finish</span>(<span class="hljs-string">&#x27;this/string&#x27;</span>, <span class="hljs-string">&#x27;/&#x27;</span>);
+
+<span class="hljs-comment">// this/string/</span>
+
+<span class="hljs-variable">$adjusted</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">finish</span>(<span class="hljs-string">&#x27;this/string/&#x27;</span>, <span class="hljs-string">&#x27;/&#x27;</span>);
+
+<span class="hljs-comment">// this/string/</span>
+</code></pre><p><a name="method-str-headline"></a></p>
+<h4><code>Str::headline()</code> {.collection-method}</h4>
+<p>The <code>Str::headline</code> method will convert strings delimited by casing, hyphens, or underscores into a space delimited string with each word&#39;s first letter capitalized:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$headline</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">headline</span>(<span class="hljs-string">&#x27;steve_jobs&#x27;</span>);
+
+<span class="hljs-comment">// Steve Jobs</span>
+
+<span class="hljs-variable">$headline</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">headline</span>(<span class="hljs-string">&#x27;EmailNotificationSent&#x27;</span>);
+
+<span class="hljs-comment">// Email Notification Sent</span>
+</code></pre><p><a name="method-str-inline-markdown"></a></p>
+<h4><code>Str::inlineMarkdown()</code> {.collection-method}</h4>
+<p>The <code>Str::inlineMarkdown</code> method converts GitHub flavored Markdown into inline HTML using <a href="https://commonmark.thephpleague.com/">CommonMark</a>. However, unlike the <code>markdown</code> method, it does not wrap all generated HTML in a block-level element:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$html</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">inlineMarkdown</span>(<span class="hljs-string">&#x27;**Laravel**&#x27;</span>);
+
+<span class="hljs-comment">// &lt;strong&gt;Laravel&lt;/strong&gt;</span>
+</code></pre><p><a name="method-str-is"></a></p>
+<h4><code>Str::is()</code> {.collection-method}</h4>
+<p>The <code>Str::is</code> method determines if a given string matches a given pattern. Asterisks may be used as wildcard values:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$matches</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">is</span>(<span class="hljs-string">&#x27;foo*&#x27;</span>, <span class="hljs-string">&#x27;foobar&#x27;</span>);
+
+<span class="hljs-comment">// true</span>
+
+<span class="hljs-variable">$matches</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">is</span>(<span class="hljs-string">&#x27;baz*&#x27;</span>, <span class="hljs-string">&#x27;foobar&#x27;</span>);
+
+<span class="hljs-comment">// false</span>
+</code></pre><p><a name="method-str-is-ascii"></a></p>
+<h4><code>Str::isAscii()</code> {.collection-method}</h4>
+<p>The <code>Str::isAscii</code> method determines if a given string is 7 bit ASCII:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$isAscii</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">isAscii</span>(<span class="hljs-string">&#x27;Taylor&#x27;</span>);
+
+<span class="hljs-comment">// true</span>
+
+<span class="hljs-variable">$isAscii</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">isAscii</span>(<span class="hljs-string">&#x27;ü&#x27;</span>);
+
+<span class="hljs-comment">// false</span>
+</code></pre><p><a name="method-str-is-json"></a></p>
+<h4><code>Str::isJson()</code> {.collection-method}</h4>
+<p>The <code>Str::isJson</code> method determines if the given string is valid JSON:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">isJson</span>(<span class="hljs-string">&#x27;[1,2,3]&#x27;</span>);
+
+<span class="hljs-comment">// true</span>
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">isJson</span>(<span class="hljs-string">&#x27;{&quot;first&quot;: &quot;John&quot;, &quot;last&quot;: &quot;Doe&quot;}&#x27;</span>);
+
+<span class="hljs-comment">// true</span>
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">isJson</span>(<span class="hljs-string">&#x27;{first: &quot;John&quot;, last: &quot;Doe&quot;}&#x27;</span>);
+
+<span class="hljs-comment">// false</span>
+</code></pre><p><a name="method-str-is-url"></a></p>
+<h4><code>Str::isUrl()</code> {.collection-method}</h4>
+<p>The <code>Str::isUrl</code> method determines if the given string is a valid URL:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$isUrl</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">isUrl</span>(<span class="hljs-string">&#x27;http://example.com&#x27;</span>);
+
+<span class="hljs-comment">// true</span>
+
+<span class="hljs-variable">$isUrl</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">isUrl</span>(<span class="hljs-string">&#x27;laravel&#x27;</span>);
+
+<span class="hljs-comment">// false</span>
+</code></pre><p><a name="method-str-is-ulid"></a></p>
+<h4><code>Str::isUlid()</code> {.collection-method}</h4>
+<p>The <code>Str::isUlid</code> method determines if the given string is a valid ULID:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$isUlid</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">isUlid</span>(<span class="hljs-string">&#x27;01gd6r360bp37zj17nxb55yv40&#x27;</span>);
+
+<span class="hljs-comment">// true</span>
+
+<span class="hljs-variable">$isUlid</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">isUlid</span>(<span class="hljs-string">&#x27;laravel&#x27;</span>);
+
+<span class="hljs-comment">// false</span>
+</code></pre><p><a name="method-str-is-uuid"></a></p>
+<h4><code>Str::isUuid()</code> {.collection-method}</h4>
+<p>The <code>Str::isUuid</code> method determines if the given string is a valid UUID:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$isUuid</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">isUuid</span>(<span class="hljs-string">&#x27;a0a2a2d2-0b87-4a18-83f2-2529882be2de&#x27;</span>);
+
+<span class="hljs-comment">// true</span>
+
+<span class="hljs-variable">$isUuid</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">isUuid</span>(<span class="hljs-string">&#x27;laravel&#x27;</span>);
+
+<span class="hljs-comment">// false</span>
+</code></pre><p><a name="method-kebab-case"></a></p>
+<h4><code>Str::kebab()</code> {.collection-method}</h4>
+<p>The <code>Str::kebab</code> method converts the given string to <code>kebab-case</code>:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$converted</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">kebab</span>(<span class="hljs-string">&#x27;fooBar&#x27;</span>);
+
+<span class="hljs-comment">// foo-bar</span>
+</code></pre><p><a name="method-str-lcfirst"></a></p>
+<h4><code>Str::lcfirst()</code> {.collection-method}</h4>
+<p>The <code>Str::lcfirst</code> method returns the given string with the first character lowercased:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">lcfirst</span>(<span class="hljs-string">&#x27;Foo Bar&#x27;</span>);
+
+<span class="hljs-comment">// foo Bar</span>
+</code></pre><p><a name="method-str-length"></a></p>
+<h4><code>Str::length()</code> {.collection-method}</h4>
+<p>The <code>Str::length</code> method returns the length of the given string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$length</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">length</span>(<span class="hljs-string">&#x27;Laravel&#x27;</span>);
+
+<span class="hljs-comment">// 7</span>
+</code></pre><p><a name="method-str-limit"></a></p>
+<h4><code>Str::limit()</code> {.collection-method}</h4>
+<p>The <code>Str::limit</code> method truncates the given string to the specified length:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$truncated</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">limit</span>(<span class="hljs-string">&#x27;The quick brown fox jumps over the lazy dog&#x27;</span>, <span class="hljs-number">20</span>);
+
+<span class="hljs-comment">// The quick brown fox...</span>
+</code></pre><p>You may pass a third argument to the method to change the string that will be appended to the end of the truncated string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$truncated</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">limit</span>(<span class="hljs-string">&#x27;The quick brown fox jumps over the lazy dog&#x27;</span>, <span class="hljs-number">20</span>, <span class="hljs-string">&#x27; (...)&#x27;</span>);
+
+<span class="hljs-comment">// The quick brown fox (...)</span>
+</code></pre><p><a name="method-str-lower"></a></p>
+<h4><code>Str::lower()</code> {.collection-method}</h4>
+<p>The <code>Str::lower</code> method converts the given string to lowercase:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$converted</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">lower</span>(<span class="hljs-string">&#x27;LARAVEL&#x27;</span>);
+
+<span class="hljs-comment">// laravel</span>
+</code></pre><p><a name="method-str-markdown"></a></p>
+<h4><code>Str::markdown()</code> {.collection-method}</h4>
+<p>The <code>Str::markdown</code> method converts GitHub flavored Markdown into HTML using <a href="https://commonmark.thephpleague.com/">CommonMark</a>:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$html</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">markdown</span>(<span class="hljs-string">&#x27;# Laravel&#x27;</span>);
+
+<span class="hljs-comment">// &lt;h1&gt;Laravel&lt;/h1&gt;</span>
+
+<span class="hljs-variable">$html</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">markdown</span>(<span class="hljs-string">&#x27;# Taylor &lt;b&gt;Otwell&lt;/b&gt;&#x27;</span>, [
+    <span class="hljs-string">&#x27;html_input&#x27;</span> =&gt; <span class="hljs-string">&#x27;strip&#x27;</span>,
+]);
+
+<span class="hljs-comment">// &lt;h1&gt;Taylor Otwell&lt;/h1&gt;</span>
+</code></pre><p><a name="method-str-mask"></a></p>
+<h4><code>Str::mask()</code> {.collection-method}</h4>
+<p>The <code>Str::mask</code> method masks a portion of a string with a repeated character, and may be used to obfuscate segments of strings such as email addresses and phone numbers:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">mask</span>(<span class="hljs-string">&#x27;taylor@example.com&#x27;</span>, <span class="hljs-string">&#x27;*&#x27;</span>, <span class="hljs-number">3</span>);
+
+<span class="hljs-comment">// tay***************</span>
+</code></pre><p>If needed, you provide a negative number as the third argument to the <code>mask</code> method, which will instruct the method to begin masking at the given distance from the end of the string:</p>
+<pre><code><span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">mask</span>(<span class="hljs-string">&#x27;taylor@example.com&#x27;</span>, <span class="hljs-string">&#x27;*&#x27;</span>, -<span class="hljs-number">15</span>, <span class="hljs-number">3</span>);
+
+<span class="hljs-comment">// tay***@example.com</span>
+</code></pre><p><a name="method-str-ordered-uuid"></a></p>
+<h4><code>Str::orderedUuid()</code> {.collection-method}</h4>
+<p>The <code>Str::orderedUuid</code> method generates a &quot;timestamp first&quot; UUID that may be efficiently stored in an indexed database column. Each UUID that is generated using this method will be sorted after UUIDs previously generated using the method:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-keyword">return</span> (<span class="hljs-keyword">string</span>) <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">orderedUuid</span>();
+</code></pre><p><a name="method-str-padboth"></a></p>
+<h4><code>Str::padBoth()</code> {.collection-method}</h4>
+<p>The <code>Str::padBoth</code> method wraps PHP&#39;s <code>str_pad</code> function, padding both sides of a string with another string until the final string reaches a desired length:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$padded</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">padBoth</span>(<span class="hljs-string">&#x27;James&#x27;</span>, <span class="hljs-number">10</span>, <span class="hljs-string">&#x27;_&#x27;</span>);
+
+<span class="hljs-comment">// &#x27;__James___&#x27;</span>
+
+<span class="hljs-variable">$padded</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">padBoth</span>(<span class="hljs-string">&#x27;James&#x27;</span>, <span class="hljs-number">10</span>);
+
+<span class="hljs-comment">// &#x27;  James   &#x27;</span>
+</code></pre><p><a name="method-str-padleft"></a></p>
+<h4><code>Str::padLeft()</code> {.collection-method}</h4>
+<p>The <code>Str::padLeft</code> method wraps PHP&#39;s <code>str_pad</code> function, padding the left side of a string with another string until the final string reaches a desired length:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$padded</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">padLeft</span>(<span class="hljs-string">&#x27;James&#x27;</span>, <span class="hljs-number">10</span>, <span class="hljs-string">&#x27;-=&#x27;</span>);
+
+<span class="hljs-comment">// &#x27;-=-=-James&#x27;</span>
+
+<span class="hljs-variable">$padded</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">padLeft</span>(<span class="hljs-string">&#x27;James&#x27;</span>, <span class="hljs-number">10</span>);
+
+<span class="hljs-comment">// &#x27;     James&#x27;</span>
+</code></pre><p><a name="method-str-padright"></a></p>
+<h4><code>Str::padRight()</code> {.collection-method}</h4>
+<p>The <code>Str::padRight</code> method wraps PHP&#39;s <code>str_pad</code> function, padding the right side of a string with another string until the final string reaches a desired length:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$padded</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">padRight</span>(<span class="hljs-string">&#x27;James&#x27;</span>, <span class="hljs-number">10</span>, <span class="hljs-string">&#x27;-&#x27;</span>);
+
+<span class="hljs-comment">// &#x27;James-----&#x27;</span>
+
+<span class="hljs-variable">$padded</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">padRight</span>(<span class="hljs-string">&#x27;James&#x27;</span>, <span class="hljs-number">10</span>);
+
+<span class="hljs-comment">// &#x27;James     &#x27;</span>
+</code></pre><p><a name="method-str-password"></a></p>
+<h4><code>Str::password()</code> {.collection-method}</h4>
+<p>The <code>Str::password</code> method may be used to generate a secure, random password of a given length. The password will consist of a combination of letters, numbers, symbols, and spaces. By default, passwords are 32 characters long:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$password</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">password</span>();
+
+<span class="hljs-comment">// &#x27;EbJo2vE-AS:U,$%_gkrV4n,q~1xy/-_4&#x27;</span>
+
+<span class="hljs-variable">$password</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">password</span>(<span class="hljs-number">12</span>);
+
+<span class="hljs-comment">// &#x27;qwuar&gt;#V|i]N&#x27;</span>
+</code></pre><p><a name="method-str-plural"></a></p>
+<h4><code>Str::plural()</code> {.collection-method}</h4>
+<p>The <code>Str::plural</code> method converts a singular word string to its plural form. This function supports <a href="/docs/%7B%7Bversion%7D%7D/localization#pluralization-language">any of the languages support by Laravel&#39;s pluralizer</a>:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$plural</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">plural</span>(<span class="hljs-string">&#x27;car&#x27;</span>);
+
+<span class="hljs-comment">// cars</span>
+
+<span class="hljs-variable">$plural</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">plural</span>(<span class="hljs-string">&#x27;child&#x27;</span>);
+
+<span class="hljs-comment">// children</span>
+</code></pre><p>You may provide an integer as a second argument to the function to retrieve the singular or plural form of the string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$plural</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">plural</span>(<span class="hljs-string">&#x27;child&#x27;</span>, <span class="hljs-number">2</span>);
+
+<span class="hljs-comment">// children</span>
+
+<span class="hljs-variable">$singular</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">plural</span>(<span class="hljs-string">&#x27;child&#x27;</span>, <span class="hljs-number">1</span>);
+
+<span class="hljs-comment">// child</span>
+</code></pre><p><a name="method-str-plural-studly"></a></p>
+<h4><code>Str::pluralStudly()</code> {.collection-method}</h4>
+<p>The <code>Str::pluralStudly</code> method converts a singular word string formatted in studly caps case to its plural form. This function supports <a href="/docs/%7B%7Bversion%7D%7D/localization#pluralization-language">any of the languages support by Laravel&#39;s pluralizer</a>:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$plural</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">pluralStudly</span>(<span class="hljs-string">&#x27;VerifiedHuman&#x27;</span>);
+
+<span class="hljs-comment">// VerifiedHumans</span>
+
+<span class="hljs-variable">$plural</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">pluralStudly</span>(<span class="hljs-string">&#x27;UserFeedback&#x27;</span>);
+
+<span class="hljs-comment">// UserFeedback</span>
+</code></pre><p>You may provide an integer as a second argument to the function to retrieve the singular or plural form of the string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$plural</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">pluralStudly</span>(<span class="hljs-string">&#x27;VerifiedHuman&#x27;</span>, <span class="hljs-number">2</span>);
+
+<span class="hljs-comment">// VerifiedHumans</span>
+
+<span class="hljs-variable">$singular</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">pluralStudly</span>(<span class="hljs-string">&#x27;VerifiedHuman&#x27;</span>, <span class="hljs-number">1</span>);
+
+<span class="hljs-comment">// VerifiedHuman</span>
+</code></pre><p><a name="method-str-position"></a></p>
+<h4><code>Str::position()</code> {.collection-method}</h4>
+<p>The <code>Str::position</code> method returns the position of the first occurrence of a substring in a string. If the substring does not exist in the given string, <code>false</code> is returned:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$position</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">position</span>(<span class="hljs-string">&#x27;Hello, World!&#x27;</span>, <span class="hljs-string">&#x27;Hello&#x27;</span>);
+
+<span class="hljs-comment">// 0</span>
+
+<span class="hljs-variable">$position</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">position</span>(<span class="hljs-string">&#x27;Hello, World!&#x27;</span>, <span class="hljs-string">&#x27;W&#x27;</span>);
+
+<span class="hljs-comment">// 7</span>
+</code></pre><p><a name="method-str-random"></a></p>
+<h4><code>Str::random()</code> {.collection-method}</h4>
+<p>The <code>Str::random</code> method generates a random string of the specified length. This function uses PHP&#39;s <code>random_bytes</code> function:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$random</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">random</span>(<span class="hljs-number">40</span>);
+</code></pre><p><a name="method-str-remove"></a></p>
+<h4><code>Str::remove()</code> {.collection-method}</h4>
+<p>The <code>Str::remove</code> method removes the given value or array of values from the string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-string">&#x27;Peter Piper picked a peck of pickled peppers.&#x27;</span>;
+
+<span class="hljs-variable">$removed</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">remove</span>(<span class="hljs-string">&#x27;e&#x27;</span>, <span class="hljs-variable">$string</span>);
+
+<span class="hljs-comment">// Ptr Pipr pickd a pck of pickld ppprs.</span>
+</code></pre><p>You may also pass <code>false</code> as a third argument to the <code>remove</code> method to ignore case when removing strings.</p>
+<p><a name="method-str-repeat"></a></p>
+<h4><code>Str::repeat()</code> {.collection-method}</h4>
+<p>The <code>Str::repeat</code> method repeats the given string:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-string">&#x27;a&#x27;</span>;
+
+<span class="hljs-variable">$repeat</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">repeat</span>(<span class="hljs-variable">$string</span>, <span class="hljs-number">5</span>);
+
+<span class="hljs-comment">// aaaaa</span>
+</code></pre><p><a name="method-str-replace"></a></p>
+<h4><code>Str::replace()</code> {.collection-method}</h4>
+<p>The <code>Str::replace</code> method replaces a given string within the string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-string">&#x27;Laravel 8.x&#x27;</span>;
+
+<span class="hljs-variable">$replaced</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">replace</span>(<span class="hljs-string">&#x27;8.x&#x27;</span>, <span class="hljs-string">&#x27;9.x&#x27;</span>, <span class="hljs-variable">$string</span>);
+
+<span class="hljs-comment">// Laravel 9.x</span>
+</code></pre><p>The <code>replace</code> method also accepts a <code>caseSensitive</code> argument. By default, the <code>replace</code> method is case sensitive:</p>
+<pre><code><span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">replace</span>(<span class="hljs-string">&#x27;Framework&#x27;</span>, <span class="hljs-string">&#x27;Laravel&#x27;</span>, <span class="hljs-attr">caseSensitive</span>: <span class="hljs-literal">false</span>);
+</code></pre><p><a name="method-str-replace-array"></a></p>
+<h4><code>Str::replaceArray()</code> {.collection-method}</h4>
+<p>The <code>Str::replaceArray</code> method replaces a given value in the string sequentially using an array:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-string">&#x27;The event will take place between ? and ?&#x27;</span>;
+
+<span class="hljs-variable">$replaced</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">replaceArray</span>(<span class="hljs-string">&#x27;?&#x27;</span>, [<span class="hljs-string">&#x27;8:30&#x27;</span>, <span class="hljs-string">&#x27;9:00&#x27;</span>], <span class="hljs-variable">$string</span>);
+
+<span class="hljs-comment">// The event will take place between 8:30 and 9:00</span>
+</code></pre><p><a name="method-str-replace-first"></a></p>
+<h4><code>Str::replaceFirst()</code> {.collection-method}</h4>
+<p>The <code>Str::replaceFirst</code> method replaces the first occurrence of a given value in a string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$replaced</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">replaceFirst</span>(<span class="hljs-string">&#x27;the&#x27;</span>, <span class="hljs-string">&#x27;a&#x27;</span>, <span class="hljs-string">&#x27;the quick brown fox jumps over the lazy dog&#x27;</span>);
+
+<span class="hljs-comment">// a quick brown fox jumps over the lazy dog</span>
+</code></pre><p><a name="method-str-replace-last"></a></p>
+<h4><code>Str::replaceLast()</code> {.collection-method}</h4>
+<p>The <code>Str::replaceLast</code> method replaces the last occurrence of a given value in a string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$replaced</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">replaceLast</span>(<span class="hljs-string">&#x27;the&#x27;</span>, <span class="hljs-string">&#x27;a&#x27;</span>, <span class="hljs-string">&#x27;the quick brown fox jumps over the lazy dog&#x27;</span>);
+
+<span class="hljs-comment">// the quick brown fox jumps over a lazy dog</span>
+</code></pre><p><a name="method-str-replace-start"></a></p>
+<h4><code>Str::replaceStart()</code> {.collection-method}</h4>
+<p>The <code>Str::replaceStart</code> method replaces the first occurrence of the given value only if the value appears at the start of the string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$replaced</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">replaceStart</span>(<span class="hljs-string">&#x27;Hello&#x27;</span>, <span class="hljs-string">&#x27;Laravel&#x27;</span>, <span class="hljs-string">&#x27;Hello World&#x27;</span>);
+
+<span class="hljs-comment">// Laravel World</span>
+
+<span class="hljs-variable">$replaced</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">replaceStart</span>(<span class="hljs-string">&#x27;World&#x27;</span>, <span class="hljs-string">&#x27;Laravel&#x27;</span>, <span class="hljs-string">&#x27;Hello World&#x27;</span>);
+
+<span class="hljs-comment">// Hello World</span>
+</code></pre><p><a name="method-str-replace-end"></a></p>
+<h4><code>Str::replaceEnd()</code> {.collection-method}</h4>
+<p>The <code>Str::replaceEnd</code> method replaces the last occurrence of the given value only if the value appears at the end of the string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$replaced</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">replaceEnd</span>(<span class="hljs-string">&#x27;World&#x27;</span>, <span class="hljs-string">&#x27;Laravel&#x27;</span>, <span class="hljs-string">&#x27;Hello World&#x27;</span>);
+
+<span class="hljs-comment">// Hello Laravel</span>
+
+<span class="hljs-variable">$replaced</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">replaceEnd</span>(<span class="hljs-string">&#x27;Hello&#x27;</span>, <span class="hljs-string">&#x27;Laravel&#x27;</span>, <span class="hljs-string">&#x27;Hello World&#x27;</span>);
+
+<span class="hljs-comment">// Hello World</span>
+</code></pre><p><a name="method-str-reverse"></a></p>
+<h4><code>Str::reverse()</code> {.collection-method}</h4>
+<p>The <code>Str::reverse</code> method reverses the given string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$reversed</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">reverse</span>(<span class="hljs-string">&#x27;Hello World&#x27;</span>);
+
+<span class="hljs-comment">// dlroW olleH</span>
+</code></pre><p><a name="method-str-singular"></a></p>
+<h4><code>Str::singular()</code> {.collection-method}</h4>
+<p>The <code>Str::singular</code> method converts a string to its singular form. This function supports <a href="/docs/%7B%7Bversion%7D%7D/localization#pluralization-language">any of the languages support by Laravel&#39;s pluralizer</a>:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$singular</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">singular</span>(<span class="hljs-string">&#x27;cars&#x27;</span>);
+
+<span class="hljs-comment">// car</span>
+
+<span class="hljs-variable">$singular</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">singular</span>(<span class="hljs-string">&#x27;children&#x27;</span>);
+
+<span class="hljs-comment">// child</span>
+</code></pre><p><a name="method-str-slug"></a></p>
+<h4><code>Str::slug()</code> {.collection-method}</h4>
+<p>The <code>Str::slug</code> method generates a URL friendly &quot;slug&quot; from the given string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$slug</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">slug</span>(<span class="hljs-string">&#x27;Laravel 5 Framework&#x27;</span>, <span class="hljs-string">&#x27;-&#x27;</span>);
+
+<span class="hljs-comment">// laravel-5-framework</span>
+</code></pre><p><a name="method-snake-case"></a></p>
+<h4><code>Str::snake()</code> {.collection-method}</h4>
+<p>The <code>Str::snake</code> method converts the given string to <code>snake_case</code>:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$converted</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">snake</span>(<span class="hljs-string">&#x27;fooBar&#x27;</span>);
+
+<span class="hljs-comment">// foo_bar</span>
+
+<span class="hljs-variable">$converted</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">snake</span>(<span class="hljs-string">&#x27;fooBar&#x27;</span>, <span class="hljs-string">&#x27;-&#x27;</span>);
+
+<span class="hljs-comment">// foo-bar</span>
+</code></pre><p><a name="method-str-squish"></a></p>
+<h4><code>Str::squish()</code> {.collection-method}</h4>
+<p>The <code>Str::squish</code> method removes all extraneous white space from a string, including extraneous white space between words:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">squish</span>(<span class="hljs-string">&#x27;    laravel    framework    &#x27;</span>);
+
+<span class="hljs-comment">// laravel framework</span>
+</code></pre><p><a name="method-str-start"></a></p>
+<h4><code>Str::start()</code> {.collection-method}</h4>
+<p>The <code>Str::start</code> method adds a single instance of the given value to a string if it does not already start with that value:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$adjusted</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">start</span>(<span class="hljs-string">&#x27;this/string&#x27;</span>, <span class="hljs-string">&#x27;/&#x27;</span>);
+
+<span class="hljs-comment">// /this/string</span>
+
+<span class="hljs-variable">$adjusted</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">start</span>(<span class="hljs-string">&#x27;/this/string&#x27;</span>, <span class="hljs-string">&#x27;/&#x27;</span>);
+
+<span class="hljs-comment">// /this/string</span>
+</code></pre><p><a name="method-starts-with"></a></p>
+<h4><code>Str::startsWith()</code> {.collection-method}</h4>
+<p>The <code>Str::startsWith</code> method determines if the given string begins with the given value:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">startsWith</span>(<span class="hljs-string">&#x27;This is my name&#x27;</span>, <span class="hljs-string">&#x27;This&#x27;</span>);
+
+<span class="hljs-comment">// true</span>
+</code></pre><p>If an array of possible values is passed, the <code>startsWith</code> method will return <code>true</code> if the string begins with any of the given values:</p>
+<pre><code><span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">startsWith</span>(<span class="hljs-string">&#x27;This is my name&#x27;</span>, [<span class="hljs-string">&#x27;This&#x27;</span>, <span class="hljs-string">&#x27;That&#x27;</span>, <span class="hljs-string">&#x27;There&#x27;</span>]);
+
+<span class="hljs-comment">// true</span>
+</code></pre><p><a name="method-studly-case"></a></p>
+<h4><code>Str::studly()</code> {.collection-method}</h4>
+<p>The <code>Str::studly</code> method converts the given string to <code>StudlyCase</code>:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$converted</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">studly</span>(<span class="hljs-string">&#x27;foo_bar&#x27;</span>);
+
+<span class="hljs-comment">// FooBar</span>
+</code></pre><p><a name="method-str-substr"></a></p>
+<h4><code>Str::substr()</code> {.collection-method}</h4>
+<p>The <code>Str::substr</code> method returns the portion of string specified by the start and length parameters:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$converted</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">substr</span>(<span class="hljs-string">&#x27;The Laravel Framework&#x27;</span>, <span class="hljs-number">4</span>, <span class="hljs-number">7</span>);
+
+<span class="hljs-comment">// Laravel</span>
+</code></pre><p><a name="method-str-substrcount"></a></p>
+<h4><code>Str::substrCount()</code> {.collection-method}</h4>
+<p>The <code>Str::substrCount</code> method returns the number of occurrences of a given value in the given string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$count</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">substrCount</span>(<span class="hljs-string">&#x27;If you like ice cream, you will like snow cones.&#x27;</span>, <span class="hljs-string">&#x27;like&#x27;</span>);
+
+<span class="hljs-comment">// 2</span>
+</code></pre><p><a name="method-str-substrreplace"></a></p>
+<h4><code>Str::substrReplace()</code> {.collection-method}</h4>
+<p>The <code>Str::substrReplace</code> method replaces text within a portion of a string, starting at the position specified by the third argument and replacing the number of characters specified by the fourth argument. Passing <code>0</code> to the method&#39;s fourth argument will insert the string at the specified position without replacing any of the existing characters in the string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">substrReplace</span>(<span class="hljs-string">&#x27;1300&#x27;</span>, <span class="hljs-string">&#x27;:&#x27;</span>, <span class="hljs-number">2</span>);
+<span class="hljs-comment">// 13:</span>
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">substrReplace</span>(<span class="hljs-string">&#x27;1300&#x27;</span>, <span class="hljs-string">&#x27;:&#x27;</span>, <span class="hljs-number">2</span>, <span class="hljs-number">0</span>);
+<span class="hljs-comment">// 13:00</span>
+</code></pre><p><a name="method-str-swap"></a></p>
+<h4><code>Str::swap()</code> {.collection-method}</h4>
+<p>The <code>Str::swap</code> method replaces multiple values in the given string using PHP&#39;s <code>strtr</code> function:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">swap</span>([
+    <span class="hljs-string">&#x27;Tacos&#x27;</span> =&gt; <span class="hljs-string">&#x27;Burritos&#x27;</span>,
+    <span class="hljs-string">&#x27;great&#x27;</span> =&gt; <span class="hljs-string">&#x27;fantastic&#x27;</span>,
+], <span class="hljs-string">&#x27;Tacos are great!&#x27;</span>);
+
+<span class="hljs-comment">// Burritos are fantastic!</span>
+</code></pre><p><a name="method-take"></a></p>
+<h4><code>Str::take()</code> {.collection-method}</h4>
+<p>The <code>Str::take</code> method returns a specified number of characters from the beginning of a string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$taken</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">take</span>(<span class="hljs-string">&#x27;Build something amazing!&#x27;</span>, <span class="hljs-number">5</span>);
+
+<span class="hljs-comment">// Build</span>
+</code></pre><p><a name="method-title-case"></a></p>
+<h4><code>Str::title()</code> {.collection-method}</h4>
+<p>The <code>Str::title</code> method converts the given string to <code>Title Case</code>:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$converted</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">title</span>(<span class="hljs-string">&#x27;a nice title uses the correct case&#x27;</span>);
+
+<span class="hljs-comment">// A Nice Title Uses The Correct Case</span>
+</code></pre><p><a name="method-str-to-html-string"></a></p>
+<h4><code>Str::toHtmlString()</code> {.collection-method}</h4>
+<p>The <code>Str::toHtmlString</code> method converts the string instance to an instance of <code>Illuminate\Support\HtmlString</code>, which may be displayed in Blade templates:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$htmlString</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Nuno Maduro&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">toHtmlString</span>();
+</code></pre><p><a name="method-str-ucfirst"></a></p>
+<h4><code>Str::ucfirst()</code> {.collection-method}</h4>
+<p>The <code>Str::ucfirst</code> method returns the given string with the first character capitalized:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">ucfirst</span>(<span class="hljs-string">&#x27;foo bar&#x27;</span>);
+
+<span class="hljs-comment">// Foo bar</span>
+</code></pre><p><a name="method-str-ucsplit"></a></p>
+<h4><code>Str::ucsplit()</code> {.collection-method}</h4>
+<p>The <code>Str::ucsplit</code> method splits the given string into an array by uppercase characters:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$segments</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">ucsplit</span>(<span class="hljs-string">&#x27;FooBar&#x27;</span>);
+
+<span class="hljs-comment">// [0 =&gt; &#x27;Foo&#x27;, 1 =&gt; &#x27;Bar&#x27;]</span>
+</code></pre><p><a name="method-str-upper"></a></p>
+<h4><code>Str::upper()</code> {.collection-method}</h4>
+<p>The <code>Str::upper</code> method converts the given string to uppercase:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">upper</span>(<span class="hljs-string">&#x27;laravel&#x27;</span>);
+
+<span class="hljs-comment">// LARAVEL</span>
+</code></pre><p><a name="method-str-ulid"></a></p>
+<h4><code>Str::ulid()</code> {.collection-method}</h4>
+<p>The <code>Str::ulid</code> method generates a ULID, which is a compact, time-ordered unique identifier:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-keyword">return</span> (<span class="hljs-keyword">string</span>) <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">ulid</span>();
+
+<span class="hljs-comment">// 01gd6r360bp37zj17nxb55yv40</span>
+</code></pre><p>If you would like to retrieve a <code>Illuminate\Support\Carbon</code> date instance representing the date and time that a given ULID was created, you may use the <code>createFromId</code> method provided by Laravel&#39;s Carbon integration:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Carbon</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$date</span> = <span class="hljs-title class_">Carbon</span>::<span class="hljs-title function_ invoke__">createFromId</span>((<span class="hljs-keyword">string</span>) <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">ulid</span>());
+</code></pre><p><a name="method-str-uuid"></a></p>
+<h4><code>Str::uuid()</code> {.collection-method}</h4>
+<p>The <code>Str::uuid</code> method generates a UUID (version 4):</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-keyword">return</span> (<span class="hljs-keyword">string</span>) <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">uuid</span>();
+</code></pre><p><a name="method-str-word-count"></a></p>
+<h4><code>Str::wordCount()</code> {.collection-method}</h4>
+<p>The <code>Str::wordCount</code> method returns the number of words that a string contains:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">wordCount</span>(<span class="hljs-string">&#x27;Hello, world!&#x27;</span>); <span class="hljs-comment">// 2</span>
+</code></pre><p><a name="method-str-word-wrap"></a></p>
+<h4><code>Str::wordWrap()</code> {.collection-method}</h4>
+<p>The <code>Str::wordWrap</code> method wraps a string to a given number of characters:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$text</span> = <span class="hljs-string">&quot;The quick brown fox jumped over the lazy dog.&quot;</span>
+
+<span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">wordWrap</span>(<span class="hljs-variable">$text</span>, <span class="hljs-attr">characters</span>: <span class="hljs-number">20</span>, <span class="hljs-attr">break</span>: <span class="hljs-string">&quot;&lt;br /&gt;\n&quot;</span>);
+
+<span class="hljs-comment">/*
+The quick brown fox&lt;br /&gt;
+jumped over the lazy&lt;br /&gt;
+dog.
+*/</span>
+</code></pre><p><a name="method-str-words"></a></p>
+<h4><code>Str::words()</code> {.collection-method}</h4>
+<p>The <code>Str::words</code> method limits the number of words in a string. An additional string may be passed to this method via its third argument to specify which string should be appended to the end of the truncated string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-keyword">return</span> <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">words</span>(<span class="hljs-string">&#x27;Perfectly balanced, as all things should be.&#x27;</span>, <span class="hljs-number">3</span>, <span class="hljs-string">&#x27; &gt;&gt;&gt;&#x27;</span>);
+
+<span class="hljs-comment">// Perfectly balanced, as &gt;&gt;&gt;</span>
+</code></pre><p><a name="method-str-wrap"></a></p>
+<h4><code>Str::wrap()</code> {.collection-method}</h4>
+<p>The <code>Str::wrap</code> method wraps the given string with an additional string or pair of strings:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">wrap</span>(<span class="hljs-string">&#x27;Laravel&#x27;</span>, <span class="hljs-string">&#x27;&quot;&#x27;</span>);
+
+<span class="hljs-comment">// &quot;Laravel&quot;</span>
+
+<span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">wrap</span>(<span class="hljs-string">&#x27;is&#x27;</span>, <span class="hljs-attr">before</span>: <span class="hljs-string">&#x27;This &#x27;</span>, <span class="hljs-attr">after</span>: <span class="hljs-string">&#x27; Laravel!&#x27;</span>);
+
+<span class="hljs-comment">// This is Laravel!</span>
+</code></pre><p><a name="method-str"></a></p>
+<h4><code>str()</code> {.collection-method}</h4>
+<p>The <code>str</code> function returns a new <code>Illuminate\Support\Stringable</code> instance of the given string. This function is equivalent to the <code>Str::of</code> method:</p>
+<pre><code><span class="hljs-variable">$string</span> = <span class="hljs-title function_ invoke__">str</span>(<span class="hljs-string">&#x27;Taylor&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">append</span>(<span class="hljs-string">&#x27; Otwell&#x27;</span>);
+
+<span class="hljs-comment">// &#x27;Taylor Otwell&#x27;</span>
+</code></pre><p>If no argument is provided to the <code>str</code> function, the function returns an instance of <code>Illuminate\Support\Str</code>:</p>
+<pre><code><span class="hljs-variable">$snake</span> = <span class="hljs-title function_ invoke__">str</span>()-&gt;<span class="hljs-title function_ invoke__">snake</span>(<span class="hljs-string">&#x27;FooBar&#x27;</span>);
+
+<span class="hljs-comment">// &#x27;foo_bar&#x27;</span>
+</code></pre><p><a name="method-trans"></a></p>
+<h4><code>trans()</code> {.collection-method}</h4>
+<p>The <code>trans</code> function translates the given translation key using your <a href="/docs/%7B%7Bversion%7D%7D/localization">language files</a>:</p>
+<pre><code><span class="hljs-keyword">echo</span> <span class="hljs-title function_ invoke__">trans</span>(<span class="hljs-string">&#x27;messages.welcome&#x27;</span>);
+</code></pre><p>If the specified translation key does not exist, the <code>trans</code> function will return the given key. So, using the example above, the <code>trans</code> function would return <code>messages.welcome</code> if the translation key does not exist.</p>
+<p><a name="method-trans-choice"></a></p>
+<h4><code>trans_choice()</code> {.collection-method}</h4>
+<p>The <code>trans_choice</code> function translates the given translation key with inflection:</p>
+<pre><code><span class="hljs-keyword">echo</span> <span class="hljs-title function_ invoke__">trans_choice</span>(<span class="hljs-string">&#x27;messages.notifications&#x27;</span>, <span class="hljs-variable">$unreadCount</span>);
+</code></pre><p>If the specified translation key does not exist, the <code>trans_choice</code> function will return the given key. So, using the example above, the <code>trans_choice</code> function would return <code>messages.notifications</code> if the translation key does not exist.</p>
+<p><a name="fluent-strings"></a></p>
+<h2>Fluent Strings</h2>
+<p>Fluent strings provide a more fluent, object-oriented interface for working with string values, allowing you to chain multiple string operations together using a more readable syntax compared to traditional string operations.</p>
+<p><a name="method-fluent-str-after"></a></p>
+<h4><code>after</code> {.collection-method}</h4>
+<p>The <code>after</code> method returns everything after the given value in a string. The entire string will be returned if the value does not exist within the string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$slice</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;This is my name&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">after</span>(<span class="hljs-string">&#x27;This is&#x27;</span>);
+
+<span class="hljs-comment">// &#x27; my name&#x27;</span>
+</code></pre><p><a name="method-fluent-str-after-last"></a></p>
+<h4><code>afterLast</code> {.collection-method}</h4>
+<p>The <code>afterLast</code> method returns everything after the last occurrence of the given value in a string. The entire string will be returned if the value does not exist within the string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$slice</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;App\Http\Controllers\Controller&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">afterLast</span>(<span class="hljs-string">&#x27;\\&#x27;</span>);
+
+<span class="hljs-comment">// &#x27;Controller&#x27;</span>
+</code></pre><p><a name="method-fluent-str-append"></a></p>
+<h4><code>append</code> {.collection-method}</h4>
+<p>The <code>append</code> method appends the given values to the string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Taylor&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">append</span>(<span class="hljs-string">&#x27; Otwell&#x27;</span>);
+
+<span class="hljs-comment">// &#x27;Taylor Otwell&#x27;</span>
+</code></pre><p><a name="method-fluent-str-ascii"></a></p>
+<h4><code>ascii</code> {.collection-method}</h4>
+<p>The <code>ascii</code> method will attempt to transliterate the string into an ASCII value:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;ü&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">ascii</span>();
+
+<span class="hljs-comment">// &#x27;u&#x27;</span>
+</code></pre><p><a name="method-fluent-str-basename"></a></p>
+<h4><code>basename</code> {.collection-method}</h4>
+<p>The <code>basename</code> method will return the trailing name component of the given string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;/foo/bar/baz&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">basename</span>();
+
+<span class="hljs-comment">// &#x27;baz&#x27;</span>
+</code></pre><p>If needed, you may provide an &quot;extension&quot; that will be removed from the trailing component:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;/foo/bar/baz.jpg&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">basename</span>(<span class="hljs-string">&#x27;.jpg&#x27;</span>);
+
+<span class="hljs-comment">// &#x27;baz&#x27;</span>
+</code></pre><p><a name="method-fluent-str-before"></a></p>
+<h4><code>before</code> {.collection-method}</h4>
+<p>The <code>before</code> method returns everything before the given value in a string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$slice</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;This is my name&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">before</span>(<span class="hljs-string">&#x27;my name&#x27;</span>);
+
+<span class="hljs-comment">// &#x27;This is &#x27;</span>
+</code></pre><p><a name="method-fluent-str-before-last"></a></p>
+<h4><code>beforeLast</code> {.collection-method}</h4>
+<p>The <code>beforeLast</code> method returns everything before the last occurrence of the given value in a string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$slice</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;This is my name&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">beforeLast</span>(<span class="hljs-string">&#x27;is&#x27;</span>);
+
+<span class="hljs-comment">// &#x27;This &#x27;</span>
+</code></pre><p><a name="method-fluent-str-between"></a></p>
+<h4><code>between</code> {.collection-method}</h4>
+<p>The <code>between</code> method returns the portion of a string between two values:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$converted</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;This is my name&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">between</span>(<span class="hljs-string">&#x27;This&#x27;</span>, <span class="hljs-string">&#x27;name&#x27;</span>);
+
+<span class="hljs-comment">// &#x27; is my &#x27;</span>
+</code></pre><p><a name="method-fluent-str-between-first"></a></p>
+<h4><code>betweenFirst</code> {.collection-method}</h4>
+<p>The <code>betweenFirst</code> method returns the smallest possible portion of a string between two values:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$converted</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;[a] bc [d]&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">betweenFirst</span>(<span class="hljs-string">&#x27;[&#x27;</span>, <span class="hljs-string">&#x27;]&#x27;</span>);
+
+<span class="hljs-comment">// &#x27;a&#x27;</span>
+</code></pre><p><a name="method-fluent-str-camel"></a></p>
+<h4><code>camel</code> {.collection-method}</h4>
+<p>The <code>camel</code> method converts the given string to <code>camelCase</code>:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$converted</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;foo_bar&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">camel</span>();
+
+<span class="hljs-comment">// fooBar</span>
+</code></pre><p><a name="method-fluent-str-class-basename"></a></p>
+<h4><code>classBasename</code> {.collection-method}</h4>
+<p>The <code>classBasename</code> method returns the class name of the given class with the class&#39;s namespace removed:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$class</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Foo\Bar\Baz&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">classBasename</span>();
+
+<span class="hljs-comment">// Baz</span>
+</code></pre><p><a name="method-fluent-str-contains"></a></p>
+<h4><code>contains</code> {.collection-method}</h4>
+<p>The <code>contains</code> method determines if the given string contains the given value. This method is case sensitive:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$contains</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;This is my name&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">contains</span>(<span class="hljs-string">&#x27;my&#x27;</span>);
+
+<span class="hljs-comment">// true</span>
+</code></pre><p>You may also pass an array of values to determine if the given string contains any of the values in the array:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$contains</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;This is my name&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">contains</span>([<span class="hljs-string">&#x27;my&#x27;</span>, <span class="hljs-string">&#x27;foo&#x27;</span>]);
+
+<span class="hljs-comment">// true</span>
+</code></pre><p><a name="method-fluent-str-contains-all"></a></p>
+<h4><code>containsAll</code> {.collection-method}</h4>
+<p>The <code>containsAll</code> method determines if the given string contains all of the values in the given array:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$containsAll</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;This is my name&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">containsAll</span>([<span class="hljs-string">&#x27;my&#x27;</span>, <span class="hljs-string">&#x27;name&#x27;</span>]);
+
+<span class="hljs-comment">// true</span>
+</code></pre><p><a name="method-fluent-str-dirname"></a></p>
+<h4><code>dirname</code> {.collection-method}</h4>
+<p>The <code>dirname</code> method returns the parent directory portion of the given string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;/foo/bar/baz&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">dirname</span>();
+
+<span class="hljs-comment">// &#x27;/foo/bar&#x27;</span>
+</code></pre><p>If necessary, you may specify how many directory levels you wish to trim from the string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;/foo/bar/baz&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">dirname</span>(<span class="hljs-number">2</span>);
+
+<span class="hljs-comment">// &#x27;/foo&#x27;</span>
+</code></pre><p><a name="method-fluent-str-excerpt"></a></p>
+<h4><code>excerpt</code> {.collection-method}</h4>
+<p>The <code>excerpt</code> method extracts an excerpt from the string that matches the first instance of a phrase within that string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$excerpt</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;This is my name&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">excerpt</span>(<span class="hljs-string">&#x27;my&#x27;</span>, [
+    <span class="hljs-string">&#x27;radius&#x27;</span> =&gt; <span class="hljs-number">3</span>
+]);
+
+<span class="hljs-comment">// &#x27;...is my na...&#x27;</span>
+</code></pre><p>The <code>radius</code> option, which defaults to <code>100</code>, allows you to define the number of characters that should appear on each side of the truncated string.</p>
+<p>In addition, you may use the <code>omission</code> option to change the string that will be prepended and appended to the truncated string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$excerpt</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;This is my name&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">excerpt</span>(<span class="hljs-string">&#x27;name&#x27;</span>, [
+    <span class="hljs-string">&#x27;radius&#x27;</span> =&gt; <span class="hljs-number">3</span>,
+    <span class="hljs-string">&#x27;omission&#x27;</span> =&gt; <span class="hljs-string">&#x27;(...) &#x27;</span>
+]);
+
+<span class="hljs-comment">// &#x27;(...) my name&#x27;</span>
+</code></pre><p><a name="method-fluent-str-ends-with"></a></p>
+<h4><code>endsWith</code> {.collection-method}</h4>
+<p>The <code>endsWith</code> method determines if the given string ends with the given value:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;This is my name&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">endsWith</span>(<span class="hljs-string">&#x27;name&#x27;</span>);
+
+<span class="hljs-comment">// true</span>
+</code></pre><p>You may also pass an array of values to determine if the given string ends with any of the values in the array:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;This is my name&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">endsWith</span>([<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;foo&#x27;</span>]);
+
+<span class="hljs-comment">// true</span>
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;This is my name&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">endsWith</span>([<span class="hljs-string">&#x27;this&#x27;</span>, <span class="hljs-string">&#x27;foo&#x27;</span>]);
+
+<span class="hljs-comment">// false</span>
+</code></pre><p><a name="method-fluent-str-exactly"></a></p>
+<h4><code>exactly</code> {.collection-method}</h4>
+<p>The <code>exactly</code> method determines if the given string is an exact match with another string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Laravel&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">exactly</span>(<span class="hljs-string">&#x27;Laravel&#x27;</span>);
+
+<span class="hljs-comment">// true</span>
+</code></pre><p><a name="method-fluent-str-explode"></a></p>
+<h4><code>explode</code> {.collection-method}</h4>
+<p>The <code>explode</code> method splits the string by the given delimiter and returns a collection containing each section of the split string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$collection</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;foo bar baz&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">explode</span>(<span class="hljs-string">&#x27; &#x27;</span>);
+
+<span class="hljs-comment">// collect([&#x27;foo&#x27;, &#x27;bar&#x27;, &#x27;baz&#x27;])</span>
+</code></pre><p><a name="method-fluent-str-finish"></a></p>
+<h4><code>finish</code> {.collection-method}</h4>
+<p>The <code>finish</code> method adds a single instance of the given value to a string if it does not already end with that value:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$adjusted</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;this/string&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">finish</span>(<span class="hljs-string">&#x27;/&#x27;</span>);
+
+<span class="hljs-comment">// this/string/</span>
+
+<span class="hljs-variable">$adjusted</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;this/string/&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">finish</span>(<span class="hljs-string">&#x27;/&#x27;</span>);
+
+<span class="hljs-comment">// this/string/</span>
+</code></pre><p><a name="method-fluent-str-headline"></a></p>
+<h4><code>headline</code> {.collection-method}</h4>
+<p>The <code>headline</code> method will convert strings delimited by casing, hyphens, or underscores into a space delimited string with each word&#39;s first letter capitalized:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$headline</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;taylor_otwell&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">headline</span>();
+
+<span class="hljs-comment">// Taylor Otwell</span>
+
+<span class="hljs-variable">$headline</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;EmailNotificationSent&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">headline</span>();
+
+<span class="hljs-comment">// Email Notification Sent</span>
+</code></pre><p><a name="method-fluent-str-inline-markdown"></a></p>
+<h4><code>inlineMarkdown</code> {.collection-method}</h4>
+<p>The <code>inlineMarkdown</code> method converts GitHub flavored Markdown into inline HTML using <a href="https://commonmark.thephpleague.com/">CommonMark</a>. However, unlike the <code>markdown</code> method, it does not wrap all generated HTML in a block-level element:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$html</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;**Laravel**&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">inlineMarkdown</span>();
+
+<span class="hljs-comment">// &lt;strong&gt;Laravel&lt;/strong&gt;</span>
+</code></pre><p><a name="method-fluent-str-is"></a></p>
+<h4><code>is</code> {.collection-method}</h4>
+<p>The <code>is</code> method determines if a given string matches a given pattern. Asterisks may be used as wildcard values</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$matches</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;foobar&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">is</span>(<span class="hljs-string">&#x27;foo*&#x27;</span>);
+
+<span class="hljs-comment">// true</span>
+
+<span class="hljs-variable">$matches</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;foobar&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">is</span>(<span class="hljs-string">&#x27;baz*&#x27;</span>);
+
+<span class="hljs-comment">// false</span>
+</code></pre><p><a name="method-fluent-str-is-ascii"></a></p>
+<h4><code>isAscii</code> {.collection-method}</h4>
+<p>The <code>isAscii</code> method determines if a given string is an ASCII string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Taylor&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">isAscii</span>();
+
+<span class="hljs-comment">// true</span>
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;ü&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">isAscii</span>();
+
+<span class="hljs-comment">// false</span>
+</code></pre><p><a name="method-fluent-str-is-empty"></a></p>
+<h4><code>isEmpty</code> {.collection-method}</h4>
+<p>The <code>isEmpty</code> method determines if the given string is empty:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;  &#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">trim</span>()-&gt;<span class="hljs-title function_ invoke__">isEmpty</span>();
+
+<span class="hljs-comment">// true</span>
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Laravel&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">trim</span>()-&gt;<span class="hljs-title function_ invoke__">isEmpty</span>();
+
+<span class="hljs-comment">// false</span>
+</code></pre><p><a name="method-fluent-str-is-not-empty"></a></p>
+<h4><code>isNotEmpty</code> {.collection-method}</h4>
+<p>The <code>isNotEmpty</code> method determines if the given string is not empty:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;  &#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">trim</span>()-&gt;<span class="hljs-title function_ invoke__">isNotEmpty</span>();
+
+<span class="hljs-comment">// false</span>
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Laravel&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">trim</span>()-&gt;<span class="hljs-title function_ invoke__">isNotEmpty</span>();
+
+<span class="hljs-comment">// true</span>
+</code></pre><p><a name="method-fluent-str-is-json"></a></p>
+<h4><code>isJson</code> {.collection-method}</h4>
+<p>The <code>isJson</code> method determines if a given string is valid JSON:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;[1,2,3]&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">isJson</span>();
+
+<span class="hljs-comment">// true</span>
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;{&quot;first&quot;: &quot;John&quot;, &quot;last&quot;: &quot;Doe&quot;}&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">isJson</span>();
+
+<span class="hljs-comment">// true</span>
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;{first: &quot;John&quot;, last: &quot;Doe&quot;}&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">isJson</span>();
+
+<span class="hljs-comment">// false</span>
+</code></pre><p><a name="method-fluent-str-is-ulid"></a></p>
+<h4><code>isUlid</code> {.collection-method}</h4>
+<p>The <code>isUlid</code> method determines if a given string is a ULID:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;01gd6r360bp37zj17nxb55yv40&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">isUlid</span>();
+
+<span class="hljs-comment">// true</span>
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Taylor&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">isUlid</span>();
+
+<span class="hljs-comment">// false</span>
+</code></pre><p><a name="method-fluent-str-is-url"></a></p>
+<h4><code>isUrl</code> {.collection-method}</h4>
+<p>The <code>isUrl</code> method determines if a given string is a URL:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;http://example.com&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">isUrl</span>();
+
+<span class="hljs-comment">// true</span>
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Taylor&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">isUrl</span>();
+
+<span class="hljs-comment">// false</span>
+</code></pre><p><a name="method-fluent-str-is-uuid"></a></p>
+<h4><code>isUuid</code> {.collection-method}</h4>
+<p>The <code>isUuid</code> method determines if a given string is a UUID:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;5ace9ab9-e9cf-4ec6-a19d-5881212a452c&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">isUuid</span>();
+
+<span class="hljs-comment">// true</span>
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Taylor&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">isUuid</span>();
+
+<span class="hljs-comment">// false</span>
+</code></pre><p><a name="method-fluent-str-kebab"></a></p>
+<h4><code>kebab</code> {.collection-method}</h4>
+<p>The <code>kebab</code> method converts the given string to <code>kebab-case</code>:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$converted</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;fooBar&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">kebab</span>();
+
+<span class="hljs-comment">// foo-bar</span>
+</code></pre><p><a name="method-fluent-str-lcfirst"></a></p>
+<h4><code>lcfirst</code> {.collection-method}</h4>
+<p>The <code>lcfirst</code> method returns the given string with the first character lowercased:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Foo Bar&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">lcfirst</span>();
+
+<span class="hljs-comment">// foo Bar</span>
+</code></pre><p><a name="method-fluent-str-length"></a></p>
+<h4><code>length</code> {.collection-method}</h4>
+<p>The <code>length</code> method returns the length of the given string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$length</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Laravel&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">length</span>();
+
+<span class="hljs-comment">// 7</span>
+</code></pre><p><a name="method-fluent-str-limit"></a></p>
+<h4><code>limit</code> {.collection-method}</h4>
+<p>The <code>limit</code> method truncates the given string to the specified length:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$truncated</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;The quick brown fox jumps over the lazy dog&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">limit</span>(<span class="hljs-number">20</span>);
+
+<span class="hljs-comment">// The quick brown fox...</span>
+</code></pre><p>You may also pass a second argument to change the string that will be appended to the end of the truncated string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$truncated</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;The quick brown fox jumps over the lazy dog&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">limit</span>(<span class="hljs-number">20</span>, <span class="hljs-string">&#x27; (...)&#x27;</span>);
+
+<span class="hljs-comment">// The quick brown fox (...)</span>
+</code></pre><p><a name="method-fluent-str-lower"></a></p>
+<h4><code>lower</code> {.collection-method}</h4>
+<p>The <code>lower</code> method converts the given string to lowercase:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;LARAVEL&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">lower</span>();
+
+<span class="hljs-comment">// &#x27;laravel&#x27;</span>
+</code></pre><p><a name="method-fluent-str-ltrim"></a></p>
+<h4><code>ltrim</code> {.collection-method}</h4>
+<p>The <code>ltrim</code> method trims the left side of the string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;  Laravel  &#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">ltrim</span>();
+
+<span class="hljs-comment">// &#x27;Laravel  &#x27;</span>
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;/Laravel/&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">ltrim</span>(<span class="hljs-string">&#x27;/&#x27;</span>);
+
+<span class="hljs-comment">// &#x27;Laravel/&#x27;</span>
+</code></pre><p><a name="method-fluent-str-markdown"></a></p>
+<h4><code>markdown</code> {.collection-method}</h4>
+<p>The <code>markdown</code> method converts GitHub flavored Markdown into HTML:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$html</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;# Laravel&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">markdown</span>();
+
+<span class="hljs-comment">// &lt;h1&gt;Laravel&lt;/h1&gt;</span>
+
+<span class="hljs-variable">$html</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;# Taylor &lt;b&gt;Otwell&lt;/b&gt;&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">markdown</span>([
+    <span class="hljs-string">&#x27;html_input&#x27;</span> =&gt; <span class="hljs-string">&#x27;strip&#x27;</span>,
+]);
+
+<span class="hljs-comment">// &lt;h1&gt;Taylor Otwell&lt;/h1&gt;</span>
+</code></pre><p><a name="method-fluent-str-mask"></a></p>
+<h4><code>mask</code> {.collection-method}</h4>
+<p>The <code>mask</code> method masks a portion of a string with a repeated character, and may be used to obfuscate segments of strings such as email addresses and phone numbers:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;taylor@example.com&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">mask</span>(<span class="hljs-string">&#x27;*&#x27;</span>, <span class="hljs-number">3</span>);
+
+<span class="hljs-comment">// tay***************</span>
+</code></pre><p>If needed, you may provide negative numbers as the third or fourth argument to the <code>mask</code> method, which will instruct the method to begin masking at the given distance from the end of the string:</p>
+<pre><code><span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;taylor@example.com&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">mask</span>(<span class="hljs-string">&#x27;*&#x27;</span>, -<span class="hljs-number">15</span>, <span class="hljs-number">3</span>);
+
+<span class="hljs-comment">// tay***@example.com</span>
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;taylor@example.com&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">mask</span>(<span class="hljs-string">&#x27;*&#x27;</span>, <span class="hljs-number">4</span>, -<span class="hljs-number">4</span>);
+
+<span class="hljs-comment">// tayl**********.com</span>
+</code></pre><p><a name="method-fluent-str-match"></a></p>
+<h4><code>match</code> {.collection-method}</h4>
+<p>The <code>match</code> method will return the portion of a string that matches a given regular expression pattern:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;foo bar&#x27;</span>)-&gt;<span class="hljs-keyword">match</span>(<span class="hljs-string">&#x27;/bar/&#x27;</span>);
+
+<span class="hljs-comment">// &#x27;bar&#x27;</span>
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;foo bar&#x27;</span>)-&gt;<span class="hljs-keyword">match</span>(<span class="hljs-string">&#x27;/foo (.*)/&#x27;</span>);
+
+<span class="hljs-comment">// &#x27;bar&#x27;</span>
+</code></pre><p><a name="method-fluent-str-match-all"></a></p>
+<h4><code>matchAll</code> {.collection-method}</h4>
+<p>The <code>matchAll</code> method will return a collection containing the portions of a string that match a given regular expression pattern:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;bar foo bar&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">matchAll</span>(<span class="hljs-string">&#x27;/bar/&#x27;</span>);
+
+<span class="hljs-comment">// collect([&#x27;bar&#x27;, &#x27;bar&#x27;])</span>
+</code></pre><p>If you specify a matching group within the expression, Laravel will return a collection of that group&#39;s matches:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;bar fun bar fly&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">matchAll</span>(<span class="hljs-string">&#x27;/f(\w*)/&#x27;</span>);
+
+<span class="hljs-comment">// collect([&#x27;un&#x27;, &#x27;ly&#x27;]);</span>
+</code></pre><p>If no matches are found, an empty collection will be returned.</p>
+<p><a name="method-fluent-str-is-match"></a></p>
+<h4><code>isMatch</code> {.collection-method}</h4>
+<p>The <code>isMatch</code> method will return <code>true</code> if the string matches a given regular expression:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;foo bar&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">isMatch</span>(<span class="hljs-string">&#x27;/foo (.*)/&#x27;</span>);
+
+<span class="hljs-comment">// true</span>
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;laravel&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">isMatch</span>(<span class="hljs-string">&#x27;/foo (.*)/&#x27;</span>);
+
+<span class="hljs-comment">// false</span>
+</code></pre><p><a name="method-fluent-str-new-line"></a></p>
+<h4><code>newLine</code> {.collection-method}</h4>
+<p>The <code>newLine</code> method appends an &quot;end of line&quot; character to a string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$padded</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Laravel&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">newLine</span>()-&gt;<span class="hljs-title function_ invoke__">append</span>(<span class="hljs-string">&#x27;Framework&#x27;</span>);
+
+<span class="hljs-comment">// &#x27;Laravel</span>
+<span class="hljs-comment">//  Framework&#x27;</span>
+</code></pre><p><a name="method-fluent-str-padboth"></a></p>
+<h4><code>padBoth</code> {.collection-method}</h4>
+<p>The <code>padBoth</code> method wraps PHP&#39;s <code>str_pad</code> function, padding both sides of a string with another string until the final string reaches the desired length:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$padded</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;James&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">padBoth</span>(<span class="hljs-number">10</span>, <span class="hljs-string">&#x27;_&#x27;</span>);
+
+<span class="hljs-comment">// &#x27;__James___&#x27;</span>
+
+<span class="hljs-variable">$padded</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;James&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">padBoth</span>(<span class="hljs-number">10</span>);
+
+<span class="hljs-comment">// &#x27;  James   &#x27;</span>
+</code></pre><p><a name="method-fluent-str-padleft"></a></p>
+<h4><code>padLeft</code> {.collection-method}</h4>
+<p>The <code>padLeft</code> method wraps PHP&#39;s <code>str_pad</code> function, padding the left side of a string with another string until the final string reaches the desired length:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$padded</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;James&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">padLeft</span>(<span class="hljs-number">10</span>, <span class="hljs-string">&#x27;-=&#x27;</span>);
+
+<span class="hljs-comment">// &#x27;-=-=-James&#x27;</span>
+
+<span class="hljs-variable">$padded</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;James&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">padLeft</span>(<span class="hljs-number">10</span>);
+
+<span class="hljs-comment">// &#x27;     James&#x27;</span>
+</code></pre><p><a name="method-fluent-str-padright"></a></p>
+<h4><code>padRight</code> {.collection-method}</h4>
+<p>The <code>padRight</code> method wraps PHP&#39;s <code>str_pad</code> function, padding the right side of a string with another string until the final string reaches the desired length:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$padded</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;James&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">padRight</span>(<span class="hljs-number">10</span>, <span class="hljs-string">&#x27;-&#x27;</span>);
+
+<span class="hljs-comment">// &#x27;James-----&#x27;</span>
+
+<span class="hljs-variable">$padded</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;James&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">padRight</span>(<span class="hljs-number">10</span>);
+
+<span class="hljs-comment">// &#x27;James     &#x27;</span>
+</code></pre><p><a name="method-fluent-str-pipe"></a></p>
+<h4><code>pipe</code> {.collection-method}</h4>
+<p>The <code>pipe</code> method allows you to transform the string by passing its current value to the given callable:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Stringable</span>;
+
+<span class="hljs-variable">$hash</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Laravel&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">pipe</span>(<span class="hljs-string">&#x27;md5&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">prepend</span>(<span class="hljs-string">&#x27;Checksum: &#x27;</span>);
+
+<span class="hljs-comment">// &#x27;Checksum: a5c95b86291ea299fcbe64458ed12702&#x27;</span>
+
+<span class="hljs-variable">$closure</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;foo&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">pipe</span>(function (<span class="hljs-built_in">Stringable</span> <span class="hljs-variable">$str</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;bar&#x27;</span>;
+});
+
+<span class="hljs-comment">// &#x27;bar&#x27;</span>
+</code></pre><p><a name="method-fluent-str-plural"></a></p>
+<h4><code>plural</code> {.collection-method}</h4>
+<p>The <code>plural</code> method converts a singular word string to its plural form. This function supports <a href="/docs/%7B%7Bversion%7D%7D/localization#pluralization-language">any of the languages support by Laravel&#39;s pluralizer</a>:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$plural</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;car&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">plural</span>();
+
+<span class="hljs-comment">// cars</span>
+
+<span class="hljs-variable">$plural</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;child&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">plural</span>();
+
+<span class="hljs-comment">// children</span>
+</code></pre><p>You may provide an integer as a second argument to the function to retrieve the singular or plural form of the string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$plural</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;child&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">plural</span>(<span class="hljs-number">2</span>);
+
+<span class="hljs-comment">// children</span>
+
+<span class="hljs-variable">$plural</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;child&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">plural</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-comment">// child</span>
+</code></pre><p><a name="method-fluent-str-position"></a></p>
+<h4><code>position</code> {.collection-method}</h4>
+<p>The <code>position</code> method returns the position of the first occurrence of a substring in a string. If the substring does not exist within the string, <code>false</code> is returned:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$position</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Hello, World!&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">position</span>(<span class="hljs-string">&#x27;Hello&#x27;</span>);
+
+<span class="hljs-comment">// 0</span>
+
+<span class="hljs-variable">$position</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Hello, World!&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">position</span>(<span class="hljs-string">&#x27;W&#x27;</span>);
+
+<span class="hljs-comment">// 7</span>
+</code></pre><p><a name="method-fluent-str-prepend"></a></p>
+<h4><code>prepend</code> {.collection-method}</h4>
+<p>The <code>prepend</code> method prepends the given values onto the string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Framework&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">prepend</span>(<span class="hljs-string">&#x27;Laravel &#x27;</span>);
+
+<span class="hljs-comment">// Laravel Framework</span>
+</code></pre><p><a name="method-fluent-str-remove"></a></p>
+<h4><code>remove</code> {.collection-method}</h4>
+<p>The <code>remove</code> method removes the given value or array of values from the string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Arkansas is quite beautiful!&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">remove</span>(<span class="hljs-string">&#x27;quite&#x27;</span>);
+
+<span class="hljs-comment">// Arkansas is beautiful!</span>
+</code></pre><p>You may also pass <code>false</code> as a second parameter to ignore case when removing strings.</p>
+<p><a name="method-fluent-str-repeat"></a></p>
+<h4><code>repeat</code> {.collection-method}</h4>
+<p>The <code>repeat</code> method repeats the given string:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$repeated</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;a&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">repeat</span>(<span class="hljs-number">5</span>);
+
+<span class="hljs-comment">// aaaaa</span>
+</code></pre><p><a name="method-fluent-str-replace"></a></p>
+<h4><code>replace</code> {.collection-method}</h4>
+<p>The <code>replace</code> method replaces a given string within the string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$replaced</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Laravel 6.x&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">replace</span>(<span class="hljs-string">&#x27;6.x&#x27;</span>, <span class="hljs-string">&#x27;7.x&#x27;</span>);
+
+<span class="hljs-comment">// Laravel 7.x</span>
+</code></pre><p>The <code>replace</code> method also accepts a <code>caseSensitive</code> argument. By default, the <code>replace</code> method is case sensitive:</p>
+<pre><code><span class="hljs-variable">$replaced</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;macOS 13.x&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">replace</span>(
+    <span class="hljs-string">&#x27;macOS&#x27;</span>, <span class="hljs-string">&#x27;iOS&#x27;</span>, <span class="hljs-attr">caseSensitive</span>: <span class="hljs-literal">false</span>
+);
+</code></pre><p><a name="method-fluent-str-replace-array"></a></p>
+<h4><code>replaceArray</code> {.collection-method}</h4>
+<p>The <code>replaceArray</code> method replaces a given value in the string sequentially using an array:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-string">&#x27;The event will take place between ? and ?&#x27;</span>;
+
+<span class="hljs-variable">$replaced</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-variable">$string</span>)-&gt;<span class="hljs-title function_ invoke__">replaceArray</span>(<span class="hljs-string">&#x27;?&#x27;</span>, [<span class="hljs-string">&#x27;8:30&#x27;</span>, <span class="hljs-string">&#x27;9:00&#x27;</span>]);
+
+<span class="hljs-comment">// The event will take place between 8:30 and 9:00</span>
+</code></pre><p><a name="method-fluent-str-replace-first"></a></p>
+<h4><code>replaceFirst</code> {.collection-method}</h4>
+<p>The <code>replaceFirst</code> method replaces the first occurrence of a given value in a string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$replaced</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;the quick brown fox jumps over the lazy dog&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">replaceFirst</span>(<span class="hljs-string">&#x27;the&#x27;</span>, <span class="hljs-string">&#x27;a&#x27;</span>);
+
+<span class="hljs-comment">// a quick brown fox jumps over the lazy dog</span>
+</code></pre><p><a name="method-fluent-str-replace-last"></a></p>
+<h4><code>replaceLast</code> {.collection-method}</h4>
+<p>The <code>replaceLast</code> method replaces the last occurrence of a given value in a string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$replaced</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;the quick brown fox jumps over the lazy dog&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">replaceLast</span>(<span class="hljs-string">&#x27;the&#x27;</span>, <span class="hljs-string">&#x27;a&#x27;</span>);
+
+<span class="hljs-comment">// the quick brown fox jumps over a lazy dog</span>
+</code></pre><p><a name="method-fluent-str-replace-matches"></a></p>
+<h4><code>replaceMatches</code> {.collection-method}</h4>
+<p>The <code>replaceMatches</code> method replaces all portions of a string matching a pattern with the given replacement string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$replaced</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;(+1) 501-555-1000&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">replaceMatches</span>(<span class="hljs-string">&#x27;/[^A-Za-z0-9]++/&#x27;</span>, <span class="hljs-string">&#x27;&#x27;</span>)
+
+<span class="hljs-comment">// &#x27;15015551000&#x27;</span>
+</code></pre><p>The <code>replaceMatches</code> method also accepts a closure that will be invoked with each portion of the string matching the given pattern, allowing you to perform the replacement logic within the closure and return the replaced value:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$replaced</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;123&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">replaceMatches</span>(<span class="hljs-string">&#x27;/\d/&#x27;</span>, function (<span class="hljs-keyword">array</span> <span class="hljs-variable">$matches</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;[&#x27;</span>.<span class="hljs-variable">$matches</span>[<span class="hljs-number">0</span>].<span class="hljs-string">&#x27;]&#x27;</span>;
+});
+
+<span class="hljs-comment">// &#x27;[1][2][3]&#x27;</span>
+</code></pre><p><a name="method-fluent-str-replace-start"></a></p>
+<h4><code>replaceStart</code> {.collection-method}</h4>
+<p>The <code>replaceStart</code> method replaces the first occurrence of the given value only if the value appears at the start of the string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$replaced</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Hello World&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">replaceStart</span>(<span class="hljs-string">&#x27;Hello&#x27;</span>, <span class="hljs-string">&#x27;Laravel&#x27;</span>);
+
+<span class="hljs-comment">// Laravel World</span>
+
+<span class="hljs-variable">$replaced</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Hello World&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">replaceStart</span>(<span class="hljs-string">&#x27;World&#x27;</span>, <span class="hljs-string">&#x27;Laravel&#x27;</span>);
+
+<span class="hljs-comment">// Hello World</span>
+</code></pre><p><a name="method-fluent-str-replace-end"></a></p>
+<h4><code>replaceEnd</code> {.collection-method}</h4>
+<p>The <code>replaceEnd</code> method replaces the last occurrence of the given value only if the value appears at the end of the string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$replaced</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Hello World&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">replaceEnd</span>(<span class="hljs-string">&#x27;World&#x27;</span>, <span class="hljs-string">&#x27;Laravel&#x27;</span>);
+
+<span class="hljs-comment">// Hello Laravel</span>
+
+<span class="hljs-variable">$replaced</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Hello World&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">replaceEnd</span>(<span class="hljs-string">&#x27;Hello&#x27;</span>, <span class="hljs-string">&#x27;Laravel&#x27;</span>);
+
+<span class="hljs-comment">// Hello World</span>
+</code></pre><p><a name="method-fluent-str-rtrim"></a></p>
+<h4><code>rtrim</code> {.collection-method}</h4>
+<p>The <code>rtrim</code> method trims the right side of the given string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;  Laravel  &#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">rtrim</span>();
+
+<span class="hljs-comment">// &#x27;  Laravel&#x27;</span>
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;/Laravel/&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">rtrim</span>(<span class="hljs-string">&#x27;/&#x27;</span>);
+
+<span class="hljs-comment">// &#x27;/Laravel&#x27;</span>
+</code></pre><p><a name="method-fluent-str-scan"></a></p>
+<h4><code>scan</code> {.collection-method}</h4>
+<p>The <code>scan</code> method parses input from a string into a collection according to a format supported by the <a href="https://www.php.net/manual/en/function.sscanf.php"><code>sscanf</code> PHP function</a>:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$collection</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;filename.jpg&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">scan</span>(<span class="hljs-string">&#x27;%[^.].%s&#x27;</span>);
+
+<span class="hljs-comment">// collect([&#x27;filename&#x27;, &#x27;jpg&#x27;])</span>
+</code></pre><p><a name="method-fluent-str-singular"></a></p>
+<h4><code>singular</code> {.collection-method}</h4>
+<p>The <code>singular</code> method converts a string to its singular form. This function supports <a href="/docs/%7B%7Bversion%7D%7D/localization#pluralization-language">any of the languages support by Laravel&#39;s pluralizer</a>:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$singular</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;cars&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">singular</span>();
+
+<span class="hljs-comment">// car</span>
+
+<span class="hljs-variable">$singular</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;children&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">singular</span>();
+
+<span class="hljs-comment">// child</span>
+</code></pre><p><a name="method-fluent-str-slug"></a></p>
+<h4><code>slug</code> {.collection-method}</h4>
+<p>The <code>slug</code> method generates a URL friendly &quot;slug&quot; from the given string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$slug</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Laravel Framework&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">slug</span>(<span class="hljs-string">&#x27;-&#x27;</span>);
+
+<span class="hljs-comment">// laravel-framework</span>
+</code></pre><p><a name="method-fluent-str-snake"></a></p>
+<h4><code>snake</code> {.collection-method}</h4>
+<p>The <code>snake</code> method converts the given string to <code>snake_case</code>:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$converted</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;fooBar&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">snake</span>();
+
+<span class="hljs-comment">// foo_bar</span>
+</code></pre><p><a name="method-fluent-str-split"></a></p>
+<h4><code>split</code> {.collection-method}</h4>
+<p>The <code>split</code> method splits a string into a collection using a regular expression:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$segments</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;one, two, three&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">split</span>(<span class="hljs-string">&#x27;/[\s,]+/&#x27;</span>);
+
+<span class="hljs-comment">// collect([&quot;one&quot;, &quot;two&quot;, &quot;three&quot;])</span>
+</code></pre><p><a name="method-fluent-str-squish"></a></p>
+<h4><code>squish</code> {.collection-method}</h4>
+<p>The <code>squish</code> method removes all extraneous white space from a string, including extraneous white space between words:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;    laravel    framework    &#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">squish</span>();
+
+<span class="hljs-comment">// laravel framework</span>
+</code></pre><p><a name="method-fluent-str-start"></a></p>
+<h4><code>start</code> {.collection-method}</h4>
+<p>The <code>start</code> method adds a single instance of the given value to a string if it does not already start with that value:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$adjusted</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;this/string&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">start</span>(<span class="hljs-string">&#x27;/&#x27;</span>);
+
+<span class="hljs-comment">// /this/string</span>
+
+<span class="hljs-variable">$adjusted</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;/this/string&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">start</span>(<span class="hljs-string">&#x27;/&#x27;</span>);
+
+<span class="hljs-comment">// /this/string</span>
+</code></pre><p><a name="method-fluent-str-starts-with"></a></p>
+<h4><code>startsWith</code> {.collection-method}</h4>
+<p>The <code>startsWith</code> method determines if the given string begins with the given value:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;This is my name&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">startsWith</span>(<span class="hljs-string">&#x27;This&#x27;</span>);
+
+<span class="hljs-comment">// true</span>
+</code></pre><p><a name="method-fluent-str-studly"></a></p>
+<h4><code>studly</code> {.collection-method}</h4>
+<p>The <code>studly</code> method converts the given string to <code>StudlyCase</code>:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$converted</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;foo_bar&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">studly</span>();
+
+<span class="hljs-comment">// FooBar</span>
+</code></pre><p><a name="method-fluent-str-substr"></a></p>
+<h4><code>substr</code> {.collection-method}</h4>
+<p>The <code>substr</code> method returns the portion of the string specified by the given start and length parameters:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Laravel Framework&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">substr</span>(<span class="hljs-number">8</span>);
+
+<span class="hljs-comment">// Framework</span>
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Laravel Framework&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">substr</span>(<span class="hljs-number">8</span>, <span class="hljs-number">5</span>);
+
+<span class="hljs-comment">// Frame</span>
+</code></pre><p><a name="method-fluent-str-substrreplace"></a></p>
+<h4><code>substrReplace</code> {.collection-method}</h4>
+<p>The <code>substrReplace</code> method replaces text within a portion of a string, starting at the position specified by the second argument and replacing the number of characters specified by the third argument. Passing <code>0</code> to the method&#39;s third argument will insert the string at the specified position without replacing any of the existing characters in the string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;1300&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">substrReplace</span>(<span class="hljs-string">&#x27;:&#x27;</span>, <span class="hljs-number">2</span>);
+
+<span class="hljs-comment">// 13:</span>
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;The Framework&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">substrReplace</span>(<span class="hljs-string">&#x27; Laravel&#x27;</span>, <span class="hljs-number">3</span>, <span class="hljs-number">0</span>);
+
+<span class="hljs-comment">// The Laravel Framework</span>
+</code></pre><p><a name="method-fluent-str-swap"></a></p>
+<h4><code>swap</code> {.collection-method}</h4>
+<p>The <code>swap</code> method replaces multiple values in the string using PHP&#39;s <code>strtr</code> function:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Tacos are great!&#x27;</span>)
+    -&gt;<span class="hljs-title function_ invoke__">swap</span>([
+        <span class="hljs-string">&#x27;Tacos&#x27;</span> =&gt; <span class="hljs-string">&#x27;Burritos&#x27;</span>,
+        <span class="hljs-string">&#x27;great&#x27;</span> =&gt; <span class="hljs-string">&#x27;fantastic&#x27;</span>,
+    ]);
+
+<span class="hljs-comment">// Burritos are fantastic!</span>
+</code></pre><p><a name="method-fluent-str-take"></a></p>
+<h4><code>take</code> {.collection-method}</h4>
+<p>The <code>take</code> method returns a specified number of characters from the beginning of the string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$taken</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Build something amazing!&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">take</span>(<span class="hljs-number">5</span>);
+
+<span class="hljs-comment">// Build</span>
+</code></pre><p><a name="method-fluent-str-tap"></a></p>
+<h4><code>tap</code> {.collection-method}</h4>
+<p>The <code>tap</code> method passes the string to the given closure, allowing you to examine and interact with the string while not affecting the string itself. The original string is returned by the <code>tap</code> method regardless of what is returned by the closure:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Stringable</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Laravel&#x27;</span>)
+    -&gt;<span class="hljs-title function_ invoke__">append</span>(<span class="hljs-string">&#x27; Framework&#x27;</span>)
+    -&gt;<span class="hljs-title function_ invoke__">tap</span>(function (<span class="hljs-built_in">Stringable</span> <span class="hljs-variable">$string</span>) {
+        <span class="hljs-title function_ invoke__">dump</span>(<span class="hljs-string">&#x27;String after append: &#x27;</span>.<span class="hljs-variable">$string</span>);
+    })
+    -&gt;<span class="hljs-title function_ invoke__">upper</span>();
+
+<span class="hljs-comment">// LARAVEL FRAMEWORK</span>
+</code></pre><p><a name="method-fluent-str-test"></a></p>
+<h4><code>test</code> {.collection-method}</h4>
+<p>The <code>test</code> method determines if a string matches the given regular expression pattern:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$result</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Laravel Framework&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">test</span>(<span class="hljs-string">&#x27;/Laravel/&#x27;</span>);
+
+<span class="hljs-comment">// true</span>
+</code></pre><p><a name="method-fluent-str-title"></a></p>
+<h4><code>title</code> {.collection-method}</h4>
+<p>The <code>title</code> method converts the given string to <code>Title Case</code>:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$converted</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;a nice title uses the correct case&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">title</span>();
+
+<span class="hljs-comment">// A Nice Title Uses The Correct Case</span>
+</code></pre><p><a name="method-fluent-str-trim"></a></p>
+<h4><code>trim</code> {.collection-method}</h4>
+<p>The <code>trim</code> method trims the given string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;  Laravel  &#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">trim</span>();
+
+<span class="hljs-comment">// &#x27;Laravel&#x27;</span>
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;/Laravel/&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">trim</span>(<span class="hljs-string">&#x27;/&#x27;</span>);
+
+<span class="hljs-comment">// &#x27;Laravel&#x27;</span>
+</code></pre><p><a name="method-fluent-str-ucfirst"></a></p>
+<h4><code>ucfirst</code> {.collection-method}</h4>
+<p>The <code>ucfirst</code> method returns the given string with the first character capitalized:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;foo bar&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">ucfirst</span>();
+
+<span class="hljs-comment">// Foo bar</span>
+</code></pre><p><a name="method-fluent-str-ucsplit"></a></p>
+<h4><code>ucsplit</code> {.collection-method}</h4>
+<p>The <code>ucsplit</code> method splits the given string into a collection by uppercase characters:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Foo Bar&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">ucsplit</span>();
+
+<span class="hljs-comment">// collect([&#x27;Foo&#x27;, &#x27;Bar&#x27;])</span>
+</code></pre><p><a name="method-fluent-str-upper"></a></p>
+<h4><code>upper</code> {.collection-method}</h4>
+<p>The <code>upper</code> method converts the given string to uppercase:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$adjusted</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;laravel&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">upper</span>();
+
+<span class="hljs-comment">// LARAVEL</span>
+</code></pre><p><a name="method-fluent-str-when"></a></p>
+<h4><code>when</code> {.collection-method}</h4>
+<p>The <code>when</code> method invokes the given closure if a given condition is <code>true</code>. The closure will receive the fluent string instance:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Stringable</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Taylor&#x27;</span>)
+                -&gt;<span class="hljs-title function_ invoke__">when</span>(<span class="hljs-literal">true</span>, function (<span class="hljs-built_in">Stringable</span> <span class="hljs-variable">$string</span>) {
+                    <span class="hljs-keyword">return</span> <span class="hljs-variable">$string</span>-&gt;<span class="hljs-title function_ invoke__">append</span>(<span class="hljs-string">&#x27; Otwell&#x27;</span>);
+                });
+
+<span class="hljs-comment">// &#x27;Taylor Otwell&#x27;</span>
+</code></pre><p>If necessary, you may pass another closure as the third parameter to the <code>when</code> method. This closure will execute if the condition parameter evaluates to <code>false</code>.</p>
+<p><a name="method-fluent-str-when-contains"></a></p>
+<h4><code>whenContains</code> {.collection-method}</h4>
+<p>The <code>whenContains</code> method invokes the given closure if the string contains the given value. The closure will receive the fluent string instance:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Stringable</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;tony stark&#x27;</span>)
+            -&gt;<span class="hljs-title function_ invoke__">whenContains</span>(<span class="hljs-string">&#x27;tony&#x27;</span>, function (<span class="hljs-built_in">Stringable</span> <span class="hljs-variable">$string</span>) {
+                <span class="hljs-keyword">return</span> <span class="hljs-variable">$string</span>-&gt;<span class="hljs-title function_ invoke__">title</span>();
+            });
+
+<span class="hljs-comment">// &#x27;Tony Stark&#x27;</span>
+</code></pre><p>If necessary, you may pass another closure as the third parameter to the <code>when</code> method. This closure will execute if the string does not contain the given value.</p>
+<p>You may also pass an array of values to determine if the given string contains any of the values in the array:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Stringable</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;tony stark&#x27;</span>)
+            -&gt;<span class="hljs-title function_ invoke__">whenContains</span>([<span class="hljs-string">&#x27;tony&#x27;</span>, <span class="hljs-string">&#x27;hulk&#x27;</span>], function (<span class="hljs-built_in">Stringable</span> <span class="hljs-variable">$string</span>) {
+                <span class="hljs-keyword">return</span> <span class="hljs-variable">$string</span>-&gt;<span class="hljs-title function_ invoke__">title</span>();
+            });
+
+<span class="hljs-comment">// Tony Stark</span>
+</code></pre><p><a name="method-fluent-str-when-contains-all"></a></p>
+<h4><code>whenContainsAll</code> {.collection-method}</h4>
+<p>The <code>whenContainsAll</code> method invokes the given closure if the string contains all of the given sub-strings. The closure will receive the fluent string instance:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Stringable</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;tony stark&#x27;</span>)
+                -&gt;<span class="hljs-title function_ invoke__">whenContainsAll</span>([<span class="hljs-string">&#x27;tony&#x27;</span>, <span class="hljs-string">&#x27;stark&#x27;</span>], function (<span class="hljs-built_in">Stringable</span> <span class="hljs-variable">$string</span>) {
+                    <span class="hljs-keyword">return</span> <span class="hljs-variable">$string</span>-&gt;<span class="hljs-title function_ invoke__">title</span>();
+                });
+
+<span class="hljs-comment">// &#x27;Tony Stark&#x27;</span>
+</code></pre><p>If necessary, you may pass another closure as the third parameter to the <code>when</code> method. This closure will execute if the condition parameter evaluates to <code>false</code>.</p>
+<p><a name="method-fluent-str-when-empty"></a></p>
+<h4><code>whenEmpty</code> {.collection-method}</h4>
+<p>The <code>whenEmpty</code> method invokes the given closure if the string is empty. If the closure returns a value, that value will also be returned by the <code>whenEmpty</code> method. If the closure does not return a value, the fluent string instance will be returned:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Stringable</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;  &#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">whenEmpty</span>(function (<span class="hljs-built_in">Stringable</span> <span class="hljs-variable">$string</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$string</span>-&gt;<span class="hljs-title function_ invoke__">trim</span>()-&gt;<span class="hljs-title function_ invoke__">prepend</span>(<span class="hljs-string">&#x27;Laravel&#x27;</span>);
+});
+
+<span class="hljs-comment">// &#x27;Laravel&#x27;</span>
+</code></pre><p><a name="method-fluent-str-when-not-empty"></a></p>
+<h4><code>whenNotEmpty</code> {.collection-method}</h4>
+<p>The <code>whenNotEmpty</code> method invokes the given closure if the string is not empty. If the closure returns a value, that value will also be returned by the <code>whenNotEmpty</code> method. If the closure does not return a value, the fluent string instance will be returned:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Stringable</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Framework&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">whenNotEmpty</span>(function (<span class="hljs-built_in">Stringable</span> <span class="hljs-variable">$string</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$string</span>-&gt;<span class="hljs-title function_ invoke__">prepend</span>(<span class="hljs-string">&#x27;Laravel &#x27;</span>);
+});
+
+<span class="hljs-comment">// &#x27;Laravel Framework&#x27;</span>
+</code></pre><p><a name="method-fluent-str-when-starts-with"></a></p>
+<h4><code>whenStartsWith</code> {.collection-method}</h4>
+<p>The <code>whenStartsWith</code> method invokes the given closure if the string starts with the given sub-string. The closure will receive the fluent string instance:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Stringable</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;disney world&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">whenStartsWith</span>(<span class="hljs-string">&#x27;disney&#x27;</span>, function (<span class="hljs-built_in">Stringable</span> <span class="hljs-variable">$string</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$string</span>-&gt;<span class="hljs-title function_ invoke__">title</span>();
+});
+
+<span class="hljs-comment">// &#x27;Disney World&#x27;</span>
+</code></pre><p><a name="method-fluent-str-when-ends-with"></a></p>
+<h4><code>whenEndsWith</code> {.collection-method}</h4>
+<p>The <code>whenEndsWith</code> method invokes the given closure if the string ends with the given sub-string. The closure will receive the fluent string instance:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Stringable</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;disney world&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">whenEndsWith</span>(<span class="hljs-string">&#x27;world&#x27;</span>, function (<span class="hljs-built_in">Stringable</span> <span class="hljs-variable">$string</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$string</span>-&gt;<span class="hljs-title function_ invoke__">title</span>();
+});
+
+<span class="hljs-comment">// &#x27;Disney World&#x27;</span>
+</code></pre><p><a name="method-fluent-str-when-exactly"></a></p>
+<h4><code>whenExactly</code> {.collection-method}</h4>
+<p>The <code>whenExactly</code> method invokes the given closure if the string exactly matches the given string. The closure will receive the fluent string instance:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Stringable</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;laravel&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">whenExactly</span>(<span class="hljs-string">&#x27;laravel&#x27;</span>, function (<span class="hljs-built_in">Stringable</span> <span class="hljs-variable">$string</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$string</span>-&gt;<span class="hljs-title function_ invoke__">title</span>();
+});
+
+<span class="hljs-comment">// &#x27;Laravel&#x27;</span>
+</code></pre><p><a name="method-fluent-str-when-not-exactly"></a></p>
+<h4><code>whenNotExactly</code> {.collection-method}</h4>
+<p>The <code>whenNotExactly</code> method invokes the given closure if the string does not exactly match the given string. The closure will receive the fluent string instance:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Stringable</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;framework&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">whenNotExactly</span>(<span class="hljs-string">&#x27;laravel&#x27;</span>, function (<span class="hljs-built_in">Stringable</span> <span class="hljs-variable">$string</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$string</span>-&gt;<span class="hljs-title function_ invoke__">title</span>();
+});
+
+<span class="hljs-comment">// &#x27;Framework&#x27;</span>
+</code></pre><p><a name="method-fluent-str-when-is"></a></p>
+<h4><code>whenIs</code> {.collection-method}</h4>
+<p>The <code>whenIs</code> method invokes the given closure if the string matches a given pattern. Asterisks may be used as wildcard values. The closure will receive the fluent string instance:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Stringable</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;foo/bar&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">whenIs</span>(<span class="hljs-string">&#x27;foo/*&#x27;</span>, function (<span class="hljs-built_in">Stringable</span> <span class="hljs-variable">$string</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$string</span>-&gt;<span class="hljs-title function_ invoke__">append</span>(<span class="hljs-string">&#x27;/baz&#x27;</span>);
+});
+
+<span class="hljs-comment">// &#x27;foo/bar/baz&#x27;</span>
+</code></pre><p><a name="method-fluent-str-when-is-ascii"></a></p>
+<h4><code>whenIsAscii</code> {.collection-method}</h4>
+<p>The <code>whenIsAscii</code> method invokes the given closure if the string is 7 bit ASCII. The closure will receive the fluent string instance:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Stringable</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;laravel&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">whenIsAscii</span>(function (<span class="hljs-built_in">Stringable</span> <span class="hljs-variable">$string</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$string</span>-&gt;<span class="hljs-title function_ invoke__">title</span>();
+});
+
+<span class="hljs-comment">// &#x27;Laravel&#x27;</span>
+</code></pre><p><a name="method-fluent-str-when-is-ulid"></a></p>
+<h4><code>whenIsUlid</code> {.collection-method}</h4>
+<p>The <code>whenIsUlid</code> method invokes the given closure if the string is a valid ULID. The closure will receive the fluent string instance:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;01gd6r360bp37zj17nxb55yv40&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">whenIsUlid</span>(function (<span class="hljs-built_in">Stringable</span> <span class="hljs-variable">$string</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$string</span>-&gt;<span class="hljs-title function_ invoke__">substr</span>(<span class="hljs-number">0</span>, <span class="hljs-number">8</span>);
+});
+
+<span class="hljs-comment">// &#x27;01gd6r36&#x27;</span>
+</code></pre><p><a name="method-fluent-str-when-is-uuid"></a></p>
+<h4><code>whenIsUuid</code> {.collection-method}</h4>
+<p>The <code>whenIsUuid</code> method invokes the given closure if the string is a valid UUID. The closure will receive the fluent string instance:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Stringable</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;a0a2a2d2-0b87-4a18-83f2-2529882be2de&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">whenIsUuid</span>(function (<span class="hljs-built_in">Stringable</span> <span class="hljs-variable">$string</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$string</span>-&gt;<span class="hljs-title function_ invoke__">substr</span>(<span class="hljs-number">0</span>, <span class="hljs-number">8</span>);
+});
+
+<span class="hljs-comment">// &#x27;a0a2a2d2&#x27;</span>
+</code></pre><p><a name="method-fluent-str-when-test"></a></p>
+<h4><code>whenTest</code> {.collection-method}</h4>
+<p>The <code>whenTest</code> method invokes the given closure if the string matches the given regular expression. The closure will receive the fluent string instance:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Stringable</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;laravel framework&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">whenTest</span>(<span class="hljs-string">&#x27;/laravel/&#x27;</span>, function (<span class="hljs-built_in">Stringable</span> <span class="hljs-variable">$string</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$string</span>-&gt;<span class="hljs-title function_ invoke__">title</span>();
+});
+
+<span class="hljs-comment">// &#x27;Laravel Framework&#x27;</span>
+</code></pre><p><a name="method-fluent-str-word-count"></a></p>
+<h4><code>wordCount</code> {.collection-method}</h4>
+<p>The <code>wordCount</code> method returns the number of words that a string contains:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Hello, world!&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">wordCount</span>(); <span class="hljs-comment">// 2</span>
+</code></pre><p><a name="method-fluent-str-words"></a></p>
+<h4><code>words</code> {.collection-method}</h4>
+<p>The <code>words</code> method limits the number of words in a string. If necessary, you may specify an additional string that will be appended to the truncated string:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Str</span>;
+
+<span class="hljs-variable">$string</span> = <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">of</span>(<span class="hljs-string">&#x27;Perfectly balanced, as all things should be.&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">words</span>(<span class="hljs-number">3</span>, <span class="hljs-string">&#x27; &gt;&gt;&gt;&#x27;</span>);
+
+<span class="hljs-comment">// Perfectly balanced, as &gt;&gt;&gt;</span>
+</code></pre>

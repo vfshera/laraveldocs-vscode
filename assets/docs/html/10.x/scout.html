@@ -1,0 +1,537 @@
+<h1>Laravel Scout</h1>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#installation">Installation</a><ul>
+<li><a href="#driver-prerequisites">Driver Prerequisites</a></li>
+<li><a href="#queueing">Queueing</a></li>
+</ul>
+</li>
+<li><a href="#configuration">Configuration</a><ul>
+<li><a href="#configuring-model-indexes">Configuring Model Indexes</a></li>
+<li><a href="#configuring-searchable-data">Configuring Searchable Data</a></li>
+<li><a href="#configuring-the-model-id">Configuring The Model ID</a></li>
+<li><a href="#configuring-search-engines-per-model">Configuring Search Engines Per Model</a></li>
+<li><a href="#identifying-users">Identifying Users</a></li>
+</ul>
+</li>
+<li><a href="#database-and-collection-engines">Database / Collection Engines</a><ul>
+<li><a href="#database-engine">Database Engine</a></li>
+<li><a href="#collection-engine">Collection Engine</a></li>
+</ul>
+</li>
+<li><a href="#indexing">Indexing</a><ul>
+<li><a href="#batch-import">Batch Import</a></li>
+<li><a href="#adding-records">Adding Records</a></li>
+<li><a href="#updating-records">Updating Records</a></li>
+<li><a href="#removing-records">Removing Records</a></li>
+<li><a href="#pausing-indexing">Pausing Indexing</a></li>
+<li><a href="#conditionally-searchable-model-instances">Conditionally Searchable Model Instances</a></li>
+</ul>
+</li>
+<li><a href="#searching">Searching</a><ul>
+<li><a href="#where-clauses">Where Clauses</a></li>
+<li><a href="#pagination">Pagination</a></li>
+<li><a href="#soft-deleting">Soft Deleting</a></li>
+<li><a href="#customizing-engine-searches">Customizing Engine Searches</a></li>
+</ul>
+</li>
+<li><a href="#custom-engines">Custom Engines</a></li>
+</ul>
+<p><a name="introduction"></a></p>
+<h2>Introduction</h2>
+<p><a href="https://github.com/laravel/scout">Laravel Scout</a> provides a simple, driver based solution for adding full-text search to your <a href="/docs/%7B%7Bversion%7D%7D/eloquent">Eloquent models</a>. Using model observers, Scout will automatically keep your search indexes in sync with your Eloquent records.</p>
+<p>Currently, Scout ships with <a href="https://www.algolia.com/">Algolia</a>, <a href="https://www.meilisearch.com">Meilisearch</a>, and MySQL / PostgreSQL (<code>database</code>) drivers. In addition, Scout includes a &quot;collection&quot; driver that is designed for local development usage and does not require any external dependencies or third-party services. Furthermore, writing custom drivers is simple and you are free to extend Scout with your own search implementations.</p>
+<p><a name="installation"></a></p>
+<h2>Installation</h2>
+<p>First, install Scout via the Composer package manager:</p>
+<pre><code class="hljs language-shell">composer require laravel/scout
+</code></pre><p>After installing Scout, you should publish the Scout configuration file using the <code>vendor:publish</code> Artisan command. This command will publish the <code>scout.php</code> configuration file to your application&#39;s <code>config</code> directory:</p>
+<pre><code class="hljs language-shell">php artisan vendor:publish --provider=&quot;Laravel\Scout\ScoutServiceProvider&quot;
+</code></pre><p>Finally, add the <code>Laravel\Scout\Searchable</code> trait to the model you would like to make searchable. This trait will register a model observer that will automatically keep the model in sync with your search driver:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Models</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Model</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Scout</span>\<span class="hljs-title">Searchable</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Post</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Model</span>
+</span>{
+    <span class="hljs-keyword">use</span> <span class="hljs-title">Searchable</span>;
+}
+</code></pre><p><a name="driver-prerequisites"></a></p>
+<h3>Driver Prerequisites</h3>
+<p><a name="algolia"></a></p>
+<h4>Algolia</h4>
+<p>When using the Algolia driver, you should configure your Algolia <code>id</code> and <code>secret</code> credentials in your <code>config/scout.php</code> configuration file. Once your credentials have been configured, you will also need to install the Algolia PHP SDK via the Composer package manager:</p>
+<pre><code class="hljs language-shell">composer require algolia/algoliasearch-client-php
+</code></pre><p><a name="meilisearch"></a></p>
+<h4>Meilisearch</h4>
+<p><a href="https://www.meilisearch.com">Meilisearch</a> is a blazingly fast and open source search engine. If you aren&#39;t sure how to install Meilisearch on your local machine, you may use <a href="/docs/%7B%7Bversion%7D%7D/sail#meilisearch">Laravel Sail</a>, Laravel&#39;s officially supported Docker development environment.</p>
+<p>When using the Meilisearch driver you will need to install the Meilisearch PHP SDK via the Composer package manager:</p>
+<pre><code class="hljs language-shell">composer require meilisearch/meilisearch-php http-interop/http-factory-guzzle
+</code></pre><p>Then, set the <code>SCOUT_DRIVER</code> environment variable as well as your Meilisearch <code>host</code> and <code>key</code> credentials within your application&#39;s <code>.env</code> file:</p>
+<pre><code class="hljs language-ini"><span class="hljs-attr">SCOUT_DRIVER</span>=meilisearch
+<span class="hljs-attr">MEILISEARCH_HOST</span>=http://<span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">7700</span>
+<span class="hljs-attr">MEILISEARCH_KEY</span>=masterKey
+</code></pre><p>For more information regarding Meilisearch, please consult the <a href="https://docs.meilisearch.com/learn/getting_started/quick_start.html">Meilisearch documentation</a>.</p>
+<p>In addition, you should ensure that you install a version of <code>meilisearch/meilisearch-php</code> that is compatible with your Meilisearch binary version by reviewing <a href="https://github.com/meilisearch/meilisearch-php#-compatibility-with-meilisearch">Meilisearch&#39;s documentation regarding binary compatibility</a>.</p>
+<blockquote>
+<p><strong>Warning</strong><br>When upgrading Scout on an application that utilizes Meilisearch, you should always <a href="https://github.com/meilisearch/Meilisearch/releases">review any additional breaking changes</a> to the Meilisearch service itself.</p>
+</blockquote>
+<p><a name="queueing"></a></p>
+<h3>Queueing</h3>
+<p>While not strictly required to use Scout, you should strongly consider configuring a <a href="/docs/%7B%7Bversion%7D%7D/queues">queue driver</a> before using the library. Running a queue worker will allow Scout to queue all operations that sync your model information to your search indexes, providing much better response times for your application&#39;s web interface.</p>
+<p>Once you have configured a queue driver, set the value of the <code>queue</code> option in your <code>config/scout.php</code> configuration file to <code>true</code>:</p>
+<pre><code><span class="hljs-string">&#x27;queue&#x27;</span> =&gt; <span class="hljs-literal">true</span>,
+</code></pre><p>Even when the <code>queue</code> option is set to <code>false</code>, it&#39;s important to remember that some Scout drivers like Algolia and Meilisearch always index records asynchronously. Meaning, even though the index operation has completed within your Laravel application, the search engine itself may not reflect the new and updated records immediately.</p>
+<p>To specify the connection and queue that your Scout jobs utilize, you may define the <code>queue</code> configuration option as an array:</p>
+<pre><code><span class="hljs-string">&#x27;queue&#x27;</span> =&gt; [
+    <span class="hljs-string">&#x27;connection&#x27;</span> =&gt; <span class="hljs-string">&#x27;redis&#x27;</span>,
+    <span class="hljs-string">&#x27;queue&#x27;</span> =&gt; <span class="hljs-string">&#x27;scout&#x27;</span>
+],
+</code></pre><p><a name="configuration"></a></p>
+<h2>Configuration</h2>
+<p><a name="configuring-model-indexes"></a></p>
+<h3>Configuring Model Indexes</h3>
+<p>Each Eloquent model is synced with a given search &quot;index&quot;, which contains all of the searchable records for that model. In other words, you can think of each index like a MySQL table. By default, each model will be persisted to an index matching the model&#39;s typical &quot;table&quot; name. Typically, this is the plural form of the model name; however, you are free to customize the model&#39;s index by overriding the <code>searchableAs</code> method on the model:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Models</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Model</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Scout</span>\<span class="hljs-title">Searchable</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Post</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Model</span>
+</span>{
+    <span class="hljs-keyword">use</span> <span class="hljs-title">Searchable</span>;
+
+    <span class="hljs-comment">/**
+     * Get the name of the index associated with the model.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">searchableAs</span>(<span class="hljs-params"></span>): <span class="hljs-title">string</span>
+    </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;posts_index&#x27;</span>;
+    }
+}
+</code></pre><p><a name="configuring-searchable-data"></a></p>
+<h3>Configuring Searchable Data</h3>
+<p>By default, the entire <code>toArray</code> form of a given model will be persisted to its search index. If you would like to customize the data that is synchronized to the search index, you may override the <code>toSearchableArray</code> method on the model:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Models</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Model</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Scout</span>\<span class="hljs-title">Searchable</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Post</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Model</span>
+</span>{
+    <span class="hljs-keyword">use</span> <span class="hljs-title">Searchable</span>;
+
+    <span class="hljs-comment">/**
+     * Get the indexable data array for the model.
+     *
+     * <span class="hljs-doctag">@return</span> array&lt;string, mixed&gt;
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">toSearchableArray</span>(<span class="hljs-params"></span>): <span class="hljs-title">array</span>
+    </span>{
+        <span class="hljs-variable">$array</span> = <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">toArray</span>();
+
+        <span class="hljs-comment">// Customize the data array...</span>
+
+        <span class="hljs-keyword">return</span> <span class="hljs-variable">$array</span>;
+    }
+}
+</code></pre><p>Some search engines such as Meilisearch will only perform filter operations (<code>&gt;</code>, <code>&lt;</code>, etc.) on data of the correct type. So, when using these search engines and customizing your searchable data, you should ensure that numeric values are cast to their correct type:</p>
+<pre><code><span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">toSearchableArray</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-keyword">return</span> [
+        <span class="hljs-string">&#x27;id&#x27;</span> =&gt; (<span class="hljs-keyword">int</span>) <span class="hljs-variable language_">$this</span>-&gt;id,
+        <span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-variable language_">$this</span>-&gt;name,
+        <span class="hljs-string">&#x27;price&#x27;</span> =&gt; (<span class="hljs-keyword">float</span>) <span class="hljs-variable language_">$this</span>-&gt;price,
+    ];
+}
+</code></pre><p><a name="configuring-filterable-data-for-meilisearch"></a></p>
+<h4>Configuring Filterable Data &amp; Index Settings (Meilisearch)</h4>
+<p>Unlike Scout&#39;s other drivers, Meilisearch requires you to pre-define index search settings such as filterable attributes, sortable attributes, and <a href="https://docs.meilisearch.com/reference/api/settings.html">other supported settings fields</a>.</p>
+<p>Filterable attributes are any attributes you plan to filter on when invoking Scout&#39;s <code>where</code> method, while sortable attributes are any attributes you plan to sort by when invoking Scout&#39;s <code>orderBy</code> method. To define your index settings, adjust the <code>index-settings</code> portion of your <code>meilisearch</code> configuration entry in your application&#39;s <code>scout</code> configuration file:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Flight</span>;
+
+<span class="hljs-string">&#x27;meilisearch&#x27;</span> =&gt; [
+    <span class="hljs-string">&#x27;host&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;MEILISEARCH_HOST&#x27;</span>, <span class="hljs-string">&#x27;http://localhost:7700&#x27;</span>),
+    <span class="hljs-string">&#x27;key&#x27;</span> =&gt; <span class="hljs-title function_ invoke__">env</span>(<span class="hljs-string">&#x27;MEILISEARCH_KEY&#x27;</span>, <span class="hljs-literal">null</span>),
+    <span class="hljs-string">&#x27;index-settings&#x27;</span> =&gt; [
+        <span class="hljs-title class_">User</span>::<span class="hljs-variable language_">class</span> =&gt; [
+            <span class="hljs-string">&#x27;filterableAttributes&#x27;</span>=&gt; [<span class="hljs-string">&#x27;id&#x27;</span>, <span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;email&#x27;</span>],
+            <span class="hljs-string">&#x27;sortableAttributes&#x27;</span> =&gt; [<span class="hljs-string">&#x27;created_at&#x27;</span>],
+            <span class="hljs-comment">// Other settings fields...</span>
+        ],
+        <span class="hljs-title class_">Flight</span>::<span class="hljs-variable language_">class</span> =&gt; [
+            <span class="hljs-string">&#x27;filterableAttributes&#x27;</span>=&gt; [<span class="hljs-string">&#x27;id&#x27;</span>, <span class="hljs-string">&#x27;destination&#x27;</span>],
+            <span class="hljs-string">&#x27;sortableAttributes&#x27;</span> =&gt; [<span class="hljs-string">&#x27;updated_at&#x27;</span>],
+        ],
+    ],
+],
+</code></pre><p>If the model underlying a given index is soft deletable and is included in the <code>index-settings</code> array, Scout will automatically include support for filtering on soft deleted models on that index. If you have no other filterable or sortable attributes to define for a soft deletable model index, you may simply add an empty entry to the <code>index-settings</code> array for that model:</p>
+<pre><code class="hljs language-php"><span class="hljs-string">&#x27;index-settings&#x27;</span> =&gt; [
+    <span class="hljs-title class_">Flight</span>::<span class="hljs-variable language_">class</span> =&gt; []
+],
+</code></pre><p>After configuring your application&#39;s index settings, you must invoke the <code>scout:sync-index-settings</code> Artisan command. This command will inform Meilisearch of your currently configured index settings. For convenience, you may wish to make this command part of your deployment process:</p>
+<pre><code class="hljs language-shell">php artisan scout:sync-index-settings
+</code></pre><p><a name="configuring-the-model-id"></a></p>
+<h3>Configuring The Model ID</h3>
+<p>By default, Scout will use the primary key of the model as the model&#39;s unique ID / key that is stored in the search index. If you need to customize this behavior, you may override the <code>getScoutKey</code> and the <code>getScoutKeyName</code> methods on the model:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Models</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Model</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Scout</span>\<span class="hljs-title">Searchable</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Model</span>
+</span>{
+    <span class="hljs-keyword">use</span> <span class="hljs-title">Searchable</span>;
+
+    <span class="hljs-comment">/**
+     * Get the value used to index the model.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getScoutKey</span>(<span class="hljs-params"></span>): <span class="hljs-title">mixed</span>
+    </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;email;
+    }
+
+    <span class="hljs-comment">/**
+     * Get the key name used to index the model.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getScoutKeyName</span>(<span class="hljs-params"></span>): <span class="hljs-title">mixed</span>
+    </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;email&#x27;</span>;
+    }
+}
+</code></pre><p><a name="configuring-search-engines-per-model"></a></p>
+<h3>Configuring Search Engines Per Model</h3>
+<p>When searching, Scout will typically use the default search engine specified in your application&#39;s <code>scout</code> configuration file. However, the search engine for a particular model can be changed by overriding the <code>searchableUsing</code> method on the model:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Models</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Model</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Scout</span>\<span class="hljs-title">Engines</span>\<span class="hljs-title">Engine</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Scout</span>\<span class="hljs-title">EngineManager</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Scout</span>\<span class="hljs-title">Searchable</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Model</span>
+</span>{
+    <span class="hljs-keyword">use</span> <span class="hljs-title">Searchable</span>;
+
+    <span class="hljs-comment">/**
+     * Get the engine used to index the model.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">searchableUsing</span>(<span class="hljs-params"></span>): <span class="hljs-title">Engine</span>
+    </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">app</span>(<span class="hljs-title class_">EngineManager</span>::<span class="hljs-variable language_">class</span>)-&gt;<span class="hljs-title function_ invoke__">engine</span>(<span class="hljs-string">&#x27;meilisearch&#x27;</span>);
+    }
+}
+</code></pre><p><a name="identifying-users"></a></p>
+<h3>Identifying Users</h3>
+<p>Scout also allows you to auto identify users when using <a href="https://algolia.com">Algolia</a>. Associating the authenticated user with search operations may be helpful when viewing your search analytics within Algolia&#39;s dashboard. You can enable user identification by defining a <code>SCOUT_IDENTIFY</code> environment variable as <code>true</code> in your application&#39;s <code>.env</code> file:</p>
+<pre><code class="hljs language-ini"><span class="hljs-attr">SCOUT_IDENTIFY</span>=<span class="hljs-literal">true</span>
+</code></pre><p>Enabling this feature will also pass the request&#39;s IP address and your authenticated user&#39;s primary identifier to Algolia so this data is associated with any search request that is made by the user.</p>
+<p><a name="database-and-collection-engines"></a></p>
+<h2>Database / Collection Engines</h2>
+<p><a name="database-engine"></a></p>
+<h3>Database Engine</h3>
+<blockquote>
+<p><strong>Warning</strong><br>The database engine currently supports MySQL and PostgreSQL.</p>
+</blockquote>
+<p>If your application interacts with small to medium sized databases or has a light workload, you may find it more convenient to get started with Scout&#39;s &quot;database&quot; engine. The database engine will use &quot;where like&quot; clauses and full text indexes when filtering results from your existing database to determine the applicable search results for your query.</p>
+<p>To use the database engine, you may simply set the value of the <code>SCOUT_DRIVER</code> environment variable to <code>database</code>, or specify the <code>database</code> driver directly in your application&#39;s <code>scout</code> configuration file:</p>
+<pre><code class="hljs language-ini"><span class="hljs-attr">SCOUT_DRIVER</span>=database
+</code></pre><p>Once you have specified the database engine as your preferred driver, you must <a href="#configuring-searchable-data">configure your searchable data</a>. Then, you may start <a href="#searching">executing search queries</a> against your models. Search engine indexing, such as the indexing needed to seed Algolia or Meilisearch indexes, is unnecessary when using the database engine.</p>
+<h4>Customizing Database Searching Strategies</h4>
+<p>By default, the database engine will execute a &quot;where like&quot; query against every model attribute that you have <a href="#configuring-searchable-data">configured as searchable</a>. However, in some situations, this may result in poor performance. Therefore, the database engine&#39;s search strategy can be configured so that some specified columns utilize full text search queries or only use &quot;where like&quot; constraints to search the prefixes of strings (<code>example%</code>) instead of searching within the entire string (<code>%example%</code>).</p>
+<p>To define this behavior, you may assign PHP attributes to your model&#39;s <code>toSearchableArray</code> method. Any columns that are not assigned additional search strategy behavior will continue to use the default &quot;where like&quot; strategy:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Scout</span>\<span class="hljs-title">Attributes</span>\<span class="hljs-title">SearchUsingFullText</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Scout</span>\<span class="hljs-title">Attributes</span>\<span class="hljs-title">SearchUsingPrefix</span>;
+
+<span class="hljs-comment">/**
+ * Get the indexable data array for the model.
+ *
+ * <span class="hljs-doctag">@return</span> array&lt;string, mixed&gt;
+ */</span>
+<span class="hljs-meta">#[SearchUsingPrefix</span>([<span class="hljs-string">&#x27;id&#x27;</span>, <span class="hljs-string">&#x27;email&#x27;</span>])<span class="hljs-meta">]</span>
+<span class="hljs-meta">#[SearchUsingFullText</span>([<span class="hljs-string">&#x27;bio&#x27;</span>])<span class="hljs-meta">]</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">toSearchableArray</span>(<span class="hljs-params"></span>): <span class="hljs-title">array</span>
+</span>{
+    <span class="hljs-keyword">return</span> [
+        <span class="hljs-string">&#x27;id&#x27;</span> =&gt; <span class="hljs-variable language_">$this</span>-&gt;id,
+        <span class="hljs-string">&#x27;name&#x27;</span> =&gt; <span class="hljs-variable language_">$this</span>-&gt;name,
+        <span class="hljs-string">&#x27;email&#x27;</span> =&gt; <span class="hljs-variable language_">$this</span>-&gt;email,
+        <span class="hljs-string">&#x27;bio&#x27;</span> =&gt; <span class="hljs-variable language_">$this</span>-&gt;bio,
+    ];
+}
+</code></pre><blockquote>
+<p><strong>Warning</strong><br>Before specifying that a column should use full text query constraints, ensure that the column has been assigned a <a href="/docs/%7B%7Bversion%7D%7D/migrations#available-index-types">full text index</a>.</p>
+</blockquote>
+<p><a name="collection-engine"></a></p>
+<h3>Collection Engine</h3>
+<p>While you are free to use the Algolia or Meilisearch search engines during local development, you may find it more convenient to get started with the &quot;collection&quot; engine. The collection engine will use &quot;where&quot; clauses and collection filtering on results from your existing database to determine the applicable search results for your query. When using this engine, it is not necessary to &quot;index&quot; your searchable models, as they will simply be retrieved from your local database.</p>
+<p>To use the collection engine, you may simply set the value of the <code>SCOUT_DRIVER</code> environment variable to <code>collection</code>, or specify the <code>collection</code> driver directly in your application&#39;s <code>scout</code> configuration file:</p>
+<pre><code class="hljs language-ini"><span class="hljs-attr">SCOUT_DRIVER</span>=collection
+</code></pre><p>Once you have specified the collection driver as your preferred driver, you may start <a href="#searching">executing search queries</a> against your models. Search engine indexing, such as the indexing needed to seed Algolia or Meilisearch indexes, is unnecessary when using the collection engine.</p>
+<h4>Differences From Database Engine</h4>
+<p>On first glance, the &quot;database&quot; and &quot;collections&quot; engines are fairly similar. They both interact directly with your database to retrieve search results. However, the collection engine does not utilize full text indexes or <code>LIKE</code> clauses to find matching records. Instead, it pulls all possible records and uses Laravel&#39;s <code>Str::is</code> helper to determine if the search string exists within the model attribute values.</p>
+<p>The collection engine is the most portable search engine as it works across all relational databases supported by Laravel (including SQLite and SQL Server); however, it is less efficient than Scout&#39;s database engine.</p>
+<p><a name="indexing"></a></p>
+<h2>Indexing</h2>
+<p><a name="batch-import"></a></p>
+<h3>Batch Import</h3>
+<p>If you are installing Scout into an existing project, you may already have database records you need to import into your indexes. Scout provides a <code>scout:import</code> Artisan command that you may use to import all of your existing records into your search indexes:</p>
+<pre><code class="hljs language-shell">php artisan scout:import &quot;App\Models\Post&quot;
+</code></pre><p>The <code>flush</code> command may be used to remove all of a model&#39;s records from your search indexes:</p>
+<pre><code class="hljs language-shell">php artisan scout:flush &quot;App\Models\Post&quot;
+</code></pre><p><a name="modifying-the-import-query"></a></p>
+<h4>Modifying The Import Query</h4>
+<p>If you would like to modify the query that is used to retrieve all of your models for batch importing, you may define a <code>makeAllSearchableUsing</code> method on your model. This is a great place to add any eager relationship loading that may be necessary before importing your models:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Builder</span>;
+
+<span class="hljs-comment">/**
+ * Modify the query used to retrieve models when making all of the models searchable.
+ */</span>
+<span class="hljs-keyword">protected</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">makeAllSearchableUsing</span>(<span class="hljs-params">Builder <span class="hljs-variable">$query</span></span>): <span class="hljs-title">Builder</span>
+</span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$query</span>-&gt;<span class="hljs-title function_ invoke__">with</span>(<span class="hljs-string">&#x27;author&#x27;</span>);
+}
+</code></pre><blockquote>
+<p><strong>Warning</strong><br>The <code>makeAllSearchableUsing</code> method may not be applicable when using a queue to batch import models. Relationships are <a href="/docs/%7B%7Bversion%7D%7D/queues#handling-relationships">not restored</a> when model collections are processed by jobs.</p>
+</blockquote>
+<p><a name="adding-records"></a></p>
+<h3>Adding Records</h3>
+<p>Once you have added the <code>Laravel\Scout\Searchable</code> trait to a model, all you need to do is <code>save</code> or <code>create</code> a model instance and it will automatically be added to your search index. If you have configured Scout to <a href="#queueing">use queues</a> this operation will be performed in the background by your queue worker:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Order</span>;
+
+<span class="hljs-variable">$order</span> = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Order</span>;
+
+<span class="hljs-comment">// ...</span>
+
+<span class="hljs-variable">$order</span>-&gt;<span class="hljs-title function_ invoke__">save</span>();
+</code></pre><p><a name="adding-records-via-query"></a></p>
+<h4>Adding Records Via Query</h4>
+<p>If you would like to add a collection of models to your search index via an Eloquent query, you may chain the <code>searchable</code> method onto the Eloquent query. The <code>searchable</code> method will <a href="/docs/%7B%7Bversion%7D%7D/eloquent#chunking-results">chunk the results</a> of the query and add the records to your search index. Again, if you have configured Scout to use queues, all of the chunks will be imported in the background by your queue workers:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Order</span>;
+
+<span class="hljs-title class_">Order</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;price&#x27;</span>, <span class="hljs-string">&#x27;&gt;&#x27;</span>, <span class="hljs-number">100</span>)-&gt;<span class="hljs-title function_ invoke__">searchable</span>();
+</code></pre><p>You may also call the <code>searchable</code> method on an Eloquent relationship instance:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">orders</span>()-&gt;<span class="hljs-title function_ invoke__">searchable</span>();
+</code></pre><p>Or, if you already have a collection of Eloquent models in memory, you may call the <code>searchable</code> method on the collection instance to add the model instances to their corresponding index:</p>
+<pre><code><span class="hljs-variable">$orders</span>-&gt;<span class="hljs-title function_ invoke__">searchable</span>();
+</code></pre><blockquote>
+<p><strong>Note</strong><br>The <code>searchable</code> method can be considered an &quot;upsert&quot; operation. In other words, if the model record is already in your index, it will be updated. If it does not exist in the search index, it will be added to the index.</p>
+</blockquote>
+<p><a name="updating-records"></a></p>
+<h3>Updating Records</h3>
+<p>To update a searchable model, you only need to update the model instance&#39;s properties and <code>save</code> the model to your database. Scout will automatically persist the changes to your search index:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Order</span>;
+
+<span class="hljs-variable">$order</span> = <span class="hljs-title class_">Order</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-comment">// Update the order...</span>
+
+<span class="hljs-variable">$order</span>-&gt;<span class="hljs-title function_ invoke__">save</span>();
+</code></pre><p>You may also invoke the <code>searchable</code> method on an Eloquent query instance to update a collection of models. If the models do not exist in your search index, they will be created:</p>
+<pre><code><span class="hljs-title class_">Order</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;price&#x27;</span>, <span class="hljs-string">&#x27;&gt;&#x27;</span>, <span class="hljs-number">100</span>)-&gt;<span class="hljs-title function_ invoke__">searchable</span>();
+</code></pre><p>If you would like to update the search index records for all of the models in a relationship, you may invoke the <code>searchable</code> on the relationship instance:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">orders</span>()-&gt;<span class="hljs-title function_ invoke__">searchable</span>();
+</code></pre><p>Or, if you already have a collection of Eloquent models in memory, you may call the <code>searchable</code> method on the collection instance to update the model instances in their corresponding index:</p>
+<pre><code><span class="hljs-variable">$orders</span>-&gt;<span class="hljs-title function_ invoke__">searchable</span>();
+</code></pre><p><a name="modifying-records-before-importing"></a></p>
+<h4>Modifying Records Before Importing</h4>
+<p>Sometimes you may need to prepare the collection of models before they are made searchable. For instance, you may want to eager load a relationship so that the relationship data can be efficiently added to your search index. To accomplish this, define a <code>makeSearchableUsing</code> method on the corresponding model:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Collection</span>;
+
+<span class="hljs-comment">/**
+ * Modify the collection of models being made searchable.
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">makeSearchableUsing</span>(<span class="hljs-params">Collection <span class="hljs-variable">$models</span></span>): <span class="hljs-title">Collection</span>
+</span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-variable">$models</span>-&gt;<span class="hljs-title function_ invoke__">load</span>(<span class="hljs-string">&#x27;author&#x27;</span>);
+}
+</code></pre><p><a name="removing-records"></a></p>
+<h3>Removing Records</h3>
+<p>To remove a record from your index you may simply <code>delete</code> the model from the database. This may be done even if you are using <a href="/docs/%7B%7Bversion%7D%7D/eloquent#soft-deleting">soft deleted</a> models:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Order</span>;
+
+<span class="hljs-variable">$order</span> = <span class="hljs-title class_">Order</span>::<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-number">1</span>);
+
+<span class="hljs-variable">$order</span>-&gt;<span class="hljs-title function_ invoke__">delete</span>();
+</code></pre><p>If you do not want to retrieve the model before deleting the record, you may use the <code>unsearchable</code> method on an Eloquent query instance:</p>
+<pre><code><span class="hljs-title class_">Order</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;price&#x27;</span>, <span class="hljs-string">&#x27;&gt;&#x27;</span>, <span class="hljs-number">100</span>)-&gt;<span class="hljs-title function_ invoke__">unsearchable</span>();
+</code></pre><p>If you would like to remove the search index records for all of the models in a relationship, you may invoke the <code>unsearchable</code> on the relationship instance:</p>
+<pre><code><span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">orders</span>()-&gt;<span class="hljs-title function_ invoke__">unsearchable</span>();
+</code></pre><p>Or, if you already have a collection of Eloquent models in memory, you may call the <code>unsearchable</code> method on the collection instance to remove the model instances from their corresponding index:</p>
+<pre><code><span class="hljs-variable">$orders</span>-&gt;<span class="hljs-title function_ invoke__">unsearchable</span>();
+</code></pre><p><a name="pausing-indexing"></a></p>
+<h3>Pausing Indexing</h3>
+<p>Sometimes you may need to perform a batch of Eloquent operations on a model without syncing the model data to your search index. You may do this using the <code>withoutSyncingToSearch</code> method. This method accepts a single closure which will be immediately executed. Any model operations that occur within the closure will not be synced to the model&#39;s index:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Order</span>;
+
+<span class="hljs-title class_">Order</span>::<span class="hljs-title function_ invoke__">withoutSyncingToSearch</span>(function () {
+    <span class="hljs-comment">// Perform model actions...</span>
+});
+</code></pre><p><a name="conditionally-searchable-model-instances"></a></p>
+<h3>Conditionally Searchable Model Instances</h3>
+<p>Sometimes you may need to only make a model searchable under certain conditions. For example, imagine you have <code>App\Models\Post</code> model that may be in one of two states: &quot;draft&quot; and &quot;published&quot;. You may only want to allow &quot;published&quot; posts to be searchable. To accomplish this, you may define a <code>shouldBeSearchable</code> method on your model:</p>
+<pre><code><span class="hljs-comment">/**
+ * Determine if the model should be searchable.
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">shouldBeSearchable</span>(<span class="hljs-params"></span>): <span class="hljs-title">bool</span>
+</span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">isPublished</span>();
+}
+</code></pre><p>The <code>shouldBeSearchable</code> method is only applied when manipulating models through the <code>save</code> and <code>create</code> methods, queries, or relationships. Directly making models or collections searchable using the <code>searchable</code> method will override the result of the <code>shouldBeSearchable</code> method.</p>
+<blockquote>
+<p><strong>Warning</strong><br>The <code>shouldBeSearchable</code> method is not applicable when using Scout&#39;s &quot;database&quot; engine, as all searchable data is always stored in the database. To achieve similar behavior when using the database engine, you should use <a href="#where-clauses">where clauses</a> instead.</p>
+</blockquote>
+<p><a name="searching"></a></p>
+<h2>Searching</h2>
+<p>You may begin searching a model using the <code>search</code> method. The search method accepts a single string that will be used to search your models. You should then chain the <code>get</code> method onto the search query to retrieve the Eloquent models that match the given search query:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Order</span>;
+
+<span class="hljs-variable">$orders</span> = <span class="hljs-title class_">Order</span>::<span class="hljs-title function_ invoke__">search</span>(<span class="hljs-string">&#x27;Star Trek&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">get</span>();
+</code></pre><p>Since Scout searches return a collection of Eloquent models, you may even return the results directly from a route or controller and they will automatically be converted to JSON:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Order</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/search&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-title class_">Order</span>::<span class="hljs-title function_ invoke__">search</span>(<span class="hljs-variable">$request</span>-&gt;search)-&gt;<span class="hljs-title function_ invoke__">get</span>();
+});
+</code></pre><p>If you would like to get the raw search results before they are converted to Eloquent models, you may use the <code>raw</code> method:</p>
+<pre><code><span class="hljs-variable">$orders</span> = <span class="hljs-title class_">Order</span>::<span class="hljs-title function_ invoke__">search</span>(<span class="hljs-string">&#x27;Star Trek&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">raw</span>();
+</code></pre><p><a name="custom-indexes"></a></p>
+<h4>Custom Indexes</h4>
+<p>Search queries will typically be performed on the index specified by the model&#39;s <a href="#configuring-model-indexes"><code>searchableAs</code></a> method. However, you may use the <code>within</code> method to specify a custom index that should be searched instead:</p>
+<pre><code><span class="hljs-variable">$orders</span> = <span class="hljs-title class_">Order</span>::<span class="hljs-title function_ invoke__">search</span>(<span class="hljs-string">&#x27;Star Trek&#x27;</span>)
+    -&gt;<span class="hljs-title function_ invoke__">within</span>(<span class="hljs-string">&#x27;tv_shows_popularity_desc&#x27;</span>)
+    -&gt;<span class="hljs-title function_ invoke__">get</span>();
+</code></pre><p><a name="where-clauses"></a></p>
+<h3>Where Clauses</h3>
+<p>Scout allows you to add simple &quot;where&quot; clauses to your search queries. Currently, these clauses only support basic numeric equality checks and are primarily useful for scoping search queries by an owner ID:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Order</span>;
+
+<span class="hljs-variable">$orders</span> = <span class="hljs-title class_">Order</span>::<span class="hljs-title function_ invoke__">search</span>(<span class="hljs-string">&#x27;Star Trek&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;user_id&#x27;</span>, <span class="hljs-number">1</span>)-&gt;<span class="hljs-title function_ invoke__">get</span>();
+</code></pre><p>In addition, the <code>whereIn</code> method may be used to verify that a given column&#39;s value is contained within the given array:</p>
+<pre><code><span class="hljs-variable">$orders</span> = <span class="hljs-title class_">Order</span>::<span class="hljs-title function_ invoke__">search</span>(<span class="hljs-string">&#x27;Star Trek&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">whereIn</span>(
+    <span class="hljs-string">&#x27;status&#x27;</span>, [<span class="hljs-string">&#x27;open&#x27;</span>, <span class="hljs-string">&#x27;paid&#x27;</span>]
+)-&gt;<span class="hljs-title function_ invoke__">get</span>();
+</code></pre><p>The <code>whereNotIn</code> method verifies that the given column&#39;s value is not contained in the given array:</p>
+<pre><code><span class="hljs-variable">$orders</span> = <span class="hljs-title class_">Order</span>::<span class="hljs-title function_ invoke__">search</span>(<span class="hljs-string">&#x27;Star Trek&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">whereNotIn</span>(
+    <span class="hljs-string">&#x27;status&#x27;</span>, [<span class="hljs-string">&#x27;closed&#x27;</span>]
+)-&gt;<span class="hljs-title function_ invoke__">get</span>();
+</code></pre><p>Since a search index is not a relational database, more advanced &quot;where&quot; clauses are not currently supported.</p>
+<blockquote>
+<p><strong>Warning</strong>
+If your application is using Meilisearch, you must configure your application&#39;s <a href="#configuring-filterable-data-for-meilisearch">filterable attributes</a> before utilizing Scout&#39;s &quot;where&quot; clauses.</p>
+</blockquote>
+<p><a name="pagination"></a></p>
+<h3>Pagination</h3>
+<p>In addition to retrieving a collection of models, you may paginate your search results using the <code>paginate</code> method. This method will return an <code>Illuminate\Pagination\LengthAwarePaginator</code> instance just as if you had <a href="/docs/%7B%7Bversion%7D%7D/pagination">paginated a traditional Eloquent query</a>:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Order</span>;
+
+<span class="hljs-variable">$orders</span> = <span class="hljs-title class_">Order</span>::<span class="hljs-title function_ invoke__">search</span>(<span class="hljs-string">&#x27;Star Trek&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">paginate</span>();
+</code></pre><p>You may specify how many models to retrieve per page by passing the amount as the first argument to the <code>paginate</code> method:</p>
+<pre><code><span class="hljs-variable">$orders</span> = <span class="hljs-title class_">Order</span>::<span class="hljs-title function_ invoke__">search</span>(<span class="hljs-string">&#x27;Star Trek&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">paginate</span>(<span class="hljs-number">15</span>);
+</code></pre><p>Once you have retrieved the results, you may display the results and render the page links using <a href="/docs/%7B%7Bversion%7D%7D/blade">Blade</a> just as if you had paginated a traditional Eloquent query:</p>
+<pre><code class="hljs language-html"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;container&quot;</span>&gt;</span>
+    @foreach ($orders as $order)
+        {{ $order-&gt;price }}
+    @endforeach
+<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+
+{{ $orders-&gt;links() }}
+</code></pre><p>Of course, if you would like to retrieve the pagination results as JSON, you may return the paginator instance directly from a route or controller:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Order</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/orders&#x27;</span>, function (Request <span class="hljs-variable">$request</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-title class_">Order</span>::<span class="hljs-title function_ invoke__">search</span>(<span class="hljs-variable">$request</span>-&gt;<span class="hljs-title function_ invoke__">input</span>(<span class="hljs-string">&#x27;query&#x27;</span>))-&gt;<span class="hljs-title function_ invoke__">paginate</span>(<span class="hljs-number">15</span>);
+});
+</code></pre><blockquote>
+<p><strong>Warning</strong><br>Since search engines are not aware of your Eloquent model&#39;s global scope definitions, you should not utilize global scopes in applications that utilize Scout pagination. Or, you should recreate the global scope&#39;s constraints when searching via Scout.</p>
+</blockquote>
+<p><a name="soft-deleting"></a></p>
+<h3>Soft Deleting</h3>
+<p>If your indexed models are <a href="/docs/%7B%7Bversion%7D%7D/eloquent#soft-deleting">soft deleting</a> and you need to search your soft deleted models, set the <code>soft_delete</code> option of the <code>config/scout.php</code> configuration file to <code>true</code>:</p>
+<pre><code><span class="hljs-string">&#x27;soft_delete&#x27;</span> =&gt; <span class="hljs-literal">true</span>,
+</code></pre><p>When this configuration option is <code>true</code>, Scout will not remove soft deleted models from the search index. Instead, it will set a hidden <code>__soft_deleted</code> attribute on the indexed record. Then, you may use the <code>withTrashed</code> or <code>onlyTrashed</code> methods to retrieve the soft deleted records when searching:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Order</span>;
+
+<span class="hljs-comment">// Include trashed records when retrieving results...</span>
+<span class="hljs-variable">$orders</span> = <span class="hljs-title class_">Order</span>::<span class="hljs-title function_ invoke__">search</span>(<span class="hljs-string">&#x27;Star Trek&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">withTrashed</span>()-&gt;<span class="hljs-title function_ invoke__">get</span>();
+
+<span class="hljs-comment">// Only include trashed records when retrieving results...</span>
+<span class="hljs-variable">$orders</span> = <span class="hljs-title class_">Order</span>::<span class="hljs-title function_ invoke__">search</span>(<span class="hljs-string">&#x27;Star Trek&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">onlyTrashed</span>()-&gt;<span class="hljs-title function_ invoke__">get</span>();
+</code></pre><blockquote>
+<p><strong>Note</strong><br>When a soft deleted model is permanently deleted using <code>forceDelete</code>, Scout will remove it from the search index automatically.</p>
+</blockquote>
+<p><a name="customizing-engine-searches"></a></p>
+<h3>Customizing Engine Searches</h3>
+<p>If you need to perform advanced customization of the search behavior of an engine you may pass a closure as the second argument to the <code>search</code> method. For example, you could use this callback to add geo-location data to your search options before the search query is passed to Algolia:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Algolia</span>\<span class="hljs-title">AlgoliaSearch</span>\<span class="hljs-title">SearchIndex</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Order</span>;
+
+<span class="hljs-title class_">Order</span>::<span class="hljs-title function_ invoke__">search</span>(
+    <span class="hljs-string">&#x27;Star Trek&#x27;</span>,
+    function (SearchIndex <span class="hljs-variable">$algolia</span>, <span class="hljs-keyword">string</span> <span class="hljs-variable">$query</span>, <span class="hljs-keyword">array</span> <span class="hljs-variable">$options</span>) {
+        <span class="hljs-variable">$options</span>[<span class="hljs-string">&#x27;body&#x27;</span>][<span class="hljs-string">&#x27;query&#x27;</span>][<span class="hljs-string">&#x27;bool&#x27;</span>][<span class="hljs-string">&#x27;filter&#x27;</span>][<span class="hljs-string">&#x27;geo_distance&#x27;</span>] = [
+            <span class="hljs-string">&#x27;distance&#x27;</span> =&gt; <span class="hljs-string">&#x27;1000km&#x27;</span>,
+            <span class="hljs-string">&#x27;location&#x27;</span> =&gt; [<span class="hljs-string">&#x27;lat&#x27;</span> =&gt; <span class="hljs-number">36</span>, <span class="hljs-string">&#x27;lon&#x27;</span> =&gt; <span class="hljs-number">111</span>],
+        ];
+
+        <span class="hljs-keyword">return</span> <span class="hljs-variable">$algolia</span>-&gt;<span class="hljs-title function_ invoke__">search</span>(<span class="hljs-variable">$query</span>, <span class="hljs-variable">$options</span>);
+    }
+)-&gt;<span class="hljs-title function_ invoke__">get</span>();
+</code></pre><p><a name="customizing-the-eloquent-results-query"></a></p>
+<h4>Customizing The Eloquent Results Query</h4>
+<p>After Scout retrieves a list of matching Eloquent models from your application&#39;s search engine, Eloquent is used to retrieve all of the matching models by their primary keys. You may customize this query by invoking the <code>query</code> method. The <code>query</code> method accepts a closure that will receive the Eloquent query builder instance as an argument:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Order</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Builder</span>;
+
+<span class="hljs-variable">$orders</span> = <span class="hljs-title class_">Order</span>::<span class="hljs-title function_ invoke__">search</span>(<span class="hljs-string">&#x27;Star Trek&#x27;</span>)
+    -&gt;<span class="hljs-title function_ invoke__">query</span>(fn (Builder <span class="hljs-variable">$query</span>) =&gt; <span class="hljs-variable">$query</span>-&gt;<span class="hljs-title function_ invoke__">with</span>(<span class="hljs-string">&#x27;invoices&#x27;</span>))
+    -&gt;<span class="hljs-title function_ invoke__">get</span>();
+</code></pre><p>Since this callback is invoked after the relevant models have already been retrieved from your application&#39;s search engine, the <code>query</code> method should not be used for &quot;filtering&quot; results. Instead, you should use <a href="#where-clauses">Scout where clauses</a>.</p>
+<p><a name="custom-engines"></a></p>
+<h2>Custom Engines</h2>
+<p><a name="writing-the-engine"></a></p>
+<h4>Writing The Engine</h4>
+<p>If one of the built-in Scout search engines doesn&#39;t fit your needs, you may write your own custom engine and register it with Scout. Your engine should extend the <code>Laravel\Scout\Engines\Engine</code> abstract class. This abstract class contains eight methods your custom engine must implement:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Scout</span>\<span class="hljs-title">Builder</span>;
+
+<span class="hljs-keyword">abstract</span> <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">update</span>(<span class="hljs-params"><span class="hljs-variable">$models</span></span>)</span>;
+<span class="hljs-keyword">abstract</span> <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">delete</span>(<span class="hljs-params"><span class="hljs-variable">$models</span></span>)</span>;
+<span class="hljs-keyword">abstract</span> <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">search</span>(<span class="hljs-params">Builder <span class="hljs-variable">$builder</span></span>)</span>;
+<span class="hljs-keyword">abstract</span> <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">paginate</span>(<span class="hljs-params">Builder <span class="hljs-variable">$builder</span>, <span class="hljs-variable">$perPage</span>, <span class="hljs-variable">$page</span></span>)</span>;
+<span class="hljs-keyword">abstract</span> <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">mapIds</span>(<span class="hljs-params"><span class="hljs-variable">$results</span></span>)</span>;
+<span class="hljs-keyword">abstract</span> <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">map</span>(<span class="hljs-params">Builder <span class="hljs-variable">$builder</span>, <span class="hljs-variable">$results</span>, <span class="hljs-variable">$model</span></span>)</span>;
+<span class="hljs-keyword">abstract</span> <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getTotalCount</span>(<span class="hljs-params"><span class="hljs-variable">$results</span></span>)</span>;
+<span class="hljs-keyword">abstract</span> <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">flush</span>(<span class="hljs-params"><span class="hljs-variable">$model</span></span>)</span>;
+</code></pre><p>You may find it helpful to review the implementations of these methods on the <code>Laravel\Scout\Engines\AlgoliaEngine</code> class. This class will provide you with a good starting point for learning how to implement each of these methods in your own engine.</p>
+<p><a name="registering-the-engine"></a></p>
+<h4>Registering The Engine</h4>
+<p>Once you have written your custom engine, you may register it with Scout using the <code>extend</code> method of the Scout engine manager. Scout&#39;s engine manager may be resolved from the Laravel service container. You should call the <code>extend</code> method from the <code>boot</code> method of your <code>App\Providers\AppServiceProvider</code> class or any other service provider used by your application:</p>
+<pre><code><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">ScoutExtensions</span>\<span class="hljs-title">MySqlSearchEngine</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Scout</span>\<span class="hljs-title">EngineManager</span>;
+
+<span class="hljs-comment">/**
+ * Bootstrap any application services.
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+</span>{
+    <span class="hljs-title function_ invoke__">resolve</span>(<span class="hljs-title class_">EngineManager</span>::<span class="hljs-variable language_">class</span>)-&gt;<span class="hljs-title function_ invoke__">extend</span>(<span class="hljs-string">&#x27;mysql&#x27;</span>, function () {
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">MySqlSearchEngine</span>;
+    });
+}
+</code></pre><p>Once your engine has been registered, you may specify it as your default Scout <code>driver</code> in your application&#39;s <code>config/scout.php</code> configuration file:</p>
+<pre><code><span class="hljs-string">&#x27;driver&#x27;</span> =&gt; <span class="hljs-string">&#x27;mysql&#x27;</span>,
+</code></pre>

@@ -1,0 +1,523 @@
+<h1>Prompts</h1>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#available-prompts">Available Prompts</a><ul>
+<li><a href="#text">Text</a></li>
+<li><a href="#password">Password</a></li>
+<li><a href="#confirm">Confirm</a></li>
+<li><a href="#select">Select</a></li>
+<li><a href="#multiselect">Multi-select</a></li>
+<li><a href="#suggest">Suggest</a></li>
+<li><a href="#search">Search</a></li>
+<li><a href="#multisearch">Multi-search</a></li>
+</ul>
+</li>
+<li><a href="#informational-messages">Informational Messages</a></li>
+<li><a href="#tables">Tables</a></li>
+<li><a href="#spin">Spin</a></li>
+<li><a href="#progress">Progress Bar</a></li>
+<li><a href="#terminal-considerations">Terminal Considerations</a></li>
+<li><a href="#fallbacks">Unsupported Environments &amp; Fallbacks</a></li>
+</ul>
+<p><a name="introduction"></a></p>
+<h2>Introduction</h2>
+<p><a href="https://github.com/laravel/prompts">Laravel Prompts</a> is a PHP package for adding beautiful and user-friendly forms to your command-line applications, with browser-like features including placeholder text and validation.</p>
+<img src="https://laravel.com/img/docs/prompts-example.png">
+
+<p>Laravel Prompts is perfect for accepting user input in your <a href="/docs/%7B%7Bversion%7D%7D/artisan#writing-commands">Artisan console commands</a>, but it may also be used in any command-line PHP project.</p>
+<blockquote>
+<p><strong>Note</strong><br>Laravel Prompts supports macOS, Linux, and Windows with WSL. For more information, please see our documentation on <a href="#fallbacks">unsupported environments &amp; fallbacks</a>.</p>
+</blockquote>
+<p><a name="installation"></a></p>
+<h2>Installation</h2>
+<p>Laravel Prompts is already included with the latest release of Laravel.</p>
+<p>Laravel Prompts may also be installed in your other PHP projects by using the Composer package manager:</p>
+<pre><code class="hljs language-shell">composer require laravel/prompts
+</code></pre><p><a name="available-prompts"></a></p>
+<h2>Available Prompts</h2>
+<p><a name="text"></a></p>
+<h3>Text</h3>
+<p>The <code>text</code> function will prompt the user with the given question, accept their input, and then return it:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-keyword">function</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Prompts</span>\<span class="hljs-title">text</span>;
+
+<span class="hljs-variable">$name</span> = <span class="hljs-title function_ invoke__">text</span>(<span class="hljs-string">&#x27;What is your name?&#x27;</span>);
+</code></pre><p>You may also include placeholder text, a default value, and an informational hint:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$name</span> = <span class="hljs-title function_ invoke__">text</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;What is your name?&#x27;</span>,
+    <span class="hljs-attr">placeholder</span>: <span class="hljs-string">&#x27;E.g. Taylor Otwell&#x27;</span>,
+    <span class="hljs-attr">default</span>: <span class="hljs-variable">$user</span>?-&gt;name,
+    <span class="hljs-attr">hint</span>: <span class="hljs-string">&#x27;This will be displayed on your profile.&#x27;</span>
+);
+</code></pre><p><a name="text-required"></a></p>
+<h4>Required Values</h4>
+<p>If you require a value to be entered, you may pass the <code>required</code> argument:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$name</span> = <span class="hljs-title function_ invoke__">text</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;What is your name?&#x27;</span>,
+    <span class="hljs-attr">required</span>: <span class="hljs-literal">true</span>
+);
+</code></pre><p>If you would like to customize the validation message, you may also pass a string:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$name</span> = <span class="hljs-title function_ invoke__">text</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;What is your name?&#x27;</span>,
+    <span class="hljs-attr">required</span>: <span class="hljs-string">&#x27;Your name is required.&#x27;</span>
+);
+</code></pre><p><a name="text-validation"></a></p>
+<h4>Additional Validation</h4>
+<p>Finally, if you would like to perform additional validation logic, you may pass a closure to the <code>validate</code> argument:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$name</span> = <span class="hljs-title function_ invoke__">text</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;What is your name?&#x27;</span>,
+    <span class="hljs-attr">validate</span>: fn (<span class="hljs-keyword">string</span> <span class="hljs-variable">$value</span>) =&gt; <span class="hljs-keyword">match</span> (<span class="hljs-literal">true</span>) {
+        <span class="hljs-title function_ invoke__">strlen</span>(<span class="hljs-variable">$value</span>) &lt; <span class="hljs-number">3</span> =&gt; <span class="hljs-string">&#x27;The name must be at least 3 characters.&#x27;</span>,
+        <span class="hljs-title function_ invoke__">strlen</span>(<span class="hljs-variable">$value</span>) &gt; <span class="hljs-number">255</span> =&gt; <span class="hljs-string">&#x27;The name must not exceed 255 characters.&#x27;</span>,
+        <span class="hljs-keyword">default</span> =&gt; <span class="hljs-literal">null</span>
+    }
+);
+</code></pre><p>The closure will receive the value that has been entered and may return an error message, or <code>null</code> if the validation passes.</p>
+<p><a name="password"></a></p>
+<h3>Password</h3>
+<p>The <code>password</code> function is similar to the <code>text</code> function, but the user&#39;s input will be masked as they type in the console. This is useful when asking for sensitive information such as passwords:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-keyword">function</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Prompts</span>\<span class="hljs-title">password</span>;
+
+<span class="hljs-variable">$password</span> = <span class="hljs-title function_ invoke__">password</span>(<span class="hljs-string">&#x27;What is your password?&#x27;</span>);
+</code></pre><p>You may also include placeholder text and an informational hint:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$password</span> = <span class="hljs-title function_ invoke__">password</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;What is your password?&#x27;</span>,
+    <span class="hljs-attr">placeholder</span>: <span class="hljs-string">&#x27;password&#x27;</span>,
+    <span class="hljs-attr">hint</span>: <span class="hljs-string">&#x27;Minimum 8 characters.&#x27;</span>
+);
+</code></pre><p><a name="password-required"></a></p>
+<h4>Required Values</h4>
+<p>If you require a value to be entered, you may pass the <code>required</code> argument:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$password</span> = <span class="hljs-title function_ invoke__">password</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;What is your password?&#x27;</span>,
+    <span class="hljs-attr">required</span>: <span class="hljs-literal">true</span>
+);
+</code></pre><p>If you would like to customize the validation message, you may also pass a string:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$password</span> = <span class="hljs-title function_ invoke__">password</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;What is your password?&#x27;</span>,
+    <span class="hljs-attr">required</span>: <span class="hljs-string">&#x27;The password is required.&#x27;</span>
+);
+</code></pre><p><a name="password-validation"></a></p>
+<h4>Additional Validation</h4>
+<p>Finally, if you would like to perform additional validation logic, you may pass a closure to the <code>validate</code> argument:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$password</span> = <span class="hljs-title function_ invoke__">password</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;What is your password?&#x27;</span>,
+    <span class="hljs-attr">validate</span>: fn (<span class="hljs-keyword">string</span> <span class="hljs-variable">$value</span>) =&gt; <span class="hljs-keyword">match</span> (<span class="hljs-literal">true</span>) {
+        <span class="hljs-title function_ invoke__">strlen</span>(<span class="hljs-variable">$value</span>) &lt; <span class="hljs-number">8</span> =&gt; <span class="hljs-string">&#x27;The password must be at least 8 characters.&#x27;</span>,
+        <span class="hljs-keyword">default</span> =&gt; <span class="hljs-literal">null</span>
+    }
+);
+</code></pre><p>The closure will receive the value that has been entered and may return an error message, or <code>null</code> if the validation passes.</p>
+<p><a name="confirm"></a></p>
+<h3>Confirm</h3>
+<p>If you need to ask the user for a &quot;yes or no&quot; confirmation, you may use the <code>confirm</code> function. Users may use the arrow keys or press <code>y</code> or <code>n</code> to select their response. This function will return either <code>true</code> or <code>false</code>.</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-keyword">function</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Prompts</span>\<span class="hljs-title">confirm</span>;
+
+<span class="hljs-variable">$confirmed</span> = <span class="hljs-title function_ invoke__">confirm</span>(<span class="hljs-string">&#x27;Do you accept the terms?&#x27;</span>);
+</code></pre><p>You may also include a default value, customized wording for the &quot;Yes&quot; and &quot;No&quot; labels, and an informational hint:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$confirmed</span> = <span class="hljs-title function_ invoke__">confirm</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;Do you accept the terms?&#x27;</span>,
+    <span class="hljs-attr">default</span>: <span class="hljs-literal">false</span>,
+    <span class="hljs-attr">yes</span>: <span class="hljs-string">&#x27;I accept&#x27;</span>,
+    <span class="hljs-attr">no</span>: <span class="hljs-string">&#x27;I decline&#x27;</span>,
+    <span class="hljs-attr">hint</span>: <span class="hljs-string">&#x27;The terms must be accepted to continue.&#x27;</span>
+);
+</code></pre><p><a name="confirm-required"></a></p>
+<h4>Requiring &quot;Yes&quot;</h4>
+<p>If necessary, you may require your users to select &quot;Yes&quot; by passing the <code>required</code> argument:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$confirmed</span> = <span class="hljs-title function_ invoke__">confirm</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;Do you accept the terms?&#x27;</span>,
+    <span class="hljs-attr">required</span>: <span class="hljs-literal">true</span>
+);
+</code></pre><p>If you would like to customize the validation message, you may also pass a string:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$confirmed</span> = <span class="hljs-title function_ invoke__">confirm</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;Do you accept the terms?&#x27;</span>,
+    <span class="hljs-attr">required</span>: <span class="hljs-string">&#x27;You must accept the terms to continue.&#x27;</span>
+);
+</code></pre><p><a name="select"></a></p>
+<h3>Select</h3>
+<p>If you need the user to select from a predefined set of choices, you may use the <code>select</code> function:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-keyword">function</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Prompts</span>\<span class="hljs-title">select</span>;
+
+<span class="hljs-variable">$role</span> = <span class="hljs-title function_ invoke__">select</span>(
+    <span class="hljs-string">&#x27;What role should the user have?&#x27;</span>,
+    [<span class="hljs-string">&#x27;Member&#x27;</span>, <span class="hljs-string">&#x27;Contributor&#x27;</span>, <span class="hljs-string">&#x27;Owner&#x27;</span>],
+);
+</code></pre><p>You may also specify the default choice and an informational hint:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$role</span> = <span class="hljs-title function_ invoke__">select</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;What role should the user have?&#x27;</span>,
+    <span class="hljs-attr">options</span>: [<span class="hljs-string">&#x27;Member&#x27;</span>, <span class="hljs-string">&#x27;Contributor&#x27;</span>, <span class="hljs-string">&#x27;Owner&#x27;</span>],
+    <span class="hljs-attr">default</span>: <span class="hljs-string">&#x27;Owner&#x27;</span>,
+    <span class="hljs-attr">hint</span>: <span class="hljs-string">&#x27;The role may be changed at any time.&#x27;</span>
+);
+</code></pre><p>You may also pass an associative array to the <code>options</code> argument to have the selected key returned instead of its value:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$role</span> = <span class="hljs-title function_ invoke__">select</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;What role should the user have?&#x27;</span>,
+    <span class="hljs-attr">options</span>: [
+        <span class="hljs-string">&#x27;member&#x27;</span> =&gt; <span class="hljs-string">&#x27;Member&#x27;</span>,
+        <span class="hljs-string">&#x27;contributor&#x27;</span> =&gt; <span class="hljs-string">&#x27;Contributor&#x27;</span>,
+        <span class="hljs-string">&#x27;owner&#x27;</span> =&gt; <span class="hljs-string">&#x27;Owner&#x27;</span>
+    ],
+    <span class="hljs-attr">default</span>: <span class="hljs-string">&#x27;owner&#x27;</span>
+);
+</code></pre><p>Up to five options will be displayed before the list begins to scroll. You may customize this by passing the <code>scroll</code> argument:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$role</span> = <span class="hljs-title function_ invoke__">select</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;Which category would you like to assign?&#x27;</span>,
+    <span class="hljs-attr">options</span>: <span class="hljs-title class_">Category</span>::<span class="hljs-title function_ invoke__">pluck</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;id&#x27;</span>),
+    <span class="hljs-attr">scroll</span>: <span class="hljs-number">10</span>
+);
+</code></pre><p><a name="select-validation"></a></p>
+<h4>Validation</h4>
+<p>Unlike other prompt functions, the <code>select</code> function doesn&#39;t accept the <code>required</code> argument because it is not possible to select nothing. However, you may pass a closure to the <code>validate</code> argument if you need to present an option but prevent it from being selected:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$role</span> = <span class="hljs-title function_ invoke__">select</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;What role should the user have?&#x27;</span>,
+    <span class="hljs-attr">options</span>: [
+        <span class="hljs-string">&#x27;member&#x27;</span> =&gt; <span class="hljs-string">&#x27;Member&#x27;</span>,
+        <span class="hljs-string">&#x27;contributor&#x27;</span> =&gt; <span class="hljs-string">&#x27;Contributor&#x27;</span>,
+        <span class="hljs-string">&#x27;owner&#x27;</span> =&gt; <span class="hljs-string">&#x27;Owner&#x27;</span>
+    ],
+    <span class="hljs-attr">validate</span>: fn (<span class="hljs-keyword">string</span> <span class="hljs-variable">$value</span>) =&gt;
+        <span class="hljs-variable">$value</span> === <span class="hljs-string">&#x27;owner&#x27;</span> &amp;&amp; <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;role&#x27;</span>, <span class="hljs-string">&#x27;owner&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">exists</span>()
+            ? <span class="hljs-string">&#x27;An owner already exists.&#x27;</span>
+            : <span class="hljs-literal">null</span>
+);
+</code></pre><p>If the <code>options</code> argument is an associative array, then the closure will receive the selected key, otherwise it will receive the selected value. The closure may return an error message, or <code>null</code> if the validation passes.</p>
+<p><a name="multiselect"></a></p>
+<h3>Multi-select</h3>
+<p>If you need to the user to be able to select multiple options, you may use the <code>multiselect</code> function:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-keyword">function</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Prompts</span>\<span class="hljs-title">multiselect</span>;
+
+<span class="hljs-variable">$permissions</span> = <span class="hljs-title function_ invoke__">multiselect</span>(
+    <span class="hljs-string">&#x27;What permissions should be assigned?&#x27;</span>,
+    [<span class="hljs-string">&#x27;Read&#x27;</span>, <span class="hljs-string">&#x27;Create&#x27;</span>, <span class="hljs-string">&#x27;Update&#x27;</span>, <span class="hljs-string">&#x27;Delete&#x27;</span>]
+);
+</code></pre><p>You may also specify default choices and an informational hint:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-keyword">function</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Prompts</span>\<span class="hljs-title">multiselect</span>;
+
+<span class="hljs-variable">$permissions</span> = <span class="hljs-title function_ invoke__">multiselect</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;What permissions should be assigned?&#x27;</span>,
+    <span class="hljs-attr">options</span>: [<span class="hljs-string">&#x27;Read&#x27;</span>, <span class="hljs-string">&#x27;Create&#x27;</span>, <span class="hljs-string">&#x27;Update&#x27;</span>, <span class="hljs-string">&#x27;Delete&#x27;</span>],
+    <span class="hljs-attr">default</span>: [<span class="hljs-string">&#x27;Read&#x27;</span>, <span class="hljs-string">&#x27;Create&#x27;</span>],
+    <span class="hljs-attr">hint</span>: <span class="hljs-string">&#x27;Permissions may be updated at any time.&#x27;</span>
+);
+</code></pre><p>You may also pass an associative array to the <code>options</code> argument to return the selected options&#39; keys instead of their values:</p>
+<pre><code><span class="hljs-variable">$permissions</span> = <span class="hljs-title function_ invoke__">multiselect</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;What permissions should be assigned?&#x27;</span>,
+    <span class="hljs-attr">options</span>: [
+        <span class="hljs-string">&#x27;read&#x27;</span> =&gt; <span class="hljs-string">&#x27;Read&#x27;</span>,
+        <span class="hljs-string">&#x27;create&#x27;</span> =&gt; <span class="hljs-string">&#x27;Create&#x27;</span>,
+        <span class="hljs-string">&#x27;update&#x27;</span> =&gt; <span class="hljs-string">&#x27;Update&#x27;</span>,
+        <span class="hljs-string">&#x27;delete&#x27;</span> =&gt; <span class="hljs-string">&#x27;Delete&#x27;</span>
+    ],
+    <span class="hljs-attr">default</span>: [<span class="hljs-string">&#x27;read&#x27;</span>, <span class="hljs-string">&#x27;create&#x27;</span>]
+);
+</code></pre><p>Up to five options will be displayed before the list begins to scroll. You may customize this by passing the <code>scroll</code> argument:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$categories</span> = <span class="hljs-title function_ invoke__">multiselect</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;What categories should be assigned?&#x27;</span>,
+    <span class="hljs-attr">options</span>: <span class="hljs-title class_">Category</span>::<span class="hljs-title function_ invoke__">pluck</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;id&#x27;</span>),
+    <span class="hljs-attr">scroll</span>: <span class="hljs-number">10</span>
+);
+</code></pre><p><a name="multiselect-required"></a></p>
+<h4>Requiring a Value</h4>
+<p>By default, the user may select zero or more options. You may pass the <code>required</code> argument to enforce one or more options instead:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$categories</span> = <span class="hljs-title function_ invoke__">multiselect</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;What categories should be assigned?&#x27;</span>,
+    <span class="hljs-attr">options</span>: <span class="hljs-title class_">Category</span>::<span class="hljs-title function_ invoke__">pluck</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;id&#x27;</span>),
+    <span class="hljs-attr">required</span>: <span class="hljs-literal">true</span>,
+);
+</code></pre><p>If you would like to customize the validation message, you may provide a string to the <code>required</code> argument:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$categories</span> = <span class="hljs-title function_ invoke__">multiselect</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;What categories should be assigned?&#x27;</span>,
+    <span class="hljs-attr">options</span>: <span class="hljs-title class_">Category</span>::<span class="hljs-title function_ invoke__">pluck</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;id&#x27;</span>),
+    <span class="hljs-attr">required</span>: <span class="hljs-string">&#x27;You must select at least one category&#x27;</span>,
+);
+</code></pre><p><a name="multiselect-validation"></a></p>
+<h4>Validation</h4>
+<p>You may pass a closure to the <code>validate</code> argument if you need to present an option but prevent it from being selected:</p>
+<pre><code><span class="hljs-variable">$permissions</span> = <span class="hljs-title function_ invoke__">select</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;What permissions should the user have?&#x27;</span>,
+    <span class="hljs-attr">options</span>: [
+        <span class="hljs-string">&#x27;read&#x27;</span> =&gt; <span class="hljs-string">&#x27;Read&#x27;</span>,
+        <span class="hljs-string">&#x27;create&#x27;</span> =&gt; <span class="hljs-string">&#x27;Create&#x27;</span>,
+        <span class="hljs-string">&#x27;update&#x27;</span> =&gt; <span class="hljs-string">&#x27;Update&#x27;</span>,
+        <span class="hljs-string">&#x27;delete&#x27;</span> =&gt; <span class="hljs-string">&#x27;Delete&#x27;</span>
+    ],
+    <span class="hljs-attr">validate</span>: fn (<span class="hljs-keyword">array</span> <span class="hljs-variable">$values</span>) =&gt; ! <span class="hljs-title function_ invoke__">in_array</span>(<span class="hljs-string">&#x27;read&#x27;</span>, <span class="hljs-variable">$values</span>)
+        ? <span class="hljs-string">&#x27;All users require the read permission.&#x27;</span>
+        : <span class="hljs-literal">null</span>
+);
+</code></pre><p>If the <code>options</code> argument is an associative array then the closure will receive the selected keys, otherwise it will receive the selected values. The closure may return an error message, or <code>null</code> if the validation passes.</p>
+<p><a name="suggest"></a></p>
+<h3>Suggest</h3>
+<p>The <code>suggest</code> function can be used to provide auto-completion for possible choices. The user can still provide any answer, regardless of the auto-completion hints:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-keyword">function</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Prompts</span>\<span class="hljs-title">suggest</span>;
+
+<span class="hljs-variable">$name</span> = <span class="hljs-title function_ invoke__">suggest</span>(<span class="hljs-string">&#x27;What is your name?&#x27;</span>, [<span class="hljs-string">&#x27;Taylor&#x27;</span>, <span class="hljs-string">&#x27;Dayle&#x27;</span>]);
+</code></pre><p>Alternatively, you may pass a closure as the second argument to the <code>suggest</code> function. The closure will be called each time the user types an input character. The closure should accept a string parameter containing the user&#39;s input so far and return an array of options for auto-completion:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$name</span> = <span class="hljs-title function_ invoke__">suggest</span>(
+    <span class="hljs-string">&#x27;What is your name?&#x27;</span>,
+    fn (<span class="hljs-variable">$value</span>) =&gt; <span class="hljs-title function_ invoke__">collect</span>([<span class="hljs-string">&#x27;Taylor&#x27;</span>, <span class="hljs-string">&#x27;Dayle&#x27;</span>])
+        -&gt;<span class="hljs-title function_ invoke__">filter</span>(fn (<span class="hljs-variable">$name</span>) =&gt; <span class="hljs-title class_">Str</span>::<span class="hljs-title function_ invoke__">contains</span>(<span class="hljs-variable">$name</span>, <span class="hljs-variable">$value</span>, <span class="hljs-attr">ignoreCase</span>: <span class="hljs-literal">true</span>))
+)
+</code></pre><p>You may also include placeholder text, a default value, and an informational hint:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$name</span> = <span class="hljs-title function_ invoke__">suggest</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;What is your name?&#x27;</span>,
+    <span class="hljs-attr">options</span>: [<span class="hljs-string">&#x27;Taylor&#x27;</span>, <span class="hljs-string">&#x27;Dayle&#x27;</span>],
+    <span class="hljs-attr">placeholder</span>: <span class="hljs-string">&#x27;E.g. Taylor&#x27;</span>,
+    <span class="hljs-attr">default</span>: <span class="hljs-variable">$user</span>?-&gt;name,
+    <span class="hljs-attr">hint</span>: <span class="hljs-string">&#x27;This will be displayed on your profile.&#x27;</span>
+);
+</code></pre><p><a name="suggest-required"></a></p>
+<h4>Required Values</h4>
+<p>If you require a value to be entered, you may pass the <code>required</code> argument:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$name</span> = <span class="hljs-title function_ invoke__">suggest</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;What is your name?&#x27;</span>,
+    <span class="hljs-attr">options</span>: [<span class="hljs-string">&#x27;Taylor&#x27;</span>, <span class="hljs-string">&#x27;Dayle&#x27;</span>],
+    <span class="hljs-attr">required</span>: <span class="hljs-literal">true</span>
+);
+</code></pre><p>If you would like to customize the validation message, you may also pass a string:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$name</span> = <span class="hljs-title function_ invoke__">suggest</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;What is your name?&#x27;</span>,
+    <span class="hljs-attr">options</span>: [<span class="hljs-string">&#x27;Taylor&#x27;</span>, <span class="hljs-string">&#x27;Dayle&#x27;</span>],
+    <span class="hljs-attr">required</span>: <span class="hljs-string">&#x27;Your name is required.&#x27;</span>
+);
+</code></pre><p><a name="suggest-validation"></a></p>
+<h4>Additional Validation</h4>
+<p>Finally, if you would like to perform additional validation logic, you may pass a closure to the <code>validate</code> argument:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$name</span> = <span class="hljs-title function_ invoke__">suggest</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;What is your name?&#x27;</span>,
+    <span class="hljs-attr">options</span>: [<span class="hljs-string">&#x27;Taylor&#x27;</span>, <span class="hljs-string">&#x27;Dayle&#x27;</span>],
+    <span class="hljs-attr">validate</span>: fn (<span class="hljs-keyword">string</span> <span class="hljs-variable">$value</span>) =&gt; <span class="hljs-keyword">match</span> (<span class="hljs-literal">true</span>) {
+        <span class="hljs-title function_ invoke__">strlen</span>(<span class="hljs-variable">$value</span>) &lt; <span class="hljs-number">3</span> =&gt; <span class="hljs-string">&#x27;The name must be at least 3 characters.&#x27;</span>,
+        <span class="hljs-title function_ invoke__">strlen</span>(<span class="hljs-variable">$value</span>) &gt; <span class="hljs-number">255</span> =&gt; <span class="hljs-string">&#x27;The name must not exceed 255 characters.&#x27;</span>,
+        <span class="hljs-keyword">default</span> =&gt; <span class="hljs-literal">null</span>
+    }
+);
+</code></pre><p>The closure will receive the value that has been entered and may return an error message, or <code>null</code> if the validation passes.</p>
+<p><a name="search"></a></p>
+<h3>Search</h3>
+<p>If you have a lot of options for the user to select from, the <code>search</code> function allows the user to type a search query to filter the results before using the arrow keys to select an option:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-keyword">function</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Prompts</span>\<span class="hljs-title">search</span>;
+
+<span class="hljs-variable">$id</span> = <span class="hljs-title function_ invoke__">search</span>(
+    <span class="hljs-string">&#x27;Search for the user that should receive the mail&#x27;</span>,
+    fn (<span class="hljs-keyword">string</span> <span class="hljs-variable">$value</span>) =&gt; <span class="hljs-title function_ invoke__">strlen</span>(<span class="hljs-variable">$value</span>) &gt; <span class="hljs-number">0</span>
+        ? <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;like&#x27;</span>, <span class="hljs-string">&quot;%<span class="hljs-subst">{$value}</span>%&quot;</span>)-&gt;<span class="hljs-title function_ invoke__">pluck</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;id&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">all</span>()
+        : []
+);
+</code></pre><p>The closure will receive the text that has been typed by the user so far and must return an array of options. If you return an associative array then the selected option&#39;s key will be returned, otherwise its value will be returned instead.</p>
+<p>You may also include placeholder text and an informational hint:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$id</span> = <span class="hljs-title function_ invoke__">search</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;Search for the user that should receive the mail&#x27;</span>,
+    <span class="hljs-attr">placeholder</span>: <span class="hljs-string">&#x27;E.g. Taylor Otwell&#x27;</span>,
+    <span class="hljs-attr">options</span>: fn (<span class="hljs-keyword">string</span> <span class="hljs-variable">$value</span>) =&gt; <span class="hljs-title function_ invoke__">strlen</span>(<span class="hljs-variable">$value</span>) &gt; <span class="hljs-number">0</span>
+        ? <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;like&#x27;</span>, <span class="hljs-string">&quot;%<span class="hljs-subst">{$value}</span>%&quot;</span>)-&gt;<span class="hljs-title function_ invoke__">pluck</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;id&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">all</span>()
+        : [],
+    hint: <span class="hljs-string">&#x27;The user will receive an email immediately.&#x27;</span>
+);
+</code></pre><p>Up to five options will be displayed before the list begins to scroll. You may customize this by passing the <code>scroll</code> argument:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$id</span> = <span class="hljs-title function_ invoke__">search</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;Search for the user that should receive the mail&#x27;</span>,
+    <span class="hljs-attr">options</span>: fn (<span class="hljs-keyword">string</span> <span class="hljs-variable">$value</span>) =&gt; <span class="hljs-title function_ invoke__">strlen</span>(<span class="hljs-variable">$value</span>) &gt; <span class="hljs-number">0</span>
+        ? <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;like&#x27;</span>, <span class="hljs-string">&quot;%<span class="hljs-subst">{$value}</span>%&quot;</span>)-&gt;<span class="hljs-title function_ invoke__">pluck</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;id&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">all</span>()
+        : [],
+    scroll: <span class="hljs-number">10</span>
+);
+</code></pre><p><a name="search-validation"></a></p>
+<h4>Validation</h4>
+<p>If you would like to perform additional validation logic, you may pass a closure to the <code>validate</code> argument:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$id</span> = <span class="hljs-title function_ invoke__">search</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;Search for the user that should receive the mail&#x27;</span>,
+    <span class="hljs-attr">options</span>: fn (<span class="hljs-keyword">string</span> <span class="hljs-variable">$value</span>) =&gt; <span class="hljs-title function_ invoke__">strlen</span>(<span class="hljs-variable">$value</span>) &gt; <span class="hljs-number">0</span>
+        ? <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;like&#x27;</span>, <span class="hljs-string">&quot;%<span class="hljs-subst">{$value}</span>%&quot;</span>)-&gt;<span class="hljs-title function_ invoke__">pluck</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;id&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">all</span>()
+        : [],
+    validate: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"><span class="hljs-keyword">int</span>|<span class="hljs-keyword">string</span> <span class="hljs-variable">$value</span></span>) </span>{
+        <span class="hljs-variable">$user</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">findOrFail</span>(<span class="hljs-variable">$value</span>);
+
+        <span class="hljs-keyword">if</span> (<span class="hljs-variable">$user</span>-&gt;opted_out) {
+            <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;This user has opted-out of receiving mail.&#x27;</span>;
+        }
+    }
+);
+</code></pre><p>If the <code>options</code> closure returns an associative array, then the closure will receive the selected key, otherwise, it will receive the selected value. The closure may return an error message, or <code>null</code> if the validation passes.</p>
+<p><a name="multisearch"></a></p>
+<h3>Multi-search</h3>
+<p>If you have a lot of searchable options and need the user to be able to select multiple items, the <code>multisearch</code> function allows the user to type a search query to filter the results before using the arrow keys and space-bar to select options:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-keyword">function</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Prompts</span>\<span class="hljs-title">multisearch</span>;
+
+<span class="hljs-variable">$ids</span> = <span class="hljs-title function_ invoke__">multisearch</span>(
+    <span class="hljs-string">&#x27;Search for the users that should receive the mail&#x27;</span>,
+    fn (<span class="hljs-keyword">string</span> <span class="hljs-variable">$value</span>) =&gt; <span class="hljs-title function_ invoke__">strlen</span>(<span class="hljs-variable">$value</span>) &gt; <span class="hljs-number">0</span>
+        ? <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;like&#x27;</span>, <span class="hljs-string">&quot;%<span class="hljs-subst">{$value}</span>%&quot;</span>)-&gt;<span class="hljs-title function_ invoke__">pluck</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;id&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">all</span>()
+        : []
+);
+</code></pre><p>The closure will receive the text that has been typed by the user so far and must return an array of options. If you return an associative array then the selected options&#39; keys will be returned; otherwise, their values will be returned instead.</p>
+<p>You may also include placeholder text and an informational hint:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$ids</span> = <span class="hljs-title function_ invoke__">multisearch</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;Search for the users that should receive the mail&#x27;</span>,
+    <span class="hljs-attr">placeholder</span>: <span class="hljs-string">&#x27;E.g. Taylor Otwell&#x27;</span>,
+    <span class="hljs-attr">options</span>: fn (<span class="hljs-keyword">string</span> <span class="hljs-variable">$value</span>) =&gt; <span class="hljs-title function_ invoke__">strlen</span>(<span class="hljs-variable">$value</span>) &gt; <span class="hljs-number">0</span>
+        ? <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;like&#x27;</span>, <span class="hljs-string">&quot;%<span class="hljs-subst">{$value}</span>%&quot;</span>)-&gt;<span class="hljs-title function_ invoke__">pluck</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;id&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">all</span>()
+        : [],
+    hint: <span class="hljs-string">&#x27;The user will receive an email immediately.&#x27;</span>
+);
+</code></pre><p>Up to five options will be displayed before the list begins to scroll. You may customize this by providing the <code>scroll</code> argument:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$ids</span> = <span class="hljs-title function_ invoke__">multisearch</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;Search for the users that should receive the mail&#x27;</span>,
+    <span class="hljs-attr">options</span>: fn (<span class="hljs-keyword">string</span> <span class="hljs-variable">$value</span>) =&gt; <span class="hljs-title function_ invoke__">strlen</span>(<span class="hljs-variable">$value</span>) &gt; <span class="hljs-number">0</span>
+        ? <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;like&#x27;</span>, <span class="hljs-string">&quot;%<span class="hljs-subst">{$value}</span>%&quot;</span>)-&gt;<span class="hljs-title function_ invoke__">pluck</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;id&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">all</span>()
+        : [],
+    scroll: <span class="hljs-number">10</span>
+);
+</code></pre><p><a name="multisearch-required"></a></p>
+<h4>Requiring a Value</h4>
+<p>By default, the user may select zero or more options. You may pass the <code>required</code> argument to enforce one or more options instead:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$ids</span> = <span class="hljs-title function_ invoke__">multisearch</span>(
+    <span class="hljs-string">&#x27;Search for the users that should receive the mail&#x27;</span>,
+    fn (<span class="hljs-keyword">string</span> <span class="hljs-variable">$value</span>) =&gt; <span class="hljs-title function_ invoke__">strlen</span>(<span class="hljs-variable">$value</span>) &gt; <span class="hljs-number">0</span>
+        ? <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;like&#x27;</span>, <span class="hljs-string">&quot;%<span class="hljs-subst">{$value}</span>%&quot;</span>)-&gt;<span class="hljs-title function_ invoke__">pluck</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;id&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">all</span>()
+        : [],
+    required: <span class="hljs-literal">true</span>,
+);
+</code></pre><p>If you would like to customize the validation message, you may also provide a string to the <code>required</code> argument:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$ids</span> = <span class="hljs-title function_ invoke__">multisearch</span>(
+    <span class="hljs-string">&#x27;Search for the users that should receive the mail&#x27;</span>,
+    fn (<span class="hljs-keyword">string</span> <span class="hljs-variable">$value</span>) =&gt; <span class="hljs-title function_ invoke__">strlen</span>(<span class="hljs-variable">$value</span>) &gt; <span class="hljs-number">0</span>
+        ? <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;like&#x27;</span>, <span class="hljs-string">&quot;%<span class="hljs-subst">{$value}</span>%&quot;</span>)-&gt;<span class="hljs-title function_ invoke__">pluck</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;id&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">all</span>()
+        : [],
+    required: <span class="hljs-string">&#x27;You must select at least one user.&#x27;</span>
+);
+</code></pre><p><a name="multisearch-validation"></a></p>
+<h4>Validation</h4>
+<p>If you would like to perform additional validation logic, you may pass a closure to the <code>validate</code> argument:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$ids</span> = <span class="hljs-title function_ invoke__">multisearch</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;Search for the users that should receive the mail&#x27;</span>,
+    <span class="hljs-attr">options</span>: fn (<span class="hljs-keyword">string</span> <span class="hljs-variable">$value</span>) =&gt; <span class="hljs-title function_ invoke__">strlen</span>(<span class="hljs-variable">$value</span>) &gt; <span class="hljs-number">0</span>
+        ? <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;like&#x27;</span>, <span class="hljs-string">&quot;%<span class="hljs-subst">{$value}</span>%&quot;</span>)-&gt;<span class="hljs-title function_ invoke__">pluck</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;id&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">all</span>()
+        : [],
+    validate: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"><span class="hljs-keyword">array</span> <span class="hljs-variable">$values</span></span>) </span>{
+        <span class="hljs-variable">$optedOut</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;like&#x27;</span>, <span class="hljs-string">&#x27;%a%&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">findMany</span>(<span class="hljs-variable">$values</span>);
+
+        <span class="hljs-keyword">if</span> (<span class="hljs-variable">$optedOut</span>-&gt;<span class="hljs-title function_ invoke__">isNotEmpty</span>()) {
+            <span class="hljs-keyword">return</span> <span class="hljs-variable">$optedOut</span>-&gt;<span class="hljs-title function_ invoke__">pluck</span>(<span class="hljs-string">&#x27;name&#x27;</span>)-&gt;<span class="hljs-title function_ invoke__">join</span>(<span class="hljs-string">&#x27;, &#x27;</span>, <span class="hljs-string">&#x27;, and &#x27;</span>).<span class="hljs-string">&#x27; have opted out.&#x27;</span>;
+        }
+    }
+);
+</code></pre><p>If the <code>options</code> closure returns an associative array, then the closure will receive the selected keys; otherwise, it will receive the selected values. The closure may return an error message, or <code>null</code> if the validation passes.</p>
+<p><a name="informational-messages"></a></p>
+<h3>Informational Messages</h3>
+<p>The <code>note</code>, <code>info</code>, <code>warning</code>, <code>error</code>, and <code>alert</code> functions may be used to display informational messages:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-keyword">function</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Prompts</span>\<span class="hljs-title">info</span>;
+
+<span class="hljs-title function_ invoke__">info</span>(<span class="hljs-string">&#x27;Package installed successfully.&#x27;</span>);
+</code></pre><p><a name="tables"></a></p>
+<h3>Tables</h3>
+<p>The <code>table</code> function makes it easy to display multiple rows and columns of data. All you need to do is provide the column names and the data for the table:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-keyword">function</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Prompts</span>\<span class="hljs-title">table</span>;
+
+<span class="hljs-title function_ invoke__">table</span>(
+    [<span class="hljs-string">&#x27;Name&#x27;</span>, <span class="hljs-string">&#x27;Email&#x27;</span>],
+    <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">all</span>([<span class="hljs-string">&#x27;name&#x27;</span>, <span class="hljs-string">&#x27;email&#x27;</span>])
+);
+</code></pre><p><a name="spin"></a></p>
+<h3>Spin</h3>
+<p>The <code>spin</code> function displays a spinner along with an optional message while executing a specified callback. It serves to indicate ongoing processes and returns the callback&#39;s results upon completion:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-keyword">function</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Prompts</span>\<span class="hljs-title">spin</span>;
+
+<span class="hljs-variable">$response</span> = <span class="hljs-title function_ invoke__">spin</span>(
+    fn () =&gt; <span class="hljs-title class_">Http</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;http://example.com&#x27;</span>),
+    <span class="hljs-string">&#x27;Fetching response...&#x27;</span>
+);
+</code></pre><blockquote>
+<p><strong>Warning</strong><br>The <code>spin</code> function requires the <code>pcntl</code> PHP extension to animate the spinner. When this extension is not available, a static version of the spinner will appear instead.</p>
+</blockquote>
+<p><a name="progress"></a></p>
+<h2>Progress Bars</h2>
+<p>For long running tasks, it can be helpful to show a progress bar that informs users how complete the task is. Using the <code>progress</code> function, Laravel will display a progress bar and advance its progress for each iteration over a given iterable value:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-keyword">function</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Prompts</span>\<span class="hljs-title">progress</span>;
+
+<span class="hljs-variable">$users</span> = <span class="hljs-title function_ invoke__">progress</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;Updating users&#x27;</span>,
+    <span class="hljs-attr">steps</span>: <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">all</span>(),
+    <span class="hljs-attr">callback</span>: fn (<span class="hljs-variable">$user</span>) =&gt; <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">performTask</span>(<span class="hljs-variable">$user</span>),
+);
+</code></pre><p>The <code>progress</code> function acts like a map function and will return an array containing the return value of each iteration of your callback.</p>
+<p>The callback may also accept the <code>\Laravel\Prompts\Progress</code> instance, allowing you to modify the label and hint on each iteration:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$users</span> = <span class="hljs-title function_ invoke__">progress</span>(
+    <span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;Updating users&#x27;</span>,
+    <span class="hljs-attr">steps</span>: <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">all</span>(),
+    <span class="hljs-attr">callback</span>: function (<span class="hljs-variable">$user</span>, <span class="hljs-variable">$progress</span>) {
+        <span class="hljs-variable">$progress</span>
+            -&gt;<span class="hljs-title function_ invoke__">label</span>(<span class="hljs-string">&quot;Updating <span class="hljs-subst">{$user-&gt;name}</span>&quot;</span>)
+            -&gt;<span class="hljs-title function_ invoke__">hint</span>(<span class="hljs-string">&quot;Created on <span class="hljs-subst">{$user-&gt;created_at}</span>&quot;</span>);
+
+        <span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">performTask</span>(<span class="hljs-variable">$user</span>);
+    },
+    hint: <span class="hljs-string">&#x27;This may take some time.&#x27;</span>,
+);
+</code></pre><p>Sometimes, you may need more manual control over how a progress bar is advanced. First, define the total number of steps the process will iterate through. Then, advance the progress bar via the <code>advance</code> method after processing each item:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$progress</span> = <span class="hljs-title function_ invoke__">progress</span>(<span class="hljs-attr">label</span>: <span class="hljs-string">&#x27;Updating users&#x27;</span>, <span class="hljs-attr">steps</span>: <span class="hljs-number">10</span>);
+
+<span class="hljs-variable">$users</span> = <span class="hljs-title class_">User</span>::<span class="hljs-title function_ invoke__">all</span>();
+
+<span class="hljs-variable">$progress</span>-&gt;<span class="hljs-title function_ invoke__">start</span>();
+
+<span class="hljs-keyword">foreach</span> (<span class="hljs-variable">$users</span> <span class="hljs-keyword">as</span> <span class="hljs-variable">$user</span>) {
+    <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">performTask</span>(<span class="hljs-variable">$user</span>);
+
+    <span class="hljs-variable">$progress</span>-&gt;<span class="hljs-title function_ invoke__">advance</span>();
+}
+
+<span class="hljs-variable">$progress</span>-&gt;<span class="hljs-title function_ invoke__">finish</span>();
+</code></pre><p><a name="terminal-considerations"></a></p>
+<h3>Terminal Considerations</h3>
+<p><a name="terminal-width"></a></p>
+<h4>Terminal Width</h4>
+<p>If the length of any label, option, or validation message exceeds the number of &quot;columns&quot; in the user&#39;s terminal, it will be automatically truncated to fit. Consider minimizing the length of these strings if your users may be using narrower terminals. A typically safe maximum length is 74 characters to support an 80-character terminal.</p>
+<p><a name="terminal-height"></a></p>
+<h4>Terminal Height</h4>
+<p>For any prompts that accept the <code>scroll</code> argument, the configured value will automatically be reduced to fit the height of the user&#39;s terminal, including space for a validation message.</p>
+<p><a name="fallbacks"></a></p>
+<h3>Unsupported Environments &amp; Fallbacks</h3>
+<p>Laravel Prompts supports macOS, Linux, and Windows with WSL. Due to limitations in the Windows version of PHP, it is not currently possible to use Laravel Prompts on Windows outside of WSL.</p>
+<p>For this reason, Laravel Prompts supports falling back to an alternative implementation such as the <a href="https://symfony.com/doc/current/components/console/helpers/questionhelper.html">Symfony Console Question Helper</a>.</p>
+<blockquote>
+<p><strong>Note</strong><br>When using Laravel Prompts with the Laravel framework, fallbacks for each prompt have been configured for you and will be automatically enabled in unsupported environments.</p>
+</blockquote>
+<p><a name="fallback-conditions"></a></p>
+<h4>Fallback Conditions</h4>
+<p>If you are not using Laravel or need to customize when the fallback behavior is used, you may pass a boolean to the <code>fallbackWhen</code> static method on the <code>Prompt</code> class:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Prompts</span>\<span class="hljs-title">Prompt</span>;
+
+<span class="hljs-title class_">Prompt</span>::<span class="hljs-title function_ invoke__">fallbackWhen</span>(
+    ! <span class="hljs-variable">$input</span>-&gt;<span class="hljs-title function_ invoke__">isInteractive</span>() || <span class="hljs-title function_ invoke__">windows_os</span>() || <span class="hljs-title function_ invoke__">app</span>()-&gt;<span class="hljs-title function_ invoke__">runningUnitTests</span>()
+);
+</code></pre><p><a name="fallback-behavior"></a></p>
+<h4>Fallback Behavior</h4>
+<p>If you are not using Laravel or need to customize the fallback behavior, you may pass a closure to the <code>fallbackUsing</code> static method on each prompt class:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Prompts</span>\<span class="hljs-title">TextPrompt</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Symfony</span>\<span class="hljs-title">Component</span>\<span class="hljs-title">Console</span>\<span class="hljs-title">Question</span>\<span class="hljs-title">Question</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Symfony</span>\<span class="hljs-title">Component</span>\<span class="hljs-title">Console</span>\<span class="hljs-title">Style</span>\<span class="hljs-title">SymfonyStyle</span>;
+
+<span class="hljs-title class_">TextPrompt</span>::<span class="hljs-title function_ invoke__">fallbackUsing</span>(function (TextPrompt <span class="hljs-variable">$prompt</span>) <span class="hljs-keyword">use</span> ($<span class="hljs-title">input</span>, $<span class="hljs-title">output</span>) {
+    $<span class="hljs-title">question</span> = (<span class="hljs-title">new</span> <span class="hljs-title">Question</span>($<span class="hljs-title">prompt</span>-&gt;<span class="hljs-title">label</span>, $<span class="hljs-title">prompt</span>-&gt;<span class="hljs-title">default</span> ?: <span class="hljs-title">null</span>))
+        -&gt;<span class="hljs-title">setValidator</span>(<span class="hljs-keyword">function</span> ($<span class="hljs-title">answer</span>) <span class="hljs-title">use</span> ($<span class="hljs-title">prompt</span>) {
+            <span class="hljs-title">if</span> ($<span class="hljs-title">prompt</span>-&gt;<span class="hljs-title">required</span> &amp;&amp; $<span class="hljs-title">answer</span> === <span class="hljs-title">null</span>) {
+                <span class="hljs-title">throw</span> <span class="hljs-title">new</span> \<span class="hljs-title">RuntimeException</span>(<span class="hljs-title">is_string</span>($<span class="hljs-title">prompt</span>-&gt;<span class="hljs-title">required</span>) ? $<span class="hljs-title">prompt</span>-&gt;<span class="hljs-title">required</span> : &#x27;<span class="hljs-title">Required</span>.&#x27;);
+            }
+
+            <span class="hljs-keyword">if</span> (<span class="hljs-variable">$prompt</span>-&gt;validate) {
+                <span class="hljs-variable">$error</span> = (<span class="hljs-variable">$prompt</span>-&gt;validate)(<span class="hljs-variable">$answer</span> ?? <span class="hljs-string">&#x27;&#x27;</span>);
+
+                <span class="hljs-keyword">if</span> (<span class="hljs-variable">$error</span>) {
+                    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">\RuntimeException</span>(<span class="hljs-variable">$error</span>);
+                }
+            }
+
+            <span class="hljs-keyword">return</span> <span class="hljs-variable">$answer</span>;
+        });
+
+    <span class="hljs-keyword">return</span> (<span class="hljs-keyword">new</span> <span class="hljs-title class_">SymfonyStyle</span>(<span class="hljs-variable">$input</span>, <span class="hljs-variable">$output</span>))
+        -&gt;<span class="hljs-title function_ invoke__">askQuestion</span>(<span class="hljs-variable">$question</span>);
+});
+</code></pre><p>Fallbacks must be configured individually for each prompt class. The closure will receive an instance of the prompt class and must return an appropriate type for the prompt.</p>

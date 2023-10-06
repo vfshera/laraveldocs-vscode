@@ -8,7 +8,7 @@
     "name": "Franlin Shera"
   },
   "license": "GPL-3.0",
-  "version": "1.8.0",
+  "version": "2.0.0",
   "homepage": "https://github.com/vfshera/laraveldocs-vscode",
   "bugs": "https://github.com/vfshera/laraveldocs-vscode/issues",
   "repository": {
@@ -53,7 +53,7 @@
     }
   },
   "scripts": {
-    "docs:generate": "pnpm run compile && node dist/generator/Generator.js",
+    "docs:generate": "node dist/generator/Generator.js",
     "vscode:prepublish": "pnpm run compile",
     "compile": "tsc -p ./",
     "pretest": "pnpm run compile && pnpm run lint",
@@ -63,7 +63,7 @@
     "install:all": "pnpm install && cd webview-ui && pnpm install",
     "start:webview": "cd webview-ui && pnpm run dev",
     "build:webview": "cd webview-ui && pnpm run build",
-    "build:all": "pnpm run build:webview && pnpm run compile"
+    "build:all": "pnpm run build:webview && pnpm run compile && pnpm run docs:generate"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.2",

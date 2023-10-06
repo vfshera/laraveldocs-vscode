@@ -1,0 +1,720 @@
+<h1>Laravel Pennant</h1>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#configuration">Configuration</a></li>
+<li><a href="#defining-features">Defining Features</a><ul>
+<li><a href="#class-based-features">Class Based Features</a></li>
+</ul>
+</li>
+<li><a href="#checking-features">Checking Features</a><ul>
+<li><a href="#conditional-execution">Conditional Execution</a></li>
+<li><a href="#the-has-features-trait">The <code>HasFeatures</code> Trait</a></li>
+<li><a href="#blade-directive">Blade Directive</a></li>
+<li><a href="#middleware">Middleware</a></li>
+<li><a href="#in-memory-cache">In-Memory Cache</a></li>
+</ul>
+</li>
+<li><a href="#scope">Scope</a><ul>
+<li><a href="#specifying-the-scope">Specifying The Scope</a></li>
+<li><a href="#default-scope">Default Scope</a></li>
+<li><a href="#nullable-scope">Nullable Scope</a></li>
+<li><a href="#identifying-scope">Identifying Scope</a></li>
+<li><a href="#serializing-scope">Serializing Scope</a></li>
+</ul>
+</li>
+<li><a href="#rich-feature-values">Rich Feature Values</a></li>
+<li><a href="#retrieving-multiple-features">Retrieving Multiple Features</a></li>
+<li><a href="#eager-loading">Eager Loading</a></li>
+<li><a href="#updating-values">Updating Values</a><ul>
+<li><a href="#bulk-updates">Bulk Updates</a></li>
+<li><a href="#purging-features">Purging Features</a></li>
+</ul>
+</li>
+<li><a href="#testing">Testing</a></li>
+<li><a href="#adding-custom-pennant-drivers">Adding Custom Pennant Drivers</a><ul>
+<li><a href="#implementing-the-driver">Implementing The Driver</a></li>
+<li><a href="#registering-the-driver">Registering The Driver</a></li>
+</ul>
+</li>
+<li><a href="#events">Events</a></li>
+</ul>
+<p><a name="introduction"></a></p>
+<h2>Introduction</h2>
+<p><a href="https://github.com/laravel/pennant">Laravel Pennant</a> is a simple and light-weight feature flag package - without the cruft. Feature flags enable you to incrementally roll out new application features with confidence, A/B test new interface designs, complement a trunk-based development strategy, and much more.</p>
+<p><a name="installation"></a></p>
+<h2>Installation</h2>
+<p>First, install Pennant into your project using the Composer package manager:</p>
+<pre><code class="hljs language-shell">composer require laravel/pennant
+</code></pre><p>Next, you should publish the Pennant configuration and migration files using the <code>vendor:publish</code> Artisan command:</p>
+<pre><code class="hljs language-shell">php artisan vendor:publish --provider=&quot;Laravel\Pennant\PennantServiceProvider&quot;
+</code></pre><p>Finally, you should run your application&#39;s database migrations. This will create a <code>features</code> table that Pennant uses to power its <code>database</code> driver:</p>
+<pre><code class="hljs language-shell">php artisan migrate
+</code></pre><p><a name="configuration"></a></p>
+<h2>Configuration</h2>
+<p>After publishing Pennant&#39;s assets, its configuration file will be located at <code>config/pennant.php</code>. This configuration file allows you to specify the default storage mechanism that will be used by Pennant to store resolved feature flag values.</p>
+<p>Pennant includes support for storing resolved feature flag values in an in-memory array via the <code>array</code> driver. Or, Pennant can store resolved feature flag values persistently in a relational database via the <code>database</code> driver, which is the default storage mechanism used by Pennant.</p>
+<p><a name="defining-features"></a></p>
+<h2>Defining Features</h2>
+<p>To define a feature, you may use the <code>define</code> method offered by the <code>Feature</code> facade. You will need to provide a name for the feature, as well as a closure that will be invoked to resolve the feature&#39;s initial value.</p>
+<p>Typically, features are defined in a service provider using the <code>Feature</code> facade. The closure will receive the &quot;scope&quot; for the feature check. Most commonly, the scope is the currently authenticated user. In this example, we will define a feature for incrementally rolling out a new API to our application&#39;s users:</p>
+<pre><code class="hljs language-php"><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Providers</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Lottery</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">ServiceProvider</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Pennant</span>\<span class="hljs-title">Feature</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AppServiceProvider</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">ServiceProvider</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Bootstrap any application services.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+    </span>{
+        <span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">define</span>(<span class="hljs-string">&#x27;new-api&#x27;</span>, fn (User <span class="hljs-variable">$user</span>) =&gt; <span class="hljs-keyword">match</span> (<span class="hljs-literal">true</span>) {
+            <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">isInternalTeamMember</span>() =&gt; <span class="hljs-literal">true</span>,
+            <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">isHighTrafficCustomer</span>() =&gt; <span class="hljs-literal">false</span>,
+            <span class="hljs-keyword">default</span> =&gt; <span class="hljs-title class_">Lottery</span>::<span class="hljs-title function_ invoke__">odds</span>(<span class="hljs-number">1</span> / <span class="hljs-number">100</span>),
+        });
+    }
+}
+</code></pre><p>As you can see, we have the following rules for our feature:</p>
+<ul>
+<li>All internal team members should be using the new API.</li>
+<li>Any high traffic customers should not be using the new API.</li>
+<li>Otherwise, the feature should be randomly assigned to users with a 1 in 100 chance of being active.</li>
+</ul>
+<p>The first time the <code>new-api</code> feature is checked for a given user, the result of the closure will be stored by the storage driver. The next time the feature is checked against the same user, the value will be retrieved from storage and the closure will not be invoked.</p>
+<p>For convenience, if a feature definition only returns a lottery, you may omit the closure completely:</p>
+<pre><code><span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">define</span>(<span class="hljs-string">&#x27;site-redesign&#x27;</span>, <span class="hljs-title class_">Lottery</span>::<span class="hljs-title function_ invoke__">odds</span>(<span class="hljs-number">1</span>, <span class="hljs-number">1000</span>));
+</code></pre><p><a name="class-based-features"></a></p>
+<h3>Class Based Features</h3>
+<p>Pennant also allows you to define class based features. Unlike closure based feature definitions, there is no need to register a class based feature in a service provider. To create a class based feature, you may invoke the <code>pennant:feature</code> Artisan command. By default the feature class will be placed in your application&#39;s <code>app/Features</code> directory:</p>
+<pre><code class="hljs language-shell">php artisan pennant:feature NewApi
+</code></pre><p>When writing a feature class, you only need to define a <code>resolve</code> method, which will be invoked to resolve the feature&#39;s initial value for a given scope. Again, the scope will typically be the currently authenticated user:</p>
+<pre><code class="hljs language-php"><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Features</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Lottery</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">NewApi</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Resolve the feature&#x27;s initial value.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">resolve</span>(<span class="hljs-params">User <span class="hljs-variable">$user</span></span>): <span class="hljs-title">mixed</span>
+    </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">match</span> (<span class="hljs-literal">true</span>) {
+            <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">isInternalTeamMember</span>() =&gt; <span class="hljs-literal">true</span>,
+            <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">isHighTrafficCustomer</span>() =&gt; <span class="hljs-literal">false</span>,
+            <span class="hljs-keyword">default</span> =&gt; <span class="hljs-title class_">Lottery</span>::<span class="hljs-title function_ invoke__">odds</span>(<span class="hljs-number">1</span> / <span class="hljs-number">100</span>),
+        };
+    }
+}
+</code></pre><blockquote>
+<p><strong>Note</strong> Feature classes are resolved via the <a href="/docs/%7B%7Bversion%7D%7D/container">container</a>, so you may inject dependencies into the feature class&#39;s constructor when needed.</p>
+</blockquote>
+<p><a name="checking-features"></a></p>
+<h2>Checking Features</h2>
+<p>To determine if a feature is active, you may use the <code>active</code> method on the <code>Feature</code> facade. By default, features are checked against the currently authenticated user:</p>
+<pre><code class="hljs language-php"><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Http</span>\<span class="hljs-title class_">Controllers</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Response</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Pennant</span>\<span class="hljs-title">Feature</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PodcastController</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Display a listing of the resource.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">index</span>(<span class="hljs-params">Request <span class="hljs-variable">$request</span></span>): <span class="hljs-title">Response</span>
+    </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">active</span>(<span class="hljs-string">&#x27;new-api&#x27;</span>)
+                ? <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">resolveNewApiResponse</span>(<span class="hljs-variable">$request</span>)
+                : <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">resolveLegacyApiResponse</span>(<span class="hljs-variable">$request</span>);
+    }
+
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre><p>Although features are checked against the currently authenticated user by default, you may easily check the feature against another user or <a href="#scope">scope</a>. To accomplish this, use the <code>for</code> method offered by the <code>Feature</code> facade:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">return</span> <span class="hljs-title class_">Feature</span>::<span class="hljs-keyword">for</span>(<span class="hljs-variable">$user</span>)-&gt;<span class="hljs-title function_ invoke__">active</span>(<span class="hljs-string">&#x27;new-api&#x27;</span>)
+        ? <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">resolveNewApiResponse</span>(<span class="hljs-variable">$request</span>)
+        : <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">resolveLegacyApiResponse</span>(<span class="hljs-variable">$request</span>);
+</code></pre><p>Pennant also offers some additional convenience methods that may prove useful when determining if a feature is active or not:</p>
+<pre><code class="hljs language-php"><span class="hljs-comment">// Determine if all of the given features are active...</span>
+<span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">allAreActive</span>([<span class="hljs-string">&#x27;new-api&#x27;</span>, <span class="hljs-string">&#x27;site-redesign&#x27;</span>]);
+
+<span class="hljs-comment">// Determine if any of the given features are active...</span>
+<span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">someAreActive</span>([<span class="hljs-string">&#x27;new-api&#x27;</span>, <span class="hljs-string">&#x27;site-redesign&#x27;</span>]);
+
+<span class="hljs-comment">// Determine if a feature is inactive...</span>
+<span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">inactive</span>(<span class="hljs-string">&#x27;new-api&#x27;</span>);
+
+<span class="hljs-comment">// Determine if all of the given features are inactive...</span>
+<span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">allAreInactive</span>([<span class="hljs-string">&#x27;new-api&#x27;</span>, <span class="hljs-string">&#x27;site-redesign&#x27;</span>]);
+
+<span class="hljs-comment">// Determine if any of the given features are inactive...</span>
+<span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">someAreInactive</span>([<span class="hljs-string">&#x27;new-api&#x27;</span>, <span class="hljs-string">&#x27;site-redesign&#x27;</span>]);
+</code></pre><blockquote>
+<p><strong>Note</strong>
+When using Pennant outside of an HTTP context, such as in an Artisan command or a queued job, you should typically <a href="#specifying-the-scope">explicitly specify the feature&#39;s scope</a>. Alternatively, you may define a <a href="#default-scope">default scope</a> that accounts for both authenticated HTTP contexts and unauthenticated contexts.</p>
+</blockquote>
+<p><a name="checking-class-based-features"></a></p>
+<h4>Checking Class Based Features</h4>
+<p>For class based features, you should provide the class name when checking the feature:</p>
+<pre><code class="hljs language-php"><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Http</span>\<span class="hljs-title class_">Controllers</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Features</span>\<span class="hljs-title">NewApi</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Response</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Pennant</span>\<span class="hljs-title">Feature</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PodcastController</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Display a listing of the resource.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">index</span>(<span class="hljs-params">Request <span class="hljs-variable">$request</span></span>): <span class="hljs-title">Response</span>
+    </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">active</span>(<span class="hljs-title class_">NewApi</span>::<span class="hljs-variable language_">class</span>)
+                ? <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">resolveNewApiResponse</span>(<span class="hljs-variable">$request</span>)
+                : <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">resolveLegacyApiResponse</span>(<span class="hljs-variable">$request</span>);
+    }
+
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre><p><a name="conditional-execution"></a></p>
+<h3>Conditional Execution</h3>
+<p>The <code>when</code> method may be used to fluently execute a given closure if a feature is active. Additionally, a second closure may be provided and will be executed if the feature is inactive:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Http</span>\<span class="hljs-title class_">Controllers</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Features</span>\<span class="hljs-title">NewApi</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Response</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Pennant</span>\<span class="hljs-title">Feature</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PodcastController</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Display a listing of the resource.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">index</span>(<span class="hljs-params">Request <span class="hljs-variable">$request</span></span>): <span class="hljs-title">Response</span>
+    </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">when</span>(<span class="hljs-title class_">NewApi</span>::<span class="hljs-variable language_">class</span>,
+            fn () =&gt; <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">resolveNewApiResponse</span>(<span class="hljs-variable">$request</span>),
+            <span class="hljs-function"><span class="hljs-keyword">fn</span> (<span class="hljs-params"></span>) =&gt;</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">resolveLegacyApiResponse</span>(<span class="hljs-variable">$request</span>),
+        );
+    }
+
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre><p>The <code>unless</code> method serves as the inverse of the <code>when</code> method, executing the first closure if the feature is inactive:</p>
+<pre><code><span class="hljs-keyword">return</span> <span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">unless</span>(<span class="hljs-title class_">NewApi</span>::<span class="hljs-variable language_">class</span>,
+    fn () =&gt; <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">resolveLegacyApiResponse</span>(<span class="hljs-variable">$request</span>),
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> (<span class="hljs-params"></span>) =&gt;</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">resolveNewApiResponse</span>(<span class="hljs-variable">$request</span>),
+);
+</code></pre><p><a name="the-has-features-trait"></a></p>
+<h3>The <code>HasFeatures</code> Trait</h3>
+<p>Pennant&#39;s <code>HasFeatures</code> trait may be added to your application&#39;s <code>User</code> model (or any other model that has features) to provide a fluent, convenient way to check features directly from the model:</p>
+<pre><code class="hljs language-php"><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Models</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Foundation</span>\<span class="hljs-title">Auth</span>\<span class="hljs-title">User</span> <span class="hljs-keyword">as</span> <span class="hljs-title">Authenticatable</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Pennant</span>\<span class="hljs-title">Concerns</span>\<span class="hljs-title">HasFeatures</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Authenticatable</span>
+</span>{
+    <span class="hljs-keyword">use</span> <span class="hljs-title">HasFeatures</span>;
+
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre><p>Once the trait has been added to your model, you may easily check features by invoking the <code>features</code> method:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">if</span> (<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">features</span>()-&gt;<span class="hljs-title function_ invoke__">active</span>(<span class="hljs-string">&#x27;new-api&#x27;</span>)) {
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre><p>Of course, the <code>features</code> method provides access to many other convenient methods for interacting with features:</p>
+<pre><code class="hljs language-php"><span class="hljs-comment">// Values...</span>
+<span class="hljs-variable">$value</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">features</span>()-&gt;<span class="hljs-title function_ invoke__">value</span>(<span class="hljs-string">&#x27;purchase-button&#x27;</span>)
+<span class="hljs-variable">$values</span> = <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">features</span>()-&gt;<span class="hljs-title function_ invoke__">values</span>([<span class="hljs-string">&#x27;new-api&#x27;</span>, <span class="hljs-string">&#x27;purchase-button&#x27;</span>]);
+
+<span class="hljs-comment">// State...</span>
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">features</span>()-&gt;<span class="hljs-title function_ invoke__">active</span>(<span class="hljs-string">&#x27;new-api&#x27;</span>);
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">features</span>()-&gt;<span class="hljs-title function_ invoke__">allAreActive</span>([<span class="hljs-string">&#x27;new-api&#x27;</span>, <span class="hljs-string">&#x27;server-api&#x27;</span>]);
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">features</span>()-&gt;<span class="hljs-title function_ invoke__">someAreActive</span>([<span class="hljs-string">&#x27;new-api&#x27;</span>, <span class="hljs-string">&#x27;server-api&#x27;</span>]);
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">features</span>()-&gt;<span class="hljs-title function_ invoke__">inactive</span>(<span class="hljs-string">&#x27;new-api&#x27;</span>);
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">features</span>()-&gt;<span class="hljs-title function_ invoke__">allAreInactive</span>([<span class="hljs-string">&#x27;new-api&#x27;</span>, <span class="hljs-string">&#x27;server-api&#x27;</span>]);
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">features</span>()-&gt;<span class="hljs-title function_ invoke__">someAreInactive</span>([<span class="hljs-string">&#x27;new-api&#x27;</span>, <span class="hljs-string">&#x27;server-api&#x27;</span>]);
+
+<span class="hljs-comment">// Conditional execution...</span>
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">features</span>()-&gt;<span class="hljs-title function_ invoke__">when</span>(<span class="hljs-string">&#x27;new-api&#x27;</span>,
+    fn () =&gt; <span class="hljs-comment">/* ... */</span>,
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> (<span class="hljs-params"></span>) =&gt;</span> <span class="hljs-comment">/* ... */</span>,
+);
+
+<span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">features</span>()-&gt;<span class="hljs-title function_ invoke__">unless</span>(<span class="hljs-string">&#x27;new-api&#x27;</span>,
+    fn () =&gt; <span class="hljs-comment">/* ... */</span>,
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> (<span class="hljs-params"></span>) =&gt;</span> <span class="hljs-comment">/* ... */</span>,
+);
+</code></pre><p><a name="blade-directive"></a></p>
+<h3>Blade Directive</h3>
+<p>To make checking features in Blade a seamless experience, Pennant offers a <code>@feature</code> directive:</p>
+<pre><code class="hljs language-blade"><span class="hljs-template-tag">@feature</span><span class="language-php-template"><span class="language-xml">(&#x27;site-redesign&#x27;)
+    <span class="hljs-comment">&lt;!-- &#x27;site-redesign&#x27; is active --&gt;</span>
+</span></span><span class="hljs-template-tag">@else</span><span class="language-php-template"><span class="language-xml">
+    <span class="hljs-comment">&lt;!-- &#x27;site-redesign&#x27; is inactive --&gt;</span>
+</span></span><span class="hljs-template-tag">@endfeature</span>
+</code></pre><p><a name="middleware"></a></p>
+<h3>Middleware</h3>
+<p>Pennant also includes a <a href="/docs/%7B%7Bversion%7D%7D/middleware">middleware</a> that may be used to verify the currently authenticated user has access to a feature before a route is even invoked. You may assign the middleware to a route and specify the features that are required to access the route. If any of the specified features are inactive for the currently authenticated user, a <code>400 Bad Request</code> HTTP response will be returned by the route. Multiple features may be passed to the static <code>using</code> method.</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Route</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Pennant</span>\<span class="hljs-title">Middleware</span>\<span class="hljs-title">EnsureFeaturesAreActive</span>;
+
+<span class="hljs-title class_">Route</span>::<span class="hljs-title function_ invoke__">get</span>(<span class="hljs-string">&#x27;/api/servers&#x27;</span>, function () {
+    <span class="hljs-comment">// ...</span>
+})-&gt;<span class="hljs-title function_ invoke__">middleware</span>(<span class="hljs-title class_">EnsureFeaturesAreActive</span>::<span class="hljs-title function_ invoke__">using</span>(<span class="hljs-string">&#x27;new-api&#x27;</span>, <span class="hljs-string">&#x27;servers-api&#x27;</span>));
+</code></pre><p><a name="customizing-the-response"></a></p>
+<h4>Customizing The Response</h4>
+<p>If you would like to customize the response that is returned by the middleware when one of the listed features is inactive, you may use the <code>whenInactive</code> method provided by the <code>EnsureFeaturesAreActive</code> middleware. Typically, this method should be invoked within the <code>boot</code> method of one of your application&#39;s service providers:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Request</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Response</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Pennant</span>\<span class="hljs-title">Middleware</span>\<span class="hljs-title">EnsureFeaturesAreActive</span>;
+
+<span class="hljs-comment">/**
+ * Bootstrap any application services.
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+</span>{
+    <span class="hljs-title class_">EnsureFeaturesAreActive</span>::<span class="hljs-title function_ invoke__">whenInactive</span>(
+        function (Request <span class="hljs-variable">$request</span>, <span class="hljs-keyword">array</span> <span class="hljs-variable">$features</span>) {
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Response</span>(status: <span class="hljs-number">403</span>);
+        }
+    );
+
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre><p><a name="in-memory-cache"></a></p>
+<h3>In-Memory Cache</h3>
+<p>When checking a feature, Pennant will create an in-memory cache of the result. If you are using the <code>database</code> driver, this means that re-checking the same feature flag within a single request will not trigger additional database queries. This also ensures that the feature has a consistent result for the duration of the request.</p>
+<p>If you need to manually flush the in-memory cache, you may use the <code>flushCache</code> method offered by the <code>Feature</code> facade:</p>
+<pre><code><span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">flushCache</span>();
+</code></pre><p><a name="scope"></a></p>
+<h2>Scope</h2>
+<p><a name="specifying-the-scope"></a></p>
+<h3>Specifying The Scope</h3>
+<p>As discussed, features are typically checked against the currently authenticated user. However, this may not always suit your needs. Therefore, it is possible to specify the scope you would like to check a given feature against via the <code>Feature</code> facade&#39;s <code>for</code> method:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">return</span> <span class="hljs-title class_">Feature</span>::<span class="hljs-keyword">for</span>(<span class="hljs-variable">$user</span>)-&gt;<span class="hljs-title function_ invoke__">active</span>(<span class="hljs-string">&#x27;new-api&#x27;</span>)
+        ? <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">resolveNewApiResponse</span>(<span class="hljs-variable">$request</span>)
+        : <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">resolveLegacyApiResponse</span>(<span class="hljs-variable">$request</span>);
+</code></pre><p>Of course, feature scopes are not limited to &quot;users&quot;. Imagine you have built a new billing experience that you are rolling out to entire teams rather than individual users. Perhaps you would like the oldest teams to have a slower rollout than the newer teams. Your feature resolution closure might look something like the following:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">Team</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Carbon</span>\<span class="hljs-title">Carbon</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Lottery</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Pennant</span>\<span class="hljs-title">Feature</span>;
+
+<span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">define</span>(<span class="hljs-string">&#x27;billing-v2&#x27;</span>, function (Team <span class="hljs-variable">$team</span>) {
+    <span class="hljs-keyword">if</span> (<span class="hljs-variable">$team</span>-&gt;created_at-&gt;<span class="hljs-title function_ invoke__">isAfter</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Carbon</span>(<span class="hljs-string">&#x27;1st Jan, 2023&#x27;</span>))) {
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+    }
+
+    <span class="hljs-keyword">if</span> (<span class="hljs-variable">$team</span>-&gt;created_at-&gt;<span class="hljs-title function_ invoke__">isAfter</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Carbon</span>(<span class="hljs-string">&#x27;1st Jan, 2019&#x27;</span>))) {
+        <span class="hljs-keyword">return</span> <span class="hljs-title class_">Lottery</span>::<span class="hljs-title function_ invoke__">odds</span>(<span class="hljs-number">1</span> / <span class="hljs-number">100</span>);
+    }
+
+    <span class="hljs-keyword">return</span> <span class="hljs-title class_">Lottery</span>::<span class="hljs-title function_ invoke__">odds</span>(<span class="hljs-number">1</span> / <span class="hljs-number">1000</span>);
+});
+</code></pre><p>You will notice that the closure we have defined is not expecting a <code>User</code>, but is instead expecting a <code>Team</code> model. To determine if this feature is active for a user&#39;s team, you should pass the team to the <code>for</code> method offered by the <code>Feature</code> facade:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">if</span> (<span class="hljs-title class_">Feature</span>::<span class="hljs-keyword">for</span>(<span class="hljs-variable">$user</span>-&gt;team)-&gt;<span class="hljs-title function_ invoke__">active</span>(<span class="hljs-string">&#x27;billing-v2&#x27;</span>)) {
+    <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">redirect</span>()-&gt;<span class="hljs-title function_ invoke__">to</span>(<span class="hljs-string">&#x27;/billing/v2&#x27;</span>);
+}
+
+<span class="hljs-comment">// ...</span>
+</code></pre><p><a name="default-scope"></a></p>
+<h3>Default Scope</h3>
+<p>It is also possible to customize the default scope Pennant uses to check features. For example, maybe all of your features are checked against the currently authenticated user&#39;s team instead of the user. Instead of having to call <code>Feature::for($user-&gt;team)</code> every time you check a feature, you may instead specify the team as the default scope. Typically, this should be done in one of your application&#39;s service providers:</p>
+<pre><code class="hljs language-php"><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Providers</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Auth</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">ServiceProvider</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Pennant</span>\<span class="hljs-title">Feature</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AppServiceProvider</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">ServiceProvider</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Bootstrap any application services.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+    </span>{
+        <span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">resolveScopeUsing</span>(fn (<span class="hljs-variable">$driver</span>) =&gt; <span class="hljs-title class_">Auth</span>::<span class="hljs-title function_ invoke__">user</span>()?-&gt;team);
+
+        <span class="hljs-comment">// ...</span>
+    }
+}
+</code></pre><p>If no scope is explicitly provided via the <code>for</code> method, the feature check will now use the currently authenticated user&#39;s team as the default scope:</p>
+<pre><code class="hljs language-php"><span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">active</span>(<span class="hljs-string">&#x27;billing-v2&#x27;</span>);
+
+<span class="hljs-comment">// Is now equivalent to...</span>
+
+<span class="hljs-title class_">Feature</span>::<span class="hljs-keyword">for</span>(<span class="hljs-variable">$user</span>-&gt;team)-&gt;<span class="hljs-title function_ invoke__">active</span>(<span class="hljs-string">&#x27;billing-v2&#x27;</span>);
+</code></pre><p><a name="nullable-scope"></a></p>
+<h3>Nullable Scope</h3>
+<p>If the scope you provide when checking a feature is <code>null</code> and the feature&#39;s definition does not support <code>null</code> via a nullable type or by including <code>null</code> in a union type, Pennant will automatically return <code>false</code> as the feature&#39;s result value.</p>
+<p>So, if the scope you are passing to a feature is potentially <code>null</code> and you want the feature&#39;s value resolver to be invoked, you should account for that in your feature&#39;s definition. A <code>null</code> scope may occur if you check a feature within an Artisan command, queued job, or unauthenticated route. Since there is usually not an authenticated user in these contexts, the default scope will be <code>null</code>.</p>
+<p>If you do not always <a href="#specifying-the-scope">explicitly specify your feature scope</a> then you should ensure the scope&#39;s type is &quot;nullable&quot; and handle the <code>null</code> scope value within your feature definition logic:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Models</span>\<span class="hljs-title">User</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Lottery</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Pennant</span>\<span class="hljs-title">Feature</span>;
+
+<span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">define</span>(<span class="hljs-string">&#x27;new-api&#x27;</span>, fn (User <span class="hljs-variable">$user</span>) =&gt; <span class="hljs-keyword">match</span> (<span class="hljs-literal">true</span>) {<span class="hljs-comment">// [tl! remove]</span>
+<span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">define</span>(<span class="hljs-string">&#x27;new-api&#x27;</span>, fn (User|<span class="hljs-literal">null</span> <span class="hljs-variable">$user</span>) =&gt; <span class="hljs-keyword">match</span> (<span class="hljs-literal">true</span>) {<span class="hljs-comment">// [tl! add]</span>
+    <span class="hljs-variable">$user</span> === <span class="hljs-literal">null</span> =&gt; <span class="hljs-literal">true</span>,<span class="hljs-comment">// [tl! add]</span>
+    <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">isInternalTeamMember</span>() =&gt; <span class="hljs-literal">true</span>,
+    <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">isHighTrafficCustomer</span>() =&gt; <span class="hljs-literal">false</span>,
+    <span class="hljs-keyword">default</span> =&gt; <span class="hljs-title class_">Lottery</span>::<span class="hljs-title function_ invoke__">odds</span>(<span class="hljs-number">1</span> / <span class="hljs-number">100</span>),
+});
+</code></pre><p><a name="identifying-scope"></a></p>
+<h3>Identifying Scope</h3>
+<p>Pennant&#39;s built-in <code>array</code> and <code>database</code> storage drivers know how to properly store scope identifiers for all PHP data types as well as Eloquent models. However, if your application utilizes a third-party Pennant driver, that driver may not know how to properly store an identifier for an Eloquent model or other custom types in your application.</p>
+<p>In light of this, Pennant allows you to format scope values for storage by implementing the <code>FeatureScopeable</code> contract on the objects in your application that are used as Pennant scopes.</p>
+<p>For example, imagine you are using two different feature drivers in a single application: the built-in <code>database</code> driver and a third-party &quot;Flag Rocket&quot; driver. The &quot;Flag Rocket&quot; driver does not know how to properly store an Eloquent model. Instead, it requires a <code>FlagRocketUser</code> instance. By implementing the <code>toFeatureIdentifier</code> defined by the <code>FeatureScopeable</code> contract, we can customize the storable scope value provided to each driver used by our application:</p>
+<pre><code class="hljs language-php"><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Models</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">FlagRocket</span>\<span class="hljs-title">FlagRocketUser</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Model</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Pennant</span>\<span class="hljs-title">Contracts</span>\<span class="hljs-title">FeatureScopeable</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Model</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">FeatureScopeable</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Cast the object to a feature scope identifier for the given driver.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">toFeatureIdentifier</span>(<span class="hljs-params"><span class="hljs-keyword">string</span> <span class="hljs-variable">$driver</span></span>): <span class="hljs-title">mixed</span>
+    </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">match</span>(<span class="hljs-variable">$driver</span>) {
+            <span class="hljs-string">&#x27;database&#x27;</span> =&gt; <span class="hljs-variable language_">$this</span>,
+            <span class="hljs-string">&#x27;flag-rocket&#x27;</span> =&gt; <span class="hljs-title class_">FlagRocketUser</span>::<span class="hljs-title function_ invoke__">fromId</span>(<span class="hljs-variable">$this</span>-&gt;flag_rocket_id),
+        };
+    }
+}
+</code></pre><p><a name="serializing-scope"></a></p>
+<h3>Serializing Scope</h3>
+<p>By default, Pennant will use a fully qualified class name when storing a feature associated with an Eloquent model. If you are already using an <a href="/docs/%7B%7Bversion%7D%7D/eloquent-relationships#custom-polymorphic-types">Eloquent morph map</a>, you may choose to have Pennant also use the morph map to decouple the stored feature from your application structure.</p>
+<p>To achieve this, after defining your Eloquent morph map in a service provider, you may invoke the <code>Feature</code> facade&#39;s <code>useMorphMap</code> method:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">Eloquent</span>\<span class="hljs-title">Relations</span>\<span class="hljs-title">Relation</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Pennant</span>\<span class="hljs-title">Feature</span>;
+
+<span class="hljs-title class_">Relation</span>::<span class="hljs-title function_ invoke__">enforceMorphMap</span>([
+    <span class="hljs-string">&#x27;post&#x27;</span> =&gt; <span class="hljs-string">&#x27;App\Models\Post&#x27;</span>,
+    <span class="hljs-string">&#x27;video&#x27;</span> =&gt; <span class="hljs-string">&#x27;App\Models\Video&#x27;</span>,
+]);
+
+<span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">useMorphMap</span>();
+</code></pre><p><a name="rich-feature-values"></a></p>
+<h2>Rich Feature Values</h2>
+<p>Until now, we have primarily shown features as being in a binary state, meaning they are either &quot;active&quot; or &quot;inactive&quot;, but Pennant also allows you to store rich values as well.</p>
+<p>For example, imagine you are testing three new colors for the &quot;Buy now&quot; button of your application. Instead of returning <code>true</code> or <code>false</code> from the feature definition, you may instead return a string:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Arr</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Pennant</span>\<span class="hljs-title">Feature</span>;
+
+<span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">define</span>(<span class="hljs-string">&#x27;purchase-button&#x27;</span>, fn (User <span class="hljs-variable">$user</span>) =&gt; <span class="hljs-title class_">Arr</span>::<span class="hljs-title function_ invoke__">random</span>([
+    <span class="hljs-string">&#x27;blue-sapphire&#x27;</span>,
+    <span class="hljs-string">&#x27;seafoam-green&#x27;</span>,
+    <span class="hljs-string">&#x27;tart-orange&#x27;</span>,
+]));
+</code></pre><p>You may retrieve the value of the <code>purchase-button</code> feature using the <code>value</code> method:</p>
+<pre><code class="hljs language-php"><span class="hljs-variable">$color</span> = <span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">value</span>(<span class="hljs-string">&#x27;purchase-button&#x27;</span>);
+</code></pre><p>Pennant&#39;s included Blade directive also makes it easy to conditionally render content based on the current value of the feature:</p>
+<pre><code class="hljs language-blade"><span class="hljs-template-tag">@feature</span><span class="language-php-template"><span class="language-xml">(&#x27;purchase-button&#x27;, &#x27;blue-sapphire&#x27;)
+    <span class="hljs-comment">&lt;!-- &#x27;blue-sapphire&#x27; is active --&gt;</span>
+</span></span><span class="hljs-template-tag">@elsefeature</span><span class="language-php-template"><span class="language-xml">(&#x27;purchase-button&#x27;, &#x27;seafoam-green&#x27;)
+    <span class="hljs-comment">&lt;!-- &#x27;seafoam-green&#x27; is active --&gt;</span>
+</span></span><span class="hljs-template-tag">@elsefeature</span><span class="language-php-template"><span class="language-xml">(&#x27;purchase-button&#x27;, &#x27;tart-orange&#x27;)
+    <span class="hljs-comment">&lt;!-- &#x27;tart-orange&#x27; is active --&gt;</span>
+</span></span><span class="hljs-template-tag">@endfeature</span>
+</code></pre><blockquote>
+<p><strong>Note</strong> When using rich values, it is important to know that a feature is considered &quot;active&quot; when it has any value other than <code>false</code>.</p>
+</blockquote>
+<p>When calling the <a href="#conditional-execution">conditional <code>when</code></a> method, the feature&#39;s rich value will be provided to the first closure:</p>
+<pre><code><span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">when</span>(<span class="hljs-string">&#x27;purchase-button&#x27;</span>,
+    fn (<span class="hljs-variable">$color</span>) =&gt; <span class="hljs-comment">/* ... */</span>,
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> (<span class="hljs-params"></span>) =&gt;</span> <span class="hljs-comment">/* ... */</span>,
+);
+</code></pre><p>Likewise, when calling the conditional <code>unless</code> method, the feature&#39;s rich value will be provided to the optional second closure:</p>
+<pre><code><span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">unless</span>(<span class="hljs-string">&#x27;purchase-button&#x27;</span>,
+    fn () =&gt; <span class="hljs-comment">/* ... */</span>,
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> (<span class="hljs-params"><span class="hljs-variable">$color</span></span>) =&gt;</span> <span class="hljs-comment">/* ... */</span>,
+);
+</code></pre><p><a name="retrieving-multiple-features"></a></p>
+<h2>Retrieving Multiple Features</h2>
+<p>The <code>values</code> method allows the retrieval of multiple features for a given scope:</p>
+<pre><code class="hljs language-php"><span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">values</span>([<span class="hljs-string">&#x27;billing-v2&#x27;</span>, <span class="hljs-string">&#x27;purchase-button&#x27;</span>]);
+
+<span class="hljs-comment">// [</span>
+<span class="hljs-comment">//     &#x27;billing-v2&#x27; =&gt; false,</span>
+<span class="hljs-comment">//     &#x27;purchase-button&#x27; =&gt; &#x27;blue-sapphire&#x27;,</span>
+<span class="hljs-comment">// ]</span>
+</code></pre><p>Or, you may use the <code>all</code> method to retrieve the values of all defined features for a given scope:</p>
+<pre><code class="hljs language-php"><span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">all</span>();
+
+<span class="hljs-comment">// [</span>
+<span class="hljs-comment">//     &#x27;billing-v2&#x27; =&gt; false,</span>
+<span class="hljs-comment">//     &#x27;purchase-button&#x27; =&gt; &#x27;blue-sapphire&#x27;,</span>
+<span class="hljs-comment">//     &#x27;site-redesign&#x27; =&gt; true,</span>
+<span class="hljs-comment">// ]</span>
+</code></pre><p>However, class based features are dynamically registered and are not known by Pennant until they are explicitly checked. This means your application&#39;s class based features may not appear in the results returned by the <code>all</code> method if they have not already been checked during the current request.</p>
+<p>If you would like to ensure that feature classes are always included when using the <code>all</code> method, you may use Pennant&#39;s feature discovery capabilities. To get started, invoke the <code>discover</code> method in one of your application&#39;s service providers:</p>
+<pre><code><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Providers</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">ServiceProvider</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Pennant</span>\<span class="hljs-title">Feature</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AppServiceProvider</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">ServiceProvider</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Bootstrap any application services.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+    </span>{
+        <span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">discover</span>();
+
+        <span class="hljs-comment">// ...</span>
+    }
+}
+</code></pre><p>The <code>discover</code> method will register all of the feature classes in your application&#39;s <code>app/Features</code> directory. The <code>all</code> method will now include these classes in its results, regardless of whether they have been checked during the current request:</p>
+<pre><code class="hljs language-php"><span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">all</span>();
+
+<span class="hljs-comment">// [</span>
+<span class="hljs-comment">//     &#x27;App\Features\NewApi&#x27; =&gt; true,</span>
+<span class="hljs-comment">//     &#x27;billing-v2&#x27; =&gt; false,</span>
+<span class="hljs-comment">//     &#x27;purchase-button&#x27; =&gt; &#x27;blue-sapphire&#x27;,</span>
+<span class="hljs-comment">//     &#x27;site-redesign&#x27; =&gt; true,</span>
+<span class="hljs-comment">// ]</span>
+</code></pre><p><a name="eager-loading"></a></p>
+<h2>Eager Loading</h2>
+<p>Although Pennant keeps an in-memory cache of all resolved features for a single request, it is still possible to encounter performance issues. To alleviate this, Pennant offers the ability to eager load feature values.</p>
+<p>To illustrate this, imagine that we are checking if a feature is active within a loop:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Pennant</span>\<span class="hljs-title">Feature</span>;
+
+<span class="hljs-keyword">foreach</span> (<span class="hljs-variable">$users</span> <span class="hljs-keyword">as</span> <span class="hljs-variable">$user</span>) {
+    <span class="hljs-keyword">if</span> (<span class="hljs-title class_">Feature</span>::<span class="hljs-keyword">for</span>(<span class="hljs-variable">$user</span>)-&gt;<span class="hljs-title function_ invoke__">active</span>(<span class="hljs-string">&#x27;notifications-beta&#x27;</span>)) {
+        <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">notify</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">RegistrationSuccess</span>);
+    }
+}
+</code></pre><p>Assuming we are using the database driver, this code will execute a database query for every user in the loop - executing potentially hundreds of queries. However, using Pennant&#39;s <code>load</code> method, we can remove this potential performance bottleneck by eager loading the feature values for a collection of users or scopes:</p>
+<pre><code class="hljs language-php"><span class="hljs-title class_">Feature</span>::<span class="hljs-keyword">for</span>(<span class="hljs-variable">$users</span>)-&gt;<span class="hljs-title function_ invoke__">load</span>([<span class="hljs-string">&#x27;notifications-beta&#x27;</span>]);
+
+<span class="hljs-keyword">foreach</span> (<span class="hljs-variable">$users</span> <span class="hljs-keyword">as</span> <span class="hljs-variable">$user</span>) {
+    <span class="hljs-keyword">if</span> (<span class="hljs-title class_">Feature</span>::<span class="hljs-keyword">for</span>(<span class="hljs-variable">$user</span>)-&gt;<span class="hljs-title function_ invoke__">active</span>(<span class="hljs-string">&#x27;notifications-beta&#x27;</span>)) {
+        <span class="hljs-variable">$user</span>-&gt;<span class="hljs-title function_ invoke__">notify</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">RegistrationSuccess</span>);
+    }
+}
+</code></pre><p>To load feature values only when they have not already been loaded, you may use the <code>loadMissing</code> method:</p>
+<pre><code class="hljs language-php"><span class="hljs-title class_">Feature</span>::<span class="hljs-keyword">for</span>(<span class="hljs-variable">$users</span>)-&gt;<span class="hljs-title function_ invoke__">loadMissing</span>([
+    <span class="hljs-string">&#x27;new-api&#x27;</span>,
+    <span class="hljs-string">&#x27;purchase-button&#x27;</span>,
+    <span class="hljs-string">&#x27;notifications-beta&#x27;</span>,
+]);
+</code></pre><p><a name="updating-values"></a></p>
+<h2>Updating Values</h2>
+<p>When a feature&#39;s value is resolved for the first time, the underlying driver will store the result in storage. This is often necessary to ensure a consistent experience for your users across requests. However, at times, you may want to manually update the feature&#39;s stored value.</p>
+<p>To accomplish this, you may use the <code>activate</code> and <code>deactivate</code> methods to toggle a feature &quot;on&quot; or &quot;off&quot;:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Pennant</span>\<span class="hljs-title">Feature</span>;
+
+<span class="hljs-comment">// Activate the feature for the default scope...</span>
+<span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">activate</span>(<span class="hljs-string">&#x27;new-api&#x27;</span>);
+
+<span class="hljs-comment">// Deactivate the feature for the given scope...</span>
+<span class="hljs-title class_">Feature</span>::<span class="hljs-keyword">for</span>(<span class="hljs-variable">$user</span>-&gt;team)-&gt;<span class="hljs-title function_ invoke__">deactivate</span>(<span class="hljs-string">&#x27;billing-v2&#x27;</span>);
+</code></pre><p>It is also possible to manually set a rich value for a feature by providing a second argument to the <code>activate</code> method:</p>
+<pre><code class="hljs language-php"><span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">activate</span>(<span class="hljs-string">&#x27;purchase-button&#x27;</span>, <span class="hljs-string">&#x27;seafoam-green&#x27;</span>);
+</code></pre><p>To instruct Pennant to forget the stored value for a feature, you may use the <code>forget</code> method. When the feature is checked again, Pennant will resolve the feature&#39;s value from its feature definition:</p>
+<pre><code class="hljs language-php"><span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">forget</span>(<span class="hljs-string">&#x27;purchase-button&#x27;</span>);
+</code></pre><p><a name="bulk-updates"></a></p>
+<h3>Bulk Updates</h3>
+<p>To update stored feature values in bulk, you may use the <code>activateForEveryone</code> and <code>deactivateForEveryone</code> methods.</p>
+<p>For example, imagine you are now confident in the <code>new-api</code> feature&#39;s stability and have landed on the best <code>&#39;purchase-button&#39;</code> color for your checkout flow - you can update the stored value for all users accordingly:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Pennant</span>\<span class="hljs-title">Feature</span>;
+
+<span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">activateForEveryone</span>(<span class="hljs-string">&#x27;new-api&#x27;</span>);
+
+<span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">activateForEveryone</span>(<span class="hljs-string">&#x27;purchase-button&#x27;</span>, <span class="hljs-string">&#x27;seafoam-green&#x27;</span>);
+</code></pre><p>Alternatively, you may deactivate the feature for all users:</p>
+<pre><code class="hljs language-php"><span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">deactivateForEveryone</span>(<span class="hljs-string">&#x27;new-api&#x27;</span>);
+</code></pre><blockquote>
+<p><strong>Note</strong> This will only update the resolved feature values that have been stored by Pennant&#39;s storage driver. You will also need to update the feature definition in your application.</p>
+</blockquote>
+<p><a name="purging-features"></a></p>
+<h3>Purging Features</h3>
+<p>Sometimes, it can be useful to purge an entire feature from storage. This is typically necessary if you have removed the feature from your application or you have made adjustments to the feature&#39;s definition that you would like to rollout to all users.</p>
+<p>You may remove all stored values for a feature using the <code>purge</code> method:</p>
+<pre><code class="hljs language-php"><span class="hljs-comment">// Purging a single feature...</span>
+<span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">purge</span>(<span class="hljs-string">&#x27;new-api&#x27;</span>);
+
+<span class="hljs-comment">// Purging multiple features...</span>
+<span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">purge</span>([<span class="hljs-string">&#x27;new-api&#x27;</span>, <span class="hljs-string">&#x27;purchase-button&#x27;</span>]);
+</code></pre><p>If you would like to purge <em>all</em> features from storage, you may invoke the <code>purge</code> method without any arguments:</p>
+<pre><code class="hljs language-php"><span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">purge</span>();
+</code></pre><p>As it can be useful to purge features as part of your application&#39;s deployment pipeline, Pennant includes a <code>pennant:purge</code> Artisan command:</p>
+<pre><code class="hljs language-sh">php artisan pennant:purge new-api
+
+php artisan pennant:purge new-api purchase-button
+</code></pre><p><a name="testing"></a></p>
+<h2>Testing</h2>
+<p>When testing code that interacts with feature flags, the easiest way to control the feature flag&#39;s returned value in your tests is to simply re-define the feature. For example, imagine you have the following feature defined in one of your application&#39;s service provider:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Arr</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Pennant</span>\<span class="hljs-title">Feature</span>;
+
+<span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">define</span>(<span class="hljs-string">&#x27;purchase-button&#x27;</span>, fn () =&gt; <span class="hljs-title class_">Arr</span>::<span class="hljs-title function_ invoke__">random</span>([
+    <span class="hljs-string">&#x27;blue-sapphire&#x27;</span>,
+    <span class="hljs-string">&#x27;seafoam-green&#x27;</span>,
+    <span class="hljs-string">&#x27;tart-orange&#x27;</span>,
+]));
+</code></pre><p>To modify the feature&#39;s returned value in your tests, you may re-define the feature at the beginning of the test. The following test will always pass, even though the <code>Arr::random()</code> implementation is still present in the service provider:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Pennant</span>\<span class="hljs-title">Feature</span>;
+
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test_it_can_control_feature_values</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">define</span>(<span class="hljs-string">&#x27;purchase-button&#x27;</span>, <span class="hljs-string">&#x27;seafoam-green&#x27;</span>);
+
+    <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">assertSame</span>(<span class="hljs-string">&#x27;seafoam-green&#x27;</span>, <span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">value</span>(<span class="hljs-string">&#x27;purchase-button&#x27;</span>));
+}
+</code></pre><p>The same approach may be used for class based features:</p>
+<pre><code class="hljs language-php"><span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Features</span>\<span class="hljs-title">NewApi</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Pennant</span>\<span class="hljs-title">Feature</span>;
+
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test_it_can_control_feature_values</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">define</span>(<span class="hljs-title class_">NewApi</span>::<span class="hljs-variable language_">class</span>, <span class="hljs-literal">true</span>);
+
+    <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">assertTrue</span>(<span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">value</span>(<span class="hljs-title class_">NewApi</span>::<span class="hljs-variable language_">class</span>));
+}
+</code></pre><p>If your feature is returning a <code>Lottery</code> instance, there are a handful of useful <a href="/docs/%7B%7Bversion%7D%7D/helpers#testing-lotteries">testing helpers available</a>.</p>
+<p><a name="store-configuration"></a></p>
+<h4>Store Configuration</h4>
+<p>You may configure the store that Pennant will use during testing by defining the <code>PENNANT_STORE</code> environment variable in your application&#39;s <code>phpunit.xml</code> file:</p>
+<pre><code class="hljs language-xml"><span class="hljs-meta">&lt;?xml version=<span class="hljs-string">&quot;1.0&quot;</span> encoding=<span class="hljs-string">&quot;UTF-8&quot;</span>?&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">phpunit</span> <span class="hljs-attr">colors</span>=<span class="hljs-string">&quot;true&quot;</span>&gt;</span>
+    <span class="hljs-comment">&lt;!-- ... --&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">php</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">env</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;PENNANT_STORE&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;array&quot;</span>/&gt;</span>
+        <span class="hljs-comment">&lt;!-- ... --&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">php</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">phpunit</span>&gt;</span>
+</code></pre><p><a name="adding-custom-pennant-drivers"></a></p>
+<h2>Adding Custom Pennant Drivers</h2>
+<p><a name="implementing-the-driver"></a></p>
+<h4>Implementing The Driver</h4>
+<p>If none of Pennant&#39;s existing storage drivers fit your application&#39;s needs, you may write your own storage driver. Your custom driver should implement the <code>Laravel\Pennant\Contracts\Driver</code> interface:</p>
+<pre><code class="hljs language-php"><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Extensions</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Pennant</span>\<span class="hljs-title">Contracts</span>\<span class="hljs-title">Driver</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">RedisFeatureDriver</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Driver</span>
+</span>{
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">define</span>(<span class="hljs-params"><span class="hljs-keyword">string</span> <span class="hljs-variable">$feature</span>, <span class="hljs-keyword">callable</span> <span class="hljs-variable">$resolver</span></span>): <span class="hljs-title">void</span> </span>{}
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">defined</span>(<span class="hljs-params"></span>): <span class="hljs-title">array</span> </span>{}
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getAll</span>(<span class="hljs-params"><span class="hljs-keyword">array</span> <span class="hljs-variable">$features</span></span>): <span class="hljs-title">array</span> </span>{}
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">get</span>(<span class="hljs-params"><span class="hljs-keyword">string</span> <span class="hljs-variable">$feature</span>, <span class="hljs-keyword">mixed</span> <span class="hljs-variable">$scope</span></span>): <span class="hljs-title">mixed</span> </span>{}
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">set</span>(<span class="hljs-params"><span class="hljs-keyword">string</span> <span class="hljs-variable">$feature</span>, <span class="hljs-keyword">mixed</span> <span class="hljs-variable">$scope</span>, <span class="hljs-keyword">mixed</span> <span class="hljs-variable">$value</span></span>): <span class="hljs-title">void</span> </span>{}
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">setForAllScopes</span>(<span class="hljs-params"><span class="hljs-keyword">string</span> <span class="hljs-variable">$feature</span>, <span class="hljs-keyword">mixed</span> <span class="hljs-variable">$value</span></span>): <span class="hljs-title">void</span> </span>{}
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">delete</span>(<span class="hljs-params"><span class="hljs-keyword">string</span> <span class="hljs-variable">$feature</span>, <span class="hljs-keyword">mixed</span> <span class="hljs-variable">$scope</span></span>): <span class="hljs-title">void</span> </span>{}
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">purge</span>(<span class="hljs-params"><span class="hljs-keyword">array</span>|<span class="hljs-literal">null</span> <span class="hljs-variable">$features</span></span>): <span class="hljs-title">void</span> </span>{}
+}
+</code></pre><p>Now, we just need to implement each of these methods using a Redis connection. For an example of how to implement each of these methods, take a look at the <code>Laravel\Pennant\Drivers\DatabaseDriver</code> in the <a href="https://github.com/laravel/pennant/blob/1.x/src/Drivers/DatabaseDriver.php">Pennant source code</a></p>
+<blockquote>
+<p><strong>Note</strong>
+Laravel does not ship with a directory to contain your extensions. You are free to place them anywhere you like. In this example, we have created an <code>Extensions</code> directory to house the <code>RedisFeatureDriver</code>.</p>
+</blockquote>
+<p><a name="registering-the-driver"></a></p>
+<h4>Registering The Driver</h4>
+<p>Once your driver has been implemented, you are ready to register it with Laravel. To add additional drivers to Pennant, you may use the <code>extend</code> method provided by the <code>Feature</code> facade. You should call the <code>extend</code> method from the <code>boot</code> method of one of your application&#39;s <a href="/docs/%7B%7Bversion%7D%7D/providers">service provider</a>:</p>
+<pre><code class="hljs language-php"><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Providers</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">App</span>\<span class="hljs-title">Extensions</span>\<span class="hljs-title">RedisFeatureDriver</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Contracts</span>\<span class="hljs-title">Foundation</span>\<span class="hljs-title">Application</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">ServiceProvider</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Pennant</span>\<span class="hljs-title">Feature</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AppServiceProvider</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">ServiceProvider</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Register any application services.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">register</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+    </span>{
+        <span class="hljs-comment">// ...</span>
+    }
+
+    <span class="hljs-comment">/**
+     * Bootstrap any application services.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+    </span>{
+        <span class="hljs-title class_">Feature</span>::<span class="hljs-title function_ invoke__">extend</span>(<span class="hljs-string">&#x27;redis&#x27;</span>, function (Application <span class="hljs-variable">$app</span>) {
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RedisFeatureDriver</span>(<span class="hljs-variable">$app</span>-&gt;<span class="hljs-title function_ invoke__">make</span>(<span class="hljs-string">&#x27;redis&#x27;</span>), <span class="hljs-variable">$app</span>-&gt;<span class="hljs-title function_ invoke__">make</span>(<span class="hljs-string">&#x27;events&#x27;</span>), []);
+        });
+    }
+}
+</code></pre><p>Once the driver has been registered, you may use the <code>redis</code> driver in your application&#39;s <code>config/pennant.php</code> configuration file:</p>
+<pre><code><span class="hljs-string">&#x27;stores&#x27;</span> =&gt; [
+
+    <span class="hljs-string">&#x27;redis&#x27;</span> =&gt; [
+        <span class="hljs-string">&#x27;driver&#x27;</span> =&gt; <span class="hljs-string">&#x27;redis&#x27;</span>,
+        <span class="hljs-string">&#x27;connection&#x27;</span> =&gt; <span class="hljs-literal">null</span>,
+    ],
+
+    <span class="hljs-comment">// ...</span>
+
+],
+</code></pre><p><a name="events"></a></p>
+<h2>Events</h2>
+<p>Pennant dispatches a variety of events that can be useful when tracking feature flags throughout your application.</p>
+<h3><code>Laravel\Pennant\Events\RetrievingKnownFeature</code></h3>
+<p>This event is dispatched the first time a known feature is retrieved during a request for a specific scope. This event can be useful to create and track metrics against the feature flags that are being used throughout your application.</p>
+<h3><code>Laravel\Pennant\Events\RetrievingUnknownFeature</code></h3>
+<p>This event is dispatched the first time an unknown feature is retrieved during a request for a specific scope. This event can be useful if you have intended to remove a feature flag, but may have accidentally left some stray references to it throughout your application.</p>
+<p>For example, you may find it useful to listen for this event and <code>report</code> or throw an exception when it occurs:</p>
+<pre><code class="hljs language-php"><span class="hljs-meta">&lt;?php</span>
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title class_">App</span>\<span class="hljs-title class_">Providers</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Foundation</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Providers</span>\<span class="hljs-title">EventServiceProvider</span> <span class="hljs-keyword">as</span> <span class="hljs-title">ServiceProvider</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Illuminate</span>\<span class="hljs-title">Support</span>\<span class="hljs-title">Facades</span>\<span class="hljs-title">Event</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Laravel</span>\<span class="hljs-title">Pennant</span>\<span class="hljs-title">Events</span>\<span class="hljs-title">RetrievingUnknownFeature</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">EventServiceProvider</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">ServiceProvider</span>
+</span>{
+    <span class="hljs-comment">/**
+     * Register any other events for your application.
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">boot</span>(<span class="hljs-params"></span>): <span class="hljs-title">void</span>
+    </span>{
+        <span class="hljs-title class_">Event</span>::<span class="hljs-title function_ invoke__">listen</span>(function (RetrievingUnknownFeature <span class="hljs-variable">$event</span>) {
+            <span class="hljs-title function_ invoke__">report</span>(<span class="hljs-string">&quot;Resolving unknown feature [<span class="hljs-subst">{$event-&gt;feature}</span>].&quot;</span>);
+        });
+    }
+}
+</code></pre><h3><code>Laravel\Pennant\Events\DynamicallyDefiningFeature</code></h3>
+<p>This event is dispatched when a class based feature is being dynamically checked for the first time during a request.</p>
