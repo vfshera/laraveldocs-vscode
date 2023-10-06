@@ -103,9 +103,8 @@ export default class Generator {
           const fileContents = getDocContents(f.link);
 
           const HTML = await marked.parse(fileContents);
-          const safeHTML = DOMPurify.sanitize(HTML);
 
-          fs.writeFile(fileName, safeHTML, (err) => {
+          fs.writeFile(fileName, HTML, (err) => {
             if (err) {
               throw err;
             }

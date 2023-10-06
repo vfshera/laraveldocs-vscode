@@ -53,19 +53,19 @@
     }
   },
   "scripts": {
-    "docs:generate": "pnpm run compile && node out/generator/Generator.js",
+    "docs:generate": "pnpm run compile && node dist/generator/Generator.js",
     "vscode:prepublish": "pnpm run compile",
     "compile": "tsc -p ./",
     "pretest": "pnpm run compile && pnpm run lint",
     "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js",
+    "test": "node ./dist/test/runTest.js",
     "watch": "concurrently \"cd webview-ui && pnpm run dev\" \"tsc -watch -p ./\"",
     "install:all": "pnpm install && cd webview-ui && pnpm install",
     "start:webview": "cd webview-ui && pnpm run dev",
-    "build:webview": "cd webview-ui && pnpm run build"
+    "build:webview": "cd webview-ui && pnpm run build",
+    "build:all": "pnpm run build:webview && pnpm run compile"
   },
   "devDependencies": {
-    "@types/dompurify": "^3.0.3",
     "@types/mocha": "^10.0.2",
     "@types/node": "~20.8.2",
     "@types/vscode": "^1.83.0",
@@ -73,7 +73,6 @@
     "@typescript-eslint/parser": "^6.7.3",
     "@vscode/test-electron": "^2.3.4",
     "concurrently": "^8.2.1",
-    "dompurify": "^3.0.6",
     "eslint": "^8.50.0",
     "glob": "^10.3.10",
     "highlight.js": "^11.8.0",
