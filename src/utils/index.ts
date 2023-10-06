@@ -32,11 +32,15 @@ export function getDocContents(pathToFile: string) {
   return fs.readFileSync(pathToFile, { encoding: "utf-8" });
 }
 
+/**
+ *
+ * @returns Gets docs in markdown
+ */
 export function docs() {
-  const versionList: string[] = fs.readdirSync(path.join(__dirname, "..", MD_DOCS));
+  const versionList: string[] = fs.readdirSync(path.join(__dirname, "..", "..", MD_DOCS));
 
   return versionList.map((ver) => {
-    const versionDir = path.join(__dirname, "..", MD_DOCS, ver);
+    const versionDir = path.join(__dirname, "..", "..", MD_DOCS, ver);
 
     return {
       version: ver,
@@ -48,11 +52,18 @@ export function docs() {
     };
   });
 }
+
+/**
+ *
+ *  Gets docs in html
+ */
 export function htmlDocs() {
-  const versionList: string[] = fs.readdirSync(path.join(__dirname, "..", HTML_DOCS));
+  console.log("Getting HTML Docs!");
+
+  const versionList: string[] = fs.readdirSync(path.join(__dirname, "..", "..", HTML_DOCS));
 
   return versionList.map((ver) => {
-    const versionDir = path.join(__dirname, "..", HTML_DOCS, ver);
+    const versionDir = path.join(__dirname, "..", "..", HTML_DOCS, ver);
 
     return {
       version: ver,
