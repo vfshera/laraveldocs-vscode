@@ -69,7 +69,6 @@ Next, let's take a look at a simple controller that handles incoming requests to
 
     namespace App\Http\Controllers;
 
-    use App\Http\Controllers\Controller;
     use Illuminate\Http\RedirectResponse;
     use Illuminate\Http\Request;
     use Illuminate\View\View;
@@ -543,7 +542,6 @@ If you do not want to use the `validate` method on the request, you may create a
 
     namespace App\Http\Controllers;
 
-    use App\Http\Controllers\Controller;
     use Illuminate\Http\RedirectResponse;
     use Illuminate\Http\Request;
     use Illuminate\Support\Facades\Validator;
@@ -1338,12 +1336,12 @@ The field under validation must not be empty when it is present.
 <a name="rule-gt"></a>
 #### gt:_field_
 
-The field under validation must be greater than the given _field_. The two fields must be of the same type. Strings, numerics, arrays, and files are evaluated using the same conventions as the [`size`](#rule-size) rule.
+The field under validation must be greater than the given _field_ or _value_. The two fields must be of the same type. Strings, numerics, arrays, and files are evaluated using the same conventions as the [`size`](#rule-size) rule.
 
 <a name="rule-gte"></a>
 #### gte:_field_
 
-The field under validation must be greater than or equal to the given _field_. The two fields must be of the same type. Strings, numerics, arrays, and files are evaluated using the same conventions as the [`size`](#rule-size) rule.
+The field under validation must be greater than or equal to the given _field_ or _value_. The two fields must be of the same type. Strings, numerics, arrays, and files are evaluated using the same conventions as the [`size`](#rule-size) rule.
 
 <a name="rule-image"></a>
 #### image
@@ -1809,6 +1807,14 @@ The field under validation must be uppercase.
 
 The field under validation must be a valid URL.
 
+If you would like to specify the URL protocols that should be considered valid, you may pass the protocols as validation rule parameters:
+
+```php
+'url' => 'url:http,https',
+
+'game' => 'url:minecraft,steam',
+```
+
 <a name="rule-ulid"></a>
 #### ulid
 
@@ -1930,7 +1936,7 @@ As discussed in the [`array` validation rule documentation](#rule-array), the `a
     ];
 
     Validator::make($input, [
-        'user' => 'array:username,locale',
+        'user' => 'array:name,username',
     ]);
 
 In general, you should always specify the array keys that are allowed to be present within your array. Otherwise, the validator's `validate` and `validated` methods will return all of the validated data, including the array and all of its keys, even if those keys were not validated by other nested array validation rules.
@@ -2007,6 +2013,10 @@ When validating arrays, you may want to reference the index or position of a par
 
 Given the example above, validation will fail and the user will be presented with the following error of _"Please describe photo #2."_
 
+If necessary, you may reference more deeply nested indexes and positions via `second-index`, `second-position`, `third-index`, `third-position`, etc.
+
+    'photos.*.attributes.*.string' => 'Invalid attribute for photo #:second-position.',
+
 <a name="validating-files"></a>
 ## Validating Files
 
@@ -2042,6 +2052,17 @@ If your application accepts images uploaded by your users, you may use the `File
 
 > **Note**  
 > More information regarding validating image dimensions may be found in the [dimension rule documentation](#rule-dimensions).
+
+<a name="validating-files-file-sizes"></a>
+#### File Sizes
+
+For convenience, minimum and maximum file sizes may be specified as a string with a suffix indicating the file size units. The `kb`, `mb`, `gb`, and `tb` suffixes are supported:
+
+```php
+File::image()
+    ->min('1kb')
+    ->max('10mb')
+```
 
 <a name="validating-files-file-types"></a>
 #### File Types

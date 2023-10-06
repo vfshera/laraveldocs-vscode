@@ -16,6 +16,7 @@
     - [Default Scope](#default-scope)
     - [Nullable Scope](#nullable-scope)
     - [Identifying Scope](#identifying-scope)
+    - [Serializing Scope](#serializing-scope)
 - [Rich Feature Values](#rich-feature-values)
 - [Retrieving Multiple Features](#retrieving-multiple-features)
 - [Eager Loading](#eager-loading)
@@ -31,7 +32,7 @@
 <a name="introduction"></a>
 ## Introduction
 
-[Laravel Pennant](https://github.com/laravel/pennant) is a simple and light-weight feature flag package - without the cruft. Feature flags enable you to incrementally roll out new application features with confidence, A/B test new interface designs, compliment a trunk-based development strategy, and much more.
+[Laravel Pennant](https://github.com/laravel/pennant) is a simple and light-weight feature flag package - without the cruft. Feature flags enable you to incrementally roll out new application features with confidence, A/B test new interface designs, complement a trunk-based development strategy, and much more.
 
 <a name="installation"></a>
 ## Installation
@@ -343,23 +344,15 @@ To make checking features in Blade a seamless experience, Pennant offers a `@fea
 <a name="middleware"></a>
 ### Middleware
 
-Pennant also includes a [middleware](/docs/{{version}}/middleware) that may be used to verify the currently authenticated user has access to a feature before a route is even invoked. To get started, you should add a middleware alias for the `EnsureFeaturesAreActive` middleware to your application's `app/Http/Kernel.php` file:
+Pennant also includes a [middleware](/docs/{{version}}/middleware) that may be used to verify the currently authenticated user has access to a feature before a route is even invoked. You may assign the middleware to a route and specify the features that are required to access the route. If any of the specified features are inactive for the currently authenticated user, a `400 Bad Request` HTTP response will be returned by the route. Multiple features may be passed to the static `using` method.
 
 ```php
+use Illuminate\Support\Facades\Route;
 use Laravel\Pennant\Middleware\EnsureFeaturesAreActive;
 
-protected $middlewareAliases = [
-    // ...
-    'features' => EnsureFeaturesAreActive::class,
-];
-```
-
-Next, you may assign the middleware to a route and specify the features that are required to access the route. If any of the specified features are inactive for the currently authenticated user, a `400 Bad Request` HTTP response will be returned by the route. Multiple features may be specified using a comma-delimited list:
-
-```php
 Route::get('/api/servers', function () {
     // ...
-})->middleware(['features:new-api,servers-api']);
+})->middleware(EnsureFeaturesAreActive::using('new-api', 'servers-api'));
 ```
 
 <a name="customizing-the-response"></a>
@@ -533,6 +526,25 @@ class User extends Model implements FeatureScopeable
         };
     }
 }
+```
+
+<a name="serializing-scope"></a>
+### Serializing Scope
+
+By default, Pennant will use a fully qualified class name when storing a feature associated with an Eloquent model. If you are already using an [Eloquent morph map](/docs/{{version}}/eloquent-relationships#custom-polymorphic-types), you may choose to have Pennant also use the morph map to decouple the stored feature from your application structure.
+
+To achieve this, after defining your Eloquent morph map in a service provider, you may invoke the `Feature` facade's `useMorphMap` method:
+
+```php
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Laravel\Pennant\Feature;
+
+Relation::enforceMorphMap([
+    'post' => 'App\Models\Post',
+    'video' => 'App\Models\Video',
+]);
+
+Feature::useMorphMap();
 ```
 
 <a name="rich-feature-values"></a>

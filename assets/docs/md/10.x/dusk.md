@@ -30,6 +30,7 @@
     - [Using The Keyboard](#using-the-keyboard)
     - [Using The Mouse](#using-the-mouse)
     - [JavaScript Dialogs](#javascript-dialogs)
+    - [Interacting With Inline Frames](#interacting-with-iframes)
     - [Scoping Selectors](#scoping-selectors)
     - [Waiting For Elements](#waiting-for-elements)
     - [Scrolling An Element Into View](#scrolling-an-element-into-view)
@@ -221,6 +222,24 @@ To specify the database connections that should have their tables truncated, you
      */
     protected $connectionsToTruncate = ['mysql'];
 
+If you would like to execute code before or after database truncation is performed, you may define `beforeTruncatingDatabase` or `afterTruncatingDatabase` methods on your test class:
+
+    /**
+     * Perform any work that should take place before the database has started truncating.
+     */
+    protected function beforeTruncatingDatabase(): void
+    {
+        //
+    }
+
+    /**
+     * Perform any work that should take place after the database has finished truncating.
+     */
+    protected function afterTruncatingDatabase(): void
+    {
+        //
+    }
+
 <a name="running-tests"></a>
 ### Running Tests
 
@@ -236,7 +255,7 @@ If you had test failures the last time you ran the `dusk` command, you may save 
 php artisan dusk:fails
 ```
 
-The `dusk` command accepts any argument that is normally accepted by the PHPUnit test runner, such as allowing you to only run the tests for a given [group](https://phpunit.readthedocs.io/en/9.5/annotations.html#group):
+The `dusk` command accepts any argument that is normally accepted by the PHPUnit test runner, such as allowing you to only run the tests for a given [group](https://phpunit.readthedocs.io/en/10.1/annotations.html#group):
 
 ```shell
 php artisan dusk --group=foo
@@ -523,6 +542,12 @@ Dusk selectors allow you to focus on writing effective tests rather than remembe
 
     $browser->click('@login-button');
 
+If desired, you may customize the HTML attribute that the Dusk selector utilizes via the `selectorHtmlAttribute` method. Typically, this method should be called from the `boot` method of your application's `AppServiceProvider`:
+
+    use Laravel\Dusk\Dusk;
+
+    Dusk::selectorHtmlAttribute('data-dusk');
+
 <a name="text-values-and-attributes"></a>
 ### Text, Values, & Attributes
 
@@ -675,6 +700,66 @@ Another valuable use case for the `keys` method is sending a "keyboard shortcut"
 > **Note**
 > All modifier keys such as `{command}` are wrapped in `{}` characters, and match the constants defined in the `Facebook\WebDriver\WebDriverKeys` class, which can be [found on GitHub](https://github.com/php-webdriver/php-webdriver/blob/master/lib/WebDriverKeys.php).
 
+<a name="fluent-keyboard-interactions"></a>
+#### Fluent Keyboard Interactions
+
+Dusk also provides a `withKeyboard` method, allowing you to fluently perform complex keyboard interactions via the `Laravel\Dusk\Keyboard` class. The `Keyboard` class provides `press`, `release`, `type`, and `pause` methods:
+
+    use Laravel\Dusk\Keyboard;
+
+    $browser->withKeyboard(function (Keyboard $keyboard) {
+        $keyboard->press('c')
+            ->pause(1000)
+            ->release('c')
+            ->type(['c', 'e', 'o']);
+    });
+
+<a name="keyboard-macros"></a>
+#### Keyboard Macros
+
+If you would like to define custom keyboard interactions that you can easily re-use throughout your test suite, you may use the `macro` method provided by the `Keyboard` class. Typically, you should call this method from a [service provider's](/docs/{{version}}/providers) `boot` method:
+
+    <?php
+
+    namespace App\Providers;
+
+    use Facebook\WebDriver\WebDriverKeys;
+    use Illuminate\Support\ServiceProvider;
+    use Laravel\Dusk\Keyboard;
+    use Laravel\Dusk\OperatingSystem;
+
+    class DuskServiceProvider extends ServiceProvider
+    {
+        /**
+         * Register Dusk's browser macros.
+         */
+        public function boot(): void
+        {
+            Keyboard::macro('copy', function (string $element = null) {
+                $this->type([
+                    OperatingSystem::onMac() ? WebDriverKeys::META : WebDriverKeys::CONTROL, 'c',
+                ]);
+
+                return $this;
+            });
+
+            Keyboard::macro('paste', function (string $element = null) {
+                $this->type([
+                    OperatingSystem::onMac() ? WebDriverKeys::META : WebDriverKeys::CONTROL, 'v',
+                ]);
+
+                return $this;
+            });
+        }
+    }
+
+The `macro` function accepts a name as its first argument and a closure as its second. The macro's closure will be executed when calling the macro as a method on a `Keyboard` instance:
+
+    $browser->click('@textarea')
+        ->withKeyboard(fn (Keyboard $keyboard) => $keyboard->copy())
+        ->click('@another-textarea')
+        ->withKeyboard(fn (Keyboard $keyboard) => $keyboard->paste());
+
 <a name="using-the-mouse"></a>
 ### Using The Mouse
 
@@ -708,6 +793,10 @@ The `clickAndHold` method may be used to simulate a mouse button being clicked a
     $browser->clickAndHold()
             ->pause(1000)
             ->releaseMouse();
+
+The `controlClick` method may be used to simulate the `ctrl+click` event within the browser:
+
+    $browser->controlClick();
 
 <a name="mouseover"></a>
 #### Mouseover
@@ -756,6 +845,18 @@ To close an open JavaScript dialog by clicking the "OK" button, you may invoke t
 To close an open JavaScript dialog by clicking the "Cancel" button, you may invoke the `dismissDialog` method:
 
     $browser->dismissDialog();
+
+<a name="interacting-with-iframes"></a>
+### Interacting With Inline Frames
+
+If you need to interact with elements within an iframe, you may use the `withinFrame` method. All element interactions that take place within the closure provided to the `withinFrame` method will be scoped to the context of the specified iframe:
+
+    $browser->withinFrame('#credit-card-details', function ($browser) {
+        $browser->type('input[name="cardnumber"]', '4242424242424242')
+            ->type('input[name="exp-date"]', '12/24')
+            ->type('input[name="cvc"]', '123');
+        })->press('Pay');
+    });
 
 <a name="scoping-selectors"></a>
 ### Scoping Selectors

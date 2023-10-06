@@ -7,9 +7,11 @@
     - [Using React](#using-react)
     - [Using React & Inertia](#using-react-and-inertia)
     - [Using Alpine & Blade](#using-alpine)
+    - [Configuring Axios](#configuring-axios)
 - [Customizing Validation Rules](#customizing-validation-rules)
 - [Handling File Uploads](#handling-file-uploads)
 - [Managing Side-Effects](#managing-side-effects)
+- [Testing](#testing)
 
 <a name="introduction"></a>
 ## Introduction
@@ -82,7 +84,9 @@ const submit = () => form.submit();
             {{ form.errors.email }}
         </div>
 
-        <button>Create User</button>
+        <button :disabled="form.processing">
+            Create User
+        </button>
     </form>
 </template>
 ```
@@ -158,6 +162,14 @@ const submit = () => form.submit()
     .catch(error => {
         alert('An error occurred.');
     });
+```
+
+You may determine if a form submission request is in-flight by inspecting the form's `processing` property:
+
+```html
+<button :disabled="form.processing">
+    Submit
+</button>
 ```
 
 <a name="using-vue-and-inertia"></a>
@@ -253,7 +265,9 @@ export default function Form() {
             />
             {form.invalid('email') && <div>{form.errors.email}</div>}
 
-            <button>Create User</button>
+            <button disabled={form.processing}>
+                Create User
+            </button>
         </form>
     );
 };
@@ -326,6 +340,14 @@ const submit = (e) => {
 };
 ```
 
+You may determine if a form submission request is in-flight by inspecting the form's `processing` property:
+
+```html
+<button disabled={form.processing}>
+    Submit
+</button>
+```
+
 <a name="using-react-and-inertia"></a>
 ### Using React & Inertia
 
@@ -365,7 +387,7 @@ const submit = (e) => {
 
 Using Laravel Precognition, you can offer live validation experiences to your users without having to duplicate your validation rules in your frontend Alpine application. To illustrate how it works, let's build a form for creating new users within our application.
 
-First, to enable Precognition for a route, the `HandlePrecognitiveRequests` middleware should be added to the route definition. You should also create a [form request](/docs/{version}/validation#form-request-validation) to house the route's validation rules:
+First, to enable Precognition for a route, the `HandlePrecognitiveRequests` middleware should be added to the route definition. You should also create a [form request](/docs/{{version}}/validation#form-request-validation) to house the route's validation rules:
 
 ```php
 use App\Http\Requests\CreateUserRequest;
@@ -396,7 +418,7 @@ Alpine.start();
 
 With the Laravel Precognition package installed and registered, you can now create a form object using Precognition's `$form` "magic", providing the HTTP method (`post`), the target URL (`/users`), and the initial form data.
 
-To enable live validation, you should bind the form's data to it's relevant input and then listen to each input's `change` event. In the `change` event handler, you should invoke the form's `validate` method, providing the input's name:
+To enable live validation, you should bind the form's data to its relevant input and then listen to each input's `change` event. In the `change` event handler, you should invoke the form's `validate` method, providing the input's name:
 
 ```html
 <form x-data="{
@@ -428,7 +450,9 @@ To enable live validation, you should bind the form's data to it's relevant inpu
         <div x-text="form.errors.email"></div>
     </template>
 
-    <button>Create User</button>
+    <button :disabled="form.processing">
+        Create User
+    </button>
 </form>
 ```
 
@@ -477,6 +501,14 @@ You may also determine if an input has passed or failed validation by passing th
 > **Warning**
 > A form input will only appear as valid or invalid once it has changed and a validation response has been received.
 
+You may determine if a form submission request is in-flight by inspecting the form's `processing` property:
+
+```html
+<button :disabled="form.processing">
+    Submit
+</button>
+```
+
 <a name="repopulating-old-form-data"></a>
 #### Repopulating Old Form Data
 
@@ -515,6 +547,32 @@ Alternatively, if you would like to submit the form via XHR you may use the form
     @submit.prevent="submit"
 >
 ```
+
+<a name="configuring-axios"></a>
+### Configuring Axios
+
+The Precognition validation libraries use the [Axios](https://github.com/axios/axios) HTTP client to send requests to your application's backend. For convenience, the Axios instance may be customized if required by your application. For example, when using the `laravel-precognition-vue` library, you may add additional request headers to each outgoing request in your application's `resources/js/app.js` file:
+
+```js
+import { client } from 'laravel-precognition-vue';
+
+client.axios().defaults.headers.common['Authorization'] = authToken;
+```
+
+Or, if you already have a configured Axios instance for your application, you may tell Precognition to use that instance instead:
+
+```js
+import Axios from 'axios';
+import { client } from 'laravel-precognition-vue';
+
+window.axios = Axios.create()
+window.axios.defaults.headers.common['Authorization'] = authToken;
+
+client.use(window.axios)
+```
+
+> **Warning**
+> The Inertia flavored Precognition libraries will only use the configured Axios instance for validation requests. Form submissions will always be sent by Inertia.
 
 <a name="customizing-validation-rules"></a>
 ## Customizing Validation Rules
@@ -615,5 +673,25 @@ class InteractionMiddleware
 
         return $next($request);
     }
+}
+```
+
+<a name="testing"></a>
+## Testing
+
+If you would like to make precognitive requests in your tests, Laravel's `TestCase` includes a `withPrecognition` helper which will add the `Precognition` request header.
+
+Additionally, if you would like to assert that a precognitive request was successful, e.g., did not return any validation errors, you may use the `assertSuccessfulPrecognition` method on the response:
+
+```php
+public function test_it_validates_registration_form_with_precognition()
+{
+    $response = $this->withPrecognition()
+        ->post('/register', [
+            'name' => 'Taylor Otwell',
+        ]);
+
+    $response->assertSuccessfulPrecognition();
+    $this->assertSame(0, User::count());
 }
 ```

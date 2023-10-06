@@ -44,7 +44,7 @@ Laravel integrates seamlessly with Vite by providing an official plugin and Blad
 
 Before transitioning to Vite, new Laravel applications utilized [Mix](https://laravel-mix.com/), which is powered by [webpack](https://webpack.js.org/), when bundling assets. Vite focuses on providing a faster and more productive experience when building rich JavaScript applications. If you are developing a Single Page Application (SPA), including those developed with tools like [Inertia](https://inertiajs.com), Vite will be the perfect fit.
 
-Vite also works well with traditional server-side rendered applications with JavaScript "sprinkles", including those using [Livewire](https://laravel-livewire.com). However, it lacks some features that Laravel Mix supports, such as the ability to copy arbitrary assets into the build that are not referenced directly in your JavaScript application.
+Vite also works well with traditional server-side rendered applications with JavaScript "sprinkles", including those using [Livewire](https://livewire.laravel.com). However, it lacks some features that Laravel Mix supports, such as the ability to copy arbitrary assets into the build that are not referenced directly in your JavaScript application.
 
 <a name="migrating-back-to-mix"></a>
 #### Migrating Back To Mix
@@ -134,7 +134,7 @@ The Laravel plugin also supports multiple entry points and advanced configuratio
 
 If your local development web server is serving your application via HTTPS, you may run into issues connecting to the Vite development server.
 
-If you are using [Laravel Valet](/docs/{{version}}/valet) for local development and have run the [secure command](/docs/{{version}}/valet#securing-sites) against your application, you may configure the Vite development server to automatically use Valet's generated TLS certificates:
+If you are using [Laravel Herd](https://herd.laravel.com) and have secured the site or you are using [Laravel Valet](/docs/{{version}}/valet) and have run the [secure command](/docs/{{version}}/valet#securing-sites) against your application, you may configure the Vite development server to automatically use the generated TLS certificates:
 
 ```js
 import { defineConfig } from 'vite';
@@ -144,7 +144,7 @@ export default defineConfig({
     plugins: [
         laravel({
             // ...
-            valetTls: 'my-app.test', // [tl! add]
+            detectTls: 'my-app.test', // [tl! add]
         }),
     ],
 });
@@ -228,6 +228,29 @@ If needed, you may also specify the build path of your compiled assets when invo
     {{-- Given build path is relative to public path. --}}
 
     @vite('resources/js/app.js', 'vendor/courier/build')
+</head>
+```
+
+<a name="inline-assets"></a>
+#### Inline Assets
+
+Sometimes it may be necessary to include the raw content of assets rather than linking to the versioned URL of the asset. For example, you may need to include asset content directly into your page when passing HTML content to a PDF generator. You may output the content of Vite assets using the `content` method provided by the `Vite` facade:
+
+```blade
+@php
+use Illuminate\Support\Facades\Vite;
+@endphp
+
+<!doctype html>
+<head>
+    {{-- ... --}}
+
+    <style>
+        {!! Vite::content('resources/css/app.css') !!}
+    </style>
+    <script>
+        {!! Vite::content('resources/js/app.js') !!}
+    </script>
 </head>
 ```
 
@@ -646,7 +669,13 @@ Then, to build and start the SSR server, you may run the following commands:
 
 ```sh
 npm run build
-node bootstrap/ssr/ssr.mjs
+node bootstrap/ssr/ssr.js
+```
+
+If you are using [SSR with Inertia](https://inertiajs.com/server-side-rendering), you may instead use the `inertia:start-ssr` Artisan command to start the SSR server:
+
+```sh
+php artisan inertia:start-ssr
 ```
 
 > **Note**  
@@ -677,7 +706,7 @@ class AddContentSecurityPolicyHeaders
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next, string $role): Response
+    public function handle(Request $request, Closure $next): Response
     {
         Vite::useCspNonce();
 

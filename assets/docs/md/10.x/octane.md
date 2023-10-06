@@ -178,7 +178,7 @@ By default, applications running via Octane generate links prefixed with `http:/
 > **Note**
 > If you aren't quite ready to manage your own server configuration or aren't comfortable configuring all of the various services needed to run a robust Laravel Octane application, check out [Laravel Forge](https://forge.laravel.com).
 
-In production environments, you should serve your Octane application behind a traditional web server such as a Nginx or Apache. Doing so will allow the web server to serve your static assets such as images and stylesheets, as well as manage your SSL certificate termination.
+In production environments, you should serve your Octane application behind a traditional web server such as Nginx or Apache. Doing so will allow the web server to serve your static assets such as images and stylesheets, as well as manage your SSL certificate termination.
 
 In the Nginx configuration example below, Nginx will serve the site's static assets and proxy requests to the Octane server that is running on port 8000:
 
@@ -473,8 +473,8 @@ While building your application, you should take special care to avoid creating 
 When using Swoole, you may execute operations concurrently via light-weight background tasks. You may accomplish this using Octane's `concurrently` method. You may combine this method with PHP array destructuring to retrieve the results of each operation:
 
 ```php
-use App\User;
-use App\Server;
+use App\Models\User;
+use App\Models\Server;
 use Laravel\Octane\Facades\Octane;
 
 [$users, $servers] = Octane::concurrently([

@@ -12,6 +12,7 @@
     - [Environment Based Configuration](#environment-based-configuration)
     - [Databases & Migrations](#databases-and-migrations)
     - [Directory Configuration](#directory-configuration)
+- [IDE Support](#ide-support)
 - [Next Steps](#next-steps)
     - [Laravel The Full Stack Framework](#laravel-the-fullstack-framework)
     - [Laravel The API Backend](#laravel-the-api-backend)
@@ -52,7 +53,7 @@ Laravel combines the best packages in the PHP ecosystem to offer the most robust
 <a name="your-first-laravel-project"></a>
 ## Your First Laravel Project
 
-Before creating your first Laravel project, you should ensure that your local machine has PHP and [Composer](https://getcomposer.org) installed. If you are developing on macOS, PHP and Composer can be installed via [Homebrew](https://brew.sh/). In addition, we recommend [installing Node and NPM](https://nodejs.org).
+Before creating your first Laravel project, you should ensure that your local machine has PHP and [Composer](https://getcomposer.org) installed. If you are developing on macOS, PHP and Composer can be installed within minutes via [Laravel Herd](https://herd.laravel.com). In addition, we recommend [installing Node and NPM](https://nodejs.org).
 
 After you have installed PHP and Composer, you may create a new Laravel project via the Composer `create-project` command:
 
@@ -60,7 +61,7 @@ After you have installed PHP and Composer, you may create a new Laravel project 
 composer create-project laravel/laravel example-app
 ```
 
-Or, you may create new Laravel projects by globally installing the Laravel installer via Composer:
+Or, you may create new Laravel projects by globally installing the Laravel installer via Composer. Or, if you installed PHP and Composer via [Laravel Herd](https://herd.laravel.com), the Laravel installer is already available to you:
 
 ```nothing
 composer global require laravel/installer
@@ -159,7 +160,15 @@ Once these tools are installed, you may open any Laravel project by executing th
 <a name="getting-started-on-linux"></a>
 ### Getting Started On Linux
 
-If you're developing on Linux and [Docker Compose](https://docs.docker.com/compose/install/) is already installed, you can use a simple terminal command to create a new Laravel project. For example, to create a new Laravel application in a directory named "example-app", you may run the following command in your terminal:
+If you're developing on Linux and [Docker Compose](https://docs.docker.com/compose/install/) is already installed, you can use a simple terminal command to create a new Laravel project.
+
+First, if you are using Docker Desktop for Linux, you should execute the following command. If you are not using Docker Desktop for Linux, you may skip this step:
+
+```shell
+docker context use default
+```
+
+Then, to create a new Laravel application in a directory named "example-app", you may run the following command in your terminal:
 
 ```shell
 curl -s https://laravel.build/example-app | bash
@@ -250,6 +259,13 @@ php artisan migrate
 
 Laravel should always be served out of the root of the "web directory" configured for your web server. You should not attempt to serve a Laravel application out of a subdirectory of the "web directory". Attempting to do so could expose sensitive files present within your application.
 
+<a name="ide-support"></a>
+## IDE Support
+
+You are free to use any code editor you wish when developing Laravel applications; however, [PhpStorm](https://www.jetbrains.com/phpstorm/laravel/) offers extensive support for Laravel and its ecosystem, including [Laravel Pint](https://www.jetbrains.com/help/phpstorm/using-laravel-pint.html).
+
+In addition, the community maintained [Laravel Idea](https://laravel-idea.com/) PhpStorm plugin offers a variety of helpful IDE augmentations, including code generation, Eloquent syntax completion, validation rule completion, and more.
+
 <a name="next-steps"></a>
 ## Next Steps
 
@@ -276,7 +292,7 @@ How you want to use Laravel will also dictate the next steps on your journey. Th
 
 Laravel may serve as a full stack framework. By "full stack" framework we mean that you are going to use Laravel to route requests to your application and render your frontend via [Blade templates](/docs/{{version}}/blade) or a single-page application hybrid technology like [Inertia](https://inertiajs.com). This is the most common way to use the Laravel framework, and, in our opinion, the most productive way to use Laravel.
 
-If this is how you plan to use Laravel, you may want to check out our documentation on [frontend development](/docs/{{version}}/frontend), [routing](/docs/{{version}}/routing), [views](/docs/{{version}}/views), or the [Eloquent ORM](/docs/{{version}}/eloquent). In addition, you might be interested in learning about community packages like [Livewire](https://laravel-livewire.com) and [Inertia](https://inertiajs.com). These packages allow you to use Laravel as a full-stack framework while enjoying many of the UI benefits provided by single-page JavaScript applications.
+If this is how you plan to use Laravel, you may want to check out our documentation on [frontend development](/docs/{{version}}/frontend), [routing](/docs/{{version}}/routing), [views](/docs/{{version}}/views), or the [Eloquent ORM](/docs/{{version}}/eloquent). In addition, you might be interested in learning about community packages like [Livewire](https://livewire.laravel.com) and [Inertia](https://inertiajs.com). These packages allow you to use Laravel as a full-stack framework while enjoying many of the UI benefits provided by single-page JavaScript applications.
 
 If you are using Laravel as a full stack framework, we also strongly encourage you to learn how to compile your application's CSS and JavaScript using [Vite](/docs/{{version}}/vite).
 

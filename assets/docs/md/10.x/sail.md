@@ -50,7 +50,7 @@ If you are interested in using Sail with an existing Laravel application, you ma
 composer require laravel/sail --dev
 ```
 
-After Sail has been installed, you may run the `sail:install` Artisan command. This command will publish Sail's `docker-compose.yml` file to the root of your application:
+After Sail has been installed, you may run the `sail:install` Artisan command. This command will publish Sail's `docker-compose.yml` file to the root of your application and modify your `.env` file with the required environment variables in order to connect to the Docker services:
 
 ```shell
 php artisan sail:install
@@ -61,6 +61,9 @@ Finally, you may start Sail. To continue learning how to use Sail, please contin
 ```shell
 ./vendor/bin/sail up
 ```
+
+> **Warning**
+> If you are using Docker Desktop for Linux, you should use the `default` Docker context by executing the following command: `docker context use default`.
 
 <a name="adding-additional-services"></a>
 #### Adding Additional Services
@@ -179,7 +182,7 @@ docker run --rm \
     composer install --ignore-platform-reqs
 ```
 
-When using the `laravelsail/phpXX-composer` image, you should use the same version of PHP that you plan to use for your application (`74`, `80`, `81`, or `82`).
+When using the `laravelsail/phpXX-composer` image, you should use the same version of PHP that you plan to use for your application (`80`, `81`, or `82`).
 
 <a name="executing-artisan-commands"></a>
 ### Executing Artisan Commands
@@ -294,6 +297,8 @@ By default, Sail will create a dedicated `testing` database so that your tests d
 ```yaml
 selenium:
     image: 'selenium/standalone-chrome'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
     volumes:
         - '/dev/shm:/dev/shm'
     networks:
@@ -323,6 +328,8 @@ If your local machine contains an Apple Silicon chip, your `selenium` service mu
 ```yaml
 selenium:
     image: 'seleniarm/standalone-chromium'
+    extra_hosts:
+        - 'host.docker.internal:host-gateway'
     volumes:
         - '/dev/shm:/dev/shm'
     networks:

@@ -8,6 +8,7 @@
     - [Ignoring Exceptions By Type](#ignoring-exceptions-by-type)
     - [Rendering Exceptions](#rendering-exceptions)
     - [Reportable & Renderable Exceptions](#renderable-exceptions)
+- [Throttling Reported Exceptions](#throttling-reported-exceptions)
 - [HTTP Exceptions](#http-exceptions)
     - [Custom HTTP Error Pages](#custom-http-error-pages)
 
@@ -116,6 +117,48 @@ Sometimes you may need to report an exception but continue handling the current 
             return false;
         }
     }
+
+<a name="deduplicating-reported-exceptions"></a>
+#### Deduplicating Reported Exceptions
+
+If you are using the `report` function throughout your application, you may occasionally report the same exception multiple times, creating duplicate entries in your logs.
+
+If you would like to ensure that a single instance of an exception is only ever reported once, you may set the `$withoutDuplicates` property to `true` within your application's `App\Exceptions\Handler` class:
+
+```php
+namespace App\Exceptions;
+
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+
+class Handler extends ExceptionHandler
+{
+    /**
+     * Indicates that an exception instance should only be reported once.
+     *
+     * @var bool
+     */
+    protected $withoutDuplicates = true;
+
+    // ...
+}
+```
+
+Now, when the `report` helper is called with the same instance of an exception, only the first call will be reported:
+
+```php
+$original = new RuntimeException('Whoops!');
+
+report($original); // reported
+
+try {
+    throw $original;
+} catch (Throwable $caught) {
+    report($caught); // ignored
+}
+
+report($original); // ignored
+report($caught); // ignored
+```
 
 <a name="exception-log-levels"></a>
 ### Exception Log Levels
@@ -273,6 +316,102 @@ If your exception contains custom reporting logic that is only necessary when ce
 
 > **Note**  
 > You may type-hint any required dependencies of the `report` method and they will automatically be injected into the method by Laravel's [service container](/docs/{{version}}/container).
+
+<a name="throttling-reported-exceptions"></a>
+### Throttling Reported Exceptions
+
+If your application reports a very large number of exceptions, you may want to throttle how many exceptions are actually logged or sent to your application's external error tracking service.
+
+To take a random sample rate of exceptions, you can return a `Lottery` instance from your exception handler's `throttle` method. If your `App\Exceptions\Handler` class does not contain this method, you may simply add it to the class:
+
+```php
+use Illuminate\Support\Lottery;
+use Throwable;
+
+/**
+ * Throttle incoming exceptions.
+ */
+protected function throttle(Throwable $e): mixed
+{
+    return Lottery::odds(1, 1000);
+}
+```
+
+It is also possible to conditionally sample based on the exception type. If you would like to only sample instances of a specific exception class, you may return a `Lottery` instance only for that class:
+
+```php
+use App\Exceptions\ApiMonitoringException;
+use Illuminate\Support\Lottery;
+use Throwable;
+
+/**
+ * Throttle incoming exceptions.
+ */
+protected function throttle(Throwable $e): mixed
+{
+    if ($e instanceof ApiMonitoringException) {
+        return Lottery::odds(1, 1000);
+    }
+}
+```
+
+You may also rate limit exceptions logged or sent to an external error tracking service by returning a `Limit` instance instead of a `Lottery`. This is useful if you want to protect against sudden bursts of exceptions flooding your logs, for example, when a third-party service used by your application is down:
+
+```php
+use Illuminate\Broadcasting\BroadcastException;
+use Illuminate\Cache\RateLimiting\Limit;
+use Throwable;
+
+/**
+ * Throttle incoming exceptions.
+ */
+protected function throttle(Throwable $e): mixed
+{
+    if ($e instanceof BroadcastException) {
+        return Limit::perMinute(300);
+    }
+}
+```
+
+By default, limits will use the exception's class as the rate limit key. You can customize this by specifying your own key using the `by` method on the `Limit`:
+
+```php
+use Illuminate\Broadcasting\BroadcastException;
+use Illuminate\Cache\RateLimiting\Limit;
+use Throwable;
+
+/**
+ * Throttle incoming exceptions.
+ */
+protected function throttle(Throwable $e): mixed
+{
+    if ($e instanceof BroadcastException) {
+        return Limit::perMinute(300)->by($e->getMessage());
+    }
+}
+```
+
+Of course, you may return a mixture of `Lottery` and `Limit` instances for different exceptions:
+
+```php
+use App\Exceptions\ApiMonitoringException;
+use Illuminate\Broadcasting\BroadcastException;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Lottery;
+use Throwable;
+
+/**
+ * Throttle incoming exceptions.
+ */
+protected function throttle(Throwable $e): mixed
+{
+    return match (true) {
+        $e instanceof BroadcastException => Limit::perMinute(300),
+        $e instanceof ApiMonitoringException => Lottery::odds(1, 1000),
+        default => Limit::none(),
+    };
+}
+```
 
 <a name="http-exceptions"></a>
 ## HTTP Exceptions
