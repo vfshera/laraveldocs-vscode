@@ -2,10 +2,11 @@ import * as fs from "fs";
 import hljs from "highlight.js/lib/common";
 import * as path from "path";
 import { Marked } from "marked";
-import { HTML_DOCS, MD_DOCS } from "../constants";
+import { HTML_DOCS, MD_DOCS, EXT_NAME } from "../constants";
 import { markedHighlight } from "marked-highlight";
 import { getDocContents } from "../utils";
 import bladeHighlight from "./blade-highlight";
+import * as DOMPurify from "dompurify";
 
 hljs.registerLanguage("blade", bladeHighlight);
 
@@ -102,8 +103,9 @@ export default class Generator {
           const fileContents = getDocContents(f.link);
 
           const HTML = await marked.parse(fileContents);
+          const safeHTML = DOMPurify.sanitize(HTML);
 
-          fs.writeFile(fileName, HTML, (err) => {
+          fs.writeFile(fileName, safeHTML, (err) => {
             if (err) {
               throw err;
             }
@@ -119,6 +121,6 @@ export default class Generator {
  * Render Html
  */
 
-console.log("Render Html");
+console.log(EXT_NAME, ":Render Html");
 
 Generator.renderHtml();
