@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { getDocContents, getNonce } from "./Utils";
+import { getDocContents, getNonce } from "../utils";
 import {
   COMPILED_DIR,
   CSS_ASSET,
@@ -10,9 +10,10 @@ import {
   EXT_ICON,
   ASSETS_DIR,
   DOC_PATH,
-} from "./constants";
+} from "../constants";
 
-import type { IDocFile, IDocContents } from "./interfaces";
+import type { IDocFile, IDocContents } from "../types";
+import { getUri } from "../utils/code";
 
 export default class DocPreviewPanel {
   public static currentPanel: DocPreviewPanel | undefined;
@@ -26,9 +27,7 @@ export default class DocPreviewPanel {
   private _docFile: IDocFile;
 
   public static createOrShow(extensionUri: vscode.Uri, docFile: IDocFile) {
-    const column = vscode.window.activeTextEditor
-      ? vscode.window.activeTextEditor.viewColumn
-      : undefined;
+    const column = vscode.window.activeTextEditor ? vscode.window.activeTextEditor.viewColumn : undefined;
 
     if (DocPreviewPanel.currentPanel) {
       DocPreviewPanel.currentPanel._docFile = docFile;
@@ -49,30 +48,14 @@ export default class DocPreviewPanel {
       }
     );
 
-    DocPreviewPanel.currentPanel = new DocPreviewPanel(
-      panel,
-      extensionUri,
-      docFile
-    );
+    DocPreviewPanel.currentPanel = new DocPreviewPanel(panel, extensionUri, docFile);
   }
 
-  public static revive(
-    panel: vscode.WebviewPanel,
-    extensionUri: vscode.Uri,
-    docFile: IDocFile
-  ) {
-    DocPreviewPanel.currentPanel = new DocPreviewPanel(
-      panel,
-      extensionUri,
-      docFile
-    );
+  public static revive(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, docFile: IDocFile) {
+    DocPreviewPanel.currentPanel = new DocPreviewPanel(panel, extensionUri, docFile);
   }
 
-  private constructor(
-    panel: vscode.WebviewPanel,
-    extensionUri: vscode.Uri,
-    docFile: IDocFile
-  ) {
+  private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, docFile: IDocFile) {
     this._panel = panel;
     this._extensionUri = extensionUri;
     this._docFile = docFile;
@@ -132,37 +115,17 @@ export default class DocPreviewPanel {
 
     this._panel.title = EXT_NAME + ":" + this._docFile.title;
 
-    this._panel.iconPath = vscode.Uri.joinPath(
-      this._extensionUri,
-      IMAGE_ASSET,
-      EXT_ICON
-    );
+    this._panel.iconPath = vscode.Uri.joinPath(this._extensionUri, IMAGE_ASSET, EXT_ICON);
     this._panel.webview.html = this._getHtmlForWebview(webview);
   }
 
   private _getHtmlForWebview(webview: vscode.Webview) {
-    /**Scripts */
-
-    const scriptUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, COMPILED_DIR, "preview.js")
-    );
-
-    /**Styles */
-    const stylesResetUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, CSS_ASSET, "reset.css")
-    );
-    const stylesVscodeUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, CSS_ASSET, "vscode.css")
-    );
-    const themeStylesUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, CSS_ASSET, "theme.css")
-    );
-    const highlightStylesUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, CSS_ASSET, "highlight.css")
-    );
-    const stylesMainUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, COMPILED_DIR, "preview.css")
-    );
+    const stylesResetUri = getUri(webview, this._extensionUri, [CSS_ASSET, "reset.css"]);
+    const stylesVSCodeUri = getUri(webview, this._extensionUri, [CSS_ASSET, "vscode.css"]);
+    const scriptUri = getUri(webview, this._extensionUri, [COMPILED_DIR, "preview.js"]);
+    const stylesMainUri = getUri(webview, this._extensionUri, [COMPILED_DIR, "preview.css"]);
+    const highlightStylesUri = getUri(webview, this._extensionUri, [CSS_ASSET, "highlight.css"]);
+    const themeStylesUri = getUri(webview, this._extensionUri, [CSS_ASSET, "theme.css"]);
 
     const nonce = getNonce();
 
@@ -175,7 +138,7 @@ export default class DocPreviewPanel {
 				<link href="${stylesResetUri}" rel="stylesheet">
         <link href="${highlightStylesUri}" rel="stylesheet">
         <link href="${themeStylesUri}" rel="stylesheet">
-				<link href="${stylesVscodeUri}" rel="stylesheet">
+				<link href="${stylesVSCodeUri}" rel="stylesheet">
 				<link href="${stylesMainUri}" rel="stylesheet">
 
         

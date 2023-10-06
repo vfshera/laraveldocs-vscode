@@ -14,7 +14,6 @@
   $: fileContents = docFile?.contents;
 
   $: docHtml = fileContents || "<h1>Getting Docs...</h1>";
-  
 </script>
 
 <main>
@@ -22,8 +21,3 @@
     {@html docHtml}
   </div>
 </main>
-
-<style>
-  .documentation {
-  }
-</style>

@@ -1,12 +1,10 @@
 import * as fs from "fs";
-import * as vscode from "vscode";
 import path = require("path");
-import { DOCS_DIR, HTML_DOCS, MD_DOCS } from "./constants";
+import { DOCS_DIR, HTML_DOCS, MD_DOCS } from "../constants";
 
 export function getNonce() {
   let text = "";
-  const possible =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   for (let i = 0; i < 32; i++) {
     text += possible.charAt(Math.floor(Math.random() * possible.length));
   }
@@ -35,9 +33,7 @@ export function getDocContents(pathToFile: string) {
 }
 
 export function docs() {
-  const versionList: string[] = fs.readdirSync(
-    path.join(__dirname, "..", MD_DOCS)
-  );
+  const versionList: string[] = fs.readdirSync(path.join(__dirname, "..", MD_DOCS));
 
   return versionList.map((ver) => {
     const versionDir = path.join(__dirname, "..", MD_DOCS, ver);
@@ -53,9 +49,7 @@ export function docs() {
   });
 }
 export function htmlDocs() {
-  const versionList: string[] = fs.readdirSync(
-    path.join(__dirname, "..", HTML_DOCS)
-  );
+  const versionList: string[] = fs.readdirSync(path.join(__dirname, "..", HTML_DOCS));
 
   return versionList.map((ver) => {
     const versionDir = path.join(__dirname, "..", HTML_DOCS, ver);
@@ -69,49 +63,4 @@ export function htmlDocs() {
       })),
     };
   });
-}
-
-/**
- * Future WIP
- */
-
-interface WsFiles {
-  name: string;
-  children?: WsFiles[];
-  fileType?: string;
-}
-
-function digDir(folderPath: string) {
-  const IGNORE_FOLDERS = ["vendor", "node_modules", ".git"];
-
-  return fs.readdirSync(folderPath, { withFileTypes: true }).map((content) => {
-    let folderContent: WsFiles = {
-      name: content.name,
-    };
-
-    if (content.isDirectory() && !IGNORE_FOLDERS.includes(content.name)) {
-      folderContent.children = digDir(path.join(folderPath, content.name));
-    }
-
-    if (content.isFile()) {
-      folderContent.fileType = content.name.split(".").reverse()[0];
-    }
-
-    return folderContent;
-  });
-}
-export function isLaravel() {
-  const ws = vscode.workspace.workspaceFolders;
-
-  const wsContents:
-    | { name: string; uri: vscode.Uri; contents: WsFiles[] }[]
-    | undefined = ws?.map((space) => {
-    return {
-      name: space.name,
-      uri: space.uri,
-      contents: digDir(space.uri.fsPath),
-    };
-  });
-
-  console.log(JSON.stringify(wsContents, null, 2));
 }

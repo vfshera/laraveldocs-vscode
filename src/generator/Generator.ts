@@ -1,14 +1,25 @@
 import * as fs from "fs";
 import hljs from "highlight.js/lib/common";
-import hljsBlade from "highlightjs-blade";
 import * as path from "path";
-import { marked } from "marked";
-import { getDocContents } from "./Utils";
-import { HTML_DOCS, MD_DOCS } from "./constants";
+import { Marked } from "marked";
+import { HTML_DOCS, MD_DOCS } from "../constants";
+import { markedHighlight } from "marked-highlight";
+import { getDocContents } from "../utils";
+import bladeHighlight from "./blade-highlight";
 
-hljs.registerLanguage("blade", hljsBlade);
+hljs.registerLanguage("blade", bladeHighlight);
+
+const marked = new Marked(
+  markedHighlight({
+    langPrefix: "hljs language-",
+    highlight(code, lang) {
+      const language = hljs.getLanguage(lang) ? lang : "php";
+      return hljs.highlight(code, { language }).value;
+    },
+  })
+);
 export default class Generator {
-  static baseDir = path.join(__dirname, "..");
+  static baseDir = path.join(__dirname, "..", "..");
 
   /**
    * Files to be excluded from compilation to html
@@ -53,9 +64,7 @@ export default class Generator {
     /**
      * Get Versions eg 8.x,9.x
      */
-    const versionList: string[] = fs.readdirSync(
-      path.join(Generator.baseDir, MD_DOCS)
-    );
+    const versionList: string[] = fs.readdirSync(path.join(Generator.baseDir, MD_DOCS));
 
     return versionList.map((ver) => {
       const versionDir = path.join(Generator.baseDir, MD_DOCS, ver);
@@ -92,12 +101,7 @@ export default class Generator {
 
           const fileContents = getDocContents(f.link);
 
-          const HTML = marked(fileContents, {
-            highlight: (code, lang) => {
-              const language = hljs.getLanguage(lang) ? lang : "php";
-              return hljs.highlight(code, { language }).value;
-            },
-          });
+          const HTML = await marked.parse(fileContents);
 
           fs.writeFile(fileName, HTML, (err) => {
             if (err) {
@@ -110,3 +114,11 @@ export default class Generator {
     });
   }
 }
+
+/**
+ * Render Html
+ */
+
+console.log("Render Html");
+
+Generator.renderHtml();

@@ -4,7 +4,7 @@ export const EXT_ICON = "laravel.svg";
 /**
  * FOLDERS
  */
-export const COMPILED_DIR = "out/compiled";
+export const COMPILED_DIR = "webview-ui/build";
 export const ASSETS_DIR = "assets";
 export const DOCS_DIR = ASSETS_DIR + "/docs";
 export const HTML_DOCS = DOCS_DIR + "/html";
