@@ -8,7 +8,7 @@
     "name": "Franlin Shera"
   },
   "license": "GPL-3.0",
-  "version": "2.0.0",
+  "version": "1.9.1",
   "homepage": "https://github.com/vfshera/laraveldocs-vscode",
   "bugs": "https://github.com/vfshera/laraveldocs-vscode/issues",
   "repository": {
@@ -54,7 +54,7 @@
   },
   "scripts": {
     "docs:generate": "node dist/generator/Generator.js",
-    "vscode:prepublish": "pnpm run compile",
+    "vscode:prepublish": "pnpm run build:all",
     "compile": "tsc -p ./",
     "pretest": "pnpm run compile && pnpm run lint",
     "lint": "eslint src --ext ts",

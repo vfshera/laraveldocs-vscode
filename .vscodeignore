@@ -6,12 +6,12 @@
 
 # Ignore test files
 .vscode-test/**
-out/test/**
-out/generator/**
+dist/test/**
+dist/generator/**
 
 # Ignore source code
 src/**
-
+themes/**
 # Ignore all webview-ui files except the build directory
 webview-ui/src/**
 webview-ui/public/**
@@ -21,7 +21,7 @@ webview-ui/README.md
 webview-ui/package.json
 webview-ui/package-lock.json
 webview-ui/node_modules/**
-assets/docs/md/**
+assets/docs/md/**/*.md
 # Ignore Misc
 .yarnrc
 vsc-extension-quickstart.md
