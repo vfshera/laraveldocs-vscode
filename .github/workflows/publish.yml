@@ -49,5 +49,6 @@ jobs:
         uses: HaaLeo/publish-vscode-extension@v1
         with:
           pat: ${{ secrets.VSCE_PAT }}
+          dependencies: false
           extensionFile: ${{ needs.build.outputs.vsixPath }}
           registryUrl: https://marketplace.visualstudio.com

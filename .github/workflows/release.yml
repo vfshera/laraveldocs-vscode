@@ -45,6 +45,7 @@ jobs:
         with:
           pat: stub
           dryRun: true
+          dependencies: false
 
       - name: GitHub Release
         uses: softprops/action-gh-release@v1
