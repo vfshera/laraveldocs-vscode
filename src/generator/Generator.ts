@@ -6,6 +6,8 @@ import { HTML_DOCS, MD_DOCS, EXT_NAME } from "../constants";
 import { markedHighlight } from "marked-highlight";
 import { getDocContents } from "../utils";
 import bladeHighlight from "./blade-highlight";
+import { logger } from "../utils/logger";
+import * as kleur from "kleur";
 
 hljs.registerLanguage("blade", bladeHighlight);
 
@@ -36,33 +38,36 @@ export default class Generator {
    * Find directory if none, create!
    * @param dirPath
    */
-  private static existsOrCreate(dirPath: string, deleteContents?: boolean) {
-    console.log("Checking ", dirPath);
+  private static existsOrCreate(dirPath: string, deleteContents: boolean = false) {
+    logger(`Checking ${dirPath}`);
+console.log();
 
     if (!fs.existsSync(dirPath)) {
-      console.log("Creating ", dirPath);
+      logger(kleur.red(`${dirPath} was not found!`));
+      logger(kleur.green(`Creating ${dirPath}`));
       fs.mkdirSync(dirPath, { recursive: true });
       return;
     }
 
-    console.log("Exists!");
-
-    if (deleteContents === true) {
-      console.log("Checking Folder Contents!");
+    if (deleteContents) {
+      console.log();
+      
+      logger("Checking Folder Contents!");
 
       fs.readdirSync(dirPath).forEach((htmlFile) => {
+
         let foundFilePath = path.join(dirPath, htmlFile);
 
         fs.unlinkSync(foundFilePath);
-
-        console.log("Deleted ", foundFilePath);
+        console.log();
+        logger(kleur.red(`Deleted ${htmlFile}`));
       });
     }
   }
 
   private static processDocs() {
     /**
-     * Get Versions eg 8.x,9.x
+     * Get Versions eg 10.x
      */
     const versionList: string[] = fs.readdirSync(path.join(Generator.baseDir, MD_DOCS));
 
@@ -95,19 +100,24 @@ export default class Generator {
 
       d.files.forEach(async (f) => {
         if (Generator.excludeFiles.includes(f.filename.toLowerCase())) {
-          console.log(`${f.filename} has been excluded!`);
+          console.log();
+          
+          logger(kleur.underline().yellow(`${f.filename} has been excluded!`));
         } else {
-          const fileName = path.join(docDir, f.title.toLowerCase() + ".html");
-
+          const fileName = f.title.toLowerCase() + ".html";
+          
+          const filePath = path.join(docDir, fileName);
+          
           const fileContents = getDocContents(f.link);
-
+          
           const HTML = await marked.parse(fileContents);
-
-          fs.writeFile(fileName, HTML, (err) => {
+          
+          fs.writeFile(filePath, HTML, (err) => {
             if (err) {
               throw err;
             }
-            console.log("Created File", fileName);
+            console.log();
+            logger(kleur.green(`Created ${fileName}`));
           });
         }
       });
@@ -118,7 +128,7 @@ export default class Generator {
 /**
  * Render Html
  */
-
-console.log(EXT_NAME, ":Render Html");
+logger(`${kleur.blue("Render Html")}`);
+console.log();
 
 Generator.renderHtml();
