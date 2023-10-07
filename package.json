@@ -54,16 +54,16 @@
   },
   "scripts": {
     "docs:generate": "node dist/generator/Generator.js",
-    "vscode:prepublish": "pnpm run build:all",
+    "vscode:prepublish": "npm run build:all",
     "compile": "tsc -p ./",
-    "pretest": "pnpm run compile && pnpm run lint",
+    "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "node ./dist/test/runTest.js",
-    "watch": "concurrently \"cd webview-ui && pnpm run dev\" \"tsc -watch -p ./\"",
-    "install:all": "pnpm install && cd webview-ui && pnpm install",
-    "start:webview": "cd webview-ui && pnpm run dev",
-    "build:webview": "cd webview-ui && pnpm run build",
-    "build:all": "pnpm run build:webview && pnpm run compile && pnpm run docs:generate"
+    "watch": "concurrently \"cd webview-ui && npm run dev\" \"tsc -watch -p ./\"",
+    "install:all": "npm install && cd webview-ui && npm install",
+    "start:webview": "cd webview-ui && npm run dev",
+    "build:webview": "cd webview-ui && npm run build",
+    "build:all": "npm run build:webview && npm run compile && npm run docs:generate"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.2",
