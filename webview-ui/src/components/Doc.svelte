@@ -12,20 +12,25 @@
 <div class="doc">
   <header>
     <h1>Laravel</h1>
-    <select
-      name="doc-select"
-      on:change={(event) => {
-        const i = parseInt(event.currentTarget.value);
-        setIndex(i);
-      }}
-    >
-      {#each docVersions as version, i}
-        <option value={i}>{version}</option>
-      {/each}
-    </select>
+    {#if docVersions.length > 1}
+      <select
+        name="doc-select"
+        on:change={(event) => {
+          const i = parseInt(event.currentTarget.value);
+          setIndex(i);
+        }}
+      >
+        {#each docVersions as version, i}
+          <option value={i}>{version}</option>
+        {/each}
+      </select>
+    {:else}
+      <span class="doc-version">
+        {docVersions[0]}
+      </span>
+    {/if}
   </header>
 
-  <hr />
   <div class="doc-topic">
     {#each doc.files as docFile}
       <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -56,7 +61,8 @@
     border: none;
     padding: 0 5px;
   }
-  header select option {
+  header select option,
+  .doc-version {
     color: #f9322c;
     background-color: inherit;
     padding: 0;
@@ -78,9 +84,5 @@
   .doc-type:hover {
     color: #f9322c;
     background-color: #11111111;
-  }
-
-  hr {
-    height: 1px;
   }
 </style>

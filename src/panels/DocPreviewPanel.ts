@@ -142,8 +142,6 @@ export default class DocPreviewPanel {
         <link href="${themeStylesUri}" rel="stylesheet">
 				<link href="${stylesVSCodeUri}" rel="stylesheet">
 				<link href="${stylesMainUri}" rel="stylesheet">
-
-        
         <script nonce="${nonce}" >
         const ldvscode = acquireVsCodeApi();
         </script>
