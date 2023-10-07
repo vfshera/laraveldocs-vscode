@@ -6,7 +6,6 @@ import { HTML_DOCS, MD_DOCS, EXT_NAME } from "../constants";
 import { markedHighlight } from "marked-highlight";
 import { getDocContents } from "../utils";
 import bladeHighlight from "./blade-highlight";
-import * as DOMPurify from "dompurify";
 
 hljs.registerLanguage("blade", bladeHighlight);
 
