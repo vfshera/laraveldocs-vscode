@@ -22,7 +22,6 @@
 
 - [x] Support for [10.x](/assets/docs/10.x) Docs
 - [x] Highlighted Codeblocks
-- [ ] More soon...
 
 ---
 
@@ -35,7 +34,6 @@
 #### Theme
 
 - [x] Works well with Dark Themes
-- [ ] Light Themes to be supported soon
 
 Check [Themes Demo](THEMES.md)
 
